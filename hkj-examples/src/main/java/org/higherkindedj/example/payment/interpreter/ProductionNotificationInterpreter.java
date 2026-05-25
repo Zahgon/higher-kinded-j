@@ -19,33 +19,15 @@ import org.jspecify.annotations.NullMarked;
  * This example simulates by printing to the console.
  */
 @NullMarked
-public final class ProductionNotificationInterpreter
-    extends NotificationOpInterpreter<IOKind.Witness> {
+public final class ProductionNotificationInterpreter extends NotificationOpInterpreter<IOKind.Witness> {
 
-  @Override
-  protected <A> Kind<IOKind.Witness, A> handleSendReceipt(NotificationOp.SendReceipt<A> op) {
-    Objects.requireNonNull(op, "op cannot be null");
-    return IOKindHelper.IO_OP.widen(
-        IO.delay(
-            () -> {
-              System.out.println("  [Notification] Receipt sent to " + op.customer().email());
-              return op.k().apply(Unit.INSTANCE);
-            }));
-  }
+    @Override
+    protected <A> Kind<IOKind.Witness, A> handleSendReceipt(NotificationOp.SendReceipt<A> op) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  protected <A> Kind<IOKind.Witness, A> handleAlertFraudTeam(NotificationOp.AlertFraudTeam<A> op) {
-    Objects.requireNonNull(op, "op cannot be null");
-    return IOKindHelper.IO_OP.widen(
-        IO.delay(
-            () -> {
-              System.out.println(
-                  "  [Notification] Fraud alert for customer "
-                      + op.customer().id()
-                      + " (score: "
-                      + op.riskScore().score()
-                      + ")");
-              return op.k().apply(Unit.INSTANCE);
-            }));
-  }
+    @Override
+    protected <A> Kind<IOKind.Witness, A> handleAlertFraudTeam(NotificationOp.AlertFraudTeam<A> op) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

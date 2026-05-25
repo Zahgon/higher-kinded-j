@@ -16,45 +16,43 @@ import org.jspecify.annotations.Nullable;
  * MaybeTKindHelper.MAYBE_T.widen(myMaybeTInstance);}
  */
 public enum MaybeTKindHelper implements MaybeTConverterOps {
-  MAYBE_T;
 
-  private static final Class<MaybeT> MAYBE_T_CLASS = MaybeT.class;
+    MAYBE_T;
 
-  /**
-   * Widens a concrete {@link MaybeT MaybeT&lt;F, A&gt;} instance into its {@link Kind}
-   * representation, {@code Kind<MaybeTKind.Witness<F>, A>}. Implements {@link
-   * MaybeTConverterOps#widen}.
-   *
-   * <p>Since {@link MaybeT} directly implements {@link MaybeTKind} (which extends {@code
-   * Kind<MaybeTKind.Witness<F>, A>}), this method effectively performs a safe cast.
-   *
-   * @param <F> The witness type of the outer monad in {@code MaybeT}.
-   * @param <A> The type of the value potentially held by the inner {@code Maybe}.
-   * @param maybeT The concrete {@link MaybeT} instance to widen. Must not be null.
-   * @return The {@code Kind} representation of the {@code maybeT}.
-   * @throws NullPointerException if {@code maybeT} is null.
-   */
-  @Override
-  public <F extends WitnessArity<TypeArity.Unary>, A> Kind<MaybeTKind.Witness<F>, A> widen(
-      MaybeT<F, A> maybeT) {
-    Validation.kind().requireForWiden(maybeT, MAYBE_T_CLASS);
-    return maybeT;
-  }
+    private static final Class<MaybeT> MAYBE_T_CLASS = MaybeT.class;
 
-  /**
-   * Narrows a {@code Kind<MaybeTKind.Witness<F>, A>} back to its concrete {@link MaybeT
-   * MaybeT&lt;F, A&gt;} type. Implements {@link MaybeTConverterOps#narrow}.
-   *
-   * @param <F> The witness type of the outer monad in {@code MaybeT}.
-   * @param <A> The type of the value potentially held by the inner {@code Maybe}.
-   * @param kind The {@code Kind<MaybeTKind.Witness<F>, A>} to narrow. Can be null.
-   * @return The unwrapped, non-null {@link MaybeT MaybeT&lt;F, A&gt;} instance.
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code kind} is null or not a
-   *     valid {@link MaybeT} instance.
-   */
-  @Override
-  public <F extends WitnessArity<TypeArity.Unary>, A> MaybeT<F, A> narrow(
-      @Nullable Kind<MaybeTKind.Witness<F>, A> kind) {
-    return Validation.kind().narrowWithTypeCheck(kind, MAYBE_T_CLASS);
-  }
+    /**
+     * Widens a concrete {@link MaybeT MaybeT&lt;F, A&gt;} instance into its {@link Kind}
+     * representation, {@code Kind<MaybeTKind.Witness<F>, A>}. Implements {@link
+     * MaybeTConverterOps#widen}.
+     *
+     * <p>Since {@link MaybeT} directly implements {@link MaybeTKind} (which extends {@code
+     * Kind<MaybeTKind.Witness<F>, A>}), this method effectively performs a safe cast.
+     *
+     * @param <F> The witness type of the outer monad in {@code MaybeT}.
+     * @param <A> The type of the value potentially held by the inner {@code Maybe}.
+     * @param maybeT The concrete {@link MaybeT} instance to widen. Must not be null.
+     * @return The {@code Kind} representation of the {@code maybeT}.
+     * @throws NullPointerException if {@code maybeT} is null.
+     */
+    @Override
+    public <F extends WitnessArity<TypeArity.Unary>, A> Kind<MaybeTKind.Witness<F>, A> widen(MaybeT<F, A> maybeT) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Narrows a {@code Kind<MaybeTKind.Witness<F>, A>} back to its concrete {@link MaybeT
+     * MaybeT&lt;F, A&gt;} type. Implements {@link MaybeTConverterOps#narrow}.
+     *
+     * @param <F> The witness type of the outer monad in {@code MaybeT}.
+     * @param <A> The type of the value potentially held by the inner {@code Maybe}.
+     * @param kind The {@code Kind<MaybeTKind.Witness<F>, A>} to narrow. Can be null.
+     * @return The unwrapped, non-null {@link MaybeT MaybeT&lt;F, A&gt;} instance.
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code kind} is null or not a
+     *     valid {@link MaybeT} instance.
+     */
+    @Override
+    public <F extends WitnessArity<TypeArity.Unary>, A> MaybeT<F, A> narrow(@Nullable Kind<MaybeTKind.Witness<F>, A> kind) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

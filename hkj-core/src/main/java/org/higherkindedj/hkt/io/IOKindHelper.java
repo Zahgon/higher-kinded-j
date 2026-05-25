@@ -16,70 +16,70 @@ import org.jspecify.annotations.Nullable;
  * org.higherkindedj.hkt.io.IOKindHelper.IO_OP; IO_OP.widen(...);}
  */
 public enum IOKindHelper implements IOConverterOps {
-  IO_OP;
 
-  private static final Class<IO> IO_CLASS = IO.class;
+    IO_OP;
 
-  /**
-   * Widens a concrete {@link IO<A>} instance into its higher-kinded representation, {@code
-   * Kind<IOKind.Witness, A>}. Implements {@link IOConverterOps#widen}.
-   *
-   * <p>Since {@code IO} directly extends {@code IOKind}, this method performs a simple type-safe
-   * cast without requiring a wrapper object.
-   *
-   * @param <A> The result type of the {@code IO} computation.
-   * @param io The non-null, concrete {@link IO<A>} instance to widen.
-   * @return A non-null {@link Kind<IOKind.Witness, A>} representing the {@code IO} computation.
-   * @throws NullPointerException if {@code io} is {@code null}.
-   */
-  @Override
-  public <A> Kind<IOKind.Witness, A> widen(IO<A> io) {
-    Validation.kind().requireForWiden(io, IO_CLASS);
-    return io;
-  }
+    private static final Class<IO> IO_CLASS = IO.class;
 
-  /**
-   * Narrows a {@code Kind<IOKind.Witness, A>} back to its concrete {@link IO<A>} type. Implements
-   * {@link IOConverterOps#narrow}.
-   *
-   * <p>Since {@code IO} directly extends {@code IOKind}, this method performs a direct type check
-   * and cast without needing to unwrap from a holder.
-   *
-   * @param <A> The result type of the {@code IO} computation.
-   * @param kind The {@code Kind<IOKind.Witness, A>} instance to narrow. May be {@code null}.
-   * @return The underlying, non-null {@link IO<A>} instance.
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if the input {@code kind} is {@code
-   *     null}, or not an instance of {@code IO}.
-   */
-  @Override
-  public <A> IO<A> narrow(@Nullable Kind<IOKind.Witness, A> kind) {
-    return Validation.kind().narrowWithTypeCheck(kind, IO_CLASS);
-  }
+    /**
+     * Widens a concrete {@link IO<A>} instance into its higher-kinded representation, {@code
+     * Kind<IOKind.Witness, A>}. Implements {@link IOConverterOps#widen}.
+     *
+     * <p>Since {@code IO} directly extends {@code IOKind}, this method performs a simple type-safe
+     * cast without requiring a wrapper object.
+     *
+     * @param <A> The result type of the {@code IO} computation.
+     * @param io The non-null, concrete {@link IO<A>} instance to widen.
+     * @return A non-null {@link Kind<IOKind.Witness, A>} representing the {@code IO} computation.
+     * @throws NullPointerException if {@code io} is {@code null}.
+     */
+    @Override
+    public <A> Kind<IOKind.Witness, A> widen(IO<A> io) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a {@link Kind<IOKind.Witness, A>} that wraps an {@link IO} computation produced by
-   * delaying the execution of a {@link Supplier}.
-   *
-   * @param <A> The result type of the computation.
-   * @param thunk The supplier to delay. Must not be null.
-   * @return A non-null {@link Kind<IOKind.Witness, A>} representing the delayed computation.
-   * @throws NullPointerException if {@code thunk} is null.
-   */
-  public <A> Kind<IOKind.Witness, A> delay(Supplier<A> thunk) {
-    return this.widen(IO.delay(thunk));
-  }
+    /**
+     * Narrows a {@code Kind<IOKind.Witness, A>} back to its concrete {@link IO<A>} type. Implements
+     * {@link IOConverterOps#narrow}.
+     *
+     * <p>Since {@code IO} directly extends {@code IOKind}, this method performs a direct type check
+     * and cast without needing to unwrap from a holder.
+     *
+     * @param <A> The result type of the {@code IO} computation.
+     * @param kind The {@code Kind<IOKind.Witness, A>} instance to narrow. May be {@code null}.
+     * @return The underlying, non-null {@link IO<A>} instance.
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if the input {@code kind} is {@code
+     *     null}, or not an instance of {@code IO}.
+     */
+    @Override
+    public <A> IO<A> narrow(@Nullable Kind<IOKind.Witness, A> kind) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Executes the {@link IO} computation held within the {@link Kind} wrapper and retrieves its
-   * result. This method synchronously runs the {@code IO} action.
-   *
-   * @param <A> The result type of the computation.
-   * @param kind The {@code Kind<IOKind.Witness, A>} holding the IO computation. Must not be null.
-   * @return The result of executing the IO computation.
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code kind} cannot be
-   *     unwrapped.
-   */
-  public <A> A unsafeRunSync(Kind<IOKind.Witness, A> kind) {
-    return this.narrow(kind).unsafeRunSync();
-  }
+    /**
+     * Creates a {@link Kind<IOKind.Witness, A>} that wraps an {@link IO} computation produced by
+     * delaying the execution of a {@link Supplier}.
+     *
+     * @param <A> The result type of the computation.
+     * @param thunk The supplier to delay. Must not be null.
+     * @return A non-null {@link Kind<IOKind.Witness, A>} representing the delayed computation.
+     * @throws NullPointerException if {@code thunk} is null.
+     */
+    public <A> Kind<IOKind.Witness, A> delay(Supplier<A> thunk) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Executes the {@link IO} computation held within the {@link Kind} wrapper and retrieves its
+     * result. This method synchronously runs the {@code IO} action.
+     *
+     * @param <A> The result type of the computation.
+     * @param kind The {@code Kind<IOKind.Witness, A>} holding the IO computation. Must not be null.
+     * @return The result of executing the IO computation.
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code kind} cannot be
+     *     unwrapped.
+     */
+    public <A> A unsafeRunSync(Kind<IOKind.Witness, A> kind) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

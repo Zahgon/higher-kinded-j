@@ -33,110 +33,98 @@ import org.higherkindedj.hkt.either.Either;
  */
 class InputHandler {
 
-  private static final Scanner scanner = new Scanner(System.in);
-  private static final String QUIT_COMMAND = "quit";
-  private static final String INPUT_PROMPT = "Enter move (e.g., 'a3 b4') or 'quit': ";
+    private static final Scanner scanner = new Scanner(System.in);
 
-  /**
-   * Reads a move command from the console.
-   *
-   * <p>Wraps the side-effecting input operation in IOPath and delegates parsing to a pure function.
-   *
-   * @return an IOPath containing either a GameError (left) or a valid MoveCommand (right)
-   */
-  static IOPath<Either<GameError, MoveCommand>> readMoveCommand() {
-    return Path.io(
-        () -> {
-          System.out.print(INPUT_PROMPT);
-          return parseLine(scanner.nextLine().trim());
-        });
-  }
+    private static final String QUIT_COMMAND = "quit";
 
-  /**
-   * Parses an input line into a MoveCommand using railway-oriented programming.
-   *
-   * <p>The parsing pipeline chains validation steps with {@code .via()}, where any error
-   * short-circuits the entire pipeline.
-   *
-   * @param line the trimmed input line
-   * @return Either containing a GameError or valid MoveCommand
-   */
-  private static Either<GameError, MoveCommand> parseLine(String line) {
-    return checkNotQuit(line)
-        .via(InputHandler::splitIntoTwoParts)
-        .via(InputHandler::parseSquarePair)
-        .run();
-  }
+    private static final String INPUT_PROMPT = "Enter move (e.g., 'a3 b4') or 'quit': ";
 
-  // ===== Pipeline Steps =====
-
-  /**
-   * First pipeline step: checks if input is the quit command.
-   *
-   * <p>Returns the input on success track, or a quit error on error track.
-   */
-  private static EitherPath<GameError, String> checkNotQuit(String line) {
-    return QUIT_COMMAND.equalsIgnoreCase(line)
-        ? Path.left(new GameError("Player quit the game.", true))
-        : Path.right(line);
-  }
-
-  /**
-   * Second pipeline step: splits input into exactly two parts.
-   *
-   * <p>Validates that input has the "from to" format.
-   */
-  private static EitherPath<GameError, String[]> splitIntoTwoParts(String line) {
-    String[] parts = line.split("\\s+");
-    return parts.length == 2
-        ? Path.right(parts)
-        : Path.left(new GameError("Invalid input. Use 'from to' format (e.g., 'c3 d4')."));
-  }
-
-  /**
-   * Third pipeline step: parses both squares and combines into MoveCommand.
-   *
-   * <p>Uses {@code zipWith} to combine two EitherPaths, failing if either fails.
-   */
-  private static EitherPath<GameError, MoveCommand> parseSquarePair(String[] parts) {
-    return parseSquare(parts[0]).zipWith(parseSquare(parts[1]), MoveCommand::new);
-  }
-
-  // ===== Square Parsing =====
-
-  /**
-   * Parses a square notation string (e.g., "a3") into a Square.
-   *
-   * <p>Uses railway-oriented programming to chain format and bounds validation.
-   *
-   * @param input the square notation string
-   * @return an EitherPath containing either a GameError or valid Square
-   */
-  private static EitherPath<GameError, Square> parseSquare(String input) {
-    return validateFormat(input).via(InputHandler::validateBoundsAndCreate);
-  }
-
-  /** Validates that input has exactly 2 characters. */
-  private static EitherPath<GameError, String> validateFormat(String input) {
-    return (input != null && input.length() == 2)
-        ? Path.right(input)
-        : Path.left(new GameError("Invalid square format: " + input));
-  }
-
-  /** Validates bounds (a-h, 1-8) and creates the Square. */
-  private static EitherPath<GameError, Square> validateBoundsAndCreate(String input) {
-    char colChar = input.charAt(0);
-    char rowChar = input.charAt(1);
-
-    boolean validCol = colChar >= 'a' && colChar <= 'h';
-    boolean validRow = rowChar >= '1' && rowChar <= '8';
-
-    if (!validCol || !validRow) {
-      return Path.left(new GameError("Square out of bounds (a1-h8): " + input));
+    /**
+     * Reads a move command from the console.
+     *
+     * <p>Wraps the side-effecting input operation in IOPath and delegates parsing to a pure function.
+     *
+     * @return an IOPath containing either a GameError (left) or a valid MoveCommand (right)
+     */
+    static IOPath<Either<GameError, MoveCommand>> readMoveCommand() {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    int col = colChar - 'a';
-    int row = rowChar - '1';
-    return Path.right(new Square(row, col));
-  }
+    /**
+     * Parses an input line into a MoveCommand using railway-oriented programming.
+     *
+     * <p>The parsing pipeline chains validation steps with {@code .via()}, where any error
+     * short-circuits the entire pipeline.
+     *
+     * @param line the trimmed input line
+     * @return Either containing a GameError or valid MoveCommand
+     */
+    private static Either<GameError, MoveCommand> parseLine(String line) {
+        return checkNotQuit(line).via(InputHandler::splitIntoTwoParts).via(InputHandler::parseSquarePair).run();
+    }
+
+    // ===== Pipeline Steps =====
+    /**
+     * First pipeline step: checks if input is the quit command.
+     *
+     * <p>Returns the input on success track, or a quit error on error track.
+     */
+    private static EitherPath<GameError, String> checkNotQuit(String line) {
+        return QUIT_COMMAND.equalsIgnoreCase(line) ? Path.left(new GameError("Player quit the game.", true)) : Path.right(line);
+    }
+
+    /**
+     * Second pipeline step: splits input into exactly two parts.
+     *
+     * <p>Validates that input has the "from to" format.
+     */
+    private static EitherPath<GameError, String[]> splitIntoTwoParts(String line) {
+        String[] parts = line.split("\\s+");
+        return parts.length == 2 ? Path.right(parts) : Path.left(new GameError("Invalid input. Use 'from to' format (e.g., 'c3 d4')."));
+    }
+
+    /**
+     * Third pipeline step: parses both squares and combines into MoveCommand.
+     *
+     * <p>Uses {@code zipWith} to combine two EitherPaths, failing if either fails.
+     */
+    private static EitherPath<GameError, MoveCommand> parseSquarePair(String[] parts) {
+        return parseSquare(parts[0]).zipWith(parseSquare(parts[1]), MoveCommand::new);
+    }
+
+    // ===== Square Parsing =====
+    /**
+     * Parses a square notation string (e.g., "a3") into a Square.
+     *
+     * <p>Uses railway-oriented programming to chain format and bounds validation.
+     *
+     * @param input the square notation string
+     * @return an EitherPath containing either a GameError or valid Square
+     */
+    private static EitherPath<GameError, Square> parseSquare(String input) {
+        return validateFormat(input).via(InputHandler::validateBoundsAndCreate);
+    }
+
+    /**
+     * Validates that input has exactly 2 characters.
+     */
+    private static EitherPath<GameError, String> validateFormat(String input) {
+        return (input != null && input.length() == 2) ? Path.right(input) : Path.left(new GameError("Invalid square format: " + input));
+    }
+
+    /**
+     * Validates bounds (a-h, 1-8) and creates the Square.
+     */
+    private static EitherPath<GameError, Square> validateBoundsAndCreate(String input) {
+        char colChar = input.charAt(0);
+        char rowChar = input.charAt(1);
+        boolean validCol = colChar >= 'a' && colChar <= 'h';
+        boolean validRow = rowChar >= '1' && rowChar <= '8';
+        if (!validCol || !validRow) {
+            return Path.left(new GameError("Square out of bounds (a1-h8): " + input));
+        }
+        int col = colChar - 'a';
+        int row = rowChar - '1';
+        return Path.right(new Square(row, col));
+    }
 }

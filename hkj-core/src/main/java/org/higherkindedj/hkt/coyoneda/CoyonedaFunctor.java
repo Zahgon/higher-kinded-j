@@ -3,7 +3,6 @@
 package org.higherkindedj.hkt.coyoneda;
 
 import static org.higherkindedj.hkt.coyoneda.CoyonedaKindHelper.COYONEDA;
-
 import java.util.function.Function;
 import org.higherkindedj.hkt.Functor;
 import org.higherkindedj.hkt.Kind;
@@ -51,46 +50,43 @@ import org.higherkindedj.hkt.util.validation.Validation;
  *
  * @param <F> The underlying type constructor (not required to be a Functor)
  */
-public class CoyonedaFunctor<F extends WitnessArity<TypeArity.Unary>>
-    implements Functor<CoyonedaKind.Witness<F>> {
+public class CoyonedaFunctor<F extends WitnessArity<TypeArity.Unary>> implements Functor<CoyonedaKind.Witness<F>> {
 
-  private static final CoyonedaFunctor<?> INSTANCE = new CoyonedaFunctor<>();
+    private static final CoyonedaFunctor<?> INSTANCE = new CoyonedaFunctor<>();
 
-  /** Creates a new CoyonedaFunctor instance. */
-  public CoyonedaFunctor() {}
+    /**
+     * Creates a new CoyonedaFunctor instance.
+     */
+    public CoyonedaFunctor() {
+    }
 
-  /**
-   * Returns a singleton instance of CoyonedaFunctor.
-   *
-   * @param <F> The underlying type constructor
-   * @return A CoyonedaFunctor instance
-   */
-  @SuppressWarnings("unchecked")
-  public static <F extends WitnessArity<TypeArity.Unary>> CoyonedaFunctor<F> instance() {
-    return (CoyonedaFunctor<F>) INSTANCE;
-  }
+    /**
+     * Returns a singleton instance of CoyonedaFunctor.
+     *
+     * @param <F> The underlying type constructor
+     * @return A CoyonedaFunctor instance
+     */
+    @SuppressWarnings("unchecked")
+    public static <F extends WitnessArity<TypeArity.Unary>> CoyonedaFunctor<F> instance() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Maps a function over a Coyoneda value.
-   *
-   * <p>This operation does NOT require a Functor instance for F. The function is composed with the
-   * existing transformation stored in the Coyoneda, achieving automatic map fusion.
-   *
-   * @param f The function to apply. Must not be null.
-   * @param fa The Coyoneda value to map over. Must not be null and must be a valid CoyonedaKind.
-   * @param <A> The input type
-   * @param <B> The output type
-   * @return A new Coyoneda with the function composed into its transformation
-   * @throws NullPointerException if f or fa is null
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if fa cannot be unwrapped
-   */
-  @Override
-  public <A, B> Kind<CoyonedaKind.Witness<F>, B> map(
-      Function<? super A, ? extends B> f, Kind<CoyonedaKind.Witness<F>, A> fa) {
-    Validation.function().validateMap(f, fa);
-
-    Coyoneda<F, A> coyoneda = COYONEDA.narrow(fa);
-    Coyoneda<F, B> mapped = coyoneda.map(f);
-    return COYONEDA.widen(mapped);
-  }
+    /**
+     * Maps a function over a Coyoneda value.
+     *
+     * <p>This operation does NOT require a Functor instance for F. The function is composed with the
+     * existing transformation stored in the Coyoneda, achieving automatic map fusion.
+     *
+     * @param f The function to apply. Must not be null.
+     * @param fa The Coyoneda value to map over. Must not be null and must be a valid CoyonedaKind.
+     * @param <A> The input type
+     * @param <B> The output type
+     * @return A new Coyoneda with the function composed into its transformation
+     * @throws NullPointerException if f or fa is null
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if fa cannot be unwrapped
+     */
+    @Override
+    public <A, B> Kind<CoyonedaKind.Witness<F>, B> map(Function<? super A, ? extends B> f, Kind<CoyonedaKind.Witness<F>, A> fa) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

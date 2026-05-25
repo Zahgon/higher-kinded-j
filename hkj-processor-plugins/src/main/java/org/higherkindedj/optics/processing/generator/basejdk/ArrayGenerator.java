@@ -27,80 +27,48 @@ import org.higherkindedj.optics.util.Traversals;
 @ServiceProvider(TraversableGenerator.class)
 public class ArrayGenerator extends BaseTraversableGenerator {
 
-  /** Creates a new generator for native Java array fields. */
-  public ArrayGenerator() {}
-
-  /** Supports any type that is an instance of {@link ArrayType}. */
-  @Override
-  public boolean supports(final TypeMirror type) {
-    return type instanceof ArrayType;
-  }
-
-  @Override
-  public String generateOpticExpression() {
-    return "EachInstances.arrayEach()";
-  }
-
-  @Override
-  public Set<String> getRequiredImports() {
-    return Set.of("org.higherkindedj.optics.each.EachInstances");
-  }
-
-  /** Generates the body of the `modifyF` method for a traversal over an array. */
-  @Override
-  public CodeBlock generateModifyF(
-      final RecordComponentElement component,
-      final ClassName recordClassName,
-      final List<? extends RecordComponentElement> allComponents) {
-
-    final String componentName = component.getSimpleName().toString();
-    final TypeName componentTypeName = getGenericTypeName(component); // e.g., String for String[]
-
-    // Use the inherited helper to generate constructor args.
-    // The new value is in a variable named `newArray`.
-    final String constructorArgs =
-        generateConstructorArgs(componentName, "newArray", allComponents);
-
-    return CodeBlock.builder()
-        // 1. Get the source array and convert it to a List to use the traverseList helper.
-        .addStatement(
-            "final var sourceList = $T.stream(source.$L()).collect($T.toList())",
-            Arrays.class,
-            componentName,
-            Collectors.class)
-
-        // 2. Call the static helper to traverse the list, yielding Kind<F, List<B>>.
-        .addStatement(
-            "final var effectOfList = $T.traverseList(sourceList, f, applicative)",
-            Traversals.class)
-
-        // 3. Map over the effect to convert the inner List back to an array.
-        .addStatement(
-            "final var effectOfArray = applicative.map("
-                + "newList -> newList.toArray(size -> new $T[size]), effectOfList)",
-            componentTypeName)
-
-        // 4. Map over the final effect to reconstruct the record with the new array.
-        .addStatement(
-            "return applicative.map(newArray -> new $T($L), effectOfArray)",
-            recordClassName,
-            constructorArgs)
-        .build();
-  }
-
-  /**
-   * Gets the component type of an array. This overrides the base implementation to handle {@link
-   * ArrayType}.
-   *
-   * @param component The record component which must be an array type.
-   * @return The {@link TypeName} of the array's component type (e.g., {@code String} for a {@code
-   *     String[]}).
-   */
-  @Override
-  protected TypeName getGenericTypeName(final RecordComponentElement component) {
-    if (component.asType() instanceof ArrayType arrayType) {
-      return TypeName.get(arrayType.getComponentType()).box();
+    /**
+     * Creates a new generator for native Java array fields.
+     */
+    public ArrayGenerator() {
     }
-    return ClassName.get(Object.class); // Fallback
-  }
+
+    /**
+     * Supports any type that is an instance of {@link ArrayType}.
+     */
+    @Override
+    public boolean supports(final TypeMirror type) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public String generateOpticExpression() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public Set<String> getRequiredImports() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Generates the body of the `modifyF` method for a traversal over an array.
+     */
+    @Override
+    public CodeBlock generateModifyF(final RecordComponentElement component, final ClassName recordClassName, final List<? extends RecordComponentElement> allComponents) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Gets the component type of an array. This overrides the base implementation to handle {@link
+     * ArrayType}.
+     *
+     * @param component The record component which must be an array type.
+     * @return The {@link TypeName} of the array's component type (e.g., {@code String} for a {@code
+     *     String[]}).
+     */
+    @Override
+    protected TypeName getGenericTypeName(final RecordComponentElement component) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

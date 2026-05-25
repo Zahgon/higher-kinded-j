@@ -23,17 +23,21 @@ import java.util.Set;
  */
 public record Plan<K>(List<Set<K>> fetchedBatches, int totalKeyCount, boolean truncated) {
 
-  public Plan {
-    fetchedBatches = List.copyOf(fetchedBatches);
-  }
+    public Plan {
+        fetchedBatches = List.copyOf(fetchedBatches);
+    }
 
-  /** Number of rounds observed; equals {@code fetchedBatches().size()}. */
-  public int rounds() {
-    return fetchedBatches.size();
-  }
+    /**
+     * Number of rounds observed; equals {@code fetchedBatches().size()}.
+     */
+    public int rounds() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /** An empty plan: a program that resolves with no rounds (a {@code Done}). */
-  public static <K> Plan<K> empty() {
-    return new Plan<>(List.of(), 0, false);
-  }
+    /**
+     * An empty plan: a program that resolves with no rounds (a {@code Done}).
+     */
+    public static <K> Plan<K> empty() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

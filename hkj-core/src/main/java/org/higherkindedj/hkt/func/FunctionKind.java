@@ -18,23 +18,29 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public final class FunctionKind<A, B> implements Kind2<FunctionKind.Witness, A, B> {
 
-  /** Witness type for the Function type constructor. */
-  public static final class Witness implements WitnessArity<TypeArity.Binary> {
-    private Witness() {}
-  }
+    /**
+     * Witness type for the Function type constructor.
+     */
+    public static final class Witness implements WitnessArity<TypeArity.Binary> {
 
-  private final Function<A, B> function;
+        private Witness() {
+        }
+    }
 
-  FunctionKind(Function<A, B> function) {
-    this.function = function;
-  }
+    private final Function<A, B> function;
 
-  Function<A, B> getFunction() {
-    return function;
-  }
+    FunctionKind(Function<A, B> function) {
+        this.function = function;
+    }
 
-  /** Applies the wrapped function. */
-  public B apply(A a) {
-    return function.apply(a);
-  }
+    Function<A, B> getFunction() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Applies the wrapped function.
+     */
+    public B apply(A a) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

@@ -26,33 +26,27 @@ import org.springframework.stereotype.Service;
 @Service
 public class OrderService {
 
-  private static final Functor<OrderOpKind.Witness> ORDER_FUNCTOR = OrderOpFunctor.instance();
+    private static final Functor<OrderOpKind.Witness> ORDER_FUNCTOR = OrderOpFunctor.instance();
 
-  /**
-   * Builds a program to place an order.
-   *
-   * <p>The program: 1. Places the order 2. Returns the result
-   *
-   * @param request the order request
-   * @return a Free program describing the order placement
-   */
-  public Free<OrderOpKind.Witness, OrderResult> placeOrder(OrderRequest request) {
-    return Free.liftF(
-        OrderOpKindHelper.ORDER_OP.widen(
-            new OrderOp.PlaceOrder<>(
-                request.customerId(), request.itemId(), request.quantity(), Function.identity())),
-        ORDER_FUNCTOR);
-  }
+    /**
+     * Builds a program to place an order.
+     *
+     * <p>The program: 1. Places the order 2. Returns the result
+     *
+     * @param request the order request
+     * @return a Free program describing the order placement
+     */
+    public Free<OrderOpKind.Witness, OrderResult> placeOrder(OrderRequest request) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Builds a program to get the status of an order.
-   *
-   * @param orderId the order ID to look up
-   * @return a Free program that returns the order status
-   */
-  public Free<OrderOpKind.Witness, OrderStatus> getOrderStatus(String orderId) {
-    return Free.liftF(
-        OrderOpKindHelper.ORDER_OP.widen(new OrderOp.GetStatus<>(orderId, Function.identity())),
-        ORDER_FUNCTOR);
-  }
+    /**
+     * Builds a program to get the status of an order.
+     *
+     * @param orderId the order ID to look up
+     * @return a Free program that returns the order status
+     */
+    public Free<OrderOpKind.Witness, OrderStatus> getOrderStatus(String orderId) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

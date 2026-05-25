@@ -29,18 +29,17 @@ import java.time.Instant;
  * @param timestamp when this event occurred
  * @see RetryPolicy#onRetry(java.util.function.Consumer)
  */
-public record RetryEvent(
-    int attemptNumber, Throwable lastException, Duration nextDelay, Instant timestamp) {
+public record RetryEvent(int attemptNumber, Throwable lastException, Duration nextDelay, Instant timestamp) {
 
-  /**
-   * Creates a RetryEvent with the current timestamp.
-   *
-   * @param attemptNumber the 1-based attempt number that just failed
-   * @param lastException the exception that triggered this retry
-   * @param nextDelay the delay before the next attempt
-   * @return a new RetryEvent with the current time as the timestamp
-   */
-  public static RetryEvent of(int attemptNumber, Throwable lastException, Duration nextDelay) {
-    return new RetryEvent(attemptNumber, lastException, nextDelay, Instant.now());
-  }
+    /**
+     * Creates a RetryEvent with the current timestamp.
+     *
+     * @param attemptNumber the 1-based attempt number that just failed
+     * @param lastException the exception that triggered this retry
+     * @param nextDelay the delay before the next attempt
+     * @return a new RetryEvent with the current time as the timestamp
+     */
+    public static RetryEvent of(int attemptNumber, Throwable lastException, Duration nextDelay) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

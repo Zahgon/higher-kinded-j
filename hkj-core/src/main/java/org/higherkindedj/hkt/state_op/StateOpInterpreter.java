@@ -4,7 +4,6 @@ package org.higherkindedj.hkt.state_op;
 
 import static org.higherkindedj.hkt.state.StateKindHelper.STATE;
 import static org.higherkindedj.hkt.util.validation.Operation.FROM_KIND;
-
 import org.higherkindedj.hkt.Kind;
 import org.higherkindedj.hkt.Natural;
 import org.higherkindedj.hkt.state.State;
@@ -33,14 +32,10 @@ import org.jspecify.annotations.NullMarked;
  * @param <S> The state type
  */
 @NullMarked
-public class StateOpInterpreter<S>
-    implements Natural<StateOpKind.Witness<S>, StateKind.Witness<S>> {
+public class StateOpInterpreter<S> implements Natural<StateOpKind.Witness<S>, StateKind.Witness<S>> {
 
-  @Override
-  public <A> Kind<StateKind.Witness<S>, A> apply(Kind<StateOpKind.Witness<S>, A> fa) {
-    Validation.kind().requireNonNull(fa, FROM_KIND);
-    StateOp<S, A> op = StateOpKindHelper.STATE_OP.narrow(fa);
-    State<S, A> state = op::interpretState;
-    return STATE.widen(state);
-  }
+    @Override
+    public <A> Kind<StateKind.Witness<S>, A> apply(Kind<StateOpKind.Witness<S>, A> fa) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

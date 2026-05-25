@@ -16,26 +16,21 @@ import org.jspecify.annotations.Nullable;
  * @param backupMethod optional backup payment method for fallback
  */
 @NullMarked
-public record Customer(
-    CustomerId id,
-    String name,
-    String email,
-    CustomerId accountId,
-    @Nullable PaymentMethod backupMethod) {
+public record Customer(CustomerId id, String name, String email, CustomerId accountId, @Nullable PaymentMethod backupMethod) {
 
-  public Customer {
-    Objects.requireNonNull(id, "id cannot be null");
-    Objects.requireNonNull(name, "name cannot be null");
-    Objects.requireNonNull(email, "email cannot be null");
-    Objects.requireNonNull(accountId, "accountId cannot be null");
-  }
+    public Customer {
+        Objects.requireNonNull(id, "id cannot be null");
+        Objects.requireNonNull(name, "name cannot be null");
+        Objects.requireNonNull(email, "email cannot be null");
+        Objects.requireNonNull(accountId, "accountId cannot be null");
+    }
 
-  /**
-   * Whether the customer has a backup payment method.
-   *
-   * @return true if a backup method is configured
-   */
-  public boolean hasBackupMethod() {
-    return backupMethod != null;
-  }
+    /**
+     * Whether the customer has a backup payment method.
+     *
+     * @return true if a backup method is configured
+     */
+    public boolean hasBackupMethod() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

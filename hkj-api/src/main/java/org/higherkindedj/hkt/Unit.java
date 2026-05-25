@@ -8,16 +8,19 @@ package org.higherkindedj.hkt;
  * result. This is a non-nullable type, typically used as a singleton.
  */
 public enum Unit {
-  /** The single, canonical instance of the Unit type. */
-  INSTANCE;
 
-  /**
-   * Returns the conventional string representation of the Unit type.
-   *
-   * @return "()"
-   */
-  @Override
-  public String toString() {
-    return "()";
-  }
+    /**
+     * The single, canonical instance of the Unit type.
+     */
+    INSTANCE;
+
+    /**
+     * Returns the conventional string representation of the Unit type.
+     *
+     * @return "()"
+     */
+    @Override
+    public String toString() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

@@ -3,7 +3,6 @@
 package org.higherkindedj.hkt.vstream;
 
 import static org.higherkindedj.hkt.vstream.VStreamKindHelper.VSTREAM;
-
 import java.util.List;
 import java.util.function.Function;
 import org.higherkindedj.hkt.Applicative;
@@ -39,66 +38,54 @@ import org.higherkindedj.hkt.util.validation.Validation;
  */
 public class VStreamApplicative extends VStreamFunctor implements Applicative<VStreamKind.Witness> {
 
-  /** Singleton instance of {@code VStreamApplicative}. */
-  public static final VStreamApplicative INSTANCE = new VStreamApplicative();
+    /**
+     * Singleton instance of {@code VStreamApplicative}.
+     */
+    public static final VStreamApplicative INSTANCE = new VStreamApplicative();
 
-  /** Protected constructor to enforce the singleton pattern while allowing subclassing. */
-  protected VStreamApplicative() {
-    super();
-  }
+    /**
+     * Protected constructor to enforce the singleton pattern while allowing subclassing.
+     */
+    protected VStreamApplicative() {
+        super();
+    }
 
-  /**
-   * Lifts a pure value into a single-element VStream.
-   *
-   * <p>The resulting stream produces the given value on the first pull, then completes.
-   *
-   * @param <A> The type of the value.
-   * @param value The value to lift into the VStream context. Can be {@code null}.
-   * @return A {@code Kind<VStreamKind.Witness, A>} representing a single-element VStream. Never
-   *     null.
-   */
-  @Override
-  public <A> Kind<VStreamKind.Witness, A> of(A value) {
-    return VSTREAM.widen(VStream.of(value));
-  }
+    /**
+     * Lifts a pure value into a single-element VStream.
+     *
+     * <p>The resulting stream produces the given value on the first pull, then completes.
+     *
+     * @param <A> The type of the value.
+     * @param value The value to lift into the VStream context. Can be {@code null}.
+     * @return A {@code Kind<VStreamKind.Witness, A>} representing a single-element VStream. Never
+     *     null.
+     */
+    @Override
+    public <A> Kind<VStreamKind.Witness, A> of(A value) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Applies a VStream of functions to a VStream of values using Cartesian product semantics.
-   *
-   * <p>Each function in the function stream is applied to every value in the value stream. This
-   * produces a result stream containing all combinations of function applications. The operation
-   * remains lazy; no elements are produced until a terminal operation is invoked.
-   *
-   * @param <A> The input type of the functions.
-   * @param <B> The output type of the functions.
-   * @param ff The {@code Kind<VStreamKind.Witness, Function<A, B>>} containing the functions. Must
-   *     not be null.
-   * @param fa The {@code Kind<VStreamKind.Witness, A>} containing the argument values. Must not be
-   *     null.
-   * @return A {@code Kind<VStreamKind.Witness, B>} representing the Cartesian product of function
-   *     applications. Never null.
-   * @throws NullPointerException if {@code ff} or {@code fa} is null.
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code ff} or {@code fa} cannot
-   *     be unwrapped.
-   */
-  @Override
-  public <A, B> Kind<VStreamKind.Witness, B> ap(
-      Kind<VStreamKind.Witness, ? extends Function<A, B>> ff, Kind<VStreamKind.Witness, A> fa) {
-
-    Validation.kind().validateAp(ff, fa);
-
-    VStream<? extends Function<A, B>> fStream = VSTREAM.narrow(ff);
-    VStream<A> aStream = VSTREAM.narrow(fa);
-
-    // Materialise the value stream once so it can be replayed for each function.
-    // Without this, flatMap would consume aStream on the first function and subsequent
-    // functions would see an empty/exhausted stream, breaking Cartesian product semantics.
-    VStream<B> result =
-        VStream.defer(
-            () -> {
-              List<A> values = aStream.toList().run();
-              return fStream.flatMap(f -> VStream.fromList(values).map(f));
-            });
-    return VSTREAM.widen(result);
-  }
+    /**
+     * Applies a VStream of functions to a VStream of values using Cartesian product semantics.
+     *
+     * <p>Each function in the function stream is applied to every value in the value stream. This
+     * produces a result stream containing all combinations of function applications. The operation
+     * remains lazy; no elements are produced until a terminal operation is invoked.
+     *
+     * @param <A> The input type of the functions.
+     * @param <B> The output type of the functions.
+     * @param ff The {@code Kind<VStreamKind.Witness, Function<A, B>>} containing the functions. Must
+     *     not be null.
+     * @param fa The {@code Kind<VStreamKind.Witness, A>} containing the argument values. Must not be
+     *     null.
+     * @return A {@code Kind<VStreamKind.Witness, B>} representing the Cartesian product of function
+     *     applications. Never null.
+     * @throws NullPointerException if {@code ff} or {@code fa} is null.
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code ff} or {@code fa} cannot
+     *     be unwrapped.
+     */
+    @Override
+    public <A, B> Kind<VStreamKind.Witness, B> ap(Kind<VStreamKind.Witness, ? extends Function<A, B>> ff, Kind<VStreamKind.Witness, A> fa) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

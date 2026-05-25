@@ -24,41 +24,37 @@ import org.jspecify.annotations.NullMarked;
  * concurrent interpretations.
  */
 @NullMarked
-public final class CapturingNotificationInterpreter
-    extends NotificationOpInterpreter<IdKind.Witness> {
+public final class CapturingNotificationInterpreter extends NotificationOpInterpreter<IdKind.Witness> {
 
-  private final List<String> receipts = new ArrayList<>();
-  private final List<String> alerts = new ArrayList<>();
+    private final List<String> receipts = new ArrayList<>();
 
-  /**
-   * Returns an unmodifiable view of all sent receipts.
-   *
-   * @return the list of receipt descriptions
-   */
-  public List<String> receipts() {
-    return Collections.unmodifiableList(receipts);
-  }
+    private final List<String> alerts = new ArrayList<>();
 
-  /**
-   * Returns an unmodifiable view of all fraud alerts.
-   *
-   * @return the list of alert descriptions
-   */
-  public List<String> alerts() {
-    return Collections.unmodifiableList(alerts);
-  }
+    /**
+     * Returns an unmodifiable view of all sent receipts.
+     *
+     * @return the list of receipt descriptions
+     */
+    public List<String> receipts() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  protected <A> Kind<IdKind.Witness, A> handleSendReceipt(NotificationOp.SendReceipt<A> op) {
-    Objects.requireNonNull(op, "op cannot be null");
-    receipts.add("receipt:" + op.customer().email());
-    return new Id<>(op.k().apply(Unit.INSTANCE));
-  }
+    /**
+     * Returns an unmodifiable view of all fraud alerts.
+     *
+     * @return the list of alert descriptions
+     */
+    public List<String> alerts() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  protected <A> Kind<IdKind.Witness, A> handleAlertFraudTeam(NotificationOp.AlertFraudTeam<A> op) {
-    Objects.requireNonNull(op, "op cannot be null");
-    alerts.add("fraud-alert:" + op.customer().id() + ":score=" + op.riskScore().score());
-    return new Id<>(op.k().apply(Unit.INSTANCE));
-  }
+    @Override
+    protected <A> Kind<IdKind.Witness, A> handleSendReceipt(NotificationOp.SendReceipt<A> op) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    protected <A> Kind<IdKind.Witness, A> handleAlertFraudTeam(NotificationOp.AlertFraudTeam<A> op) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

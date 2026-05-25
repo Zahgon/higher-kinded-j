@@ -24,27 +24,22 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public final class QuoteGatewayInterpreter extends PaymentGatewayOpInterpreter<IdKind.Witness> {
 
-  private static final BigDecimal FEE_RATE = new BigDecimal("0.029");
-  private static final BigDecimal FIXED_FEE = new BigDecimal("0.30");
+    private static final BigDecimal FEE_RATE = new BigDecimal("0.029");
 
-  @Override
-  protected <A> Kind<IdKind.Witness, A> handleAuthorise(PaymentGatewayOp.Authorise<A> op) {
-    Objects.requireNonNull(op, "op cannot be null");
-    return new Id<>(op.k().apply(new AuthorisationToken("quote-auth", op.amount())));
-  }
+    private static final BigDecimal FIXED_FEE = new BigDecimal("0.30");
 
-  @Override
-  protected <A> Kind<IdKind.Witness, A> handleCharge(PaymentGatewayOp.Charge<A> op) {
-    Objects.requireNonNull(op, "op cannot be null");
-    BigDecimal fee = op.amount().amount().multiply(FEE_RATE).add(FIXED_FEE);
-    Money totalWithFee = new Money(op.amount().amount().add(fee), op.amount().currency());
-    return new Id<>(
-        op.k().apply(ChargeResult.success(new TransactionId("quote-txn"), totalWithFee)));
-  }
+    @Override
+    protected <A> Kind<IdKind.Witness, A> handleAuthorise(PaymentGatewayOp.Authorise<A> op) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  protected <A> Kind<IdKind.Witness, A> handleRefund(PaymentGatewayOp.Refund<A> op) {
-    Objects.requireNonNull(op, "op cannot be null");
-    return new Id<>(op.k().apply(ChargeResult.success(op.transactionId(), op.amount())));
-  }
+    @Override
+    protected <A> Kind<IdKind.Witness, A> handleCharge(PaymentGatewayOp.Charge<A> op) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    protected <A> Kind<IdKind.Witness, A> handleRefund(PaymentGatewayOp.Refund<A> op) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

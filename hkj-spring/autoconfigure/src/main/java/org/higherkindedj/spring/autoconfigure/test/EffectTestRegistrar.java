@@ -37,140 +37,62 @@ import org.springframework.core.type.AnnotationMetadata;
  */
 public class EffectTestRegistrar implements ImportBeanDefinitionRegistrar {
 
-  private static final Logger log = LoggerFactory.getLogger(EffectTestRegistrar.class);
-
-  @Override
-  public void registerBeanDefinitions(
-      AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-
-    Map<String, Object> attrs =
-        importingClassMetadata.getAnnotationAttributes(EffectTest.class.getName());
-
-    if (attrs == null) {
-      return;
-    }
-
-    Class<?>[] effects = (Class<?>[]) attrs.get("effects");
-    if (effects == null || effects.length == 0) {
-      return; // No effects declared — skip auto-wiring
-    }
-
-    // Don't register if one already exists (e.g., from @EnableEffectBoundary on the app class)
-    if (registry.containsBeanDefinition("effectBoundary")) {
-      log.debug("EffectTest: effectBoundary bean already registered, skipping");
-      return;
-    }
-
-    List<String> algebraNames = Arrays.stream(effects).map(Class::getSimpleName).toList();
-    log.info("EffectTest: registering test boundary for effects: {}", algebraNames);
-
-    GenericBeanDefinition beanDef = new GenericBeanDefinition();
-    beanDef.setBeanClass(EffectTestBoundaryFactoryBean.class);
-    beanDef.setScope(BeanDefinition.SCOPE_SINGLETON);
-    beanDef.getConstructorArgumentValues().addGenericArgumentValue(effects);
-    beanDef.setLazyInit(false);
-
-    registry.registerBeanDefinition("effectBoundary", beanDef);
-  }
-
-  /**
-   * Factory bean that creates an {@link EffectBoundary} for test contexts by discovering {@link
-   * Interpreter} beans.
-   */
-  public static class EffectTestBoundaryFactoryBean implements FactoryBean<EffectBoundary<?>> {
-
-    private final Class<?>[] effects;
-    private ApplicationContext applicationContext;
-
-    public EffectTestBoundaryFactoryBean(Class<?>[] effects) {
-      this.effects = effects;
-    }
-
-    @Autowired
-    public void setApplicationContext(ApplicationContext applicationContext) {
-      this.applicationContext = applicationContext;
-    }
+    private static final Logger log = LoggerFactory.getLogger(EffectTestRegistrar.class);
 
     @Override
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    public EffectBoundary<?> getObject() {
-      Map<String, Object> interpreterBeans =
-          applicationContext.getBeansWithAnnotation(Interpreter.class);
+    public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-      List<Natural<?, IOKind.Witness>> interpreters = new ArrayList<>();
-      List<String> missing = new ArrayList<>();
+    /**
+     * Factory bean that creates an {@link EffectBoundary} for test contexts by discovering {@link
+     * Interpreter} beans.
+     */
+    public static class EffectTestBoundaryFactoryBean implements FactoryBean<EffectBoundary<?>> {
 
-      for (Class<?> algebra : effects) {
-        boolean found = false;
-        for (Map.Entry<String, Object> entry : interpreterBeans.entrySet()) {
-          Object bean = entry.getValue();
-          Interpreter annotation =
-              AnnotationUtils.findAnnotation(bean.getClass(), Interpreter.class);
-          if (annotation != null && annotation.value().equals(algebra)) {
-            if (bean instanceof Natural<?, ?> nat) {
-              interpreters.add((Natural) nat);
-              found = true;
-              log.info(
-                  "EffectTest: found interpreter '{}' for {}",
-                  entry.getKey(),
-                  algebra.getSimpleName());
-              break;
-            }
-          }
+        private final Class<?>[] effects;
+
+        private ApplicationContext applicationContext;
+
+        public EffectTestBoundaryFactoryBean(Class<?>[] effects) {
+            this.effects = effects;
         }
-        if (!found) {
-          missing.add(algebra.getSimpleName());
+
+        @Autowired
+        public void setApplicationContext(ApplicationContext applicationContext) {
+            throw new UnsupportedOperationException("STUB: not implemented");
         }
-      }
 
-      if (!missing.isEmpty()) {
-        throw new BeanCreationException(
-            "effectBoundary",
-            "EffectTest: no interpreter found for effect algebra(s): "
-                + missing
-                + ". Declare @Interpreter beans or use @SpringBootTest with a configuration "
-                + "that provides them. Available: "
-                + interpreterBeans.keySet());
-      }
+        @Override
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+        public EffectBoundary<?> getObject() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
 
-      Natural combined = combineInterpreters(interpreters);
-      return EffectBoundary.of(combined);
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+        private Natural combineInterpreters(List<Natural<?, IOKind.Witness>> interpreters) {
+            return switch(interpreters.size()) {
+                case 1 ->
+                    interpreters.getFirst();
+                case 2 ->
+                    Interpreters.combine((Natural) interpreters.get(0), (Natural) interpreters.get(1));
+                case 3 ->
+                    Interpreters.combine((Natural) interpreters.get(0), (Natural) interpreters.get(1), (Natural) interpreters.get(2));
+                case 4 ->
+                    Interpreters.combine((Natural) interpreters.get(0), (Natural) interpreters.get(1), (Natural) interpreters.get(2), (Natural) interpreters.get(3));
+                default ->
+                    throw new BeanCreationException("effectBoundary", "Interpreters.combine() supports up to 4 effect algebras. Found " + interpreters.size() + ".");
+            };
+        }
+
+        @Override
+        public Class<?> getObjectType() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public boolean isSingleton() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
     }
-
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    private Natural combineInterpreters(List<Natural<?, IOKind.Witness>> interpreters) {
-      return switch (interpreters.size()) {
-        case 1 -> interpreters.getFirst();
-        case 2 ->
-            Interpreters.combine((Natural) interpreters.get(0), (Natural) interpreters.get(1));
-        case 3 ->
-            Interpreters.combine(
-                (Natural) interpreters.get(0),
-                (Natural) interpreters.get(1),
-                (Natural) interpreters.get(2));
-        case 4 ->
-            Interpreters.combine(
-                (Natural) interpreters.get(0),
-                (Natural) interpreters.get(1),
-                (Natural) interpreters.get(2),
-                (Natural) interpreters.get(3));
-        default ->
-            throw new BeanCreationException(
-                "effectBoundary",
-                "Interpreters.combine() supports up to 4 effect algebras. Found "
-                    + interpreters.size()
-                    + ".");
-      };
-    }
-
-    @Override
-    public Class<?> getObjectType() {
-      return EffectBoundary.class;
-    }
-
-    @Override
-    public boolean isSingleton() {
-      return true;
-    }
-  }
 }

@@ -45,85 +45,66 @@ import tools.jackson.databind.json.JsonMapper;
  */
 public class MaybePathReturnValueHandler implements HandlerMethodReturnValueHandler {
 
-  private final JsonMapper jsonMapper;
-  private final ObjectWriter objectWriter;
-  private final int nothingStatus;
+    private final JsonMapper jsonMapper;
 
-  /**
-   * Creates a new MaybePathReturnValueHandler with the specified settings.
-   *
-   * @param jsonMapper the Jackson 3.x JsonMapper for JSON serialization
-   * @param nothingStatus the HTTP status code for Nothing values (default 404)
-   */
-  public MaybePathReturnValueHandler(JsonMapper jsonMapper, int nothingStatus) {
-    this.jsonMapper = jsonMapper;
-    this.objectWriter = jsonMapper.writer();
-    this.nothingStatus = nothingStatus;
-  }
+    private final ObjectWriter objectWriter;
 
-  @Override
-  public boolean supportsReturnType(MethodParameter returnType) {
-    return MaybePath.class.isAssignableFrom(returnType.getParameterType());
-  }
+    private final int nothingStatus;
 
-  @Override
-  public void handleReturnValue(
-      @Nullable Object returnValue,
-      MethodParameter returnType,
-      ModelAndViewContainer mavContainer,
-      NativeWebRequest webRequest) {
-
-    mavContainer.setRequestHandled(true);
-    HttpServletResponse response = webRequest.getNativeResponse(HttpServletResponse.class);
-
-    if (response == null || !(returnValue instanceof MaybePath<?> path)) {
-      return;
+    /**
+     * Creates a new MaybePathReturnValueHandler with the specified settings.
+     *
+     * @param jsonMapper the Jackson 3.x JsonMapper for JSON serialization
+     * @param nothingStatus the HTTP status code for Nothing values (default 404)
+     */
+    public MaybePathReturnValueHandler(JsonMapper jsonMapper, int nothingStatus) {
+        this.jsonMapper = jsonMapper;
+        this.objectWriter = jsonMapper.writer();
+        this.nothingStatus = nothingStatus;
     }
 
-    // Extract underlying Maybe and convert to HTTP response
-    var maybe = path.run();
-    if (maybe.isJust()) {
-      int successStatus =
-          SuccessStatusResolver.resolveSuccessStatus(returnType, HttpStatus.OK.value());
-      writeJustResponse(maybe.get(), response, successStatus);
-    } else {
-      writeNothingResponse(response);
+    @Override
+    public boolean supportsReturnType(MethodParameter returnType) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-  }
 
-  /**
-   * Writes a Nothing response to the HTTP response.
-   *
-   * @param response the HTTP response
-   */
-  private void writeNothingResponse(HttpServletResponse response) {
-    try {
-      response.setStatus(nothingStatus);
-      response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-
-      Map<String, Object> body = Map.of("success", false, "error", "Resource not found");
-      objectWriter.writeValue(response.getWriter(), body);
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to write nothing response", e);
+    @Override
+    public void handleReturnValue(@Nullable Object returnValue, MethodParameter returnType, ModelAndViewContainer mavContainer, NativeWebRequest webRequest) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-  }
 
-  /**
-   * Writes a Just value to the HTTP response.
-   *
-   * @param value the value
-   * @param response the HTTP response
-   * @param status the HTTP status code to set
-   */
-  private void writeJustResponse(Object value, HttpServletResponse response, int status) {
-    try {
-      response.setStatus(status);
-      if (status != HttpStatus.NO_CONTENT.value()) {
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        objectWriter.writeValue(response.getWriter(), value);
-      }
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to write success response", e);
+    /**
+     * Writes a Nothing response to the HTTP response.
+     *
+     * @param response the HTTP response
+     */
+    private void writeNothingResponse(HttpServletResponse response) {
+        try {
+            response.setStatus(nothingStatus);
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            Map<String, Object> body = Map.of("success", false, "error", "Resource not found");
+            objectWriter.writeValue(response.getWriter(), body);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to write nothing response", e);
+        }
     }
-  }
+
+    /**
+     * Writes a Just value to the HTTP response.
+     *
+     * @param value the value
+     * @param response the HTTP response
+     * @param status the HTTP status code to set
+     */
+    private void writeJustResponse(Object value, HttpServletResponse response, int status) {
+        try {
+            response.setStatus(status);
+            if (status != HttpStatus.NO_CONTENT.value()) {
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                objectWriter.writeValue(response.getWriter(), value);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to write success response", e);
+        }
+    }
 }

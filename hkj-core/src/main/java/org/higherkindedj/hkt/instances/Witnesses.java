@@ -63,137 +63,158 @@ import org.higherkindedj.hkt.vtask.VTaskMonad;
  */
 public final class Witnesses {
 
-  private Witnesses() {}
-
-  /**
-   * A typed witness token carrying the canonical {@link Monad} for a unary type constructor.
-   *
-   * <p>Obtain instances via the factory methods on {@link Witnesses} (for example {@link
-   * Witnesses#maybe()}); this type is not meant to be constructed directly.
-   *
-   * @param <F> the witness type of the unary type constructor
-   */
-  public static final class Of<F extends WitnessArity<TypeArity.Unary>> {
-
-    private final Monad<F> monad;
-
-    private Of(Monad<F> monad) {
-      this.monad = monad;
+    private Witnesses() {
     }
 
     /**
-     * Returns the canonical monad this token carries. Package-private; used by {@link Instances}.
+     * A typed witness token carrying the canonical {@link Monad} for a unary type constructor.
+     *
+     * <p>Obtain instances via the factory methods on {@link Witnesses} (for example {@link
+     * Witnesses#maybe()}); this type is not meant to be constructed directly.
+     *
+     * @param <F> the witness type of the unary type constructor
      */
-    Monad<F> monad() {
-      return monad;
+    public static final class Of<F extends WitnessArity<TypeArity.Unary>> {
+
+        private final Monad<F> monad;
+
+        private Of(Monad<F> monad) {
+            this.monad = monad;
+        }
+
+        /**
+         * Returns the canonical monad this token carries. Package-private; used by {@link Instances}.
+         */
+        Monad<F> monad() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
     }
-  }
 
-  // --- Stateless singletons -------------------------------------------------
+    // --- Stateless singletons -------------------------------------------------
+    /**
+     * Token for {@code Maybe} ({@link MaybeMonad#INSTANCE}).
+     */
+    public static Of<MaybeKind.Witness> maybe() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /** Token for {@code Maybe} ({@link MaybeMonad#INSTANCE}). */
-  public static Of<MaybeKind.Witness> maybe() {
-    return new Of<>(MaybeMonad.INSTANCE);
-  }
+    /**
+     * Token for {@code IO} ({@link IOMonad#INSTANCE}).
+     */
+    public static Of<IOKind.Witness> io() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /** Token for {@code IO} ({@link IOMonad#INSTANCE}). */
-  public static Of<IOKind.Witness> io() {
-    return new Of<>(IOMonad.INSTANCE);
-  }
+    /**
+     * Token for {@code List} ({@link ListMonad#INSTANCE}).
+     */
+    public static Of<ListKind.Witness> list() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /** Token for {@code List} ({@link ListMonad#INSTANCE}). */
-  public static Of<ListKind.Witness> list() {
-    return new Of<>(ListMonad.INSTANCE);
-  }
+    /**
+     * Token for {@code Optional} ({@link OptionalMonad#INSTANCE}).
+     */
+    public static Of<OptionalKind.Witness> optional() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /** Token for {@code Optional} ({@link OptionalMonad#INSTANCE}). */
-  public static Of<OptionalKind.Witness> optional() {
-    return new Of<>(OptionalMonad.INSTANCE);
-  }
+    /**
+     * Token for {@code Try} ({@link TryMonad#INSTANCE}).
+     *
+     * <p>Named {@code try_} because {@code try} is a Java reserved word.
+     */
+    public static Of<TryKind.Witness> try_() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Token for {@code Try} ({@link TryMonad#INSTANCE}).
-   *
-   * <p>Named {@code try_} because {@code try} is a Java reserved word.
-   */
-  public static Of<TryKind.Witness> try_() {
-    return new Of<>(TryMonad.INSTANCE);
-  }
+    /**
+     * Token for {@code VTask} ({@link VTaskMonad#INSTANCE}).
+     */
+    public static Of<VTaskKind.Witness> vtask() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /** Token for {@code VTask} ({@link VTaskMonad#INSTANCE}). */
-  public static Of<VTaskKind.Witness> vtask() {
-    return new Of<>(VTaskMonad.INSTANCE);
-  }
+    /**
+     * Token for {@code VStream} ({@link VStreamMonad#INSTANCE}).
+     */
+    public static Of<VStreamKind.Witness> vstream() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /** Token for {@code VStream} ({@link VStreamMonad#INSTANCE}). */
-  public static Of<VStreamKind.Witness> vstream() {
-    return new Of<>(VStreamMonad.INSTANCE);
-  }
+    /**
+     * Token for {@code Lazy} ({@link LazyMonad#INSTANCE}).
+     */
+    public static Of<LazyKind.Witness> lazy() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /** Token for {@code Lazy} ({@link LazyMonad#INSTANCE}). */
-  public static Of<LazyKind.Witness> lazy() {
-    return new Of<>(LazyMonad.INSTANCE);
-  }
+    /**
+     * Token for {@code Stream} ({@link StreamMonad#INSTANCE}).
+     */
+    public static Of<StreamKind.Witness> stream() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /** Token for {@code Stream} ({@link StreamMonad#INSTANCE}). */
-  public static Of<StreamKind.Witness> stream() {
-    return new Of<>(StreamMonad.INSTANCE);
-  }
+    /**
+     * Token for {@code CompletableFuture} ({@link CompletableFutureMonad#INSTANCE}).
+     */
+    public static Of<CompletableFutureKind.Witness> completableFuture() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /** Token for {@code CompletableFuture} ({@link CompletableFutureMonad#INSTANCE}). */
-  public static Of<CompletableFutureKind.Witness> completableFuture() {
-    return new Of<>(CompletableFutureMonad.INSTANCE);
-  }
+    /**
+     * Token for {@code Trampoline} ({@link TrampolineMonad#INSTANCE}).
+     */
+    public static Of<TrampolineKind.Witness> trampoline() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /** Token for {@code Trampoline} ({@link TrampolineMonad#INSTANCE}). */
-  public static Of<TrampolineKind.Witness> trampoline() {
-    return new Of<>(TrampolineMonad.INSTANCE);
-  }
+    // --- Phantom-typed nullary ------------------------------------------------
+    /**
+     * Token for {@code Id} ({@link IdMonad#instance()}).
+     */
+    public static Of<IdKind.Witness> id() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  // --- Phantom-typed nullary ------------------------------------------------
+    /**
+     * Token for {@code Either} ({@link EitherMonad#instance()}). The left type {@code L} is inferred
+     * from the assignment target.
+     *
+     * @param <L> the fixed "left" type of the {@code Either}
+     */
+    public static <L> Of<EitherKind.Witness<L>> either() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /** Token for {@code Id} ({@link IdMonad#instance()}). */
-  public static Of<IdKind.Witness> id() {
-    return new Of<>(IdMonad.instance());
-  }
+    /**
+     * Token for {@code Reader} ({@link ReaderMonad#instance()}). The environment type {@code R} is
+     * inferred from the assignment target.
+     *
+     * @param <R> the environment type of the {@code Reader}
+     */
+    public static <R> Of<ReaderKind.Witness<R>> reader() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Token for {@code Either} ({@link EitherMonad#instance()}). The left type {@code L} is inferred
-   * from the assignment target.
-   *
-   * @param <L> the fixed "left" type of the {@code Either}
-   */
-  public static <L> Of<EitherKind.Witness<L>> either() {
-    return new Of<>(EitherMonad.<L>instance());
-  }
+    /**
+     * Token for {@code Context} ({@link ContextMonad#instance()}). The environment type {@code R} is
+     * inferred from the assignment target.
+     *
+     * @param <R> the environment type of the {@code Context}
+     */
+    public static <R> Of<ContextKind.Witness<R>> context() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Token for {@code Reader} ({@link ReaderMonad#instance()}). The environment type {@code R} is
-   * inferred from the assignment target.
-   *
-   * @param <R> the environment type of the {@code Reader}
-   */
-  public static <R> Of<ReaderKind.Witness<R>> reader() {
-    return new Of<>(ReaderMonad.<R>instance());
-  }
-
-  /**
-   * Token for {@code Context} ({@link ContextMonad#instance()}). The environment type {@code R} is
-   * inferred from the assignment target.
-   *
-   * @param <R> the environment type of the {@code Context}
-   */
-  public static <R> Of<ContextKind.Witness<R>> context() {
-    return new Of<>(ContextMonad.<R>instance());
-  }
-
-  /**
-   * Token for {@code State} ({@link StateMonad#instance()}). The state type {@code S} is inferred
-   * from the assignment target.
-   *
-   * @param <S> the state type of the {@code State} computation
-   */
-  public static <S> Of<StateKind.Witness<S>> state() {
-    return new Of<>(StateMonad.<S>instance());
-  }
+    /**
+     * Token for {@code State} ({@link StateMonad#instance()}). The state type {@code S} is inferred
+     * from the assignment target.
+     *
+     * @param <S> the state type of the {@code State} computation
+     */
+    public static <S> Of<StateKind.Witness<S>> state() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

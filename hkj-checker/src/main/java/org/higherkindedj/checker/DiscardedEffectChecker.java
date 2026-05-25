@@ -49,85 +49,77 @@ import javax.tools.Diagnostic;
  */
 public final class DiscardedEffectChecker implements CheckVisitor {
 
-  static final String CHAINABLE_FQN = "org.higherkindedj.hkt.effect.capability.Chainable";
+    static final String CHAINABLE_FQN = "org.higherkindedj.hkt.effect.capability.Chainable";
 
-  private final Trees trees;
-  private final Types types;
-  private final Elements elements;
-  private final Diagnostic.Kind severity;
+    private final Trees trees;
 
-  /**
-   * Creates a checker reporting at {@link Diagnostic.Kind#ERROR}.
-   *
-   * @param trees the {@link Trees} utility for AST and type resolution
-   * @param types the {@link Types} utility for type operations
-   * @param elements the {@link Elements} utility for element operations
-   */
-  public DiscardedEffectChecker(Trees trees, Types types, Elements elements) {
-    this(trees, types, elements, Diagnostic.Kind.ERROR);
-  }
+    private final Types types;
 
-  /**
-   * Creates a checker reporting at the given severity.
-   *
-   * @param trees the Trees utility from the javac task; must not be null
-   * @param types the model Types utility from the javac task
-   * @param elements the model Elements utility from the javac task
-   * @param severity the severity at which the diagnostic is reported
-   */
-  public DiscardedEffectChecker(
-      Trees trees, Types types, Elements elements, Diagnostic.Kind severity) {
-    this.trees = trees;
-    this.types = types;
-    this.elements = elements;
-    this.severity = severity;
-  }
+    private final Elements elements;
 
-  @Override
-  public void onExpressionStatement(ExpressionStatementTree node, TreePath path) {
-    ExpressionTree expr = node.getExpression();
-    if ((expr instanceof MethodInvocationTree || expr instanceof NewClassTree)
-        && isChainable(expr, path)) {
-      trees.printMessage(
-          severity,
-          DiagnosticMessages.discardedEffect(simpleName(expr, path)),
-          node,
-          path.getCompilationUnit());
-    }
-  }
+    private final Diagnostic.Kind severity;
 
-  private boolean isChainable(ExpressionTree expr, TreePath path) {
-    TypeMirror t;
-    try {
-      t = trees.getTypeMirror(new TreePath(path, expr));
-    } catch (RuntimeException e) {
-      return false; // cannot resolve: skip silently (no false positives)
+    /**
+     * Creates a checker reporting at {@link Diagnostic.Kind#ERROR}.
+     *
+     * @param trees the {@link Trees} utility for AST and type resolution
+     * @param types the {@link Types} utility for type operations
+     * @param elements the {@link Elements} utility for element operations
+     */
+    public DiscardedEffectChecker(Trees trees, Types types, Elements elements) {
+        this(trees, types, elements, Diagnostic.Kind.ERROR);
     }
-    if (t == null
-        || t.getKind() == TypeKind.VOID
-        || t.getKind() == TypeKind.NONE
-        || t.getKind() == TypeKind.ERROR
-        || t.getKind().isPrimitive()) {
-      return false;
-    }
-    TypeElement chainable = elements.getTypeElement(CHAINABLE_FQN);
-    if (chainable == null) {
-      return false; // the effect API is not on this compilation's classpath
-    }
-    return types.isAssignable(types.erasure(t), types.erasure(chainable.asType()));
-  }
 
-  private String simpleName(ExpressionTree expr, TreePath path) {
-    TypeMirror t;
-    try {
-      t = trees.getTypeMirror(new TreePath(path, expr));
-    } catch (RuntimeException e) {
-      return "effect";
+    /**
+     * Creates a checker reporting at the given severity.
+     *
+     * @param trees the Trees utility from the javac task; must not be null
+     * @param types the model Types utility from the javac task
+     * @param elements the model Elements utility from the javac task
+     * @param severity the severity at which the diagnostic is reported
+     */
+    public DiscardedEffectChecker(Trees trees, Types types, Elements elements, Diagnostic.Kind severity) {
+        this.trees = trees;
+        this.types = types;
+        this.elements = elements;
+        this.severity = severity;
     }
-    TypeMirror erased = types.erasure(t);
-    if (erased instanceof javax.lang.model.type.DeclaredType dt) {
-      return dt.asElement().getSimpleName().toString();
+
+    @Override
+    public void onExpressionStatement(ExpressionStatementTree node, TreePath path) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-    return "effect";
-  }
+
+    private boolean isChainable(ExpressionTree expr, TreePath path) {
+        TypeMirror t;
+        try {
+            t = trees.getTypeMirror(new TreePath(path, expr));
+        } catch (RuntimeException e) {
+            // cannot resolve: skip silently (no false positives)
+            return false;
+        }
+        if (t == null || t.getKind() == TypeKind.VOID || t.getKind() == TypeKind.NONE || t.getKind() == TypeKind.ERROR || t.getKind().isPrimitive()) {
+            return false;
+        }
+        TypeElement chainable = elements.getTypeElement(CHAINABLE_FQN);
+        if (chainable == null) {
+            // the effect API is not on this compilation's classpath
+            return false;
+        }
+        return types.isAssignable(types.erasure(t), types.erasure(chainable.asType()));
+    }
+
+    private String simpleName(ExpressionTree expr, TreePath path) {
+        TypeMirror t;
+        try {
+            t = trees.getTypeMirror(new TreePath(path, expr));
+        } catch (RuntimeException e) {
+            return "effect";
+        }
+        TypeMirror erased = types.erasure(t);
+        if (erased instanceof javax.lang.model.type.DeclaredType dt) {
+            return dt.asElement().getSimpleName().toString();
+        }
+        return "effect";
+    }
 }

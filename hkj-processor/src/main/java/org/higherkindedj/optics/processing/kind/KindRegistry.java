@@ -38,153 +38,113 @@ import org.higherkindedj.optics.annotations.KindSemantics;
  */
 public final class KindRegistry {
 
-  /** Base package for Higher-Kinded-J HKT types. */
-  public static final String HKT_PACKAGE = "org.higherkindedj.hkt";
+    /**
+     * Base package for Higher-Kinded-J HKT types.
+     */
+    public static final String HKT_PACKAGE = "org.higherkindedj.hkt";
 
-  /** The Kind interface fully qualified name. */
-  public static final String KIND_INTERFACE = HKT_PACKAGE + ".Kind";
+    /**
+     * The Kind interface fully qualified name.
+     */
+    public static final String KIND_INTERFACE = HKT_PACKAGE + ".Kind";
 
-  /**
-   * Represents a registered Kind type mapping.
-   *
-   * @param traverseExpression the code to obtain the Traverse instance
-   * @param semantics the cardinality semantics
-   * @param isParameterised whether this witness type requires type parameters
-   */
-  public record KindMapping(
-      String traverseExpression, KindSemantics semantics, boolean isParameterised) {
+    /**
+     * Represents a registered Kind type mapping.
+     *
+     * @param traverseExpression the code to obtain the Traverse instance
+     * @param semantics the cardinality semantics
+     * @param isParameterised whether this witness type requires type parameters
+     */
+    public record KindMapping(String traverseExpression, KindSemantics semantics, boolean isParameterised) {
 
-    /** Creates a mapping for a non-parameterised type with an INSTANCE field. */
-    static KindMapping instance(String traverseClass, KindSemantics semantics) {
-      return new KindMapping(traverseClass + ".INSTANCE", semantics, false);
+        /**
+         * Creates a mapping for a non-parameterised type with an INSTANCE field.
+         */
+        static KindMapping instance(String traverseClass, KindSemantics semantics) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Creates a mapping for a parameterised type with a factory method.
+         */
+        static KindMapping factory(String traverseClass, KindSemantics semantics) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
     }
 
-    /** Creates a mapping for a parameterised type with a factory method. */
-    static KindMapping factory(String traverseClass, KindSemantics semantics) {
-      return new KindMapping(traverseClass + ".instance()", semantics, true);
+    /**
+     * Map from witness type qualified name to its Traverse mapping.
+     *
+     * <p>The keys are the fully qualified names of the Witness inner classes, without the type
+     * parameters.
+     */
+    private static final Map<String, KindMapping> KNOWN_KINDS = Map.ofEntries(// List - zero or more elements
+    Map.entry(HKT_PACKAGE + ".list.ListKind.Witness", KindMapping.instance(HKT_PACKAGE + ".list.ListTraverse", KindSemantics.ZERO_OR_MORE)), // Maybe - zero or one element
+    Map.entry(HKT_PACKAGE + ".maybe.MaybeKind.Witness", KindMapping.instance(HKT_PACKAGE + ".maybe.MaybeTraverse", KindSemantics.ZERO_OR_ONE)), // Optional - zero or one element
+    Map.entry(HKT_PACKAGE + ".optional.OptionalKind.Witness", KindMapping.instance(HKT_PACKAGE + ".optional.OptionalTraverse", KindSemantics.ZERO_OR_ONE)), // Stream - zero or more elements
+    Map.entry(HKT_PACKAGE + ".stream.StreamKind.Witness", KindMapping.instance(HKT_PACKAGE + ".stream.StreamTraverse", KindSemantics.ZERO_OR_MORE)), // Try - zero or one element (success case)
+    Map.entry(HKT_PACKAGE + ".trymonad.TryKind.Witness", KindMapping.instance(HKT_PACKAGE + ".trymonad.TryTraverse", KindSemantics.ZERO_OR_ONE)), // Id - exactly one element
+    Map.entry(HKT_PACKAGE + ".id.IdKind.Witness", KindMapping.instance(HKT_PACKAGE + ".id.IdTraverse", KindSemantics.EXACTLY_ONE)), // Either - zero or one element (right-biased, parameterised)
+    Map.entry(HKT_PACKAGE + ".either.EitherKind.Witness", KindMapping.factory(HKT_PACKAGE + ".either.EitherTraverse", KindSemantics.ZERO_OR_ONE)), // Validated - zero or one element (valid case, parameterised)
+    Map.entry(HKT_PACKAGE + ".validated.ValidatedKind.Witness", KindMapping.factory(HKT_PACKAGE + ".validated.ValidatedTraverse", KindSemantics.ZERO_OR_ONE)));
+
+    private KindRegistry() {
+        // Utility class
     }
-  }
 
-  /**
-   * Map from witness type qualified name to its Traverse mapping.
-   *
-   * <p>The keys are the fully qualified names of the Witness inner classes, without the type
-   * parameters.
-   */
-  private static final Map<String, KindMapping> KNOWN_KINDS =
-      Map.ofEntries(
-          // List - zero or more elements
-          Map.entry(
-              HKT_PACKAGE + ".list.ListKind.Witness",
-              KindMapping.instance(HKT_PACKAGE + ".list.ListTraverse", KindSemantics.ZERO_OR_MORE)),
-
-          // Maybe - zero or one element
-          Map.entry(
-              HKT_PACKAGE + ".maybe.MaybeKind.Witness",
-              KindMapping.instance(
-                  HKT_PACKAGE + ".maybe.MaybeTraverse", KindSemantics.ZERO_OR_ONE)),
-
-          // Optional - zero or one element
-          Map.entry(
-              HKT_PACKAGE + ".optional.OptionalKind.Witness",
-              KindMapping.instance(
-                  HKT_PACKAGE + ".optional.OptionalTraverse", KindSemantics.ZERO_OR_ONE)),
-
-          // Stream - zero or more elements
-          Map.entry(
-              HKT_PACKAGE + ".stream.StreamKind.Witness",
-              KindMapping.instance(
-                  HKT_PACKAGE + ".stream.StreamTraverse", KindSemantics.ZERO_OR_MORE)),
-
-          // Try - zero or one element (success case)
-          Map.entry(
-              HKT_PACKAGE + ".trymonad.TryKind.Witness",
-              KindMapping.instance(
-                  HKT_PACKAGE + ".trymonad.TryTraverse", KindSemantics.ZERO_OR_ONE)),
-
-          // Id - exactly one element
-          Map.entry(
-              HKT_PACKAGE + ".id.IdKind.Witness",
-              KindMapping.instance(HKT_PACKAGE + ".id.IdTraverse", KindSemantics.EXACTLY_ONE)),
-
-          // Either - zero or one element (right-biased, parameterised)
-          Map.entry(
-              HKT_PACKAGE + ".either.EitherKind.Witness",
-              KindMapping.factory(
-                  HKT_PACKAGE + ".either.EitherTraverse", KindSemantics.ZERO_OR_ONE)),
-
-          // Validated - zero or one element (valid case, parameterised)
-          Map.entry(
-              HKT_PACKAGE + ".validated.ValidatedKind.Witness",
-              KindMapping.factory(
-                  HKT_PACKAGE + ".validated.ValidatedTraverse", KindSemantics.ZERO_OR_ONE)));
-
-  private KindRegistry() {
-    // Utility class
-  }
-
-  /**
-   * Looks up a mapping for the given witness type.
-   *
-   * @param witnessQualifiedName the fully qualified name of the witness type, without type
-   *     parameters
-   * @return an Optional containing the mapping if found, empty otherwise
-   */
-  public static Optional<KindMapping> lookup(String witnessQualifiedName) {
-    return Optional.ofNullable(KNOWN_KINDS.get(witnessQualifiedName));
-  }
-
-  /**
-   * Checks if a qualified name refers to the Kind interface.
-   *
-   * @param qualifiedName the type's qualified name
-   * @return true if this is the Kind interface
-   */
-  public static boolean isKindInterface(String qualifiedName) {
-    return KIND_INTERFACE.equals(qualifiedName);
-  }
-
-  /**
-   * Checks if a witness type is from the Higher-Kinded-J library.
-   *
-   * @param witnessQualifiedName the witness type's qualified name
-   * @return true if this is a library witness type
-   */
-  public static boolean isLibraryWitness(String witnessQualifiedName) {
-    return witnessQualifiedName.startsWith(HKT_PACKAGE + ".");
-  }
-
-  /**
-   * Extracts the base witness type name from a potentially parameterised type.
-   *
-   * <p>For example, "org.higherkindedj.hkt.either.EitherKind.Witness&lt;String&gt;" becomes
-   * "org.higherkindedj.hkt.either.EitherKind.Witness".
-   *
-   * @param witnessType the full witness type string
-   * @return the base type without parameters
-   */
-  public static String extractBaseWitnessType(String witnessType) {
-    int angleBracket = witnessType.indexOf('<');
-    if (angleBracket > 0) {
-      return witnessType.substring(0, angleBracket);
+    /**
+     * Looks up a mapping for the given witness type.
+     *
+     * @param witnessQualifiedName the fully qualified name of the witness type, without type
+     *     parameters
+     * @return an Optional containing the mapping if found, empty otherwise
+     */
+    public static Optional<KindMapping> lookup(String witnessQualifiedName) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-    return witnessType;
-  }
 
-  /**
-   * Extracts type arguments from a parameterised witness type.
-   *
-   * <p>For example, "EitherKind.Witness&lt;String&gt;" returns "String".
-   *
-   * @param witnessType the full witness type string
-   * @return the type arguments, or empty string if none
-   */
-  public static String extractWitnessTypeArgs(String witnessType) {
-    int start = witnessType.indexOf('<');
-    int end = witnessType.lastIndexOf('>');
-    if (start > 0 && end > start) {
-      return witnessType.substring(start + 1, end);
+    /**
+     * Checks if a qualified name refers to the Kind interface.
+     *
+     * @param qualifiedName the type's qualified name
+     * @return true if this is the Kind interface
+     */
+    public static boolean isKindInterface(String qualifiedName) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-    return "";
-  }
+
+    /**
+     * Checks if a witness type is from the Higher-Kinded-J library.
+     *
+     * @param witnessQualifiedName the witness type's qualified name
+     * @return true if this is a library witness type
+     */
+    public static boolean isLibraryWitness(String witnessQualifiedName) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Extracts the base witness type name from a potentially parameterised type.
+     *
+     * <p>For example, "org.higherkindedj.hkt.either.EitherKind.Witness&lt;String&gt;" becomes
+     * "org.higherkindedj.hkt.either.EitherKind.Witness".
+     *
+     * @param witnessType the full witness type string
+     * @return the base type without parameters
+     */
+    public static String extractBaseWitnessType(String witnessType) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Extracts type arguments from a parameterised witness type.
+     *
+     * <p>For example, "EitherKind.Witness&lt;String&gt;" returns "String".
+     *
+     * @param witnessType the full witness type string
+     * @return the type arguments, or empty string if none
+     */
+    public static String extractWitnessTypeArgs(String witnessType) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

@@ -3,7 +3,6 @@
 package org.higherkindedj.hkt.effect;
 
 import static org.higherkindedj.hkt.util.validation.Operation.*;
-
 import org.higherkindedj.hkt.Kind;
 import org.higherkindedj.hkt.TypeArity;
 import org.higherkindedj.hkt.WitnessArity;
@@ -61,72 +60,52 @@ import org.higherkindedj.hkt.util.validation.Validation;
  * @param <G> the target witness type
  */
 @FunctionalInterface
-public interface NaturalTransformation<
-    F extends WitnessArity<TypeArity.Unary>, G extends WitnessArity<TypeArity.Unary>> {
+public interface NaturalTransformation<F extends WitnessArity<TypeArity.Unary>, G extends WitnessArity<TypeArity.Unary>> {
 
-  /**
-   * Applies this natural transformation to a Kind value.
-   *
-   * @param fa the source Kind value; must not be null
-   * @param <A> the value type
-   * @return the transformed Kind value
-   */
-  <A> Kind<G, A> apply(Kind<F, A> fa);
+    /**
+     * Applies this natural transformation to a Kind value.
+     *
+     * @param fa the source Kind value; must not be null
+     * @param <A> the value type
+     * @return the transformed Kind value
+     */
+    <A> Kind<G, A> apply(Kind<F, A> fa);
 
-  /**
-   * Composes this natural transformation with another.
-   *
-   * <p>The resulting transformation first applies this transformation, then the {@code after}
-   * transformation.
-   *
-   * @param after the transformation to apply after this one; must not be null
-   * @param <H> the final target witness type
-   * @return a composed natural transformation
-   */
-  default <H extends WitnessArity<TypeArity.Unary>> NaturalTransformation<F, H> andThen(
-      NaturalTransformation<G, H> after) {
-    Validation.function().require(after, "after", AND_THEN);
-    return new NaturalTransformation<>() {
-      @Override
-      public <A> Kind<H, A> apply(Kind<F, A> fa) {
-        return after.apply(NaturalTransformation.this.apply(fa));
-      }
-    };
-  }
+    /**
+     * Composes this natural transformation with another.
+     *
+     * <p>The resulting transformation first applies this transformation, then the {@code after}
+     * transformation.
+     *
+     * @param after the transformation to apply after this one; must not be null
+     * @param <H> the final target witness type
+     * @return a composed natural transformation
+     */
+    default <H extends WitnessArity<TypeArity.Unary>> NaturalTransformation<F, H> andThen(NaturalTransformation<G, H> after) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Composes this natural transformation with another applied before this one.
-   *
-   * <p>The resulting transformation first applies the {@code before} transformation, then this
-   * transformation.
-   *
-   * @param before the transformation to apply before this one; must not be null
-   * @param <E> the initial source witness type
-   * @return a composed natural transformation
-   */
-  default <E extends WitnessArity<TypeArity.Unary>> NaturalTransformation<E, G> compose(
-      NaturalTransformation<E, F> before) {
-    Validation.function().require(before, "before", COMPOSE);
-    return new NaturalTransformation<>() {
-      @Override
-      public <A> Kind<G, A> apply(Kind<E, A> ea) {
-        return NaturalTransformation.this.apply(before.apply(ea));
-      }
-    };
-  }
+    /**
+     * Composes this natural transformation with another applied before this one.
+     *
+     * <p>The resulting transformation first applies the {@code before} transformation, then this
+     * transformation.
+     *
+     * @param before the transformation to apply before this one; must not be null
+     * @param <E> the initial source witness type
+     * @return a composed natural transformation
+     */
+    default <E extends WitnessArity<TypeArity.Unary>> NaturalTransformation<E, G> compose(NaturalTransformation<E, F> before) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Returns the identity natural transformation that returns its input unchanged.
-   *
-   * @param <F> the witness type
-   * @return the identity natural transformation
-   */
-  static <F extends WitnessArity<TypeArity.Unary>> NaturalTransformation<F, F> identity() {
-    return new NaturalTransformation<>() {
-      @Override
-      public <A> Kind<F, A> apply(Kind<F, A> fa) {
-        return fa;
-      }
-    };
-  }
+    /**
+     * Returns the identity natural transformation that returns its input unchanged.
+     *
+     * @param <F> the witness type
+     * @return the identity natural transformation
+     */
+    static <F extends WitnessArity<TypeArity.Unary>> NaturalTransformation<F, F> identity() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

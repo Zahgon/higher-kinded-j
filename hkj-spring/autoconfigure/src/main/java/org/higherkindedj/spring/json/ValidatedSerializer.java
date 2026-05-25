@@ -32,34 +32,18 @@ import tools.jackson.databind.ser.std.StdSerializer;
  */
 public class ValidatedSerializer extends StdSerializer<Validated<?, ?>> {
 
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  /** Creates a new ValidatedSerializer for the Validated type. */
-  @SuppressWarnings("unchecked")
-  public ValidatedSerializer() {
-    super((Class<Validated<?, ?>>) (Class<?>) Validated.class);
-  }
+    /**
+     * Creates a new ValidatedSerializer for the Validated type.
+     */
+    @SuppressWarnings("unchecked")
+    public ValidatedSerializer() {
+        super((Class<Validated<?, ?>>) (Class<?>) Validated.class);
+    }
 
-  @Override
-  public void serialize(Validated<?, ?> value, JsonGenerator gen, SerializationContext ctxt) {
-    value.fold(
-        errors -> {
-          gen.writeStartObject();
-          gen.writeName("valid");
-          gen.writeBoolean(false);
-          gen.writeName("errors");
-          gen.writePOJO(errors);
-          gen.writeEndObject();
-          return null;
-        },
-        valid -> {
-          gen.writeStartObject();
-          gen.writeName("valid");
-          gen.writeBoolean(true);
-          gen.writeName("value");
-          gen.writePOJO(valid);
-          gen.writeEndObject();
-          return null;
-        });
-  }
+    @Override
+    public void serialize(Validated<?, ?> value, JsonGenerator gen, SerializationContext ctxt) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

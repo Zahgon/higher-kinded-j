@@ -32,47 +32,46 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication
 public class EffectExampleApplication {
 
-  /** Creates an EffectExampleApplication instance. */
-  public EffectExampleApplication() {}
-
-  /**
-   * Application entry point.
-   *
-   * @param args command-line arguments
-   */
-  public static void main(String[] args) {
-    SpringApplication.run(EffectExampleApplication.class, args);
-  }
-
-  /**
-   * Creates the EffectBoundary bean for OrderOp.
-   *
-   * @param interpreter the order interpreter (discovered via @Interpreter annotation)
-   * @return the effect boundary for order programs
-   */
-  @Bean
-  public EffectBoundary<OrderOpKind.Witness> orderBoundary(
-      Natural<OrderOpKind.Witness, IOKind.Witness> interpreter) {
-    return EffectBoundary.of(interpreter);
-  }
-
-  /**
-   * Creates an ObservableEffectBoundary that wraps the boundary with metrics.
-   *
-   * <p>When actuator is on the classpath and metrics are enabled, this bean records
-   * success/error/duration metrics for every boundary execution. The controller can inject this
-   * instead of the plain EffectBoundary for instrumented execution.
-   *
-   * @param boundary the effect boundary
-   * @param metricsService the metrics service (null if actuator not present)
-   * @return the observable boundary, or null if metrics are not available
-   */
-  @Bean
-  public @Nullable ObservableEffectBoundary<OrderOpKind.Witness> observableOrderBoundary(
-      EffectBoundary<OrderOpKind.Witness> boundary, @Nullable HkjMetricsService metricsService) {
-    if (metricsService == null) {
-      return null;
+    /**
+     * Creates an EffectExampleApplication instance.
+     */
+    public EffectExampleApplication() {
     }
-    return new ObservableEffectBoundary<>(boundary, metricsService);
-  }
+
+    /**
+     * Application entry point.
+     *
+     * @param args command-line arguments
+     */
+    public static void main(String[] args) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Creates the EffectBoundary bean for OrderOp.
+     *
+     * @param interpreter the order interpreter (discovered via @Interpreter annotation)
+     * @return the effect boundary for order programs
+     */
+    @Bean
+    public EffectBoundary<OrderOpKind.Witness> orderBoundary(Natural<OrderOpKind.Witness, IOKind.Witness> interpreter) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Creates an ObservableEffectBoundary that wraps the boundary with metrics.
+     *
+     * <p>When actuator is on the classpath and metrics are enabled, this bean records
+     * success/error/duration metrics for every boundary execution. The controller can inject this
+     * instead of the plain EffectBoundary for instrumented execution.
+     *
+     * @param boundary the effect boundary
+     * @param metricsService the metrics service (null if actuator not present)
+     * @return the observable boundary, or null if metrics are not available
+     */
+    @Bean
+    @Nullable
+    public ObservableEffectBoundary<OrderOpKind.Witness> observableOrderBoundary(EffectBoundary<OrderOpKind.Witness> boundary, @Nullable HkjMetricsService metricsService) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

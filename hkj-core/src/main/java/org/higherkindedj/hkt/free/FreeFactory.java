@@ -51,89 +51,91 @@ import org.higherkindedj.hkt.WitnessArity;
  */
 public final class FreeFactory<F extends WitnessArity<TypeArity.Unary>> {
 
-  /** Private constructor to enforce factory method usage. */
-  private FreeFactory() {}
+    /**
+     * Private constructor to enforce factory method usage.
+     */
+    private FreeFactory() {
+    }
 
-  /**
-   * Creates a new {@link FreeFactory} instance for the specified functor type.
-   *
-   * <p>The functor type {@code F} is inferred from the usage context or can be explicitly
-   * specified.
-   *
-   * @param <F> The functor type for the Free monad
-   * @return A new {@link FreeFactory} instance. Never null.
-   */
-  public static <F extends WitnessArity<TypeArity.Unary>> FreeFactory<F> of() {
-    return new FreeFactory<>();
-  }
+    /**
+     * Creates a new {@link FreeFactory} instance for the specified functor type.
+     *
+     * <p>The functor type {@code F} is inferred from the usage context or can be explicitly
+     * specified.
+     *
+     * @param <F> The functor type for the Free monad
+     * @return A new {@link FreeFactory} instance. Never null.
+     */
+    public static <F extends WitnessArity<TypeArity.Unary>> FreeFactory<F> of() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a new {@link FreeFactory} instance, associating it with a specific {@link Monad}
-   * instance.
-   *
-   * <p>This factory method is useful for documentation and clarity, making explicit which monad the
-   * Free programs will be interpreted into. The monad parameter is only used for type inference;
-   * the actual interpretation happens via {@link Free#foldMap}.
-   *
-   * @param monad The {@link Monad} instance for the functor type. The monad itself is not stored,
-   *     only used for type inference. Must not be null.
-   * @param <F> The functor type for the Free monad (inferred from monad parameter)
-   * @return A new {@link FreeFactory} instance. Never null.
-   */
-  public static <F extends WitnessArity<TypeArity.Unary>> FreeFactory<F> withMonad(Monad<F> monad) {
-    // The monad is used purely for type inference - we don't actually need to store it
-    return new FreeFactory<>();
-  }
+    /**
+     * Creates a new {@link FreeFactory} instance, associating it with a specific {@link Monad}
+     * instance.
+     *
+     * <p>This factory method is useful for documentation and clarity, making explicit which monad the
+     * Free programs will be interpreted into. The monad parameter is only used for type inference;
+     * the actual interpretation happens via {@link Free#foldMap}.
+     *
+     * @param monad The {@link Monad} instance for the functor type. The monad itself is not stored,
+     *     only used for type inference. Must not be null.
+     * @param <F> The functor type for the Free monad (inferred from monad parameter)
+     * @return A new {@link FreeFactory} instance. Never null.
+     */
+    public static <F extends WitnessArity<TypeArity.Unary>> FreeFactory<F> withMonad(Monad<F> monad) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a pure Free monad wrapping the given value.
-   *
-   * <p>This is equivalent to {@link Free#pure(Object)} but with improved type inference. The
-   * functor type {@code F} is automatically inferred from this factory instance.
-   *
-   * @param value The value to wrap. Can be null.
-   * @param <A> The type of the value
-   * @return A {@link Free} monad containing the pure value. Never null.
-   */
-  public <A> Free<F, A> pure(A value) {
-    return Free.pure(value);
-  }
+    /**
+     * Creates a pure Free monad wrapping the given value.
+     *
+     * <p>This is equivalent to {@link Free#pure(Object)} but with improved type inference. The
+     * functor type {@code F} is automatically inferred from this factory instance.
+     *
+     * @param value The value to wrap. Can be null.
+     * @param <A> The type of the value
+     * @return A {@link Free} monad containing the pure value. Never null.
+     */
+    public <A> Free<F, A> pure(A value) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a Free monad from a suspended computation.
-   *
-   * <p>This is equivalent to {@link Free#suspend(Kind)} but with improved type inference. The
-   * functor type {@code F} is automatically inferred from this factory instance.
-   *
-   * @param computation The computation to suspend, wrapped in the functor {@code F}. Must not be
-   *     null.
-   * @param <A> The result type of the Free monad
-   * @return A {@link Free} monad suspending the computation. Never null.
-   */
-  public <A> Free<F, A> suspend(Kind<F, Free<F, A>> computation) {
-    return Free.suspend(computation);
-  }
+    /**
+     * Creates a Free monad from a suspended computation.
+     *
+     * <p>This is equivalent to {@link Free#suspend(Kind)} but with improved type inference. The
+     * functor type {@code F} is automatically inferred from this factory instance.
+     *
+     * @param computation The computation to suspend, wrapped in the functor {@code F}. Must not be
+     *     null.
+     * @param <A> The result type of the Free monad
+     * @return A {@link Free} monad suspending the computation. Never null.
+     */
+    public <A> Free<F, A> suspend(Kind<F, Free<F, A>> computation) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Lifts a computation in the functor {@code F} into the Free monad.
-   *
-   * <p>This creates a suspended computation that, when interpreted, will execute the given
-   * computation and return a pure value containing the result.
-   *
-   * <p>This is equivalent to {@link Free#liftF(Kind, Functor)} but with improved type inference for
-   * the functor type parameter.
-   *
-   * @param fa The computation to lift, wrapped in the functor {@code F}. Must not be null.
-   * @param functor The {@link Functor} instance for {@code F}. Must not be null.
-   * @param <A> The result type
-   * @return A {@link Free} monad that will execute the lifted computation. Never null.
-   */
-  public <A> Free<F, A> liftF(Kind<F, A> fa, Functor<F> functor) {
-    return Free.liftF(fa, functor);
-  }
+    /**
+     * Lifts a computation in the functor {@code F} into the Free monad.
+     *
+     * <p>This creates a suspended computation that, when interpreted, will execute the given
+     * computation and return a pure value containing the result.
+     *
+     * <p>This is equivalent to {@link Free#liftF(Kind, Functor)} but with improved type inference for
+     * the functor type parameter.
+     *
+     * @param fa The computation to lift, wrapped in the functor {@code F}. Must not be null.
+     * @param functor The {@link Functor} instance for {@code F}. Must not be null.
+     * @param <A> The result type
+     * @return A {@link Free} monad that will execute the lifted computation. Never null.
+     */
+    public <A> Free<F, A> liftF(Kind<F, A> fa, Functor<F> functor) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public String toString() {
-    return "FreeFactory";
-  }
+    @Override
+    public String toString() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

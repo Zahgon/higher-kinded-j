@@ -31,66 +31,37 @@ import org.springframework.boot.health.contributor.HealthIndicator;
  */
 public class HkjVirtualThreadHealthIndicator implements HealthIndicator {
 
-  private final HkjMetricsService metricsService;
-  private final double errorThreshold;
+    private final HkjMetricsService metricsService;
 
-  /**
-   * Creates a new HkjVirtualThreadHealthIndicator with a default error threshold of 50%.
-   *
-   * @param metricsService the service providing VTask and VStream metrics
-   */
-  public HkjVirtualThreadHealthIndicator(HkjMetricsService metricsService) {
-    this(metricsService, 0.5);
-  }
+    private final double errorThreshold;
 
-  /**
-   * Creates a new HkjVirtualThreadHealthIndicator with a custom error threshold.
-   *
-   * @param metricsService the service providing VTask and VStream metrics
-   * @param errorThreshold the error rate threshold (0.0 to 1.0) above which status becomes DOWN
-   */
-  public HkjVirtualThreadHealthIndicator(HkjMetricsService metricsService, double errorThreshold) {
-    this.metricsService = metricsService;
-    this.errorThreshold = errorThreshold;
-  }
-
-  @Override
-  public Health health() {
-    if (metricsService == null) {
-      return Health.outOfService().withDetail("reason", "Metrics service is unavailable").build();
+    /**
+     * Creates a new HkjVirtualThreadHealthIndicator with a default error threshold of 50%.
+     *
+     * @param metricsService the service providing VTask and VStream metrics
+     */
+    public HkjVirtualThreadHealthIndicator(HkjMetricsService metricsService) {
+        this(metricsService, 0.5);
     }
 
-    try {
-      double vTaskSuccess = metricsService.getVTaskSuccessCount();
-      double vTaskError = metricsService.getVTaskErrorCount();
-      double vStreamSuccess = metricsService.getVStreamSuccessCount();
-      double vStreamError = metricsService.getVStreamErrorCount();
-
-      double vTaskSuccessRate = calculateSuccessRate(vTaskSuccess, vTaskError);
-      double vStreamSuccessRate = calculateSuccessRate(vStreamSuccess, vStreamError);
-
-      boolean vTaskDegraded = (1.0 - vTaskSuccessRate) > errorThreshold;
-      boolean vStreamDegraded = (1.0 - vStreamSuccessRate) > errorThreshold;
-
-      Health.Builder builder = (vTaskDegraded || vStreamDegraded) ? Health.down() : Health.up();
-
-      return builder
-          .withDetail("vtask.successCount", vTaskSuccess)
-          .withDetail("vtask.errorCount", vTaskError)
-          .withDetail("vtask.totalCount", vTaskSuccess + vTaskError)
-          .withDetail("vtask.successRate", vTaskSuccessRate)
-          .withDetail("vstream.successCount", vStreamSuccess)
-          .withDetail("vstream.errorCount", vStreamError)
-          .withDetail("vstream.totalCount", vStreamSuccess + vStreamError)
-          .withDetail("vstream.successRate", vStreamSuccessRate)
-          .build();
-    } catch (Exception e) {
-      return Health.down().withDetail("error", e.getMessage()).build();
+    /**
+     * Creates a new HkjVirtualThreadHealthIndicator with a custom error threshold.
+     *
+     * @param metricsService the service providing VTask and VStream metrics
+     * @param errorThreshold the error rate threshold (0.0 to 1.0) above which status becomes DOWN
+     */
+    public HkjVirtualThreadHealthIndicator(HkjMetricsService metricsService, double errorThreshold) {
+        this.metricsService = metricsService;
+        this.errorThreshold = errorThreshold;
     }
-  }
 
-  private double calculateSuccessRate(double success, double error) {
-    double total = success + error;
-    return total > 0 ? success / total : 1.0;
-  }
+    @Override
+    public Health health() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    private double calculateSuccessRate(double success, double error) {
+        double total = success + error;
+        return total > 0 ? success / total : 1.0;
+    }
 }

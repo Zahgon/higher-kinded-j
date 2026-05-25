@@ -13,34 +13,34 @@ import org.higherkindedj.optics.annotations.GenerateLenses;
  * @param emailMessageId the message ID from the email provider, if sent
  */
 @GenerateLenses
-public record NotificationResult(
-    boolean emailSent, boolean smsSent, Optional<String> emailMessageId) {
-  /**
-   * Creates a result indicating all notifications were sent.
-   *
-   * @param emailMessageId the email message ID
-   * @return a fully successful notification result
-   */
-  public static NotificationResult allSent(String emailMessageId) {
-    return new NotificationResult(true, true, Optional.of(emailMessageId));
-  }
+public record NotificationResult(boolean emailSent, boolean smsSent, Optional<String> emailMessageId) {
 
-  /**
-   * Creates a result indicating only email was sent.
-   *
-   * @param emailMessageId the email message ID
-   * @return a partial notification result
-   */
-  public static NotificationResult emailOnly(String emailMessageId) {
-    return new NotificationResult(true, false, Optional.of(emailMessageId));
-  }
+    /**
+     * Creates a result indicating all notifications were sent.
+     *
+     * @param emailMessageId the email message ID
+     * @return a fully successful notification result
+     */
+    public static NotificationResult allSent(String emailMessageId) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a result indicating no notifications were sent.
-   *
-   * @return a failed notification result
-   */
-  public static NotificationResult none() {
-    return new NotificationResult(false, false, Optional.empty());
-  }
+    /**
+     * Creates a result indicating only email was sent.
+     *
+     * @param emailMessageId the email message ID
+     * @return a partial notification result
+     */
+    public static NotificationResult emailOnly(String emailMessageId) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Creates a result indicating no notifications were sent.
+     *
+     * @return a failed notification result
+     */
+    public static NotificationResult none() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

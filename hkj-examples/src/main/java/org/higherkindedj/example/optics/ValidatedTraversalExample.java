@@ -4,7 +4,6 @@ package org.higherkindedj.example.optics;
 
 import static org.higherkindedj.hkt.instances.Witnesses.*;
 import static org.higherkindedj.hkt.validated.ValidatedKindHelper.VALIDATED;
-
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -28,184 +27,73 @@ import org.higherkindedj.optics.annotations.GenerateTraversals;
  */
 public class ValidatedTraversalExample {
 
-  // --- Data Model ---
-  @GenerateLenses
-  public record Permission(String name) {}
-
-  @GeneratePrisms
-  public sealed interface Principal {}
-
-  @GenerateLenses
-  @GenerateTraversals
-  public record VTUser(String username, List<Permission> permissions) implements Principal {}
-
-  public record Guest() implements Principal {}
-
-  @GenerateLenses
-  public record Form(int formId, Principal principal) {}
-
-  // --- Validation Logic ---
-  private static final Set<String> VALID_PERMISSIONS =
-      Set.of("PERM_READ", "PERM_WRITE", "PERM_DELETE");
-
-  public static Kind<ValidatedKind.Witness<String>, String> validatePermissionName(String name) {
-    if (VALID_PERMISSIONS.contains(name)) {
-      return VALIDATED.widen(Validated.valid(name));
-    } else {
-      return VALIDATED.widen(Validated.invalid("Invalid permission: " + name));
+    // --- Data Model ---
+    @GenerateLenses
+    public record Permission(String name) {
     }
-  }
 
-  // --- Reusable Optic Compositions ---
-  public static final Traversal<Form, String> FORM_TO_PERMISSION_NAMES =
-      FormLenses.principal()
-          .asTraversal()
-          .andThen(PrincipalPrisms.vTUser().asTraversal())
-          .andThen(VTUserTraversals.permissions())
-          .andThen(PermissionLenses.name().asTraversal());
+    @GeneratePrisms
+    public sealed interface Principal {
+    }
 
-  // --- Helper Methods ---
-  private static Applicative<ValidatedKind.Witness<String>> getValidatedApplicative() {
-    return Instances.validated(Semigroups.string("; "));
-  }
+    @GenerateLenses
+    @GenerateTraversals
+    public record VTUser(String username, List<Permission> permissions) implements Principal {
+    }
 
-  public static Validated<String, Form> validateFormPermissions(Form form) {
-    Kind<ValidatedKind.Witness<String>, Form> result =
-        FORM_TO_PERMISSION_NAMES.modifyF(
-            ValidatedTraversalExample::validatePermissionName, form, getValidatedApplicative());
-    return VALIDATED.narrow(result);
-  }
+    public record Guest() implements Principal {
+    }
 
-  public static void main(String[] args) {
-    System.out.println("=== OPTIC COMPOSITION VALIDATION EXAMPLE ===");
-    System.out.println();
+    @GenerateLenses
+    public record Form(int formId, Principal principal) {
+    }
 
-    // --- SCENARIO 1: Form with valid permissions ---
-    System.out.println("--- Scenario 1: Valid Permissions ---");
-    var validUser =
-        new VTUser("alice", List.of(new Permission("PERM_READ"), new Permission("PERM_WRITE")));
-    var validForm = new Form(1, validUser);
+    // --- Validation Logic ---
+    private static final Set<String> VALID_PERMISSIONS = Set.of("PERM_READ", "PERM_WRITE", "PERM_DELETE");
 
-    System.out.println("Input: " + validForm);
-    Validated<String, Form> validResult = validateFormPermissions(validForm);
-    System.out.println("Result: " + validResult);
-    System.out.println();
+    public static Kind<ValidatedKind.Witness<String>, String> validatePermissionName(String name) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    // --- SCENARIO 2: Form with multiple invalid permissions ---
-    System.out.println("--- Scenario 2: Multiple Invalid Permissions ---");
-    var invalidUser =
-        new VTUser(
-            "charlie",
-            List.of(
-                new Permission("PERM_EXECUTE"), // Invalid
-                new Permission("PERM_WRITE"), // Valid
-                new Permission("PERM_SUDO"), // Invalid
-                new Permission("PERM_READ") // Valid
-                ));
-    var multipleInvalidForm = new Form(3, invalidUser);
+    // --- Reusable Optic Compositions ---
+    public static final Traversal<Form, String> FORM_TO_PERMISSION_NAMES = FormLenses.principal().asTraversal().andThen(PrincipalPrisms.vTUser().asTraversal()).andThen(VTUserTraversals.permissions()).andThen(PermissionLenses.name().asTraversal());
 
-    System.out.println("Input: " + multipleInvalidForm);
-    Validated<String, Form> invalidResult = validateFormPermissions(multipleInvalidForm);
-    System.out.println("Result (errors accumulated): " + invalidResult);
-    System.out.println();
+    // --- Helper Methods ---
+    private static Applicative<ValidatedKind.Witness<String>> getValidatedApplicative() {
+        return Instances.validated(Semigroups.string("; "));
+    }
 
-    // --- SCENARIO 3: Form with Guest principal (no targets for traversal) ---
-    System.out.println("--- Scenario 3: Guest Principal (No Validation Targets) ---");
-    var guestForm = new Form(4, new Guest());
+    public static Validated<String, Form> validateFormPermissions(Form form) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    System.out.println("Input: " + guestForm);
-    Validated<String, Form> guestResult = validateFormPermissions(guestForm);
-    System.out.println("Result (path does not match): " + guestResult);
-    System.out.println();
+    public static void main(String[] args) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    // --- SCENARIO 4: Form with empty permissions list ---
-    System.out.println("--- Scenario 4: Empty Permissions List ---");
-    var emptyPermissionsUser = new VTUser("diana", List.of());
-    var emptyPermissionsForm = new Form(5, emptyPermissionsUser);
-
-    System.out.println("Input: " + emptyPermissionsForm);
-    Validated<String, Form> emptyResult = validateFormPermissions(emptyPermissionsForm);
-    System.out.println("Result (empty list): " + emptyResult);
-    System.out.println();
-
-    // --- SCENARIO 5: Demonstrating optic reusability ---
-    System.out.println("--- Scenario 5: Optic Reusability ---");
-
-    List<Form> formsToValidate = List.of(validForm, multipleInvalidForm, guestForm);
-
-    System.out.println("Batch validation results:");
-    formsToValidate.forEach(
-        form -> {
-          Validated<String, Form> result = validateFormPermissions(form);
-          String status = result.isValid() ? "✓ VALID" : "✗ INVALID";
-          System.out.println("  Form " + form.formId() + ": " + status);
-          if (result.isInvalid()) {
-            System.out.println("    Errors: " + result.getError());
-          }
-        });
-    System.out.println();
-
-    // --- SCENARIO 6: Alternative validation with different error accumulation ---
-    System.out.println("--- Scenario 6: Different Error Accumulation Strategy ---");
-
-    // Use list-based error accumulation instead of string concatenation
-    Applicative<ValidatedKind.Witness<List<String>>> listApplicative =
-        Instances.validated(Semigroups.list());
-
-    Function<String, Kind<ValidatedKind.Witness<List<String>>, String>> listValidation =
-        name ->
-            VALID_PERMISSIONS.contains(name)
-                ? VALIDATED.widen(Validated.valid(name))
-                : VALIDATED.widen(Validated.invalid(List.of("Invalid permission: " + name)));
-
-    Kind<ValidatedKind.Witness<List<String>>, Form> listResult =
-        FORM_TO_PERMISSION_NAMES.modifyF(listValidation, multipleInvalidForm, listApplicative);
-
-    System.out.println("Input: " + multipleInvalidForm);
-    System.out.println("Result with list accumulation: " + VALIDATED.narrow(listResult));
-
-    selectiveValidationExample();
-  }
-
-  /**
-   * Demonstrates using Selective for smarter validation. Skip expensive validations if cheap checks
-   * fail.
-   */
-  private static void selectiveValidationExample() {
-    System.out.println("--- Scenario 7: Selective Validation (Smart Short-Circuiting) ---");
-
-    var userWithInvalidPerms =
-        new VTUser(
-            "eve",
-            List.of(
-                new Permission(""), // Empty - cheap check fails
-                new Permission("PERM_READ"), // Valid
-                new Permission("INVALID_PERM") // Invalid - would need expensive check
-                ));
-    var form = new Form(7, userWithInvalidPerms);
-
-    System.out.println("Input: " + form);
-
-    // Two-stage validation: cheap check first, expensive check only if needed
-    Predicate<String> notEmpty = name -> !name.isEmpty();
-
-    Function<String, Kind<ValidatedKind.Witness<String>, String>> expensiveValidation =
-        name -> {
-          System.out.println("  Running EXPENSIVE validation for: " + name);
-          return validatePermissionName(name);
+    /**
+     * Demonstrates using Selective for smarter validation. Skip expensive validations if cheap checks
+     * fail.
+     */
+    private static void selectiveValidationExample() {
+        System.out.println("--- Scenario 7: Selective Validation (Smart Short-Circuiting) ---");
+        var userWithInvalidPerms = new VTUser("eve", List.of(// Empty - cheap check fails
+        new Permission(""), // Valid
+        new Permission("PERM_READ"), // Invalid - would need expensive check
+        new Permission("INVALID_PERM")));
+        var form = new Form(7, userWithInvalidPerms);
+        System.out.println("Input: " + form);
+        // Two-stage validation: cheap check first, expensive check only if needed
+        Predicate<String> notEmpty = name -> !name.isEmpty();
+        Function<String, Kind<ValidatedKind.Witness<String>, String>> expensiveValidation = name -> {
+            System.out.println("  Running EXPENSIVE validation for: " + name);
+            return validatePermissionName(name);
         };
-
-    Selective<ValidatedKind.Witness<String>> selective =
-        ValidatedSelective.instance(Semigroups.string("; "));
-
-    Kind<ValidatedKind.Witness<String>, Form> selectiveResult =
-        FORM_TO_PERMISSION_NAMES.modifyWhen(
-            notEmpty, // Cheap check
-            expensiveValidation, // Expensive check (only if cheap passes)
-            form,
-            selective);
-
-    System.out.println("Result: " + VALIDATED.narrow(selectiveResult));
-    System.out.println("Note: Expensive validation only ran for non-empty permissions\n");
-  }
+        Selective<ValidatedKind.Witness<String>> selective = ValidatedSelective.instance(Semigroups.string("; "));
+        Kind<ValidatedKind.Witness<String>, Form> selectiveResult = FORM_TO_PERMISSION_NAMES.modifyWhen(// Cheap check
+        notEmpty, // Expensive check (only if cheap passes)
+        expensiveValidation, form, selective);
+        System.out.println("Result: " + VALIDATED.narrow(selectiveResult));
+        System.out.println("Note: Expensive validation only ran for non-empty permissions\n");
+    }
 }

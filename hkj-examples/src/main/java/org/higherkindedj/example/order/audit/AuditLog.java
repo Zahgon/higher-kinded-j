@@ -17,97 +17,99 @@ import org.higherkindedj.hkt.Monoid;
  */
 public record AuditLog(List<AuditEntry> entries) {
 
-  /** An empty audit log. */
-  public static final AuditLog EMPTY = new AuditLog(List.of());
-
-  /**
-   * Creates an audit log with a single entry.
-   *
-   * @param entry the entry to include
-   * @return a new audit log
-   */
-  public static AuditLog of(AuditEntry entry) {
-    return new AuditLog(List.of(entry));
-  }
-
-  /**
-   * Creates an audit log with a single entry.
-   *
-   * @param action the action being logged
-   * @param details additional details
-   * @return a new audit log
-   */
-  public static AuditLog of(String action, String details) {
-    return of(new AuditEntry(action, details, Instant.now()));
-  }
-
-  /**
-   * Appends another audit log to this one.
-   *
-   * @param other the audit log to append
-   * @return a new audit log with combined entries
-   */
-  public AuditLog append(AuditLog other) {
-    var combined = new ArrayList<>(entries);
-    combined.addAll(other.entries);
-    return new AuditLog(List.copyOf(combined));
-  }
-
-  /**
-   * Appends a single entry to this audit log.
-   *
-   * @param entry the entry to append
-   * @return a new audit log with the entry added
-   */
-  public AuditLog append(AuditEntry entry) {
-    var combined = new ArrayList<>(entries);
-    combined.add(entry);
-    return new AuditLog(List.copyOf(combined));
-  }
-
-  /**
-   * Returns a Monoid instance for AuditLog.
-   *
-   * <p>This enables AuditLog to be used with WriterPath for automatic accumulation.
-   *
-   * @return the AuditLog monoid
-   */
-  public static Monoid<AuditLog> monoid() {
-    return AuditLogMonoid.INSTANCE;
-  }
-
-  /**
-   * A single audit entry.
-   *
-   * @param action the action that occurred
-   * @param details additional details about the action
-   * @param timestamp when the action occurred
-   */
-  public record AuditEntry(String action, String details, Instant timestamp) {
     /**
-     * Creates an entry with the current timestamp.
-     *
-     * @param action the action
-     * @param details the details
-     * @return a new audit entry
+     * An empty audit log.
      */
-    public static AuditEntry now(String action, String details) {
-      return new AuditEntry(action, details, Instant.now());
-    }
-  }
+    public static final AuditLog EMPTY = new AuditLog(List.of());
 
-  /** Monoid instance for AuditLog. */
-  private enum AuditLogMonoid implements Monoid<AuditLog> {
-    INSTANCE;
-
-    @Override
-    public AuditLog empty() {
-      return EMPTY;
+    /**
+     * Creates an audit log with a single entry.
+     *
+     * @param entry the entry to include
+     * @return a new audit log
+     */
+    public static AuditLog of(AuditEntry entry) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    @Override
-    public AuditLog combine(AuditLog a, AuditLog b) {
-      return a.append(b);
+    /**
+     * Creates an audit log with a single entry.
+     *
+     * @param action the action being logged
+     * @param details additional details
+     * @return a new audit log
+     */
+    public static AuditLog of(String action, String details) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-  }
+
+    /**
+     * Appends another audit log to this one.
+     *
+     * @param other the audit log to append
+     * @return a new audit log with combined entries
+     */
+    public AuditLog append(AuditLog other) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Appends a single entry to this audit log.
+     *
+     * @param entry the entry to append
+     * @return a new audit log with the entry added
+     */
+    public AuditLog append(AuditEntry entry) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Returns a Monoid instance for AuditLog.
+     *
+     * <p>This enables AuditLog to be used with WriterPath for automatic accumulation.
+     *
+     * @return the AuditLog monoid
+     */
+    public static Monoid<AuditLog> monoid() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * A single audit entry.
+     *
+     * @param action the action that occurred
+     * @param details additional details about the action
+     * @param timestamp when the action occurred
+     */
+    public record AuditEntry(String action, String details, Instant timestamp) {
+
+        /**
+         * Creates an entry with the current timestamp.
+         *
+         * @param action the action
+         * @param details the details
+         * @return a new audit entry
+         */
+        public static AuditEntry now(String action, String details) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+    }
+
+    /**
+     * Monoid instance for AuditLog.
+     */
+    private enum AuditLogMonoid implements Monoid<AuditLog> {
+
+        INSTANCE;
+
+        @Override
+        public AuditLog empty() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public AuditLog combine(AuditLog a, AuditLog b) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+    }
 }

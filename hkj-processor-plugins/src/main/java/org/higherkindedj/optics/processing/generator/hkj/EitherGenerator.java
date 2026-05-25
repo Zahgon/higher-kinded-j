@@ -27,93 +27,61 @@ import org.higherkindedj.optics.processing.spi.TraversableGenerator;
 @ServiceProvider(TraversableGenerator.class)
 public class EitherGenerator extends BaseTraversableGenerator {
 
-  /** Creates a new generator for {@link Either} fields. */
-  public EitherGenerator() {}
-
-  private static final String FQN_EITHER = "org.higherkindedj.hkt.either.Either";
-
-  @Override
-  public boolean supports(final TypeMirror type) {
-    if (!(type instanceof DeclaredType declaredType)) {
-      return false;
+    /**
+     * Creates a new generator for {@link Either} fields.
+     */
+    public EitherGenerator() {
     }
-    final Element element = declaredType.asElement();
-    return element != null && element.toString().equals(FQN_EITHER);
-  }
 
-  @Override
-  public Cardinality getCardinality() {
-    return Cardinality.ZERO_OR_ONE;
-  }
+    private static final String FQN_EITHER = "org.higherkindedj.hkt.either.Either";
 
-  @Override
-  public int getFocusTypeArgumentIndex() {
-    return 1; // Either<L, R> focuses on R (the second type argument)
-  }
+    @Override
+    public boolean supports(final TypeMirror type) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public String generateOpticExpression() {
-    return "Affines.eitherRight()";
-  }
+    @Override
+    public Cardinality getCardinality() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public Set<String> getRequiredImports() {
-    return Set.of("org.higherkindedj.optics.util.Affines");
-  }
+    @Override
+    public int getFocusTypeArgumentIndex() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public CodeBlock generateModifyF(
-      final RecordComponentElement component,
-      final ClassName recordClassName,
-      final List<? extends RecordComponentElement> allComponents) {
+    @Override
+    public String generateOpticExpression() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    final String componentName = component.getSimpleName().toString();
-    final TypeName leftTypeName = getLeftTypeName(component);
-    final TypeName rightTypeName = getRightTypeName(component);
+    @Override
+    public Set<String> getRequiredImports() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    final String constructorArgs =
-        generateConstructorArgs(componentName, "Either.right(newValue)", allComponents);
+    @Override
+    public CodeBlock generateModifyF(final RecordComponentElement component, final ClassName recordClassName, final List<? extends RecordComponentElement> allComponents) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    return CodeBlock.builder()
-        .addStatement(
-            "final $T<$T, $T> either = source.$L()",
-            Either.class,
-            leftTypeName,
-            rightTypeName,
-            componentName)
-        .beginControlFlow("if (either.isRight())")
-        .addStatement("final var g_of_b = f.apply(either.getRight())")
-        .addStatement(
-            "@SuppressWarnings(\"unchecked\") final var g_of_b_casted = ($T) g_of_b",
-            ParameterizedTypeName.get(
-                ClassName.get(Kind.class), TypeVariableName.get("F"), rightTypeName.box()))
-        .addStatement(
-            "return applicative.map(newValue -> new $T($L), g_of_b_casted)",
-            recordClassName,
-            constructorArgs)
-        .nextControlFlow("else")
-        .addStatement("return applicative.of(source)")
-        .endControlFlow()
-        .build();
-  }
-
-  private TypeName getRightTypeName(final RecordComponentElement component) {
-    if (component.asType() instanceof DeclaredType containerType) {
-      if (containerType.getTypeArguments().size() < 2) {
+    private TypeName getRightTypeName(final RecordComponentElement component) {
+        if (component.asType() instanceof DeclaredType containerType) {
+            if (containerType.getTypeArguments().size() < 2) {
+                return ClassName.get(Object.class);
+            }
+            return TypeName.get(containerType.getTypeArguments().get(1));
+        }
         return ClassName.get(Object.class);
-      }
-      return TypeName.get(containerType.getTypeArguments().get(1));
     }
-    return ClassName.get(Object.class);
-  }
 
-  private TypeName getLeftTypeName(final RecordComponentElement component) {
-    if (component.asType() instanceof DeclaredType containerType) {
-      if (containerType.getTypeArguments().isEmpty()) {
+    private TypeName getLeftTypeName(final RecordComponentElement component) {
+        if (component.asType() instanceof DeclaredType containerType) {
+            if (containerType.getTypeArguments().isEmpty()) {
+                return ClassName.get(Object.class);
+            }
+            return TypeName.get(containerType.getTypeArguments().getFirst());
+        }
         return ClassName.get(Object.class);
-      }
-      return TypeName.get(containerType.getTypeArguments().getFirst());
     }
-    return ClassName.get(Object.class);
-  }
 }

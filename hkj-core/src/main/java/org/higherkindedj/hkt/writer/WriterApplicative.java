@@ -5,7 +5,6 @@ package org.higherkindedj.hkt.writer;
 import static org.higherkindedj.hkt.util.validation.Operation.AP;
 import static org.higherkindedj.hkt.util.validation.Operation.CONSTRUCTION;
 import static org.higherkindedj.hkt.writer.WriterKindHelper.WRITER;
-
 import java.util.function.Function;
 import org.higherkindedj.hkt.Applicative;
 import org.higherkindedj.hkt.Kind;
@@ -30,75 +29,59 @@ import org.jspecify.annotations.Nullable;
  * @see Monoid
  * @see WriterKindHelper
  */
-public class WriterApplicative<W> extends WriterFunctor<W>
-    implements Applicative<WriterKind.Witness<W>> {
+public class WriterApplicative<W> extends WriterFunctor<W> implements Applicative<WriterKind.Witness<W>> {
 
-  protected final Monoid<W> monoidW;
+    protected final Monoid<W> monoidW;
 
-  /**
-   * Constructs a {@code WriterApplicative}.
-   *
-   * @param monoidW The {@link Monoid} instance for the log type {@code W}. Must not be null. This
-   *     is used for combining logs in operations like {@code ap}.
-   * @throws NullPointerException if {@code monoidW} is null.
-   */
-  public WriterApplicative(Monoid<W> monoidW) {
-    Validation.function().require(monoidW, "monoidW", CONSTRUCTION);
-    this.monoidW = monoidW;
-  }
+    /**
+     * Constructs a {@code WriterApplicative}.
+     *
+     * @param monoidW The {@link Monoid} instance for the log type {@code W}. Must not be null. This
+     *     is used for combining logs in operations like {@code ap}.
+     * @throws NullPointerException if {@code monoidW} is null.
+     */
+    public WriterApplicative(Monoid<W> monoidW) {
+        Validation.function().require(monoidW, "monoidW", CONSTRUCTION);
+        this.monoidW = monoidW;
+    }
 
-  /**
-   * Lifts a pure value {@code value} into the {@link Writer} context. The resulting {@code
-   * Writer<W, A>} will have an empty log (as defined by the {@link Monoid} for {@code W}) and the
-   * provided {@code value}.
-   *
-   * @param value The value to lift into the {@code Writer} context. Can be {@code null}.
-   * @param <A> The type of the lifted value.
-   * @return A {@code Kind<WriterKind.Witness<W>, A>} representing a {@code Writer<W, A>} with an
-   *     empty log and the given {@code value}. Never null.
-   */
-  @Override
-  public <A> Kind<WriterKind.Witness<W>, A> of(@Nullable A value) {
-    return WRITER.value(monoidW, value);
-  }
+    /**
+     * Lifts a pure value {@code value} into the {@link Writer} context. The resulting {@code
+     * Writer<W, A>} will have an empty log (as defined by the {@link Monoid} for {@code W}) and the
+     * provided {@code value}.
+     *
+     * @param value The value to lift into the {@code Writer} context. Can be {@code null}.
+     * @param <A> The type of the lifted value.
+     * @return A {@code Kind<WriterKind.Witness<W>, A>} representing a {@code Writer<W, A>} with an
+     *     empty log and the given {@code value}. Never null.
+     */
+    @Override
+    public <A> Kind<WriterKind.Witness<W>, A> of(@Nullable A value) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Applies a function contained within a {@code Kind<WriterKind.Witness<W>, Function<A, B>>} to a
-   * value contained within a {@code Kind<WriterKind.Witness<W>, A>}.
-   *
-   * <p>The logs from both underlying {@code Writer} instances are combined using the {@link Monoid}
-   * for {@code W}. The function from the first writer is applied to the value from the second
-   * writer.
-   *
-   * @param ff The higher-kinded representation of a {@code Writer<W, Function<A, B>>}. Must not be
-   *     null.
-   * @param fa The higher-kinded representation of a {@code Writer<W, A>}. Must not be null.
-   * @param <A> The type of the value to which the function is applied.
-   * @param <B> The result type of the function application.
-   * @return A new {@code Kind<WriterKind.Witness<W>, B>} representing the {@code Writer<W, B>} that
-   *     results from applying the function and combining logs. Never null.
-   * @throws NullPointerException if {@code ff} or {@code fa} is null, or if the function extracted
-   *     from {@code ff} is null.
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code ff} or {@code fa} cannot
-   *     be unwrapped to valid {@code Writer} representations.
-   */
-  @Override
-  public <A, B> Kind<WriterKind.Witness<W>, B> ap(
-      Kind<WriterKind.Witness<W>, ? extends Function<A, B>> ff, Kind<WriterKind.Witness<W>, A> fa) {
-
-    Validation.kind().validateAp(ff, fa);
-
-    Writer<W, ? extends Function<A, B>> writerF = WRITER.narrow(ff);
-    Writer<W, A> writerA = WRITER.narrow(fa);
-
-    W combinedLog = monoidW.combine(writerF.log(), writerA.log());
-
-    Function<A, B> func = writerF.value();
-    A val = writerA.value();
-
-    Validation.function().require(func, "function", AP);
-    B resultValue = func.apply(val);
-
-    return WRITER.widen(new Writer<>(combinedLog, resultValue));
-  }
+    /**
+     * Applies a function contained within a {@code Kind<WriterKind.Witness<W>, Function<A, B>>} to a
+     * value contained within a {@code Kind<WriterKind.Witness<W>, A>}.
+     *
+     * <p>The logs from both underlying {@code Writer} instances are combined using the {@link Monoid}
+     * for {@code W}. The function from the first writer is applied to the value from the second
+     * writer.
+     *
+     * @param ff The higher-kinded representation of a {@code Writer<W, Function<A, B>>}. Must not be
+     *     null.
+     * @param fa The higher-kinded representation of a {@code Writer<W, A>}. Must not be null.
+     * @param <A> The type of the value to which the function is applied.
+     * @param <B> The result type of the function application.
+     * @return A new {@code Kind<WriterKind.Witness<W>, B>} representing the {@code Writer<W, B>} that
+     *     results from applying the function and combining logs. Never null.
+     * @throws NullPointerException if {@code ff} or {@code fa} is null, or if the function extracted
+     *     from {@code ff} is null.
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code ff} or {@code fa} cannot
+     *     be unwrapped to valid {@code Writer} representations.
+     */
+    @Override
+    public <A, B> Kind<WriterKind.Witness<W>, B> ap(Kind<WriterKind.Witness<W>, ? extends Function<A, B>> ff, Kind<WriterKind.Witness<W>, A> fa) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

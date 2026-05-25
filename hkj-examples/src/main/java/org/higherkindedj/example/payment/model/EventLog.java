@@ -17,25 +17,21 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public record EventLog(Map<String, Object> events) {
 
-  public EventLog {
-    Objects.requireNonNull(events, "events cannot be null");
-    events = Map.copyOf(events);
-  }
-
-  /**
-   * Retrieves a pre-recorded event by key.
-   *
-   * @param key the operation key
-   * @param <T> the expected result type
-   * @return the stored result
-   * @throws IllegalStateException if the key is not present
-   */
-  @SuppressWarnings("unchecked")
-  public <T> T get(String key) {
-    Object value = events.get(key);
-    if (value == null) {
-      throw new IllegalStateException("No recorded event for key: " + key);
+    public EventLog {
+        Objects.requireNonNull(events, "events cannot be null");
+        events = Map.copyOf(events);
     }
-    return (T) value;
-  }
+
+    /**
+     * Retrieves a pre-recorded event by key.
+     *
+     * @param key the operation key
+     * @param <T> the expected result type
+     * @return the stored result
+     * @throws IllegalStateException if the key is not present
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T get(String key) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

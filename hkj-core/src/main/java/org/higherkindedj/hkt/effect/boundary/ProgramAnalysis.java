@@ -18,16 +18,19 @@ import org.jspecify.annotations.NullMarked;
  * @param applicativeBlocks number of Ap nodes (applicative parallel blocks)
  */
 @NullMarked
-public record ProgramAnalysis(
-    Set<String> effectsUsed, int totalInstructions, int recoveryPoints, int applicativeBlocks) {
+public record ProgramAnalysis(Set<String> effectsUsed, int totalInstructions, int recoveryPoints, int applicativeBlocks) {
 
-  /** Creates a ProgramAnalysis with defensive copies. */
-  public ProgramAnalysis {
-    effectsUsed = Set.copyOf(effectsUsed);
-  }
+    /**
+     * Creates a ProgramAnalysis with defensive copies.
+     */
+    public ProgramAnalysis {
+        effectsUsed = Set.copyOf(effectsUsed);
+    }
 
-  /** Creates an empty analysis. */
-  public static ProgramAnalysis empty() {
-    return new ProgramAnalysis(new HashSet<>(), 0, 0, 0);
-  }
+    /**
+     * Creates an empty analysis.
+     */
+    public static ProgramAnalysis empty() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

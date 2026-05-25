@@ -47,104 +47,87 @@ import org.springframework.security.web.access.intercept.RequestAuthorizationCon
  *   <li>Better logging and auditing
  * </ul>
  */
-public class EitherAuthorizationManager
-    implements AuthorizationManager<RequestAuthorizationContext> {
+public class EitherAuthorizationManager implements AuthorizationManager<RequestAuthorizationContext> {
 
-  /** Creates a new EitherAuthorizationManager with default settings. */
-  public EitherAuthorizationManager() {}
-
-  /**
-   * Authorizes access using Either for functional decision making.
-   *
-   * @param authentication the authentication supplier
-   * @param context the request context
-   * @return authorization result (may be null when abstaining)
-   */
-  @Override
-  public @Nullable AuthorizationResult authorize(
-      Supplier<? extends @Nullable Authentication> authentication,
-      RequestAuthorizationContext context) {
-
-    Either<AuthorizationError, AuthorizationSuccess> result =
-        checkAuthentication(authentication.get())
-            .flatMap(auth -> checkAuthorities(auth))
-            .flatMap(auth -> checkRequestPath(auth, context));
-
-    // Fold Either to AuthorizationDecision
-    return result.fold(
-        error -> new AuthorizationDecision(false), success -> new AuthorizationDecision(true));
-  }
-
-  /**
-   * Checks if authentication is present and valid.
-   *
-   * @param authentication the authentication
-   * @return Either containing authentication or error
-   */
-  private Either<AuthorizationError, Authentication> checkAuthentication(
-      Authentication authentication) {
-    if (authentication == null) {
-      return Either.left(new AuthorizationError("No authentication present"));
+    /**
+     * Creates a new EitherAuthorizationManager with default settings.
+     */
+    public EitherAuthorizationManager() {
     }
 
-    if (!authentication.isAuthenticated()) {
-      return Either.left(new AuthorizationError("Authentication not authenticated"));
+    /**
+     * Authorizes access using Either for functional decision making.
+     *
+     * @param authentication the authentication supplier
+     * @param context the request context
+     * @return authorization result (may be null when abstaining)
+     */
+    @Override
+    @Nullable
+    public AuthorizationResult authorize(Supplier<? extends @Nullable Authentication> authentication, RequestAuthorizationContext context) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    return Either.right(authentication);
-  }
-
-  /**
-   * Checks if authentication has required authorities.
-   *
-   * @param authentication the authentication
-   * @return Either containing authentication or error
-   */
-  private Either<AuthorizationError, Authentication> checkAuthorities(
-      Authentication authentication) {
-    boolean hasAdminRole =
-        authentication.getAuthorities().stream()
-            .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
-
-    if (!hasAdminRole) {
-      return Either.left(new AuthorizationError("Missing required ADMIN role"));
+    /**
+     * Checks if authentication is present and valid.
+     *
+     * @param authentication the authentication
+     * @return Either containing authentication or error
+     */
+    private Either<AuthorizationError, Authentication> checkAuthentication(Authentication authentication) {
+        if (authentication == null) {
+            return Either.left(new AuthorizationError("No authentication present"));
+        }
+        if (!authentication.isAuthenticated()) {
+            return Either.left(new AuthorizationError("Authentication not authenticated"));
+        }
+        return Either.right(authentication);
     }
 
-    return Either.right(authentication);
-  }
-
-  /**
-   * Checks if request path is allowed.
-   *
-   * @param authentication the authentication
-   * @param context the request context
-   * @return Either containing success or error
-   */
-  private Either<AuthorizationError, AuthorizationSuccess> checkRequestPath(
-      Authentication authentication, RequestAuthorizationContext context) {
-
-    String path = context.getRequest().getRequestURI();
-
-    // Example: block certain paths even for admins
-    if (path != null && path.startsWith("/api/admin/dangerous")) {
-      return Either.left(new AuthorizationError("Dangerous path access denied"));
+    /**
+     * Checks if authentication has required authorities.
+     *
+     * @param authentication the authentication
+     * @return Either containing authentication or error
+     */
+    private Either<AuthorizationError, Authentication> checkAuthorities(Authentication authentication) {
+        boolean hasAdminRole = authentication.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+        if (!hasAdminRole) {
+            return Either.left(new AuthorizationError("Missing required ADMIN role"));
+        }
+        return Either.right(authentication);
     }
 
-    return Either.right(new AuthorizationSuccess(authentication.getName(), path));
-  }
+    /**
+     * Checks if request path is allowed.
+     *
+     * @param authentication the authentication
+     * @param context the request context
+     * @return Either containing success or error
+     */
+    private Either<AuthorizationError, AuthorizationSuccess> checkRequestPath(Authentication authentication, RequestAuthorizationContext context) {
+        String path = context.getRequest().getRequestURI();
+        // Example: block certain paths even for admins
+        if (path != null && path.startsWith("/api/admin/dangerous")) {
+            return Either.left(new AuthorizationError("Dangerous path access denied"));
+        }
+        return Either.right(new AuthorizationSuccess(authentication.getName(), path));
+    }
 
-  /**
-   * Error type for authorization failures.
-   *
-   * @param reason the reason authorization was denied
-   */
-  public record AuthorizationError(String reason) {}
+    /**
+     * Error type for authorization failures.
+     *
+     * @param reason the reason authorization was denied
+     */
+    public record AuthorizationError(String reason) {
+    }
 
-  /**
-   * Success type for authorization.
-   *
-   * @param principal the authorized principal name
-   * @param allowedPath the path that was authorized
-   */
-  public record AuthorizationSuccess(String principal, String allowedPath) {}
+    /**
+     * Success type for authorization.
+     *
+     * @param principal the authorized principal name
+     * @param allowedPath the path that was authorized
+     */
+    public record AuthorizationSuccess(String principal, String allowedPath) {
+    }
 }

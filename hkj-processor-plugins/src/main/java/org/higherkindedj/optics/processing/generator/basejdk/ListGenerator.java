@@ -25,51 +25,31 @@ import org.higherkindedj.optics.util.Traversals;
 @ServiceProvider(TraversableGenerator.class)
 public class ListGenerator extends BaseTraversableGenerator {
 
-  /** Creates a new generator for {@link java.util.List} fields. */
-  public ListGenerator() {}
+    /**
+     * Creates a new generator for {@link java.util.List} fields.
+     */
+    public ListGenerator() {
+    }
 
-  private static final String FQN_LIST = "java.util.List";
+    private static final String FQN_LIST = "java.util.List";
 
-  @Override
-  public boolean supports(final TypeMirror type) {
-    if (!(type instanceof DeclaredType declaredType)) return false;
-    final Element element = declaredType.asElement();
-    return element.toString().equals(FQN_LIST);
-  }
+    @Override
+    public boolean supports(final TypeMirror type) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public String generateOpticExpression() {
-    return "EachInstances.listEach()";
-  }
+    @Override
+    public String generateOpticExpression() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public Set<String> getRequiredImports() {
-    return Set.of("org.higherkindedj.optics.each.EachInstances");
-  }
+    @Override
+    public Set<String> getRequiredImports() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public CodeBlock generateModifyF(
-      final RecordComponentElement component,
-      final ClassName recordClassName,
-      final List<? extends RecordComponentElement> allComponents) {
-
-    final String componentName = component.getSimpleName().toString();
-    // Use the inherited helper to generate the constructor args. The new value
-    // for the list is assumed to be in a variable named `newList`.
-    final String constructorArgs = generateConstructorArgs(componentName, "newList", allComponents);
-
-    // The generated code is now a clean, two-step process.
-    return CodeBlock.builder()
-        // 1. Call the static helper to traverse the list.
-        .addStatement(
-            "final var effectOfList = $T.traverseList(source.$L(), f, applicative)",
-            Traversals.class,
-            componentName)
-        // 2. Map over the final effect to reconstruct the record with the new list.
-        .addStatement(
-            "return applicative.map(newList -> new $T($L), effectOfList)",
-            recordClassName,
-            constructorArgs)
-        .build();
-  }
+    @Override
+    public CodeBlock generateModifyF(final RecordComponentElement component, final ClassName recordClassName, final List<? extends RecordComponentElement> allComponents) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

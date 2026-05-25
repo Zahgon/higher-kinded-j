@@ -5,7 +5,6 @@ package org.higherkindedj.hkt.state_op;
 import static org.higherkindedj.hkt.io.IOKindHelper.IO_OP;
 import static org.higherkindedj.hkt.util.validation.Operation.CONSTRUCTION;
 import static org.higherkindedj.hkt.util.validation.Operation.FROM_KIND;
-
 import java.util.concurrent.atomic.AtomicReference;
 import org.higherkindedj.hkt.Kind;
 import org.higherkindedj.hkt.Natural;
@@ -38,28 +37,19 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public class IOStateOpInterpreter<S> implements Natural<StateOpKind.Witness<S>, IOKind.Witness> {
 
-  private final AtomicReference<S> stateRef;
+    private final AtomicReference<S> stateRef;
 
-  /**
-   * Creates an interpreter backed by the given AtomicReference.
-   *
-   * @param stateRef The mutable state reference. Must not be null.
-   */
-  public IOStateOpInterpreter(AtomicReference<S> stateRef) {
-    this.stateRef = Validation.function().require(stateRef, "stateRef", CONSTRUCTION);
-  }
+    /**
+     * Creates an interpreter backed by the given AtomicReference.
+     *
+     * @param stateRef The mutable state reference. Must not be null.
+     */
+    public IOStateOpInterpreter(AtomicReference<S> stateRef) {
+        this.stateRef = Validation.function().require(stateRef, "stateRef", CONSTRUCTION);
+    }
 
-  @Override
-  public <A> Kind<IOKind.Witness, A> apply(Kind<StateOpKind.Witness<S>, A> fa) {
-    Validation.kind().requireNonNull(fa, FROM_KIND);
-    StateOp<S, A> op = StateOpKindHelper.STATE_OP.narrow(fa);
-    IO<A> io =
-        IO.delay(
-            () -> {
-              StateTuple<S, A> result = op.interpretState(stateRef.get());
-              stateRef.set(result.state());
-              return result.value();
-            });
-    return IO_OP.widen(io);
-  }
+    @Override
+    public <A> Kind<IOKind.Witness, A> apply(Kind<StateOpKind.Witness<S>, A> fa) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

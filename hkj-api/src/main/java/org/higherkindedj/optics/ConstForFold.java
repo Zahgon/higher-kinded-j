@@ -25,45 +25,32 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 record ConstForFold<M, A>(M value) implements Kind<ConstForFold.Witness<M>, A> {
 
-  /** Witness type for the Const functor, parameterized by the monoid type. */
-  static final class Witness<M> implements WitnessArity<TypeArity.Unary> {
-    private Witness() {}
-  }
+    /**
+     * Witness type for the Const functor, parameterized by the monoid type.
+     */
+    static final class Witness<M> implements WitnessArity<TypeArity.Unary> {
 
-  @SuppressWarnings("unchecked")
-  static <M, A> ConstForFold<M, A> narrow(Kind<Witness<M>, A> kind) {
-    return (ConstForFold<M, A>) Objects.requireNonNull(kind);
-  }
+        private Witness() {
+        }
+    }
 
-  /**
-   * Creates an {@link Applicative} for the Const functor backed by the given {@link Monoid}.
-   *
-   * <p>The applicative's {@code of} returns the monoid's empty value, {@code map} preserves the
-   * accumulated value (ignoring the function), and {@code ap} combines accumulated values using the
-   * monoid. The default {@code map2} delegates to {@code map} and {@code ap}.
-   *
-   * @param monoid The monoid used to combine accumulated values.
-   * @param <M> The type of the accumulated monoidal value.
-   * @return An Applicative instance for {@code ConstForFold.Witness<M>}.
-   */
-  static <M> Applicative<Witness<M>> applicative(Monoid<M> monoid) {
-    return new Applicative<>() {
-      @Override
-      public <A> Kind<Witness<M>, A> of(A value) {
-        return new ConstForFold<>(monoid.empty());
-      }
+    @SuppressWarnings("unchecked")
+    static <M, A> ConstForFold<M, A> narrow(Kind<Witness<M>, A> kind) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-      @Override
-      public <A, B> Kind<Witness<M>, B> map(
-          Function<? super A, ? extends B> f, Kind<Witness<M>, A> fa) {
-        return new ConstForFold<>(narrow(fa).value());
-      }
-
-      @Override
-      public <A, B> Kind<Witness<M>, B> ap(
-          Kind<Witness<M>, ? extends Function<A, B>> ff, Kind<Witness<M>, A> fa) {
-        return new ConstForFold<>(monoid.combine(narrow(ff).value(), narrow(fa).value()));
-      }
-    };
-  }
+    /**
+     * Creates an {@link Applicative} for the Const functor backed by the given {@link Monoid}.
+     *
+     * <p>The applicative's {@code of} returns the monoid's empty value, {@code map} preserves the
+     * accumulated value (ignoring the function), and {@code ap} combines accumulated values using the
+     * monoid. The default {@code map2} delegates to {@code map} and {@code ap}.
+     *
+     * @param monoid The monoid used to combine accumulated values.
+     * @param <M> The type of the accumulated monoidal value.
+     * @return An Applicative instance for {@code ConstForFold.Witness<M>}.
+     */
+    static <M> Applicative<Witness<M>> applicative(Monoid<M> monoid) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

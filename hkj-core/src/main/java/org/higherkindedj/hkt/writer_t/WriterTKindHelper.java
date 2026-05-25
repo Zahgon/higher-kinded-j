@@ -16,44 +16,42 @@ import org.jspecify.annotations.Nullable;
  * WriterTKindHelper.WRITER_T.widen(myWriterTInstance);}
  */
 public enum WriterTKindHelper implements WriterTConverterOps {
-  WRITER_T;
 
-  private static final Class<WriterT> WRITER_T_CLASS = WriterT.class;
+    WRITER_T;
 
-  /**
-   * Widens a concrete {@link WriterT WriterT&lt;F, W, A&gt;} instance into its {@link Kind}
-   * representation.
-   *
-   * @param <F> The witness type of the outer monad.
-   * @param <W> The type of the accumulated output.
-   * @param <A> The type of the value.
-   * @param writerT The concrete {@link WriterT} instance to widen. Must not be null.
-   * @return The {@code Kind} representation. Never null.
-   * @throws NullPointerException if {@code writerT} is null.
-   */
-  @Override
-  public <F extends WitnessArity<TypeArity.Unary>, W, A> Kind<WriterTKind.Witness<F, W>, A> widen(
-      WriterT<F, W, A> writerT) {
-    Validation.kind().requireForWiden(writerT, WRITER_T_CLASS);
-    return writerT;
-  }
+    private static final Class<WriterT> WRITER_T_CLASS = WriterT.class;
 
-  /**
-   * Narrows a {@code Kind<WriterTKind.Witness<F, W>, A>} back to its concrete {@link WriterT
-   * WriterT&lt;F, W, A&gt;} type.
-   *
-   * @param <F> The witness type of the outer monad.
-   * @param <W> The type of the accumulated output.
-   * @param <A> The type of the value.
-   * @param kind The {@code Kind} to narrow. Can be null.
-   * @return The unwrapped {@link WriterT} instance. Never null.
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code kind} is null or not a
-   *     {@link WriterT} instance.
-   */
-  @Override
-  @SuppressWarnings("unchecked")
-  public <F extends WitnessArity<TypeArity.Unary>, W, A> WriterT<F, W, A> narrow(
-      @Nullable Kind<WriterTKind.Witness<F, W>, A> kind) {
-    return Validation.kind().narrowWithTypeCheck(kind, WRITER_T_CLASS);
-  }
+    /**
+     * Widens a concrete {@link WriterT WriterT&lt;F, W, A&gt;} instance into its {@link Kind}
+     * representation.
+     *
+     * @param <F> The witness type of the outer monad.
+     * @param <W> The type of the accumulated output.
+     * @param <A> The type of the value.
+     * @param writerT The concrete {@link WriterT} instance to widen. Must not be null.
+     * @return The {@code Kind} representation. Never null.
+     * @throws NullPointerException if {@code writerT} is null.
+     */
+    @Override
+    public <F extends WitnessArity<TypeArity.Unary>, W, A> Kind<WriterTKind.Witness<F, W>, A> widen(WriterT<F, W, A> writerT) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Narrows a {@code Kind<WriterTKind.Witness<F, W>, A>} back to its concrete {@link WriterT
+     * WriterT&lt;F, W, A&gt;} type.
+     *
+     * @param <F> The witness type of the outer monad.
+     * @param <W> The type of the accumulated output.
+     * @param <A> The type of the value.
+     * @param kind The {@code Kind} to narrow. Can be null.
+     * @return The unwrapped {@link WriterT} instance. Never null.
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code kind} is null or not a
+     *     {@link WriterT} instance.
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public <F extends WitnessArity<TypeArity.Unary>, W, A> WriterT<F, W, A> narrow(@Nullable Kind<WriterTKind.Witness<F, W>, A> kind) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

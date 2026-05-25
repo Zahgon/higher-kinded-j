@@ -33,305 +33,207 @@ import org.higherkindedj.optics.util.Traversals;
  */
 public class CompositionRecipes {
 
-  // --- Domain Model ---
-  @GenerateLenses
-  public record Container(String id, Optional<Content> content) {}
-
-  @GenerateLenses
-  public record Content(String data, int priority) {}
-
-  @GeneratePrisms
-  public sealed interface Result permits Success, Failure {}
-
-  @GenerateLenses
-  public record Success(String value, Metadata meta) implements Result {}
-
-  @GenerateLenses
-  public record Metadata(String source, long timestamp) {}
-
-  public record Failure(String error) implements Result {}
-
-  @GenerateLenses
-  public record Batch(String batchId, List<Result> results) {}
-
-  public static void main(String[] args) {
-    System.out.println("=== Composition Recipes ===\n");
-
-    recipeLensPrismComposition();
-    recipePrismLensComposition();
-    recipeOptionalFieldAccess();
-    recipeComplexComposition();
-    recipeCombiningMultipleExtractionPaths();
-    recipeTraversalToFold();
-  }
-
-  /**
-   * Recipe: Lens + Prism = Traversal.
-   *
-   * <p>Pattern: Navigate from a product type through an optional/sum type field.
-   */
-  private static void recipeLensPrismComposition() {
-    System.out.println("--- Recipe: Lens + Prism = Traversal ---");
-
-    // Container has an Optional<Content> field
-    Lens<Container, Optional<Content>> contentLens =
-        Lens.of(Container::content, (c, opt) -> new Container(c.id(), opt));
-
-    // Prism to unwrap Optional
-    Prism<Optional<Content>, Content> somePrism = Prisms.some();
-
-    // Lens + Prism = Affine
-    Affine<Container, Content> contentAffine = contentLens.andThen(somePrism);
-
-    Container withContent = new Container("C1", Optional.of(new Content("data", 5)));
-    Container empty = new Container("C2", Optional.empty());
-
-    // Get content (may be empty)
-    Optional<Content> found = contentAffine.getOptional(withContent);
-    Optional<Content> notFound = contentAffine.getOptional(empty);
-
-    System.out.println("Container with content: " + found);
-    System.out.println("Empty container: " + notFound);
-
-    // Modify content (no-op on empty)
-    Container modified =
-        contentAffine.modify(c -> new Content(c.data().toUpperCase(), c.priority()), withContent);
-
-    System.out.println("Modified: " + modified);
-    System.out.println();
-  }
-
-  /**
-   * Recipe: Prism + Lens = Affine.
-   *
-   * <p>Pattern: Focus on a sum type variant, then access its fields.
-   */
-  private static void recipePrismLensComposition() {
-    System.out.println("--- Recipe: Prism + Lens = Affine ---");
-
-    // Prism for Success variant
-    Prism<Result, Success> successPrism =
-        Prism.of(r -> r instanceof Success s ? Optional.of(s) : Optional.empty(), s -> s);
-
-    // Lens to Success's value
-    Lens<Success, String> valueLens = Lens.of(Success::value, (s, v) -> new Success(v, s.meta()));
-
-    // Prism + Lens = Affine
-    Affine<Result, String> successValueAffine = successPrism.andThen(valueLens);
-
-    Result success = new Success("result", new Metadata("api", System.currentTimeMillis()));
-    Result failure = new Failure("error");
-
-    // Get value from Success (empty from Failure)
-    Optional<String> successValue = successValueAffine.getOptional(success);
-    Optional<String> failureValue = successValueAffine.getOptional(failure);
-
-    System.out.println("From Success: " + successValue);
-    System.out.println("From Failure: " + failureValue);
-
-    // Uppercase only Success values
-    Result modifiedSuccess = successValueAffine.modify(String::toUpperCase, success);
-    Result unchangedFailure = successValueAffine.modify(String::toUpperCase, failure);
-
-    System.out.println("Modified Success: " + modifiedSuccess);
-    System.out.println("Unchanged Failure: " + unchangedFailure);
-    System.out.println();
-  }
-
-  /**
-   * Recipe: Access deeply nested optional fields.
-   *
-   * <p>Pattern: Chain Lens + Prism + Lens (Affine + Lens = Affine).
-   */
-  private static void recipeOptionalFieldAccess() {
-    System.out.println("--- Recipe: Access Nested Optional Fields ---");
-
-    // Build path: Container -> Optional<Content> -> Content -> priority
-    Lens<Container, Optional<Content>> contentLens =
-        Lens.of(Container::content, (c, opt) -> new Container(c.id(), opt));
-
-    Prism<Optional<Content>, Content> somePrism = Prisms.some();
-
-    Lens<Content, Integer> priorityLens =
-        Lens.of(Content::priority, (c, p) -> new Content(c.data(), p));
-
-    // After Lens+Prism=Affine, chain with Lens to get another Affine
-    Affine<Container, Integer> priorityAffine =
-        contentLens.andThen(somePrism).andThen(priorityLens);
-
-    Container container = new Container("C1", Optional.of(new Content("important", 5)));
-
-    // Get priority
-    Optional<Integer> priority = priorityAffine.getOptional(container);
-    System.out.println("Priority: " + priority);
-
-    // Increase priority
-    Container updated = priorityAffine.modify(p -> p + 1, container);
-    System.out.println("After priority increase: " + updated);
-    System.out.println();
-  }
-
-  /**
-   * Recipe: Complex composition with lists and variants.
-   *
-   * <p>Pattern: Batch -> List<Result> -> (Success variant) -> value
-   */
-  private static void recipeComplexComposition() {
-    System.out.println("--- Recipe: Complex Composition ---");
-
-    // Lenses
-    Lens<Batch, List<Result>> resultsLens =
-        Lens.of(Batch::results, (b, results) -> new Batch(b.batchId(), results));
-
-    // Prism for Success
-    Prism<Result, Success> successPrism =
-        Prism.of(r -> r instanceof Success s ? Optional.of(s) : Optional.empty(), s -> s);
-
-    Lens<Success, String> valueLens = Lens.of(Success::value, (s, v) -> new Success(v, s.meta()));
-
-    // Build from inside out: Prism + Lens = Affine, convert to Traversal for list composition
-    // (Prism.andThen(Lens) = Affine, Traversal.andThen(Traversal) = Traversal)
-    Affine<Result, String> resultToValueAffine = successPrism.andThen(valueLens);
-    Traversal<List<Result>, String> listToValues =
-        Traversals.<Result>forList().andThen(resultToValueAffine.asTraversal());
-    Traversal<Batch, String> allSuccessValues = resultsLens.asTraversal().andThen(listToValues);
-
-    Batch batch =
-        new Batch(
-            "B1",
-            List.of(
-                new Success("result1", new Metadata("api", 1L)),
-                new Failure("error1"),
-                new Success("result2", new Metadata("db", 2L)),
-                new Failure("error2"),
-                new Success("result3", new Metadata("cache", 3L))));
-
-    // Get all success values
-    List<String> values = Traversals.getAll(allSuccessValues, batch);
-    System.out.println("All success values: " + values);
-
-    // Uppercase all success values (failures unchanged)
-    Batch updated = Traversals.modify(allSuccessValues, String::toUpperCase, batch);
-    List<String> newValues = Traversals.getAll(allSuccessValues, updated);
-    System.out.println("After uppercase: " + newValues);
-
-    // Verify failures are unchanged
-    System.out.println("Updated batch results: " + updated.results());
-    System.out.println();
-  }
-
-  /**
-   * Recipe: Combining Multiple Extraction Paths with Fold.plus().
-   *
-   * <p>Pattern: Extract values from different branches of a data structure and combine them into a
-   * single result set.
-   */
-  private static void recipeCombiningMultipleExtractionPaths() {
-    System.out.println("--- Recipe: Combining Multiple Extraction Paths ---");
-
-    // Two different ways to get a string value from a Result
-    Prism<Result, Success> successPrism =
-        Prism.of(r -> r instanceof Success s ? Optional.of(s) : Optional.empty(), s -> s);
-
-    Prism<Result, Failure> failurePrism =
-        Prism.of(r -> r instanceof Failure f ? Optional.of(f) : Optional.empty(), f -> f);
-
-    // Extract success values
-    Fold<Result, String> successValues =
-        successPrism.asFold().andThen(Fold.of(s -> List.of(s.value())));
-
-    // Extract failure messages
-    Fold<Result, String> failureMessages =
-        failurePrism.asFold().andThen(Fold.of(f -> List.of(f.error())));
-
-    // Combine: get ALL text from a Result regardless of variant
-    Fold<Result, String> allText = successValues.plus(failureMessages);
-
-    Result success = new Success("ok", new Metadata("api", 1L));
-    Result failure = new Failure("not found");
-
-    System.out.println("Success text: " + allText.getAll(success));
-    System.out.println("Failure text: " + allText.getAll(failure));
-
-    // Use with a batch via Fold.sum()
-    Fold<Batch, String> batchSuccesses =
-        Fold.<Batch, Result>of(Batch::results).andThen(successValues);
-    Fold<Batch, String> batchFailures =
-        Fold.<Batch, Result>of(Batch::results).andThen(failureMessages);
-
-    Fold<Batch, String> batchAllText = Fold.sum(batchSuccesses, batchFailures);
-
-    Batch batch =
-        new Batch(
-            "B1",
-            List.of(
-                new Success("result1", new Metadata("api", 1L)),
-                new Failure("error1"),
-                new Success("result2", new Metadata("db", 2L))));
-
-    System.out.println("All batch text: " + batchAllText.getAll(batch));
-    System.out.println("Total text items: " + batchAllText.length(batch));
-    System.out.println();
-  }
-
-  /**
-   * Recipe: Traversal.asFold() for Read-Only Queries and Combination.
-   *
-   * <p>Pattern: Use Traversal for modifications, convert to Fold via asFold() for aggregation
-   * queries. The resulting Fold can be combined with other Folds via plus()/sum().
-   */
-  private static void recipeTraversalToFold() {
-    System.out.println("--- Recipe: Traversal.asFold() for Queries ---");
-
-    // Prism for Success variant
-    Prism<Result, Success> successPrism =
-        Prism.of(r -> r instanceof Success s ? Optional.of(s) : Optional.empty(), s -> s);
-
-    Lens<Success, String> valueLens = Lens.of(Success::value, (s, v) -> new Success(v, s.meta()));
-    Lens<Success, Metadata> metaLens = Lens.of(Success::meta, (s, m) -> new Success(s.value(), m));
-    Lens<Metadata, String> sourceLens =
-        Lens.of(Metadata::source, (m, src) -> new Metadata(src, m.timestamp()));
-
-    // Build a Traversal for all success values in a Batch
-    Lens<Batch, List<Result>> resultsLens =
-        Lens.of(Batch::results, (b, results) -> new Batch(b.batchId(), results));
-
-    Affine<Result, String> resultToValue = successPrism.andThen(valueLens);
-    Traversal<Batch, String> allSuccessValues =
-        resultsLens
-            .asTraversal()
-            .andThen(Traversals.<Result>forList().andThen(resultToValue.asTraversal()));
-
-    // Convert to Fold for read-only aggregation
-    Fold<Batch, String> successValuesFold = allSuccessValues.asFold();
-
-    Batch batch =
-        new Batch(
-            "B1",
-            List.of(
-                new Success("alpha", new Metadata("api", 1L)),
-                new Failure("error1"),
-                new Success("beta", new Metadata("db", 2L)),
-                new Success("gamma", new Metadata("cache", 3L))));
-
-    System.out.println("Success values: " + successValuesFold.getAll(batch));
-    System.out.println("Count: " + successValuesFold.length(batch));
-    System.out.println("Has 'beta': " + successValuesFold.exists(v -> v.equals("beta"), batch));
-
-    // Combine traversal-derived fold with another fold via plus()
-    Affine<Result, String> resultToSource = successPrism.andThen(metaLens).andThen(sourceLens);
-    Fold<Batch, String> sourcesFold =
-        resultsLens
-            .asTraversal()
-            .andThen(Traversals.<Result>forList().andThen(resultToSource.asTraversal()))
-            .asFold();
-
-    Fold<Batch, String> allStringsFold = successValuesFold.plus(sourcesFold);
-    System.out.println("All strings (values + sources): " + allStringsFold.getAll(batch));
-
-    // foldMap with a monoid on the traversal-derived fold
-    String concatenated = successValuesFold.foldMap(Monoids.string(), s -> s + " ", batch);
-    System.out.println("Concatenated values: " + concatenated.trim());
-    System.out.println();
-  }
+    // --- Domain Model ---
+    @GenerateLenses
+    public record Container(String id, Optional<Content> content) {
+    }
+
+    @GenerateLenses
+    public record Content(String data, int priority) {
+    }
+
+    @GeneratePrisms
+    public sealed interface Result permits Success, Failure {
+    }
+
+    @GenerateLenses
+    public record Success(String value, Metadata meta) implements Result {
+    }
+
+    @GenerateLenses
+    public record Metadata(String source, long timestamp) {
+    }
+
+    public record Failure(String error) implements Result {
+    }
+
+    @GenerateLenses
+    public record Batch(String batchId, List<Result> results) {
+    }
+
+    public static void main(String[] args) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Recipe: Lens + Prism = Traversal.
+     *
+     * <p>Pattern: Navigate from a product type through an optional/sum type field.
+     */
+    private static void recipeLensPrismComposition() {
+        System.out.println("--- Recipe: Lens + Prism = Traversal ---");
+        // Container has an Optional<Content> field
+        Lens<Container, Optional<Content>> contentLens = Lens.of(Container::content, (c, opt) -> new Container(c.id(), opt));
+        // Prism to unwrap Optional
+        Prism<Optional<Content>, Content> somePrism = Prisms.some();
+        // Lens + Prism = Affine
+        Affine<Container, Content> contentAffine = contentLens.andThen(somePrism);
+        Container withContent = new Container("C1", Optional.of(new Content("data", 5)));
+        Container empty = new Container("C2", Optional.empty());
+        // Get content (may be empty)
+        Optional<Content> found = contentAffine.getOptional(withContent);
+        Optional<Content> notFound = contentAffine.getOptional(empty);
+        System.out.println("Container with content: " + found);
+        System.out.println("Empty container: " + notFound);
+        // Modify content (no-op on empty)
+        Container modified = contentAffine.modify(c -> new Content(c.data().toUpperCase(), c.priority()), withContent);
+        System.out.println("Modified: " + modified);
+        System.out.println();
+    }
+
+    /**
+     * Recipe: Prism + Lens = Affine.
+     *
+     * <p>Pattern: Focus on a sum type variant, then access its fields.
+     */
+    private static void recipePrismLensComposition() {
+        System.out.println("--- Recipe: Prism + Lens = Affine ---");
+        // Prism for Success variant
+        Prism<Result, Success> successPrism = Prism.of(r -> r instanceof Success s ? Optional.of(s) : Optional.empty(), s -> s);
+        // Lens to Success's value
+        Lens<Success, String> valueLens = Lens.of(Success::value, (s, v) -> new Success(v, s.meta()));
+        // Prism + Lens = Affine
+        Affine<Result, String> successValueAffine = successPrism.andThen(valueLens);
+        Result success = new Success("result", new Metadata("api", System.currentTimeMillis()));
+        Result failure = new Failure("error");
+        // Get value from Success (empty from Failure)
+        Optional<String> successValue = successValueAffine.getOptional(success);
+        Optional<String> failureValue = successValueAffine.getOptional(failure);
+        System.out.println("From Success: " + successValue);
+        System.out.println("From Failure: " + failureValue);
+        // Uppercase only Success values
+        Result modifiedSuccess = successValueAffine.modify(String::toUpperCase, success);
+        Result unchangedFailure = successValueAffine.modify(String::toUpperCase, failure);
+        System.out.println("Modified Success: " + modifiedSuccess);
+        System.out.println("Unchanged Failure: " + unchangedFailure);
+        System.out.println();
+    }
+
+    /**
+     * Recipe: Access deeply nested optional fields.
+     *
+     * <p>Pattern: Chain Lens + Prism + Lens (Affine + Lens = Affine).
+     */
+    private static void recipeOptionalFieldAccess() {
+        System.out.println("--- Recipe: Access Nested Optional Fields ---");
+        // Build path: Container -> Optional<Content> -> Content -> priority
+        Lens<Container, Optional<Content>> contentLens = Lens.of(Container::content, (c, opt) -> new Container(c.id(), opt));
+        Prism<Optional<Content>, Content> somePrism = Prisms.some();
+        Lens<Content, Integer> priorityLens = Lens.of(Content::priority, (c, p) -> new Content(c.data(), p));
+        // After Lens+Prism=Affine, chain with Lens to get another Affine
+        Affine<Container, Integer> priorityAffine = contentLens.andThen(somePrism).andThen(priorityLens);
+        Container container = new Container("C1", Optional.of(new Content("important", 5)));
+        // Get priority
+        Optional<Integer> priority = priorityAffine.getOptional(container);
+        System.out.println("Priority: " + priority);
+        // Increase priority
+        Container updated = priorityAffine.modify(p -> p + 1, container);
+        System.out.println("After priority increase: " + updated);
+        System.out.println();
+    }
+
+    /**
+     * Recipe: Complex composition with lists and variants.
+     *
+     * <p>Pattern: Batch -> List<Result> -> (Success variant) -> value
+     */
+    private static void recipeComplexComposition() {
+        System.out.println("--- Recipe: Complex Composition ---");
+        // Lenses
+        Lens<Batch, List<Result>> resultsLens = Lens.of(Batch::results, (b, results) -> new Batch(b.batchId(), results));
+        // Prism for Success
+        Prism<Result, Success> successPrism = Prism.of(r -> r instanceof Success s ? Optional.of(s) : Optional.empty(), s -> s);
+        Lens<Success, String> valueLens = Lens.of(Success::value, (s, v) -> new Success(v, s.meta()));
+        // Build from inside out: Prism + Lens = Affine, convert to Traversal for list composition
+        // (Prism.andThen(Lens) = Affine, Traversal.andThen(Traversal) = Traversal)
+        Affine<Result, String> resultToValueAffine = successPrism.andThen(valueLens);
+        Traversal<List<Result>, String> listToValues = Traversals.<Result>forList().andThen(resultToValueAffine.asTraversal());
+        Traversal<Batch, String> allSuccessValues = resultsLens.asTraversal().andThen(listToValues);
+        Batch batch = new Batch("B1", List.of(new Success("result1", new Metadata("api", 1L)), new Failure("error1"), new Success("result2", new Metadata("db", 2L)), new Failure("error2"), new Success("result3", new Metadata("cache", 3L))));
+        // Get all success values
+        List<String> values = Traversals.getAll(allSuccessValues, batch);
+        System.out.println("All success values: " + values);
+        // Uppercase all success values (failures unchanged)
+        Batch updated = Traversals.modify(allSuccessValues, String::toUpperCase, batch);
+        List<String> newValues = Traversals.getAll(allSuccessValues, updated);
+        System.out.println("After uppercase: " + newValues);
+        // Verify failures are unchanged
+        System.out.println("Updated batch results: " + updated.results());
+        System.out.println();
+    }
+
+    /**
+     * Recipe: Combining Multiple Extraction Paths with Fold.plus().
+     *
+     * <p>Pattern: Extract values from different branches of a data structure and combine them into a
+     * single result set.
+     */
+    private static void recipeCombiningMultipleExtractionPaths() {
+        System.out.println("--- Recipe: Combining Multiple Extraction Paths ---");
+        // Two different ways to get a string value from a Result
+        Prism<Result, Success> successPrism = Prism.of(r -> r instanceof Success s ? Optional.of(s) : Optional.empty(), s -> s);
+        Prism<Result, Failure> failurePrism = Prism.of(r -> r instanceof Failure f ? Optional.of(f) : Optional.empty(), f -> f);
+        // Extract success values
+        Fold<Result, String> successValues = successPrism.asFold().andThen(Fold.of(s -> List.of(s.value())));
+        // Extract failure messages
+        Fold<Result, String> failureMessages = failurePrism.asFold().andThen(Fold.of(f -> List.of(f.error())));
+        // Combine: get ALL text from a Result regardless of variant
+        Fold<Result, String> allText = successValues.plus(failureMessages);
+        Result success = new Success("ok", new Metadata("api", 1L));
+        Result failure = new Failure("not found");
+        System.out.println("Success text: " + allText.getAll(success));
+        System.out.println("Failure text: " + allText.getAll(failure));
+        // Use with a batch via Fold.sum()
+        Fold<Batch, String> batchSuccesses = Fold.<Batch, Result>of(Batch::results).andThen(successValues);
+        Fold<Batch, String> batchFailures = Fold.<Batch, Result>of(Batch::results).andThen(failureMessages);
+        Fold<Batch, String> batchAllText = Fold.sum(batchSuccesses, batchFailures);
+        Batch batch = new Batch("B1", List.of(new Success("result1", new Metadata("api", 1L)), new Failure("error1"), new Success("result2", new Metadata("db", 2L))));
+        System.out.println("All batch text: " + batchAllText.getAll(batch));
+        System.out.println("Total text items: " + batchAllText.length(batch));
+        System.out.println();
+    }
+
+    /**
+     * Recipe: Traversal.asFold() for Read-Only Queries and Combination.
+     *
+     * <p>Pattern: Use Traversal for modifications, convert to Fold via asFold() for aggregation
+     * queries. The resulting Fold can be combined with other Folds via plus()/sum().
+     */
+    private static void recipeTraversalToFold() {
+        System.out.println("--- Recipe: Traversal.asFold() for Queries ---");
+        // Prism for Success variant
+        Prism<Result, Success> successPrism = Prism.of(r -> r instanceof Success s ? Optional.of(s) : Optional.empty(), s -> s);
+        Lens<Success, String> valueLens = Lens.of(Success::value, (s, v) -> new Success(v, s.meta()));
+        Lens<Success, Metadata> metaLens = Lens.of(Success::meta, (s, m) -> new Success(s.value(), m));
+        Lens<Metadata, String> sourceLens = Lens.of(Metadata::source, (m, src) -> new Metadata(src, m.timestamp()));
+        // Build a Traversal for all success values in a Batch
+        Lens<Batch, List<Result>> resultsLens = Lens.of(Batch::results, (b, results) -> new Batch(b.batchId(), results));
+        Affine<Result, String> resultToValue = successPrism.andThen(valueLens);
+        Traversal<Batch, String> allSuccessValues = resultsLens.asTraversal().andThen(Traversals.<Result>forList().andThen(resultToValue.asTraversal()));
+        // Convert to Fold for read-only aggregation
+        Fold<Batch, String> successValuesFold = allSuccessValues.asFold();
+        Batch batch = new Batch("B1", List.of(new Success("alpha", new Metadata("api", 1L)), new Failure("error1"), new Success("beta", new Metadata("db", 2L)), new Success("gamma", new Metadata("cache", 3L))));
+        System.out.println("Success values: " + successValuesFold.getAll(batch));
+        System.out.println("Count: " + successValuesFold.length(batch));
+        System.out.println("Has 'beta': " + successValuesFold.exists(v -> v.equals("beta"), batch));
+        // Combine traversal-derived fold with another fold via plus()
+        Affine<Result, String> resultToSource = successPrism.andThen(metaLens).andThen(sourceLens);
+        Fold<Batch, String> sourcesFold = resultsLens.asTraversal().andThen(Traversals.<Result>forList().andThen(resultToSource.asTraversal())).asFold();
+        Fold<Batch, String> allStringsFold = successValuesFold.plus(sourcesFold);
+        System.out.println("All strings (values + sources): " + allStringsFold.getAll(batch));
+        // foldMap with a monoid on the traversal-derived fold
+        String concatenated = successValuesFold.foldMap(Monoids.string(), s -> s + " ", batch);
+        System.out.println("Concatenated values: " + concatenated.trim());
+        System.out.println();
+    }
 }

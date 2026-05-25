@@ -3,7 +3,6 @@
 package org.higherkindedj.hkt.writer;
 
 import static org.higherkindedj.hkt.writer.WriterKindHelper.WRITER;
-
 import java.util.function.Function;
 import org.higherkindedj.hkt.Functor;
 import org.higherkindedj.hkt.Kind;
@@ -23,31 +22,25 @@ import org.higherkindedj.hkt.util.validation.Validation;
  */
 public class WriterFunctor<W> implements Functor<WriterKind.Witness<W>> {
 
-  /**
-   * Maps a function {@code f} over the value {@code A} contained within a {@code
-   * Kind<WriterKind.Witness<W>, A>}.
-   *
-   * <p>This operation transforms a {@code Writer<W, A>} into a {@code Writer<W, B>} by applying the
-   * function {@code f} to the result of the original writer. The log remains unchanged.
-   *
-   * @param f The function to map over the writer's result. Must not be null.
-   * @param fa The higher-kinded representation of a {@code Writer<W, A>}. Must not be null.
-   * @param <A> The original result type of the {@code Writer}.
-   * @param <B> The new result type after applying the function {@code f}.
-   * @return A new {@code Kind<WriterKind.Witness<W>, B>} representing the transformed {@code
-   *     Writer<W, B>}. Never null.
-   * @throws NullPointerException if {@code f} or {@code fa} is null.
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code fa} cannot be unwrapped
-   *     to a valid {@code Writer} representation.
-   */
-  @Override
-  public <A, B> Kind<WriterKind.Witness<W>, B> map(
-      Function<? super A, ? extends B> f, Kind<WriterKind.Witness<W>, A> fa) {
-
-    Validation.function().validateMap(f, fa);
-
-    Writer<W, A> writerA = WRITER.narrow(fa);
-    Writer<W, B> writerB = writerA.map(f);
-    return WRITER.widen(writerB);
-  }
+    /**
+     * Maps a function {@code f} over the value {@code A} contained within a {@code
+     * Kind<WriterKind.Witness<W>, A>}.
+     *
+     * <p>This operation transforms a {@code Writer<W, A>} into a {@code Writer<W, B>} by applying the
+     * function {@code f} to the result of the original writer. The log remains unchanged.
+     *
+     * @param f The function to map over the writer's result. Must not be null.
+     * @param fa The higher-kinded representation of a {@code Writer<W, A>}. Must not be null.
+     * @param <A> The original result type of the {@code Writer}.
+     * @param <B> The new result type after applying the function {@code f}.
+     * @return A new {@code Kind<WriterKind.Witness<W>, B>} representing the transformed {@code
+     *     Writer<W, B>}. Never null.
+     * @throws NullPointerException if {@code f} or {@code fa} is null.
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code fa} cannot be unwrapped
+     *     to a valid {@code Writer} representation.
+     */
+    @Override
+    public <A, B> Kind<WriterKind.Witness<W>, B> map(Function<? super A, ? extends B> f, Kind<WriterKind.Witness<W>, A> fa) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

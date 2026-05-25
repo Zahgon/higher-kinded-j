@@ -22,100 +22,87 @@ import org.higherkindedj.optics.annotations.GenerateLenses;
  * @param auditLog the cancellation audit trail
  */
 @GenerateLenses
-public record CancellationResult(
-    OrderId orderId,
-    CancellationReason reason,
-    Optional<RefundResult> refundResult,
-    boolean inventoryReleased,
-    boolean shipmentCancelled,
-    Instant cancelledAt,
-    boolean notificationSent,
-    AuditLog auditLog) {
-  /**
-   * Creates a builder for CancellationResult.
-   *
-   * @param orderId the order being cancelled
-   * @param reason the cancellation reason
-   * @return a new builder
-   */
-  public static Builder builder(OrderId orderId, CancellationReason reason) {
-    return new Builder(orderId, reason);
-  }
+public record CancellationResult(OrderId orderId, CancellationReason reason, Optional<RefundResult> refundResult, boolean inventoryReleased, boolean shipmentCancelled, Instant cancelledAt, boolean notificationSent, AuditLog auditLog) {
 
-  /** Builder for CancellationResult. */
-  public static class Builder {
-    private final OrderId orderId;
-    private final CancellationReason reason;
-    private Optional<RefundResult> refundResult = Optional.empty();
-    private boolean inventoryReleased = false;
-    private boolean shipmentCancelled = false;
-    private Instant cancelledAt = Instant.now();
-    private boolean notificationSent = false;
-    private AuditLog auditLog = AuditLog.EMPTY;
-
-    private Builder(OrderId orderId, CancellationReason reason) {
-      this.orderId = orderId;
-      this.reason = reason;
-    }
-
-    public Builder withRefund(RefundResult refund) {
-      this.refundResult = Optional.of(refund);
-      return this;
-    }
-
-    public Builder inventoryReleased() {
-      this.inventoryReleased = true;
-      return this;
-    }
-
-    public Builder shipmentCancelled() {
-      this.shipmentCancelled = true;
-      return this;
-    }
-
-    public Builder notificationSent() {
-      this.notificationSent = true;
-      return this;
-    }
-
-    public Builder withAuditLog(AuditLog log) {
-      this.auditLog = log;
-      return this;
-    }
-
-    public CancellationResult build() {
-      return new CancellationResult(
-          orderId,
-          reason,
-          refundResult,
-          inventoryReleased,
-          shipmentCancelled,
-          cancelledAt,
-          notificationSent,
-          auditLog);
-    }
-  }
-
-  /**
-   * Result of a payment refund.
-   *
-   * @param originalTransactionId the original payment transaction ID
-   * @param refundTransactionId the refund transaction ID
-   * @param refundedAmount the amount refunded
-   * @param refundedAt when the refund was processed
-   */
-  public record RefundResult(
-      String originalTransactionId,
-      String refundTransactionId,
-      Money refundedAmount,
-      Instant refundedAt) {
     /**
-     * Creates a result indicating no refund was required.
+     * Creates a builder for CancellationResult.
      *
-     * @return an empty refund result
+     * @param orderId the order being cancelled
+     * @param reason the cancellation reason
+     * @return a new builder
      */
-    public static Optional<RefundResult> notRequired() {
-      return Optional.empty();
+    public static Builder builder(OrderId orderId, CancellationReason reason) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-  }
+
+    /**
+     * Builder for CancellationResult.
+     */
+    public static class Builder {
+
+        private final OrderId orderId;
+
+        private final CancellationReason reason;
+
+        private Optional<RefundResult> refundResult = Optional.empty();
+
+        private boolean inventoryReleased = false;
+
+        private boolean shipmentCancelled = false;
+
+        private Instant cancelledAt = Instant.now();
+
+        private boolean notificationSent = false;
+
+        private AuditLog auditLog = AuditLog.EMPTY;
+
+        private Builder(OrderId orderId, CancellationReason reason) {
+            this.orderId = orderId;
+            this.reason = reason;
+        }
+
+        public Builder withRefund(RefundResult refund) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public Builder inventoryReleased() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public Builder shipmentCancelled() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public Builder notificationSent() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public Builder withAuditLog(AuditLog log) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public CancellationResult build() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+    }
+
+    /**
+     * Result of a payment refund.
+     *
+     * @param originalTransactionId the original payment transaction ID
+     * @param refundTransactionId the refund transaction ID
+     * @param refundedAmount the amount refunded
+     * @param refundedAt when the refund was processed
+     */
+    public record RefundResult(String originalTransactionId, String refundTransactionId, Money refundedAmount, Instant refundedAt) {
+
+        /**
+         * Creates a result indicating no refund was required.
+         *
+         * @return an empty refund result
+         */
+        public static Optional<RefundResult> notRequired() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+    }
 }

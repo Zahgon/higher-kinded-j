@@ -3,7 +3,6 @@
 package org.higherkindedj.hkt.io;
 
 import static org.higherkindedj.hkt.util.validation.Operation.*;
-
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.function.Function;
@@ -77,170 +76,148 @@ import org.higherkindedj.hkt.util.validation.Validation;
 @FunctionalInterface
 public interface IO<A> extends IOKind<A> {
 
-  /**
-   * Executes the described computation synchronously, potentially performing side effects and
-   * returning a result of type {@code A}.
-   *
-   * <p>This method is typically called at the "end of the world" in an application, where the
-   * declarative description of the program (built using {@code IO}) is finally interpreted and
-   * executed.
-   *
-   * <p><b>Warning:</b> As the name suggests, calling this method can be "unsafe" in a purely
-   * functional context because it triggers the actual side effects. If the computation involves
-   * blocking operations, this method will block the calling thread. Any exceptions thrown by the
-   * underlying computation will propagate out of this method.
-   *
-   * @return The result of the computation of type {@code A}. If {@code A} is {@link Unit}, this
-   *     typically returns {@link Unit#INSTANCE}.
-   */
-  A unsafeRunSync();
+    /**
+     * Executes the described computation synchronously, potentially performing side effects and
+     * returning a result of type {@code A}.
+     *
+     * <p>This method is typically called at the "end of the world" in an application, where the
+     * declarative description of the program (built using {@code IO}) is finally interpreted and
+     * executed.
+     *
+     * <p><b>Warning:</b> As the name suggests, calling this method can be "unsafe" in a purely
+     * functional context because it triggers the actual side effects. If the computation involves
+     * blocking operations, this method will block the calling thread. Any exceptions thrown by the
+     * underlying computation will propagate out of this method.
+     *
+     * @return The result of the computation of type {@code A}. If {@code A} is {@link Unit}, this
+     *     typically returns {@link Unit#INSTANCE}.
+     */
+    A unsafeRunSync();
 
-  /**
-   * Creates an {@code IO<A>} instance that defers a computation described by the given {@link
-   * Supplier}. The provided {@code Supplier} (often referred to as a "thunk") encapsulates the
-   * effectful operation. It will only be executed when {@link #unsafeRunSync()} is called on the
-   * resulting {@code IO} instance.
-   *
-   * <p>This is the primary way to lift an arbitrary block of code (especially one with side
-   * effects) into an {@code IO} context, making it lazy and composable.
-   *
-   * @param thunk A {@link Supplier} that, when called, will execute the desired computation and
-   *     produce a value of type {@code A}. Must not be null.
-   * @param <A> The type of the value produced by the thunk.
-   * @return A new {@code IO<A>} instance representing the deferred computation. Never null.
-   * @throws NullPointerException if {@code thunk} is null.
-   */
-  static <A> IO<A> delay(Supplier<A> thunk) {
-    Validation.function().require(thunk, "thunk", DELAY);
-    return thunk::get;
-  }
-
-  /**
-   * Transforms the result of this {@code IO} computation using the provided mapping function {@code
-   * f}, without altering its effectful nature. The original {@code IO} action is performed, and its
-   * result is then passed to the function {@code f}. The entire operation remains deferred until
-   * {@link #unsafeRunSync()} is called.
-   *
-   * <p>This is the Functor {@code map} operation for {@code IO}.
-   *
-   * <p>If this {@code IO} instance represents the computation {@code effectfulGetA()}, then {@code
-   * map(f)} represents {@code effectfulGetA().thenApply(f)}.
-   *
-   * @param f A non-null function to apply to the result of this {@code IO} computation. It takes a
-   *     value of type {@code A} and returns a value of type {@code B}.
-   * @param <B> The type of the value produced by the mapping function and thus by the new {@code
-   *     IO}.
-   * @return A new {@code IO<B>} that, when run, will execute this {@code IO}'s computation and then
-   *     apply the mapping function {@code f} to its result. Never null.
-   * @throws NullPointerException if {@code f} is null.
-   */
-  default <B> IO<B> map(Function<? super A, ? extends B> f) {
-    Validation.function().require(f, "f", MAP);
-    return IO.delay(() -> f.apply(this.unsafeRunSync()));
-  }
-
-  /**
-   * Composes this {@code IO} computation with another {@code IO}-producing function {@code f}. This
-   * method allows sequencing of {@code IO} operations, where the next operation depends on the
-   * result of the current one.
-   *
-   * <p>First, this {@code IO} computation is run (when the resulting {@code IO} is eventually run).
-   * Its result (of type {@code A}) is then passed to the function {@code f}, which produces a new
-   * {@code IO<B>}. This new {@code IO<B>} is then also run. The entire sequence is deferred.
-   *
-   * <p>This is the Monad {@code flatMap} (or {@code bind}) operation for {@code IO}. It is
-   * essential for chaining operations that themselves produce {@code IO} values, ensuring that
-   * effects are properly sequenced and encapsulated.
-   *
-   * @param f A non-null function that takes the result of this {@code IO} computation (type {@code
-   *     A}) and returns a new {@code IO<B>} representing the next computation. The {@code IO}
-   *     returned by this function must not be null.
-   * @param <B> The type of the value produced by the {@code IO} returned by function {@code f}.
-   * @return A new {@code IO<B>} that, when run, will execute this {@code IO}'s computation, apply
-   *     function {@code f} to its result to get a new {@code IO}, and then execute that new {@code
-   *     IO}. Never null.
-   * @throws NullPointerException if {@code f} is null, or if {@code f} returns a null {@code IO}.
-   */
-  default <B> IO<B> flatMap(Function<? super A, ? extends IO<B>> f) {
-    Validation.function().require(f, "f", FLAT_MAP);
-    return new FlatMappedIO<>(this, f);
-  }
-
-  /**
-   * Internal representation of a flatMap chain that evaluates iteratively to avoid stack overflow.
-   */
-  final class FlatMappedIO<A, B> implements IO<B> {
-    private final IO<A> source;
-    private final Function<? super A, ? extends IO<B>> f;
-
-    FlatMappedIO(IO<A> source, Function<? super A, ? extends IO<B>> f) {
-      this.source = source;
-      this.f = f;
+    /**
+     * Creates an {@code IO<A>} instance that defers a computation described by the given {@link
+     * Supplier}. The provided {@code Supplier} (often referred to as a "thunk") encapsulates the
+     * effectful operation. It will only be executed when {@link #unsafeRunSync()} is called on the
+     * resulting {@code IO} instance.
+     *
+     * <p>This is the primary way to lift an arbitrary block of code (especially one with side
+     * effects) into an {@code IO} context, making it lazy and composable.
+     *
+     * @param thunk A {@link Supplier} that, when called, will execute the desired computation and
+     *     produce a value of type {@code A}. Must not be null.
+     * @param <A> The type of the value produced by the thunk.
+     * @return A new {@code IO<A>} instance representing the deferred computation. Never null.
+     * @throws NullPointerException if {@code thunk} is null.
+     */
+    static <A> IO<A> delay(Supplier<A> thunk) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public B unsafeRunSync() {
-      IO<?> current = this;
-      Deque<Function<Object, IO<?>>> continuations = new ArrayDeque<>();
+    /**
+     * Transforms the result of this {@code IO} computation using the provided mapping function {@code
+     * f}, without altering its effectful nature. The original {@code IO} action is performed, and its
+     * result is then passed to the function {@code f}. The entire operation remains deferred until
+     * {@link #unsafeRunSync()} is called.
+     *
+     * <p>This is the Functor {@code map} operation for {@code IO}.
+     *
+     * <p>If this {@code IO} instance represents the computation {@code effectfulGetA()}, then {@code
+     * map(f)} represents {@code effectfulGetA().thenApply(f)}.
+     *
+     * @param f A non-null function to apply to the result of this {@code IO} computation. It takes a
+     *     value of type {@code A} and returns a value of type {@code B}.
+     * @param <B> The type of the value produced by the mapping function and thus by the new {@code
+     *     IO}.
+     * @return A new {@code IO<B>} that, when run, will execute this {@code IO}'s computation and then
+     *     apply the mapping function {@code f} to its result. Never null.
+     * @throws NullPointerException if {@code f} is null.
+     */
+    default <B> IO<B> map(Function<? super A, ? extends B> f) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-      while (true) {
-        if (current instanceof FlatMappedIO<?, ?> fm) {
-          continuations.push((Function<Object, IO<?>>) (Function<?, ?>) fm.f);
-          current = fm.source;
-        } else {
-          Object result = current.unsafeRunSync();
-          if (continuations.isEmpty()) {
-            return (B) result;
-          }
-          IO<?> next = continuations.pop().apply(result);
-          Validation.function().requireNonNullResult(next, "f", FLAT_MAP);
-          current = next;
+    /**
+     * Composes this {@code IO} computation with another {@code IO}-producing function {@code f}. This
+     * method allows sequencing of {@code IO} operations, where the next operation depends on the
+     * result of the current one.
+     *
+     * <p>First, this {@code IO} computation is run (when the resulting {@code IO} is eventually run).
+     * Its result (of type {@code A}) is then passed to the function {@code f}, which produces a new
+     * {@code IO<B>}. This new {@code IO<B>} is then also run. The entire sequence is deferred.
+     *
+     * <p>This is the Monad {@code flatMap} (or {@code bind}) operation for {@code IO}. It is
+     * essential for chaining operations that themselves produce {@code IO} values, ensuring that
+     * effects are properly sequenced and encapsulated.
+     *
+     * @param f A non-null function that takes the result of this {@code IO} computation (type {@code
+     *     A}) and returns a new {@code IO<B>} representing the next computation. The {@code IO}
+     *     returned by this function must not be null.
+     * @param <B> The type of the value produced by the {@code IO} returned by function {@code f}.
+     * @return A new {@code IO<B>} that, when run, will execute this {@code IO}'s computation, apply
+     *     function {@code f} to its result to get a new {@code IO}, and then execute that new {@code
+     *     IO}. Never null.
+     * @throws NullPointerException if {@code f} is null, or if {@code f} returns a null {@code IO}.
+     */
+    default <B> IO<B> flatMap(Function<? super A, ? extends IO<B>> f) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Internal representation of a flatMap chain that evaluates iteratively to avoid stack overflow.
+     */
+    final class FlatMappedIO<A, B> implements IO<B> {
+
+        private final IO<A> source;
+
+        private final Function<? super A, ? extends IO<B>> f;
+
+        FlatMappedIO(IO<A> source, Function<? super A, ? extends IO<B>> f) {
+            this.source = source;
+            this.f = f;
         }
-      }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public B unsafeRunSync() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
     }
-  }
 
-  /**
-   * Creates an IO from a side-effecting Runnable. The IO will execute the runnable and return Unit.
-   *
-   * <p>This is the preferred way to lift side effects into IO when no return value is needed.
-   *
-   * <p><b>Example:</b>
-   *
-   * <pre>{@code
-   * IO<Unit> print = IO.fromRunnable(() -> System.out.println("Hello"));
-   * IO<Unit> sequence = print
-   *     .flatMap(_ -> IO.fromRunnable(() -> System.out.println("World")));
-   * }</pre>
-   *
-   * @param runnable The side effect to execute, must not be null
-   * @return An IO<Unit> that executes the runnable
-   * @throws NullPointerException if runnable is null
-   */
-  static IO<Unit> fromRunnable(Runnable runnable) {
-    Validation.function().require(runnable, "runnable", FROM_RUNNABLE);
-    return IO.delay(
-        () -> {
-          runnable.run();
-          return Unit.INSTANCE;
-        });
-  }
+    /**
+     * Creates an IO from a side-effecting Runnable. The IO will execute the runnable and return Unit.
+     *
+     * <p>This is the preferred way to lift side effects into IO when no return value is needed.
+     *
+     * <p><b>Example:</b>
+     *
+     * <pre>{@code
+     * IO<Unit> print = IO.fromRunnable(() -> System.out.println("Hello"));
+     * IO<Unit> sequence = print
+     *     .flatMap(_ -> IO.fromRunnable(() -> System.out.println("World")));
+     * }</pre>
+     *
+     * @param runnable The side effect to execute, must not be null
+     * @return An IO<Unit> that executes the runnable
+     * @throws NullPointerException if runnable is null
+     */
+    static IO<Unit> fromRunnable(Runnable runnable) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Discards the result of this IO, replacing it with Unit. Useful for side-effecting operations
-   * where the return value is not interesting.
-   *
-   * <p><b>Example:</b>
-   *
-   * <pre>{@code
-   * IO<Integer> writeDb = database.write(data); // Returns row count
-   * IO<Unit> justWrite = writeDb.asUnit(); // Discard the count
-   * }</pre>
-   *
-   * @return An IO<Unit> that performs the same side effect but returns Unit
-   */
-  default IO<Unit> asUnit() {
-    return this.map(a -> Unit.INSTANCE);
-  }
+    /**
+     * Discards the result of this IO, replacing it with Unit. Useful for side-effecting operations
+     * where the return value is not interesting.
+     *
+     * <p><b>Example:</b>
+     *
+     * <pre>{@code
+     * IO<Integer> writeDb = database.write(data); // Returns row count
+     * IO<Unit> justWrite = writeDb.asUnit(); // Discard the count
+     * }</pre>
+     *
+     * @return An IO<Unit> that performs the same side effect but returns Unit
+     */
+    default IO<Unit> asUnit() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

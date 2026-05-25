@@ -30,51 +30,45 @@ import javax.tools.Diagnostic;
  */
 public final class KindValueNarrowChecker implements CheckVisitor {
 
-  static final String KIND_FQN = "org.higherkindedj.hkt.Kind";
+    static final String KIND_FQN = "org.higherkindedj.hkt.Kind";
 
-  private final Trees trees;
-  private final Diagnostic.Kind severity;
+    private final Trees trees;
 
-  /**
-   * Creates a checker reporting at {@link Diagnostic.Kind#ERROR}.
-   *
-   * @param trees the {@link Trees} utility for AST and type resolution
-   */
-  public KindValueNarrowChecker(Trees trees) {
-    this(trees, Diagnostic.Kind.ERROR);
-  }
+    private final Diagnostic.Kind severity;
 
-  /**
-   * Creates a checker reporting at the given severity.
-   *
-   * @param trees the Trees utility from the javac task; must not be null
-   * @param severity the severity at which the companion diagnostic is reported
-   */
-  public KindValueNarrowChecker(Trees trees, Diagnostic.Kind severity) {
-    this.trees = trees;
-    this.severity = severity;
-  }
-
-  @Override
-  public void onMethodInvocation(MethodInvocationTree node, TreePath path) {
-    if (node.getArguments().isEmpty()
-        && node.getMethodSelect() instanceof MemberSelectTree select
-        && select.getIdentifier().contentEquals("value")
-        && receiverIsBareKind(select.getExpression(), path)) {
-      trees.printMessage(
-          severity, DiagnosticMessages.kindValueNarrow(), node, path.getCompilationUnit());
+    /**
+     * Creates a checker reporting at {@link Diagnostic.Kind#ERROR}.
+     *
+     * @param trees the {@link Trees} utility for AST and type resolution
+     */
+    public KindValueNarrowChecker(Trees trees) {
+        this(trees, Diagnostic.Kind.ERROR);
     }
-  }
 
-  private boolean receiverIsBareKind(ExpressionTree receiver, TreePath path) {
-    TypeMirror t;
-    try {
-      t = trees.getTypeMirror(new TreePath(path, receiver));
-    } catch (RuntimeException e) {
-      return false; // cannot resolve: skip silently (no false positives)
+    /**
+     * Creates a checker reporting at the given severity.
+     *
+     * @param trees the Trees utility from the javac task; must not be null
+     * @param severity the severity at which the companion diagnostic is reported
+     */
+    public KindValueNarrowChecker(Trees trees, Diagnostic.Kind severity) {
+        this.trees = trees;
+        this.severity = severity;
     }
-    return t instanceof DeclaredType declared
-        && declared.asElement() instanceof TypeElement element
-        && element.getQualifiedName().contentEquals(KIND_FQN);
-  }
+
+    @Override
+    public void onMethodInvocation(MethodInvocationTree node, TreePath path) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    private boolean receiverIsBareKind(ExpressionTree receiver, TreePath path) {
+        TypeMirror t;
+        try {
+            t = trees.getTypeMirror(new TreePath(path, receiver));
+        } catch (RuntimeException e) {
+            // cannot resolve: skip silently (no false positives)
+            return false;
+        }
+        return t instanceof DeclaredType declared && declared.asElement() instanceof TypeElement element && element.getQualifiedName().contentEquals(KIND_FQN);
+    }
 }

@@ -140,1533 +140,1086 @@ import org.higherkindedj.optics.focus.FocusPath;
  */
 public final class ForPath {
 
-  private ForPath() {} // Static access only
-
-  // ===== MaybePath Entry Points =====
-
-  /**
-   * Initiates a for-comprehension with a MaybePath.
-   *
-   * <p>MaybePath supports filtering via {@code when()}, making it a filterable comprehension.
-   *
-   * @param source the initial MaybePath
-   * @param <A> the value type
-   * @return the first step of the builder
-   */
-  public static <A> MaybePathSteps1<A> from(MaybePath<A> source) {
-    Objects.requireNonNull(source, "source must not be null");
-    return new MaybePathSteps1<>(source);
-  }
-
-  // ===== OptionalPath Entry Points =====
-
-  /**
-   * Initiates a for-comprehension with an OptionalPath.
-   *
-   * <p>OptionalPath supports filtering via {@code when()}, making it a filterable comprehension.
-   *
-   * @param source the initial OptionalPath
-   * @param <A> the value type
-   * @return the first step of the builder
-   */
-  public static <A> OptionalPathSteps1<A> from(OptionalPath<A> source) {
-    Objects.requireNonNull(source, "source must not be null");
-    return new OptionalPathSteps1<>(source);
-  }
-
-  // ===== EitherPath Entry Points =====
-
-  /**
-   * Initiates a for-comprehension with an EitherPath.
-   *
-   * @param source the initial EitherPath
-   * @param <E> the error type
-   * @param <A> the value type
-   * @return the first step of the builder
-   */
-  public static <E, A> EitherPathSteps1<E, A> from(EitherPath<E, A> source) {
-    Objects.requireNonNull(source, "source must not be null");
-    return new EitherPathSteps1<>(source);
-  }
-
-  // ===== TryPath Entry Points =====
-
-  /**
-   * Initiates a for-comprehension with a TryPath.
-   *
-   * @param source the initial TryPath
-   * @param <A> the value type
-   * @return the first step of the builder
-   */
-  public static <A> TryPathSteps1<A> from(TryPath<A> source) {
-    Objects.requireNonNull(source, "source must not be null");
-    return new TryPathSteps1<>(source);
-  }
-
-  // ===== IOPath Entry Points =====
-
-  /**
-   * Initiates a for-comprehension with an IOPath.
-   *
-   * @param source the initial IOPath
-   * @param <A> the value type
-   * @return the first step of the builder
-   */
-  public static <A> IOPathSteps1<A> from(IOPath<A> source) {
-    Objects.requireNonNull(source, "source must not be null");
-    return new IOPathSteps1<>(source);
-  }
-
-  // ===== VTaskPath Entry Points =====
-
-  /**
-   * Initiates a for-comprehension with a VTaskPath.
-   *
-   * <p>VTaskPath computations execute on virtual threads, providing lightweight concurrency.
-   *
-   * @param source the initial VTaskPath
-   * @param <A> the value type
-   * @return the first step of the builder
-   */
-  public static <A> VTaskPathSteps1<A> from(VTaskPath<A> source) {
-    Objects.requireNonNull(source, "source must not be null");
-    return new VTaskPathSteps1<>(source);
-  }
-
-  // ===== IdPath Entry Points =====
-
-  /**
-   * Initiates a for-comprehension with an IdPath.
-   *
-   * @param source the initial IdPath
-   * @param <A> the value type
-   * @return the first step of the builder
-   */
-  public static <A> IdPathSteps1<A> from(IdPath<A> source) {
-    Objects.requireNonNull(source, "source must not be null");
-    return new IdPathSteps1<>(source);
-  }
-
-  // ===== NonDetPath (List) Entry Points =====
-
-  /**
-   * Initiates a for-comprehension with a NonDetPath (list with Cartesian product semantics).
-   *
-   * <p>NonDetPath supports filtering via {@code when()}, making it a filterable comprehension.
-   *
-   * @param source the initial NonDetPath
-   * @param <A> the element type
-   * @return the first step of the builder
-   */
-  public static <A> NonDetPathSteps1<A> from(NonDetPath<A> source) {
-    Objects.requireNonNull(source, "source must not be null");
-    return new NonDetPathSteps1<>(source);
-  }
-
-  // ===== FreePath Entry Point =====
-
-  /**
-   * Initiates a for-comprehension with a {@link FreePath}.
-   *
-   * <p>FreePath wraps Free monad programs, enabling deferred interpretation into any target monad.
-   *
-   * @param source the initial FreePath
-   * @param <F> the effect functor witness type
-   * @param <A> the value type
-   * @return the first step of the builder
-   */
-  public static <F extends WitnessArity<TypeArity.Unary>, A> FreePathSteps1<F, A> from(
-      FreePath<F, A> source) {
-    Objects.requireNonNull(source, "source must not be null");
-    return new FreePathSteps1<>(source);
-  }
-
-  // ===== Generic Entry Point =====
-
-  /**
-   * Initiates a for-comprehension with a GenericPath.
-   *
-   * <p>This is the escape hatch for custom monad types not covered by specific entry points.
-   *
-   * @param source the initial GenericPath
-   * @param <F> the witness type
-   * @param <A> the value type
-   * @return the first step of the builder
-   */
-  public static <F extends WitnessArity<TypeArity.Unary>, A> GenericPathSteps1<F, A> from(
-      GenericPath<F, A> source) {
-    Objects.requireNonNull(source, "source must not be null");
-    return new GenericPathSteps1<>(source);
-  }
-
-  // ===== MaybePath Parallel Entry Points =====
-
-  /**
-   * Combines two independent MaybePath computations using applicative semantics.
-   *
-   * @param a the first computation
-   * @param b the second computation
-   * @param <A> the first value type
-   * @param <B> the second value type
-   * @return step 2 of the builder
-   */
-  public static <A, B> MaybePathSteps2<A, B> par(MaybePath<A> a, MaybePath<B> b) {
-    MaybeMonad m = MaybeMonad.INSTANCE;
-    Kind<MaybeKind.Witness, Tuple2<A, B>> combined =
-        m.map2(
-            MaybeKindHelper.MAYBE.widen(a.run()), MaybeKindHelper.MAYBE.widen(b.run()), Tuple::of);
-    return new MaybePathSteps2<>(combined);
-  }
-
-  /**
-   * Combines three independent MaybePath computations using applicative semantics.
-   *
-   * @param a the first computation
-   * @param b the second computation
-   * @param c the third computation
-   * @param <A> the first value type
-   * @param <B> the second value type
-   * @param <C> the third value type
-   * @return step 3 of the builder
-   */
-  public static <A, B, C> MaybePathSteps3<A, B, C> par(
-      MaybePath<A> a, MaybePath<B> b, MaybePath<C> c) {
-    MaybeMonad m = MaybeMonad.INSTANCE;
-    Kind<MaybeKind.Witness, Tuple3<A, B, C>> combined =
-        m.map3(
-            MaybeKindHelper.MAYBE.widen(a.run()),
-            MaybeKindHelper.MAYBE.widen(b.run()),
-            MaybeKindHelper.MAYBE.widen(c.run()),
-            Tuple::of);
-    return new MaybePathSteps3<>(combined);
-  }
-
-  // ===== OptionalPath Parallel Entry Points =====
-
-  /**
-   * Combines two independent OptionalPath computations using applicative semantics.
-   *
-   * @param a the first computation
-   * @param b the second computation
-   * @param <A> the first value type
-   * @param <B> the second value type
-   * @return step 2 of the builder
-   */
-  public static <A, B> OptionalPathSteps2<A, B> par(OptionalPath<A> a, OptionalPath<B> b) {
-    OptionalMonad m = OptionalMonad.INSTANCE;
-    Kind<OptionalKind.Witness, Tuple2<A, B>> combined =
-        m.map2(
-            OptionalKindHelper.OPTIONAL.widen(a.run()),
-            OptionalKindHelper.OPTIONAL.widen(b.run()),
-            Tuple::of);
-    return new OptionalPathSteps2<>(combined);
-  }
-
-  /**
-   * Combines three independent OptionalPath computations using applicative semantics.
-   *
-   * @param a the first computation
-   * @param b the second computation
-   * @param c the third computation
-   * @param <A> the first value type
-   * @param <B> the second value type
-   * @param <C> the third value type
-   * @return step 3 of the builder
-   */
-  public static <A, B, C> OptionalPathSteps3<A, B, C> par(
-      OptionalPath<A> a, OptionalPath<B> b, OptionalPath<C> c) {
-    OptionalMonad m = OptionalMonad.INSTANCE;
-    Kind<OptionalKind.Witness, Tuple3<A, B, C>> combined =
-        m.map3(
-            OptionalKindHelper.OPTIONAL.widen(a.run()),
-            OptionalKindHelper.OPTIONAL.widen(b.run()),
-            OptionalKindHelper.OPTIONAL.widen(c.run()),
-            Tuple::of);
-    return new OptionalPathSteps3<>(combined);
-  }
-
-  // ===== EitherPath Parallel Entry Points =====
-
-  /**
-   * Combines two independent EitherPath computations using applicative semantics.
-   *
-   * @param a the first computation
-   * @param b the second computation
-   * @param <E> the error type
-   * @param <A> the first value type
-   * @param <B> the second value type
-   * @return step 2 of the builder
-   */
-  public static <E, A, B> EitherPathSteps2<E, A, B> par(EitherPath<E, A> a, EitherPath<E, B> b) {
-    EitherMonad<E> m = EitherMonad.instance();
-    Kind<EitherKind.Witness<E>, Tuple2<A, B>> combined =
-        m.map2(
-            EitherKindHelper.EITHER.widen(a.run()),
-            EitherKindHelper.EITHER.widen(b.run()),
-            Tuple::of);
-    return new EitherPathSteps2<>(combined);
-  }
-
-  /**
-   * Combines three independent EitherPath computations using applicative semantics.
-   *
-   * @param a the first computation
-   * @param b the second computation
-   * @param c the third computation
-   * @param <E> the error type
-   * @param <A> the first value type
-   * @param <B> the second value type
-   * @param <C> the third value type
-   * @return step 3 of the builder
-   */
-  public static <E, A, B, C> EitherPathSteps3<E, A, B, C> par(
-      EitherPath<E, A> a, EitherPath<E, B> b, EitherPath<E, C> c) {
-    EitherMonad<E> m = EitherMonad.instance();
-    Kind<EitherKind.Witness<E>, Tuple3<A, B, C>> combined =
-        m.map3(
-            EitherKindHelper.EITHER.widen(a.run()),
-            EitherKindHelper.EITHER.widen(b.run()),
-            EitherKindHelper.EITHER.widen(c.run()),
-            Tuple::of);
-    return new EitherPathSteps3<>(combined);
-  }
-
-  // ===== TryPath Parallel Entry Points =====
-
-  /**
-   * Combines two independent TryPath computations using applicative semantics.
-   *
-   * @param a the first computation
-   * @param b the second computation
-   * @param <A> the first value type
-   * @param <B> the second value type
-   * @return step 2 of the builder
-   */
-  public static <A, B> TryPathSteps2<A, B> par(TryPath<A> a, TryPath<B> b) {
-    TryMonad m = TryMonad.INSTANCE;
-    Kind<TryKind.Witness, Tuple2<A, B>> combined =
-        m.map2(TryKindHelper.TRY.widen(a.run()), TryKindHelper.TRY.widen(b.run()), Tuple::of);
-    return new TryPathSteps2<>(combined);
-  }
-
-  /**
-   * Combines three independent TryPath computations using applicative semantics.
-   *
-   * @param a the first computation
-   * @param b the second computation
-   * @param c the third computation
-   * @param <A> the first value type
-   * @param <B> the second value type
-   * @param <C> the third value type
-   * @return step 3 of the builder
-   */
-  public static <A, B, C> TryPathSteps3<A, B, C> par(TryPath<A> a, TryPath<B> b, TryPath<C> c) {
-    TryMonad m = TryMonad.INSTANCE;
-    Kind<TryKind.Witness, Tuple3<A, B, C>> combined =
-        m.map3(
-            TryKindHelper.TRY.widen(a.run()),
-            TryKindHelper.TRY.widen(b.run()),
-            TryKindHelper.TRY.widen(c.run()),
-            Tuple::of);
-    return new TryPathSteps3<>(combined);
-  }
-
-  // ===== IOPath Parallel Entry Points =====
-
-  /**
-   * Combines two independent IOPath computations using applicative semantics.
-   *
-   * @param a the first computation
-   * @param b the second computation
-   * @param <A> the first value type
-   * @param <B> the second value type
-   * @return step 2 of the builder
-   */
-  public static <A, B> IOPathSteps2<A, B> par(IOPath<A> a, IOPath<B> b) {
-    IOMonad m = IOMonad.INSTANCE;
-    Kind<IOKind.Witness, Tuple2<A, B>> combined =
-        m.map2(IOKindHelper.IO_OP.widen(a.run()), IOKindHelper.IO_OP.widen(b.run()), Tuple::of);
-    return new IOPathSteps2<>(combined);
-  }
-
-  /**
-   * Combines three independent IOPath computations using applicative semantics.
-   *
-   * @param a the first computation
-   * @param b the second computation
-   * @param c the third computation
-   * @param <A> the first value type
-   * @param <B> the second value type
-   * @param <C> the third value type
-   * @return step 3 of the builder
-   */
-  public static <A, B, C> IOPathSteps3<A, B, C> par(IOPath<A> a, IOPath<B> b, IOPath<C> c) {
-    IOMonad m = IOMonad.INSTANCE;
-    Kind<IOKind.Witness, Tuple3<A, B, C>> combined =
-        m.map3(
-            IOKindHelper.IO_OP.widen(a.run()),
-            IOKindHelper.IO_OP.widen(b.run()),
-            IOKindHelper.IO_OP.widen(c.run()),
-            Tuple::of);
-    return new IOPathSteps3<>(combined);
-  }
-
-  // ===== VTaskPath Parallel Entry Points =====
-
-  /**
-   * Combines two independent VTaskPath computations using true parallel execution.
-   *
-   * <p>Unlike other path types which use sequential applicative semantics, VTaskPath {@code par()}
-   * methods use {@link Par#map2} to execute both computations concurrently on virtual threads via
-   * {@code StructuredTaskScope}.
-   *
-   * @param a the first computation
-   * @param b the second computation
-   * @param <A> the first value type
-   * @param <B> the second value type
-   * @return step 2 of the builder
-   */
-  public static <A, B> VTaskPathSteps2<A, B> par(VTaskPath<A> a, VTaskPath<B> b) {
-    VTask<Tuple2<A, B>> combined = Par.map2(a.run(), b.run(), Tuple::of);
-    Kind<VTaskKind.Witness, Tuple2<A, B>> kind = VTaskKindHelper.VTASK.widen(combined);
-    return new VTaskPathSteps2<>(kind);
-  }
-
-  /**
-   * Combines three independent VTaskPath computations using true parallel execution.
-   *
-   * <p>Uses {@link Par#map3} to execute all three computations concurrently on virtual threads.
-   *
-   * @param a the first computation
-   * @param b the second computation
-   * @param c the third computation
-   * @param <A> the first value type
-   * @param <B> the second value type
-   * @param <C> the third value type
-   * @return step 3 of the builder
-   */
-  public static <A, B, C> VTaskPathSteps3<A, B, C> par(
-      VTaskPath<A> a, VTaskPath<B> b, VTaskPath<C> c) {
-    VTask<Tuple3<A, B, C>> combined = Par.map3(a.run(), b.run(), c.run(), Tuple::of);
-    Kind<VTaskKind.Witness, Tuple3<A, B, C>> kind = VTaskKindHelper.VTASK.widen(combined);
-    return new VTaskPathSteps3<>(kind);
-  }
-
-  // ===== IdPath Parallel Entry Points =====
-
-  /**
-   * Combines two independent IdPath computations using applicative semantics.
-   *
-   * @param a the first computation
-   * @param b the second computation
-   * @param <A> the first value type
-   * @param <B> the second value type
-   * @return step 2 of the builder
-   */
-  public static <A, B> IdPathSteps2<A, B> par(IdPath<A> a, IdPath<B> b) {
-    IdMonad m = IdMonad.instance();
-    Kind<IdKind.Witness, Tuple2<A, B>> combined =
-        m.map2(IdKindHelper.ID.widen(a.run()), IdKindHelper.ID.widen(b.run()), Tuple::of);
-    return new IdPathSteps2<>(combined);
-  }
-
-  /**
-   * Combines three independent IdPath computations using applicative semantics.
-   *
-   * @param a the first computation
-   * @param b the second computation
-   * @param c the third computation
-   * @param <A> the first value type
-   * @param <B> the second value type
-   * @param <C> the third value type
-   * @return step 3 of the builder
-   */
-  public static <A, B, C> IdPathSteps3<A, B, C> par(IdPath<A> a, IdPath<B> b, IdPath<C> c) {
-    IdMonad m = IdMonad.instance();
-    Kind<IdKind.Witness, Tuple3<A, B, C>> combined =
-        m.map3(
-            IdKindHelper.ID.widen(a.run()),
-            IdKindHelper.ID.widen(b.run()),
-            IdKindHelper.ID.widen(c.run()),
-            Tuple::of);
-    return new IdPathSteps3<>(combined);
-  }
-
-  // ===== NonDetPath Parallel Entry Points =====
-
-  /**
-   * Combines two independent NonDetPath computations using applicative semantics.
-   *
-   * @param a the first computation
-   * @param b the second computation
-   * @param <A> the first value type
-   * @param <B> the second value type
-   * @return step 2 of the builder
-   */
-  public static <A, B> NonDetPathSteps2<A, B> par(NonDetPath<A> a, NonDetPath<B> b) {
-    ListMonad m = ListMonad.INSTANCE;
-    Kind<ListKind.Witness, Tuple2<A, B>> combined =
-        m.map2(ListKindHelper.LIST.widen(a.run()), ListKindHelper.LIST.widen(b.run()), Tuple::of);
-    return new NonDetPathSteps2<>(combined);
-  }
-
-  /**
-   * Combines three independent NonDetPath computations using applicative semantics.
-   *
-   * @param a the first computation
-   * @param b the second computation
-   * @param c the third computation
-   * @param <A> the first value type
-   * @param <B> the second value type
-   * @param <C> the third value type
-   * @return step 3 of the builder
-   */
-  public static <A, B, C> NonDetPathSteps3<A, B, C> par(
-      NonDetPath<A> a, NonDetPath<B> b, NonDetPath<C> c) {
-    ListMonad m = ListMonad.INSTANCE;
-    Kind<ListKind.Witness, Tuple3<A, B, C>> combined =
-        m.map3(
-            ListKindHelper.LIST.widen(a.run()),
-            ListKindHelper.LIST.widen(b.run()),
-            ListKindHelper.LIST.widen(c.run()),
-            Tuple::of);
-    return new NonDetPathSteps3<>(combined);
-  }
-
-  // ===== FreePath Parallel Entry Points =====
-
-  /**
-   * Combines two independent FreePath computations using applicative semantics.
-   *
-   * @param a the first computation
-   * @param b the second computation
-   * @param <F> the effect functor witness type
-   * @param <A> the first value type
-   * @param <B> the second value type
-   * @return step 2 of the builder
-   */
-  public static <F extends WitnessArity<TypeArity.Unary>, A, B> FreePathSteps2<F, A, B> par(
-      FreePath<F, A> a, FreePath<F, B> b) {
-    Monad<FreeKind.Witness<F>> monad = new FreeMonad<>();
-    Kind<FreeKind.Witness<F>, Tuple2<A, B>> combined =
-        monad.map2(a.runKind(), b.runKind(), Tuple::of);
-    return new FreePathSteps2<>(monad, a.functor(), combined);
-  }
-
-  /**
-   * Combines three independent FreePath computations using applicative semantics.
-   *
-   * @param a the first computation
-   * @param b the second computation
-   * @param c the third computation
-   * @param <F> the effect functor witness type
-   * @param <A> the first value type
-   * @param <B> the second value type
-   * @param <C> the third value type
-   * @return step 3 of the builder
-   */
-  public static <F extends WitnessArity<TypeArity.Unary>, A, B, C> FreePathSteps3<F, A, B, C> par(
-      FreePath<F, A> a, FreePath<F, B> b, FreePath<F, C> c) {
-    Monad<FreeKind.Witness<F>> monad = new FreeMonad<>();
-    Kind<FreeKind.Witness<F>, Tuple3<A, B, C>> combined =
-        monad.map3(a.runKind(), b.runKind(), c.runKind(), Tuple::of);
-    return new FreePathSteps3<>(monad, a.functor(), combined);
-  }
-
-  // ===== GenericPath Parallel Entry Points =====
-
-  /**
-   * Combines two independent GenericPath computations using applicative semantics.
-   *
-   * @param a the first computation
-   * @param b the second computation
-   * @param <F> the witness type
-   * @param <A> the first value type
-   * @param <B> the second value type
-   * @return step 2 of the builder
-   */
-  public static <F extends WitnessArity<TypeArity.Unary>, A, B> GenericPathSteps2<F, A, B> par(
-      GenericPath<F, A> a, GenericPath<F, B> b) {
-    Monad<F> monad = a.monad();
-    Kind<F, Tuple2<A, B>> combined = monad.map2(a.runKind(), b.runKind(), Tuple::of);
-    return new GenericPathSteps2<>(monad, combined);
-  }
-
-  /**
-   * Combines three independent GenericPath computations using applicative semantics.
-   *
-   * @param a the first computation
-   * @param b the second computation
-   * @param c the third computation
-   * @param <F> the witness type
-   * @param <A> the first value type
-   * @param <B> the second value type
-   * @param <C> the third value type
-   * @return step 3 of the builder
-   */
-  public static <F extends WitnessArity<TypeArity.Unary>, A, B, C>
-      GenericPathSteps3<F, A, B, C> par(
-          GenericPath<F, A> a, GenericPath<F, B> b, GenericPath<F, C> c) {
-    Monad<F> monad = a.monad();
-    Kind<F, Tuple3<A, B, C>> combined =
-        monad.map3(a.runKind(), b.runKind(), c.runKind(), Tuple::of);
-    return new GenericPathSteps3<>(monad, combined);
-  }
-
-  // ========================================================================
-  // Traverse / Sequence / FlatTraverse helpers (shared by all Steps1 classes)
-  // ========================================================================
-
-  private static <
-          M extends WitnessArity<TypeArity.Unary>, T extends WitnessArity<TypeArity.Unary>, A, C, B>
-      Kind<M, Tuple2<A, Kind<T, B>>> traverseImpl(
-          Monad<M> monad,
-          Kind<M, A> computation,
-          Traverse<T> traversable,
-          Function<A, Kind<T, C>> extractor,
-          Function<C, Kind<M, B>> f) {
-    return monad.flatMap(
-        a -> monad.map(tb -> Tuple.of(a, tb), traversable.traverse(monad, f, extractor.apply(a))),
-        computation);
-  }
-
-  private static <
-          M extends WitnessArity<TypeArity.Unary>, T extends WitnessArity<TypeArity.Unary>, A, B>
-      Kind<M, Tuple2<A, Kind<T, B>>> sequenceImpl(
-          Monad<M> monad,
-          Kind<M, A> computation,
-          Traverse<T> traversable,
-          Function<A, Kind<T, Kind<M, B>>> extractor) {
-    return monad.flatMap(
-        a -> monad.map(tb -> Tuple.of(a, tb), traversable.sequenceA(monad, extractor.apply(a))),
-        computation);
-  }
-
-  private static <
-          M extends WitnessArity<TypeArity.Unary>, T extends WitnessArity<TypeArity.Unary>, A, C, B>
-      Kind<M, Tuple2<A, Kind<T, B>>> flatTraverseImpl(
-          Monad<M> monad,
-          Kind<M, A> computation,
-          Traverse<T> traversable,
-          Monad<T> innerMonad,
-          Function<A, Kind<T, C>> extractor,
-          Function<C, Kind<M, Kind<T, B>>> f) {
-    return monad.flatMap(
-        a -> {
-          Kind<M, Kind<T, Kind<T, B>>> traversed =
-              traversable.traverse(monad, f, extractor.apply(a));
-          return monad.map(
-              ttb -> Tuple.of(a, innerMonad.flatMap(Function.identity(), ttb)), traversed);
-        },
-        computation);
-  }
-
-  // ========================================================================
-  // MaybePath Steps (Filterable)
-  // ========================================================================
-
-  /** First step in a MaybePath comprehension. */
-  public static final class MaybePathSteps1<A> {
-    private static final MaybeMonad MONAD = MaybeMonad.INSTANCE;
-    private final Kind<MaybeKind.Witness, A> computation;
-
-    private MaybePathSteps1(MaybePath<A> source) {
-      this.computation = MaybeKindHelper.MAYBE.widen(source.run());
+    // Static access only
+    private ForPath() {
     }
 
-    private MaybePathSteps1(Kind<MaybeKind.Witness, A> computation) {
-      this.computation = computation;
+    // ===== MaybePath Entry Points =====
+    /**
+     * Initiates a for-comprehension with a MaybePath.
+     *
+     * <p>MaybePath supports filtering via {@code when()}, making it a filterable comprehension.
+     *
+     * @param source the initial MaybePath
+     * @param <A> the value type
+     * @return the first step of the builder
+     */
+    public static <A> MaybePathSteps1<A> from(MaybePath<A> source) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== OptionalPath Entry Points =====
+    /**
+     * Initiates a for-comprehension with an OptionalPath.
+     *
+     * <p>OptionalPath supports filtering via {@code when()}, making it a filterable comprehension.
+     *
+     * @param source the initial OptionalPath
+     * @param <A> the value type
+     * @return the first step of the builder
+     */
+    public static <A> OptionalPathSteps1<A> from(OptionalPath<A> source) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== EitherPath Entry Points =====
+    /**
+     * Initiates a for-comprehension with an EitherPath.
+     *
+     * @param source the initial EitherPath
+     * @param <E> the error type
+     * @param <A> the value type
+     * @return the first step of the builder
+     */
+    public static <E, A> EitherPathSteps1<E, A> from(EitherPath<E, A> source) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== TryPath Entry Points =====
+    /**
+     * Initiates a for-comprehension with a TryPath.
+     *
+     * @param source the initial TryPath
+     * @param <A> the value type
+     * @return the first step of the builder
+     */
+    public static <A> TryPathSteps1<A> from(TryPath<A> source) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== IOPath Entry Points =====
+    /**
+     * Initiates a for-comprehension with an IOPath.
+     *
+     * @param source the initial IOPath
+     * @param <A> the value type
+     * @return the first step of the builder
+     */
+    public static <A> IOPathSteps1<A> from(IOPath<A> source) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== VTaskPath Entry Points =====
+    /**
+     * Initiates a for-comprehension with a VTaskPath.
+     *
+     * <p>VTaskPath computations execute on virtual threads, providing lightweight concurrency.
+     *
+     * @param source the initial VTaskPath
+     * @param <A> the value type
+     * @return the first step of the builder
+     */
+    public static <A> VTaskPathSteps1<A> from(VTaskPath<A> source) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== IdPath Entry Points =====
+    /**
+     * Initiates a for-comprehension with an IdPath.
+     *
+     * @param source the initial IdPath
+     * @param <A> the value type
+     * @return the first step of the builder
+     */
+    public static <A> IdPathSteps1<A> from(IdPath<A> source) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== NonDetPath (List) Entry Points =====
+    /**
+     * Initiates a for-comprehension with a NonDetPath (list with Cartesian product semantics).
+     *
+     * <p>NonDetPath supports filtering via {@code when()}, making it a filterable comprehension.
+     *
+     * @param source the initial NonDetPath
+     * @param <A> the element type
+     * @return the first step of the builder
+     */
+    public static <A> NonDetPathSteps1<A> from(NonDetPath<A> source) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== FreePath Entry Point =====
+    /**
+     * Initiates a for-comprehension with a {@link FreePath}.
+     *
+     * <p>FreePath wraps Free monad programs, enabling deferred interpretation into any target monad.
+     *
+     * @param source the initial FreePath
+     * @param <F> the effect functor witness type
+     * @param <A> the value type
+     * @return the first step of the builder
+     */
+    public static <F extends WitnessArity<TypeArity.Unary>, A> FreePathSteps1<F, A> from(FreePath<F, A> source) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== Generic Entry Point =====
+    /**
+     * Initiates a for-comprehension with a GenericPath.
+     *
+     * <p>This is the escape hatch for custom monad types not covered by specific entry points.
+     *
+     * @param source the initial GenericPath
+     * @param <F> the witness type
+     * @param <A> the value type
+     * @return the first step of the builder
+     */
+    public static <F extends WitnessArity<TypeArity.Unary>, A> GenericPathSteps1<F, A> from(GenericPath<F, A> source) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== MaybePath Parallel Entry Points =====
+    /**
+     * Combines two independent MaybePath computations using applicative semantics.
+     *
+     * @param a the first computation
+     * @param b the second computation
+     * @param <A> the first value type
+     * @param <B> the second value type
+     * @return step 2 of the builder
+     */
+    public static <A, B> MaybePathSteps2<A, B> par(MaybePath<A> a, MaybePath<B> b) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
     /**
-     * Adds a generator that produces another MaybePath.
+     * Combines three independent MaybePath computations using applicative semantics.
      *
-     * @param next function producing the next MaybePath
-     * @param <B> the new value type
-     * @return the next step
+     * @param a the first computation
+     * @param b the second computation
+     * @param c the third computation
+     * @param <A> the first value type
+     * @param <B> the second value type
+     * @param <C> the third value type
+     * @return step 3 of the builder
      */
-    public <B> MaybePathSteps2<A, B> from(Function<A, MaybePath<B>> next) {
-      Kind<MaybeKind.Witness, Tuple2<A, B>> newComp =
-          MONAD.flatMap(
-              a -> MONAD.map(b -> Tuple.of(a, b), MaybeKindHelper.MAYBE.widen(next.apply(a).run())),
-              computation);
-      return new MaybePathSteps2<>(newComp);
+    public static <A, B, C> MaybePathSteps3<A, B, C> par(MaybePath<A> a, MaybePath<B> b, MaybePath<C> c) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== OptionalPath Parallel Entry Points =====
+    /**
+     * Combines two independent OptionalPath computations using applicative semantics.
+     *
+     * @param a the first computation
+     * @param b the second computation
+     * @param <A> the first value type
+     * @param <B> the second value type
+     * @return step 2 of the builder
+     */
+    public static <A, B> OptionalPathSteps2<A, B> par(OptionalPath<A> a, OptionalPath<B> b) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
     /**
-     * Binds the result of a pure computation.
+     * Combines three independent OptionalPath computations using applicative semantics.
      *
-     * @param f the pure computation
-     * @param <B> the result type
-     * @return the next step
+     * @param a the first computation
+     * @param b the second computation
+     * @param c the third computation
+     * @param <A> the first value type
+     * @param <B> the second value type
+     * @param <C> the third value type
+     * @return step 3 of the builder
      */
-    public <B> MaybePathSteps2<A, B> let(Function<A, B> f) {
-      Kind<MaybeKind.Witness, Tuple2<A, B>> newComp =
-          MONAD.map(a -> Tuple.of(a, f.apply(a)), computation);
-      return new MaybePathSteps2<>(newComp);
+    public static <A, B, C> OptionalPathSteps3<A, B, C> par(OptionalPath<A> a, OptionalPath<B> b, OptionalPath<C> c) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== EitherPath Parallel Entry Points =====
+    /**
+     * Combines two independent EitherPath computations using applicative semantics.
+     *
+     * @param a the first computation
+     * @param b the second computation
+     * @param <E> the error type
+     * @param <A> the first value type
+     * @param <B> the second value type
+     * @return step 2 of the builder
+     */
+    public static <E, A, B> EitherPathSteps2<E, A, B> par(EitherPath<E, A> a, EitherPath<E, B> b) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
     /**
-     * Extracts a value using a FocusPath.
+     * Combines three independent EitherPath computations using applicative semantics.
      *
-     * @param focusPath the lens to apply
-     * @param <B> the focused type
-     * @return the next step
+     * @param a the first computation
+     * @param b the second computation
+     * @param c the third computation
+     * @param <E> the error type
+     * @param <A> the first value type
+     * @param <B> the second value type
+     * @param <C> the third value type
+     * @return step 3 of the builder
      */
-    public <B> MaybePathSteps2<A, B> focus(FocusPath<A, B> focusPath) {
-      Objects.requireNonNull(focusPath, "focusPath must not be null");
-      Kind<MaybeKind.Witness, Tuple2<A, B>> newComp =
-          MONAD.map(a -> Tuple.of(a, focusPath.get(a)), computation);
-      return new MaybePathSteps2<>(newComp);
+    public static <E, A, B, C> EitherPathSteps3<E, A, B, C> par(EitherPath<E, A> a, EitherPath<E, B> b, EitherPath<E, C> c) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== TryPath Parallel Entry Points =====
+    /**
+     * Combines two independent TryPath computations using applicative semantics.
+     *
+     * @param a the first computation
+     * @param b the second computation
+     * @param <A> the first value type
+     * @param <B> the second value type
+     * @return step 2 of the builder
+     */
+    public static <A, B> TryPathSteps2<A, B> par(TryPath<A> a, TryPath<B> b) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
     /**
-     * Pattern matches using an AffinePath, short-circuiting if the match fails.
+     * Combines three independent TryPath computations using applicative semantics.
      *
-     * @param affinePath the optional focus to apply
-     * @param <B> the focused type
-     * @return the next step
+     * @param a the first computation
+     * @param b the second computation
+     * @param c the third computation
+     * @param <A> the first value type
+     * @param <B> the second value type
+     * @param <C> the third value type
+     * @return step 3 of the builder
      */
-    public <B> MaybePathSteps2<A, B> match(AffinePath<A, B> affinePath) {
-      Objects.requireNonNull(affinePath, "affinePath must not be null");
-      Kind<MaybeKind.Witness, Tuple2<A, B>> newComp =
-          MONAD.flatMap(
-              a ->
-                  affinePath
-                      .getOptional(a)
-                      .map(b -> MONAD.of(Tuple.of(a, b)))
-                      .orElseGet(MONAD::zero),
-              computation);
-      return new MaybePathSteps2<>(newComp);
+    public static <A, B, C> TryPathSteps3<A, B, C> par(TryPath<A> a, TryPath<B> b, TryPath<C> c) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== IOPath Parallel Entry Points =====
+    /**
+     * Combines two independent IOPath computations using applicative semantics.
+     *
+     * @param a the first computation
+     * @param b the second computation
+     * @param <A> the first value type
+     * @param <B> the second value type
+     * @return step 2 of the builder
+     */
+    public static <A, B> IOPathSteps2<A, B> par(IOPath<A> a, IOPath<B> b) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
     /**
-     * Filters the value based on a predicate.
+     * Combines three independent IOPath computations using applicative semantics.
      *
-     * @param predicate the filter condition
-     * @return this step with the filter applied
+     * @param a the first computation
+     * @param b the second computation
+     * @param c the third computation
+     * @param <A> the first value type
+     * @param <B> the second value type
+     * @param <C> the third value type
+     * @return step 3 of the builder
      */
-    public MaybePathSteps1<A> when(Predicate<A> predicate) {
-      return new MaybePathSteps1<>(MONAD.filter(predicate, computation));
+    public static <A, B, C> IOPathSteps3<A, B, C> par(IOPath<A> a, IOPath<B> b, IOPath<C> c) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== VTaskPath Parallel Entry Points =====
+    /**
+     * Combines two independent VTaskPath computations using true parallel execution.
+     *
+     * <p>Unlike other path types which use sequential applicative semantics, VTaskPath {@code par()}
+     * methods use {@link Par#map2} to execute both computations concurrently on virtual threads via
+     * {@code StructuredTaskScope}.
+     *
+     * @param a the first computation
+     * @param b the second computation
+     * @param <A> the first value type
+     * @param <B> the second value type
+     * @return step 2 of the builder
+     */
+    public static <A, B> VTaskPathSteps2<A, B> par(VTaskPath<A> a, VTaskPath<B> b) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
     /**
-     * Traverses a structure extracted from the current value with an effectful function.
+     * Combines three independent VTaskPath computations using true parallel execution.
      *
-     * @param traversable the Traverse instance
-     * @param extractor extracts the traversable structure
-     * @param f the effectful function
-     * @param <T> the traversable witness type
-     * @param <C> the element type
-     * @param <B> the result element type
-     * @return the next step with the traversed result
+     * <p>Uses {@link Par#map3} to execute all three computations concurrently on virtual threads.
+     *
+     * @param a the first computation
+     * @param b the second computation
+     * @param c the third computation
+     * @param <A> the first value type
+     * @param <B> the second value type
+     * @param <C> the third value type
+     * @return step 3 of the builder
      */
-    public <T extends WitnessArity<TypeArity.Unary>, C, B> MaybePathSteps2<A, Kind<T, B>> traverse(
-        Traverse<T> traversable,
-        Function<A, Kind<T, C>> extractor,
-        Function<C, Kind<MaybeKind.Witness, B>> f) {
-      Objects.requireNonNull(traversable, "traversable must not be null");
-      Objects.requireNonNull(extractor, "extractor must not be null");
-      Objects.requireNonNull(f, "function must not be null");
-      return new MaybePathSteps2<>(traverseImpl(MONAD, computation, traversable, extractor, f));
+    public static <A, B, C> VTaskPathSteps3<A, B, C> par(VTaskPath<A> a, VTaskPath<B> b, VTaskPath<C> c) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== IdPath Parallel Entry Points =====
+    /**
+     * Combines two independent IdPath computations using applicative semantics.
+     *
+     * @param a the first computation
+     * @param b the second computation
+     * @param <A> the first value type
+     * @param <B> the second value type
+     * @return step 2 of the builder
+     */
+    public static <A, B> IdPathSteps2<A, B> par(IdPath<A> a, IdPath<B> b) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
     /**
-     * Sequences a structure of monadic values extracted from the current value.
+     * Combines three independent IdPath computations using applicative semantics.
      *
-     * @param traversable the Traverse instance
-     * @param extractor extracts the structure of monadic values
-     * @param <T> the traversable witness type
-     * @param <B> the element type
-     * @return the next step with the sequenced result
+     * @param a the first computation
+     * @param b the second computation
+     * @param c the third computation
+     * @param <A> the first value type
+     * @param <B> the second value type
+     * @param <C> the third value type
+     * @return step 3 of the builder
      */
-    public <T extends WitnessArity<TypeArity.Unary>, B> MaybePathSteps2<A, Kind<T, B>> sequence(
-        Traverse<T> traversable, Function<A, Kind<T, Kind<MaybeKind.Witness, B>>> extractor) {
-      Objects.requireNonNull(traversable, "traversable must not be null");
-      Objects.requireNonNull(extractor, "extractor must not be null");
-      return new MaybePathSteps2<>(sequenceImpl(MONAD, computation, traversable, extractor));
+    public static <A, B, C> IdPathSteps3<A, B, C> par(IdPath<A> a, IdPath<B> b, IdPath<C> c) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== NonDetPath Parallel Entry Points =====
+    /**
+     * Combines two independent NonDetPath computations using applicative semantics.
+     *
+     * @param a the first computation
+     * @param b the second computation
+     * @param <A> the first value type
+     * @param <B> the second value type
+     * @return step 2 of the builder
+     */
+    public static <A, B> NonDetPathSteps2<A, B> par(NonDetPath<A> a, NonDetPath<B> b) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
     /**
-     * Traverses with a function returning nested structures, then flattens.
+     * Combines three independent NonDetPath computations using applicative semantics.
      *
-     * @param traversable the Traverse instance
-     * @param innerMonad the Monad for the inner structure
-     * @param extractor extracts the traversable structure
-     * @param f the effectful function returning nested structures
-     * @param <T> the traversable witness type
-     * @param <C> the element type
-     * @param <B> the result element type
-     * @return the next step with the flat-traversed result
+     * @param a the first computation
+     * @param b the second computation
+     * @param c the third computation
+     * @param <A> the first value type
+     * @param <B> the second value type
+     * @param <C> the third value type
+     * @return step 3 of the builder
      */
-    public <T extends WitnessArity<TypeArity.Unary>, C, B>
-        MaybePathSteps2<A, Kind<T, B>> flatTraverse(
-            Traverse<T> traversable,
-            Monad<T> innerMonad,
-            Function<A, Kind<T, C>> extractor,
-            Function<C, Kind<MaybeKind.Witness, Kind<T, B>>> f) {
-      Objects.requireNonNull(traversable, "traversable must not be null");
-      Objects.requireNonNull(innerMonad, "innerMonad must not be null");
-      Objects.requireNonNull(extractor, "extractor must not be null");
-      Objects.requireNonNull(f, "function must not be null");
-      return new MaybePathSteps2<>(
-          flatTraverseImpl(MONAD, computation, traversable, innerMonad, extractor, f));
+    public static <A, B, C> NonDetPathSteps3<A, B, C> par(NonDetPath<A> a, NonDetPath<B> b, NonDetPath<C> c) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== FreePath Parallel Entry Points =====
+    /**
+     * Combines two independent FreePath computations using applicative semantics.
+     *
+     * @param a the first computation
+     * @param b the second computation
+     * @param <F> the effect functor witness type
+     * @param <A> the first value type
+     * @param <B> the second value type
+     * @return step 2 of the builder
+     */
+    public static <F extends WitnessArity<TypeArity.Unary>, A, B> FreePathSteps2<F, A, B> par(FreePath<F, A> a, FreePath<F, B> b) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
     /**
-     * Completes the comprehension by yielding a final result.
+     * Combines three independent FreePath computations using applicative semantics.
      *
-     * @param f the yield function
-     * @param <R> the result type
-     * @return the resulting MaybePath
+     * @param a the first computation
+     * @param b the second computation
+     * @param c the third computation
+     * @param <F> the effect functor witness type
+     * @param <A> the first value type
+     * @param <B> the second value type
+     * @param <C> the third value type
+     * @return step 3 of the builder
      */
-    public <R> MaybePath<R> yield(Function<A, R> f) {
-      Kind<MaybeKind.Witness, R> result = MONAD.map(f, computation);
-      return Path.maybe(MaybeKindHelper.MAYBE.narrow(result));
-    }
-  }
-
-  // ========================================================================
-  // OptionalPath Steps (Filterable)
-  // ========================================================================
-
-  /** First step in an OptionalPath comprehension. */
-  public static final class OptionalPathSteps1<A> {
-    private static final OptionalMonad MONAD = OptionalMonad.INSTANCE;
-    private final Kind<OptionalKind.Witness, A> computation;
-
-    private OptionalPathSteps1(OptionalPath<A> source) {
-      this.computation = OptionalKindHelper.OPTIONAL.widen(source.run());
+    public static <F extends WitnessArity<TypeArity.Unary>, A, B, C> FreePathSteps3<F, A, B, C> par(FreePath<F, A> a, FreePath<F, B> b, FreePath<F, C> c) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    private OptionalPathSteps1(Kind<OptionalKind.Witness, A> computation) {
-      this.computation = computation;
-    }
-
-    public <B> OptionalPathSteps2<A, B> from(Function<A, OptionalPath<B>> next) {
-      Kind<OptionalKind.Witness, Tuple2<A, B>> newComp =
-          MONAD.flatMap(
-              a ->
-                  MONAD.map(
-                      b -> Tuple.of(a, b), OptionalKindHelper.OPTIONAL.widen(next.apply(a).run())),
-              computation);
-      return new OptionalPathSteps2<>(newComp);
-    }
-
-    public <B> OptionalPathSteps2<A, B> let(Function<A, B> f) {
-      Kind<OptionalKind.Witness, Tuple2<A, B>> newComp =
-          MONAD.map(a -> Tuple.of(a, f.apply(a)), computation);
-      return new OptionalPathSteps2<>(newComp);
-    }
-
-    public <B> OptionalPathSteps2<A, B> focus(FocusPath<A, B> focusPath) {
-      Objects.requireNonNull(focusPath, "focusPath must not be null");
-      Kind<OptionalKind.Witness, Tuple2<A, B>> newComp =
-          MONAD.map(a -> Tuple.of(a, focusPath.get(a)), computation);
-      return new OptionalPathSteps2<>(newComp);
-    }
-
-    public <B> OptionalPathSteps2<A, B> match(AffinePath<A, B> affinePath) {
-      Objects.requireNonNull(affinePath, "affinePath must not be null");
-      Kind<OptionalKind.Witness, Tuple2<A, B>> newComp =
-          MONAD.flatMap(
-              a ->
-                  affinePath
-                      .getOptional(a)
-                      .map(b -> MONAD.of(Tuple.of(a, b)))
-                      .orElseGet(MONAD::zero),
-              computation);
-      return new OptionalPathSteps2<>(newComp);
-    }
-
-    public OptionalPathSteps1<A> when(Predicate<A> predicate) {
-      return new OptionalPathSteps1<>(MONAD.filter(predicate, computation));
-    }
-
-    public <T extends WitnessArity<TypeArity.Unary>, C, B>
-        OptionalPathSteps2<A, Kind<T, B>> traverse(
-            Traverse<T> traversable,
-            Function<A, Kind<T, C>> extractor,
-            Function<C, Kind<OptionalKind.Witness, B>> f) {
-      Objects.requireNonNull(traversable, "traversable must not be null");
-      Objects.requireNonNull(extractor, "extractor must not be null");
-      Objects.requireNonNull(f, "function must not be null");
-      return new OptionalPathSteps2<>(traverseImpl(MONAD, computation, traversable, extractor, f));
-    }
-
-    public <T extends WitnessArity<TypeArity.Unary>, B> OptionalPathSteps2<A, Kind<T, B>> sequence(
-        Traverse<T> traversable, Function<A, Kind<T, Kind<OptionalKind.Witness, B>>> extractor) {
-      Objects.requireNonNull(traversable, "traversable must not be null");
-      Objects.requireNonNull(extractor, "extractor must not be null");
-      return new OptionalPathSteps2<>(sequenceImpl(MONAD, computation, traversable, extractor));
-    }
-
-    public <T extends WitnessArity<TypeArity.Unary>, C, B>
-        OptionalPathSteps2<A, Kind<T, B>> flatTraverse(
-            Traverse<T> traversable,
-            Monad<T> innerMonad,
-            Function<A, Kind<T, C>> extractor,
-            Function<C, Kind<OptionalKind.Witness, Kind<T, B>>> f) {
-      Objects.requireNonNull(traversable, "traversable must not be null");
-      Objects.requireNonNull(innerMonad, "innerMonad must not be null");
-      Objects.requireNonNull(extractor, "extractor must not be null");
-      Objects.requireNonNull(f, "function must not be null");
-      return new OptionalPathSteps2<>(
-          flatTraverseImpl(MONAD, computation, traversable, innerMonad, extractor, f));
-    }
-
-    public <R> OptionalPath<R> yield(Function<A, R> f) {
-      Kind<OptionalKind.Witness, R> result = MONAD.map(f, computation);
-      return Path.optional(OptionalKindHelper.OPTIONAL.narrow(result));
-    }
-  }
-
-  // ========================================================================
-  // EitherPath Steps (Non-Filterable)
-  // ========================================================================
-
-  /** First step in an EitherPath comprehension. */
-  public static final class EitherPathSteps1<E, A> {
-    private final Kind<EitherKind.Witness<E>, A> computation;
-
-    private static <E> EitherMonad<E> monad() {
-      return EitherMonad.instance();
-    }
-
-    private EitherPathSteps1(EitherPath<E, A> source) {
-      this.computation = EitherKindHelper.EITHER.widen(source.run());
-    }
-
-    public <B> EitherPathSteps2<E, A, B> from(Function<A, EitherPath<E, B>> next) {
-      EitherMonad<E> m = monad();
-      Kind<EitherKind.Witness<E>, Tuple2<A, B>> newComp =
-          m.flatMap(
-              a -> m.map(b -> Tuple.of(a, b), EitherKindHelper.EITHER.widen(next.apply(a).run())),
-              computation);
-      return new EitherPathSteps2<>(newComp);
-    }
-
-    public <B> EitherPathSteps2<E, A, B> let(Function<A, B> f) {
-      EitherMonad<E> m = monad();
-      Kind<EitherKind.Witness<E>, Tuple2<A, B>> newComp =
-          m.map(a -> Tuple.of(a, f.apply(a)), computation);
-      return new EitherPathSteps2<>(newComp);
-    }
-
-    public <B> EitherPathSteps2<E, A, B> focus(FocusPath<A, B> focusPath) {
-      Objects.requireNonNull(focusPath, "focusPath must not be null");
-      EitherMonad<E> m = monad();
-      Kind<EitherKind.Witness<E>, Tuple2<A, B>> newComp =
-          m.map(a -> Tuple.of(a, focusPath.get(a)), computation);
-      return new EitherPathSteps2<>(newComp);
-    }
-
-    public <T extends WitnessArity<TypeArity.Unary>, C, B>
-        EitherPathSteps2<E, A, Kind<T, B>> traverse(
-            Traverse<T> traversable,
-            Function<A, Kind<T, C>> extractor,
-            Function<C, Kind<EitherKind.Witness<E>, B>> f) {
-      Objects.requireNonNull(traversable, "traversable must not be null");
-      Objects.requireNonNull(extractor, "extractor must not be null");
-      Objects.requireNonNull(f, "function must not be null");
-      return new EitherPathSteps2<>(traverseImpl(monad(), computation, traversable, extractor, f));
-    }
-
-    public <T extends WitnessArity<TypeArity.Unary>, B> EitherPathSteps2<E, A, Kind<T, B>> sequence(
-        Traverse<T> traversable, Function<A, Kind<T, Kind<EitherKind.Witness<E>, B>>> extractor) {
-      Objects.requireNonNull(traversable, "traversable must not be null");
-      Objects.requireNonNull(extractor, "extractor must not be null");
-      return new EitherPathSteps2<>(sequenceImpl(monad(), computation, traversable, extractor));
-    }
-
-    public <T extends WitnessArity<TypeArity.Unary>, C, B>
-        EitherPathSteps2<E, A, Kind<T, B>> flatTraverse(
-            Traverse<T> traversable,
-            Monad<T> innerMonad,
-            Function<A, Kind<T, C>> extractor,
-            Function<C, Kind<EitherKind.Witness<E>, Kind<T, B>>> f) {
-      Objects.requireNonNull(traversable, "traversable must not be null");
-      Objects.requireNonNull(innerMonad, "innerMonad must not be null");
-      Objects.requireNonNull(extractor, "extractor must not be null");
-      Objects.requireNonNull(f, "function must not be null");
-      return new EitherPathSteps2<>(
-          flatTraverseImpl(monad(), computation, traversable, innerMonad, extractor, f));
-    }
-
-    public <R> EitherPath<E, R> yield(Function<A, R> f) {
-      EitherMonad<E> m = monad();
-      Kind<EitherKind.Witness<E>, R> result = m.map(f, computation);
-      return Path.either(EitherKindHelper.EITHER.narrow(result));
-    }
-  }
-
-  // ========================================================================
-  // TryPath Steps
-  // ========================================================================
-
-  /** First step in a TryPath comprehension. */
-  public static final class TryPathSteps1<A> {
-    private static final TryMonad MONAD = TryMonad.INSTANCE;
-    private final Kind<TryKind.Witness, A> computation;
-
-    private TryPathSteps1(TryPath<A> source) {
-      this.computation = TryKindHelper.TRY.widen(source.run());
-    }
-
-    public <B> TryPathSteps2<A, B> from(Function<A, TryPath<B>> next) {
-      Kind<TryKind.Witness, Tuple2<A, B>> newComp =
-          MONAD.flatMap(
-              a -> MONAD.map(b -> Tuple.of(a, b), TryKindHelper.TRY.widen(next.apply(a).run())),
-              computation);
-      return new TryPathSteps2<>(newComp);
-    }
-
-    public <B> TryPathSteps2<A, B> let(Function<A, B> f) {
-      Kind<TryKind.Witness, Tuple2<A, B>> newComp =
-          MONAD.map(a -> Tuple.of(a, f.apply(a)), computation);
-      return new TryPathSteps2<>(newComp);
-    }
-
-    public <B> TryPathSteps2<A, B> focus(FocusPath<A, B> focusPath) {
-      Objects.requireNonNull(focusPath, "focusPath must not be null");
-      Kind<TryKind.Witness, Tuple2<A, B>> newComp =
-          MONAD.map(a -> Tuple.of(a, focusPath.get(a)), computation);
-      return new TryPathSteps2<>(newComp);
-    }
-
-    public <T extends WitnessArity<TypeArity.Unary>, C, B> TryPathSteps2<A, Kind<T, B>> traverse(
-        Traverse<T> traversable,
-        Function<A, Kind<T, C>> extractor,
-        Function<C, Kind<TryKind.Witness, B>> f) {
-      Objects.requireNonNull(traversable, "traversable must not be null");
-      Objects.requireNonNull(extractor, "extractor must not be null");
-      Objects.requireNonNull(f, "function must not be null");
-      return new TryPathSteps2<>(traverseImpl(MONAD, computation, traversable, extractor, f));
-    }
-
-    public <T extends WitnessArity<TypeArity.Unary>, B> TryPathSteps2<A, Kind<T, B>> sequence(
-        Traverse<T> traversable, Function<A, Kind<T, Kind<TryKind.Witness, B>>> extractor) {
-      Objects.requireNonNull(traversable, "traversable must not be null");
-      Objects.requireNonNull(extractor, "extractor must not be null");
-      return new TryPathSteps2<>(sequenceImpl(MONAD, computation, traversable, extractor));
-    }
-
-    public <T extends WitnessArity<TypeArity.Unary>, C, B>
-        TryPathSteps2<A, Kind<T, B>> flatTraverse(
-            Traverse<T> traversable,
-            Monad<T> innerMonad,
-            Function<A, Kind<T, C>> extractor,
-            Function<C, Kind<TryKind.Witness, Kind<T, B>>> f) {
-      Objects.requireNonNull(traversable, "traversable must not be null");
-      Objects.requireNonNull(innerMonad, "innerMonad must not be null");
-      Objects.requireNonNull(extractor, "extractor must not be null");
-      Objects.requireNonNull(f, "function must not be null");
-      return new TryPathSteps2<>(
-          flatTraverseImpl(MONAD, computation, traversable, innerMonad, extractor, f));
-    }
-
-    public <R> TryPath<R> yield(Function<A, R> f) {
-      Kind<TryKind.Witness, R> result = MONAD.map(f, computation);
-      return Path.tryPath(TryKindHelper.TRY.narrow(result));
-    }
-  }
-
-  // ========================================================================
-  // IOPath Steps
-  // ========================================================================
-
-  /** First step in an IOPath comprehension. */
-  public static final class IOPathSteps1<A> {
-    private static final IOMonad MONAD = IOMonad.INSTANCE;
-    private final Kind<IOKind.Witness, A> computation;
-
-    private IOPathSteps1(IOPath<A> source) {
-      this.computation = IOKindHelper.IO_OP.widen(source.run());
-    }
-
-    public <B> IOPathSteps2<A, B> from(Function<A, IOPath<B>> next) {
-      Kind<IOKind.Witness, Tuple2<A, B>> newComp =
-          MONAD.flatMap(
-              a -> MONAD.map(b -> Tuple.of(a, b), IOKindHelper.IO_OP.widen(next.apply(a).run())),
-              computation);
-      return new IOPathSteps2<>(newComp);
-    }
-
-    public <B> IOPathSteps2<A, B> let(Function<A, B> f) {
-      Kind<IOKind.Witness, Tuple2<A, B>> newComp =
-          MONAD.map(a -> Tuple.of(a, f.apply(a)), computation);
-      return new IOPathSteps2<>(newComp);
-    }
-
-    public <B> IOPathSteps2<A, B> focus(FocusPath<A, B> focusPath) {
-      Objects.requireNonNull(focusPath, "focusPath must not be null");
-      Kind<IOKind.Witness, Tuple2<A, B>> newComp =
-          MONAD.map(a -> Tuple.of(a, focusPath.get(a)), computation);
-      return new IOPathSteps2<>(newComp);
-    }
-
-    public <T extends WitnessArity<TypeArity.Unary>, C, B> IOPathSteps2<A, Kind<T, B>> traverse(
-        Traverse<T> traversable,
-        Function<A, Kind<T, C>> extractor,
-        Function<C, Kind<IOKind.Witness, B>> f) {
-      Objects.requireNonNull(traversable, "traversable must not be null");
-      Objects.requireNonNull(extractor, "extractor must not be null");
-      Objects.requireNonNull(f, "function must not be null");
-      return new IOPathSteps2<>(traverseImpl(MONAD, computation, traversable, extractor, f));
-    }
-
-    public <T extends WitnessArity<TypeArity.Unary>, B> IOPathSteps2<A, Kind<T, B>> sequence(
-        Traverse<T> traversable, Function<A, Kind<T, Kind<IOKind.Witness, B>>> extractor) {
-      Objects.requireNonNull(traversable, "traversable must not be null");
-      Objects.requireNonNull(extractor, "extractor must not be null");
-      return new IOPathSteps2<>(sequenceImpl(MONAD, computation, traversable, extractor));
-    }
-
-    public <T extends WitnessArity<TypeArity.Unary>, C, B> IOPathSteps2<A, Kind<T, B>> flatTraverse(
-        Traverse<T> traversable,
-        Monad<T> innerMonad,
-        Function<A, Kind<T, C>> extractor,
-        Function<C, Kind<IOKind.Witness, Kind<T, B>>> f) {
-      Objects.requireNonNull(traversable, "traversable must not be null");
-      Objects.requireNonNull(innerMonad, "innerMonad must not be null");
-      Objects.requireNonNull(extractor, "extractor must not be null");
-      Objects.requireNonNull(f, "function must not be null");
-      return new IOPathSteps2<>(
-          flatTraverseImpl(MONAD, computation, traversable, innerMonad, extractor, f));
-    }
-
-    public <R> IOPath<R> yield(Function<A, R> f) {
-      Kind<IOKind.Witness, R> result = MONAD.map(f, computation);
-      return Path.ioPath(IOKindHelper.IO_OP.narrow(result));
-    }
-  }
-
-  // ========================================================================
-  // VTaskPath Steps
-  // ========================================================================
-
-  /** First step in a VTaskPath comprehension. */
-  public static final class VTaskPathSteps1<A> {
-    private static final VTaskMonad MONAD = VTaskMonad.INSTANCE;
-    private final Kind<VTaskKind.Witness, A> computation;
-
-    private VTaskPathSteps1(VTaskPath<A> source) {
-      this.computation = VTaskKindHelper.VTASK.widen(source.run());
-    }
-
-    public <B> VTaskPathSteps2<A, B> from(Function<A, VTaskPath<B>> next) {
-      Kind<VTaskKind.Witness, Tuple2<A, B>> newComp =
-          MONAD.flatMap(
-              a -> MONAD.map(b -> Tuple.of(a, b), VTaskKindHelper.VTASK.widen(next.apply(a).run())),
-              computation);
-      return new VTaskPathSteps2<>(newComp);
-    }
-
-    public <B> VTaskPathSteps2<A, B> let(Function<A, B> f) {
-      Kind<VTaskKind.Witness, Tuple2<A, B>> newComp =
-          MONAD.map(a -> Tuple.of(a, f.apply(a)), computation);
-      return new VTaskPathSteps2<>(newComp);
-    }
-
-    public <B> VTaskPathSteps2<A, B> focus(FocusPath<A, B> focusPath) {
-      Objects.requireNonNull(focusPath, "focusPath must not be null");
-      Kind<VTaskKind.Witness, Tuple2<A, B>> newComp =
-          MONAD.map(a -> Tuple.of(a, focusPath.get(a)), computation);
-      return new VTaskPathSteps2<>(newComp);
-    }
-
-    public <T extends WitnessArity<TypeArity.Unary>, C, B> VTaskPathSteps2<A, Kind<T, B>> traverse(
-        Traverse<T> traversable,
-        Function<A, Kind<T, C>> extractor,
-        Function<C, Kind<VTaskKind.Witness, B>> f) {
-      Objects.requireNonNull(traversable, "traversable must not be null");
-      Objects.requireNonNull(extractor, "extractor must not be null");
-      Objects.requireNonNull(f, "function must not be null");
-      return new VTaskPathSteps2<>(traverseImpl(MONAD, computation, traversable, extractor, f));
-    }
-
-    public <T extends WitnessArity<TypeArity.Unary>, B> VTaskPathSteps2<A, Kind<T, B>> sequence(
-        Traverse<T> traversable, Function<A, Kind<T, Kind<VTaskKind.Witness, B>>> extractor) {
-      Objects.requireNonNull(traversable, "traversable must not be null");
-      Objects.requireNonNull(extractor, "extractor must not be null");
-      return new VTaskPathSteps2<>(sequenceImpl(MONAD, computation, traversable, extractor));
-    }
-
-    public <T extends WitnessArity<TypeArity.Unary>, C, B>
-        VTaskPathSteps2<A, Kind<T, B>> flatTraverse(
-            Traverse<T> traversable,
-            Monad<T> innerMonad,
-            Function<A, Kind<T, C>> extractor,
-            Function<C, Kind<VTaskKind.Witness, Kind<T, B>>> f) {
-      Objects.requireNonNull(traversable, "traversable must not be null");
-      Objects.requireNonNull(innerMonad, "innerMonad must not be null");
-      Objects.requireNonNull(extractor, "extractor must not be null");
-      Objects.requireNonNull(f, "function must not be null");
-      return new VTaskPathSteps2<>(
-          flatTraverseImpl(MONAD, computation, traversable, innerMonad, extractor, f));
-    }
-
-    public <R> VTaskPath<R> yield(Function<A, R> f) {
-      Kind<VTaskKind.Witness, R> result = MONAD.map(f, computation);
-      return Path.vtaskPath(VTaskKindHelper.VTASK.narrow(result));
-    }
-  }
-
-  // ========================================================================
-  // IdPath Steps
-  // ========================================================================
-
-  /** First step in an IdPath comprehension. */
-  public static final class IdPathSteps1<A> {
-    private static final IdMonad MONAD = IdMonad.instance();
-    private final Kind<IdKind.Witness, A> computation;
-
-    private IdPathSteps1(IdPath<A> source) {
-      this.computation = IdKindHelper.ID.widen(source.run());
-    }
-
-    public <B> IdPathSteps2<A, B> from(Function<A, IdPath<B>> next) {
-      Kind<IdKind.Witness, Tuple2<A, B>> newComp =
-          MONAD.flatMap(
-              a -> MONAD.map(b -> Tuple.of(a, b), IdKindHelper.ID.widen(next.apply(a).run())),
-              computation);
-      return new IdPathSteps2<>(newComp);
-    }
-
-    public <B> IdPathSteps2<A, B> let(Function<A, B> f) {
-      Kind<IdKind.Witness, Tuple2<A, B>> newComp =
-          MONAD.map(a -> Tuple.of(a, f.apply(a)), computation);
-      return new IdPathSteps2<>(newComp);
-    }
-
-    public <B> IdPathSteps2<A, B> focus(FocusPath<A, B> focusPath) {
-      Objects.requireNonNull(focusPath, "focusPath must not be null");
-      Kind<IdKind.Witness, Tuple2<A, B>> newComp =
-          MONAD.map(a -> Tuple.of(a, focusPath.get(a)), computation);
-      return new IdPathSteps2<>(newComp);
-    }
-
-    public <T extends WitnessArity<TypeArity.Unary>, C, B> IdPathSteps2<A, Kind<T, B>> traverse(
-        Traverse<T> traversable,
-        Function<A, Kind<T, C>> extractor,
-        Function<C, Kind<IdKind.Witness, B>> f) {
-      Objects.requireNonNull(traversable, "traversable must not be null");
-      Objects.requireNonNull(extractor, "extractor must not be null");
-      Objects.requireNonNull(f, "function must not be null");
-      return new IdPathSteps2<>(traverseImpl(MONAD, computation, traversable, extractor, f));
-    }
-
-    public <T extends WitnessArity<TypeArity.Unary>, B> IdPathSteps2<A, Kind<T, B>> sequence(
-        Traverse<T> traversable, Function<A, Kind<T, Kind<IdKind.Witness, B>>> extractor) {
-      Objects.requireNonNull(traversable, "traversable must not be null");
-      Objects.requireNonNull(extractor, "extractor must not be null");
-      return new IdPathSteps2<>(sequenceImpl(MONAD, computation, traversable, extractor));
-    }
-
-    public <T extends WitnessArity<TypeArity.Unary>, C, B> IdPathSteps2<A, Kind<T, B>> flatTraverse(
-        Traverse<T> traversable,
-        Monad<T> innerMonad,
-        Function<A, Kind<T, C>> extractor,
-        Function<C, Kind<IdKind.Witness, Kind<T, B>>> f) {
-      Objects.requireNonNull(traversable, "traversable must not be null");
-      Objects.requireNonNull(innerMonad, "innerMonad must not be null");
-      Objects.requireNonNull(extractor, "extractor must not be null");
-      Objects.requireNonNull(f, "function must not be null");
-      return new IdPathSteps2<>(
-          flatTraverseImpl(MONAD, computation, traversable, innerMonad, extractor, f));
-    }
-
-    public <R> IdPath<R> yield(Function<A, R> f) {
-      Kind<IdKind.Witness, R> result = MONAD.map(f, computation);
-      return Path.idPath(IdKindHelper.ID.narrow(result));
-    }
-  }
-
-  // ========================================================================
-  // NonDetPath Steps (Filterable, uses Cartesian product semantics)
-  // ========================================================================
-
-  /** First step in a NonDetPath comprehension. */
-  public static final class NonDetPathSteps1<A> {
-    private static final ListMonad MONAD = ListMonad.INSTANCE;
-    private final Kind<ListKind.Witness, A> computation;
-
-    private NonDetPathSteps1(NonDetPath<A> source) {
-      this.computation = ListKindHelper.LIST.widen(source.run());
-    }
-
-    private NonDetPathSteps1(Kind<ListKind.Witness, A> computation) {
-      this.computation = computation;
-    }
-
-    public <B> NonDetPathSteps2<A, B> from(Function<A, NonDetPath<B>> next) {
-      Kind<ListKind.Witness, Tuple2<A, B>> newComp =
-          MONAD.flatMap(
-              a -> MONAD.map(b -> Tuple.of(a, b), ListKindHelper.LIST.widen(next.apply(a).run())),
-              computation);
-      return new NonDetPathSteps2<>(newComp);
-    }
-
-    public <B> NonDetPathSteps2<A, B> let(Function<A, B> f) {
-      Kind<ListKind.Witness, Tuple2<A, B>> newComp =
-          MONAD.map(a -> Tuple.of(a, f.apply(a)), computation);
-      return new NonDetPathSteps2<>(newComp);
-    }
-
-    public NonDetPathSteps1<A> when(Predicate<A> predicate) {
-      return new NonDetPathSteps1<>(MONAD.filter(predicate, computation));
-    }
-
-    public <T extends WitnessArity<TypeArity.Unary>, C, B> NonDetPathSteps2<A, Kind<T, B>> traverse(
-        Traverse<T> traversable,
-        Function<A, Kind<T, C>> extractor,
-        Function<C, Kind<ListKind.Witness, B>> f) {
-      Objects.requireNonNull(traversable, "traversable must not be null");
-      Objects.requireNonNull(extractor, "extractor must not be null");
-      Objects.requireNonNull(f, "function must not be null");
-      return new NonDetPathSteps2<>(traverseImpl(MONAD, computation, traversable, extractor, f));
-    }
-
-    public <T extends WitnessArity<TypeArity.Unary>, B> NonDetPathSteps2<A, Kind<T, B>> sequence(
-        Traverse<T> traversable, Function<A, Kind<T, Kind<ListKind.Witness, B>>> extractor) {
-      Objects.requireNonNull(traversable, "traversable must not be null");
-      Objects.requireNonNull(extractor, "extractor must not be null");
-      return new NonDetPathSteps2<>(sequenceImpl(MONAD, computation, traversable, extractor));
-    }
-
-    public <T extends WitnessArity<TypeArity.Unary>, C, B>
-        NonDetPathSteps2<A, Kind<T, B>> flatTraverse(
-            Traverse<T> traversable,
-            Monad<T> innerMonad,
-            Function<A, Kind<T, C>> extractor,
-            Function<C, Kind<ListKind.Witness, Kind<T, B>>> f) {
-      Objects.requireNonNull(traversable, "traversable must not be null");
-      Objects.requireNonNull(innerMonad, "innerMonad must not be null");
-      Objects.requireNonNull(extractor, "extractor must not be null");
-      Objects.requireNonNull(f, "function must not be null");
-      return new NonDetPathSteps2<>(
-          flatTraverseImpl(MONAD, computation, traversable, innerMonad, extractor, f));
-    }
-
-    public <R> NonDetPath<R> yield(Function<A, R> f) {
-      Kind<ListKind.Witness, R> result = MONAD.map(f, computation);
-      return NonDetPath.of(ListKindHelper.LIST.narrow(result));
-    }
-  }
-
-  // ========================================================================
-  // GenericPath Steps (Escape Hatch)
-  // ========================================================================
-
-  // ===== FreePathSteps1 =====
-
-  /**
-   * Step 1 in a FreePath comprehension.
-   *
-   * <p>Binds the first value from a Free monad program. Subsequent steps use {@code from()} to add
-   * monadic bindings, {@code let()} for pure computations, {@code focus()} for optic extraction, or
-   * {@code par()} for parallel composition.
-   *
-   * @param <F> the effect functor witness type
-   * @param <A> the type of the first bound value
-   */
-  public static final class FreePathSteps1<F extends WitnessArity<TypeArity.Unary>, A> {
-    private final Monad<FreeKind.Witness<F>> monad;
-    private final Functor<F> functor;
-    private final Kind<FreeKind.Witness<F>, A> computation;
-
-    private FreePathSteps1(FreePath<F, A> source) {
-      this.functor = source.functor();
-      this.monad = new FreeMonad<>();
-      this.computation = source.runKind();
+    // ===== GenericPath Parallel Entry Points =====
+    /**
+     * Combines two independent GenericPath computations using applicative semantics.
+     *
+     * @param a the first computation
+     * @param b the second computation
+     * @param <F> the witness type
+     * @param <A> the first value type
+     * @param <B> the second value type
+     * @return step 2 of the builder
+     */
+    public static <F extends WitnessArity<TypeArity.Unary>, A, B> GenericPathSteps2<F, A, B> par(GenericPath<F, A> a, GenericPath<F, B> b) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
     /**
-     * Adds a generator that produces another FreePath.
+     * Combines three independent GenericPath computations using applicative semantics.
      *
-     * @param next function producing the next FreePath
-     * @param <B> the new value type
-     * @return the next step
+     * @param a the first computation
+     * @param b the second computation
+     * @param c the third computation
+     * @param <F> the witness type
+     * @param <A> the first value type
+     * @param <B> the second value type
+     * @param <C> the third value type
+     * @return step 3 of the builder
      */
-    public <B> FreePathSteps2<F, A, B> from(Function<A, FreePath<F, B>> next) {
-      Kind<FreeKind.Witness<F>, Tuple2<A, B>> newComp =
-          monad.flatMap(a -> monad.map(b -> Tuple.of(a, b), next.apply(a).runKind()), computation);
-      return new FreePathSteps2<>(monad, functor, newComp);
+    public static <F extends WitnessArity<TypeArity.Unary>, A, B, C> GenericPathSteps3<F, A, B, C> par(GenericPath<F, A> a, GenericPath<F, B> b, GenericPath<F, C> c) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
+    // ========================================================================
+    // Traverse / Sequence / FlatTraverse helpers (shared by all Steps1 classes)
+    // ========================================================================
+    private static <M extends WitnessArity<TypeArity.Unary>, T extends WitnessArity<TypeArity.Unary>, A, C, B> Kind<M, Tuple2<A, Kind<T, B>>> traverseImpl(Monad<M> monad, Kind<M, A> computation, Traverse<T> traversable, Function<A, Kind<T, C>> extractor, Function<C, Kind<M, B>> f) {
+        return monad.flatMap(a -> monad.map(tb -> Tuple.of(a, tb), traversable.traverse(monad, f, extractor.apply(a))), computation);
+    }
+
+    private static <M extends WitnessArity<TypeArity.Unary>, T extends WitnessArity<TypeArity.Unary>, A, B> Kind<M, Tuple2<A, Kind<T, B>>> sequenceImpl(Monad<M> monad, Kind<M, A> computation, Traverse<T> traversable, Function<A, Kind<T, Kind<M, B>>> extractor) {
+        return monad.flatMap(a -> monad.map(tb -> Tuple.of(a, tb), traversable.sequenceA(monad, extractor.apply(a))), computation);
+    }
+
+    private static <M extends WitnessArity<TypeArity.Unary>, T extends WitnessArity<TypeArity.Unary>, A, C, B> Kind<M, Tuple2<A, Kind<T, B>>> flatTraverseImpl(Monad<M> monad, Kind<M, A> computation, Traverse<T> traversable, Monad<T> innerMonad, Function<A, Kind<T, C>> extractor, Function<C, Kind<M, Kind<T, B>>> f) {
+        return monad.flatMap(a -> {
+            Kind<M, Kind<T, Kind<T, B>>> traversed = traversable.traverse(monad, f, extractor.apply(a));
+            return monad.map(ttb -> Tuple.of(a, innerMonad.flatMap(Function.identity(), ttb)), traversed);
+        }, computation);
+    }
+
+    // ========================================================================
+    // MaybePath Steps (Filterable)
+    // ========================================================================
     /**
-     * Binds the result of a pure computation.
-     *
-     * @param f the pure computation
-     * @param <B> the result type
-     * @return the next step
+     * First step in a MaybePath comprehension.
      */
-    public <B> FreePathSteps2<F, A, B> let(Function<A, B> f) {
-      Kind<FreeKind.Witness<F>, Tuple2<A, B>> newComp =
-          monad.map(a -> Tuple.of(a, f.apply(a)), computation);
-      return new FreePathSteps2<>(monad, functor, newComp);
+    public static final class MaybePathSteps1<A> {
+
+        private static final MaybeMonad MONAD = MaybeMonad.INSTANCE;
+
+        private final Kind<MaybeKind.Witness, A> computation;
+
+        private MaybePathSteps1(MaybePath<A> source) {
+            this.computation = MaybeKindHelper.MAYBE.widen(source.run());
+        }
+
+        private MaybePathSteps1(Kind<MaybeKind.Witness, A> computation) {
+            this.computation = computation;
+        }
+
+        /**
+         * Adds a generator that produces another MaybePath.
+         *
+         * @param next function producing the next MaybePath
+         * @param <B> the new value type
+         * @return the next step
+         */
+        public <B> MaybePathSteps2<A, B> from(Function<A, MaybePath<B>> next) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Binds the result of a pure computation.
+         *
+         * @param f the pure computation
+         * @param <B> the result type
+         * @return the next step
+         */
+        public <B> MaybePathSteps2<A, B> let(Function<A, B> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Extracts a value using a FocusPath.
+         *
+         * @param focusPath the lens to apply
+         * @param <B> the focused type
+         * @return the next step
+         */
+        public <B> MaybePathSteps2<A, B> focus(FocusPath<A, B> focusPath) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Pattern matches using an AffinePath, short-circuiting if the match fails.
+         *
+         * @param affinePath the optional focus to apply
+         * @param <B> the focused type
+         * @return the next step
+         */
+        public <B> MaybePathSteps2<A, B> match(AffinePath<A, B> affinePath) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Filters the value based on a predicate.
+         *
+         * @param predicate the filter condition
+         * @return this step with the filter applied
+         */
+        public MaybePathSteps1<A> when(Predicate<A> predicate) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Traverses a structure extracted from the current value with an effectful function.
+         *
+         * @param traversable the Traverse instance
+         * @param extractor extracts the traversable structure
+         * @param f the effectful function
+         * @param <T> the traversable witness type
+         * @param <C> the element type
+         * @param <B> the result element type
+         * @return the next step with the traversed result
+         */
+        public <T extends WitnessArity<TypeArity.Unary>, C, B> MaybePathSteps2<A, Kind<T, B>> traverse(Traverse<T> traversable, Function<A, Kind<T, C>> extractor, Function<C, Kind<MaybeKind.Witness, B>> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Sequences a structure of monadic values extracted from the current value.
+         *
+         * @param traversable the Traverse instance
+         * @param extractor extracts the structure of monadic values
+         * @param <T> the traversable witness type
+         * @param <B> the element type
+         * @return the next step with the sequenced result
+         */
+        public <T extends WitnessArity<TypeArity.Unary>, B> MaybePathSteps2<A, Kind<T, B>> sequence(Traverse<T> traversable, Function<A, Kind<T, Kind<MaybeKind.Witness, B>>> extractor) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Traverses with a function returning nested structures, then flattens.
+         *
+         * @param traversable the Traverse instance
+         * @param innerMonad the Monad for the inner structure
+         * @param extractor extracts the traversable structure
+         * @param f the effectful function returning nested structures
+         * @param <T> the traversable witness type
+         * @param <C> the element type
+         * @param <B> the result element type
+         * @return the next step with the flat-traversed result
+         */
+        public <T extends WitnessArity<TypeArity.Unary>, C, B> MaybePathSteps2<A, Kind<T, B>> flatTraverse(Traverse<T> traversable, Monad<T> innerMonad, Function<A, Kind<T, C>> extractor, Function<C, Kind<MaybeKind.Witness, Kind<T, B>>> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Completes the comprehension by yielding a final result.
+         *
+         * @param f the yield function
+         * @param <R> the result type
+         * @return the resulting MaybePath
+         */
+        public <R> MaybePath<R> yield(Function<A, R> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
     }
 
+    // ========================================================================
+    // OptionalPath Steps (Filterable)
+    // ========================================================================
     /**
-     * Extracts a value using a FocusPath.
-     *
-     * @param focusPath the lens to apply
-     * @param <B> the focused type
-     * @return the next step
+     * First step in an OptionalPath comprehension.
      */
-    public <B> FreePathSteps2<F, A, B> focus(FocusPath<A, B> focusPath) {
-      Objects.requireNonNull(focusPath, "focusPath must not be null");
-      Kind<FreeKind.Witness<F>, Tuple2<A, B>> newComp =
-          monad.map(a -> Tuple.of(a, focusPath.get(a)), computation);
-      return new FreePathSteps2<>(monad, functor, newComp);
+    public static final class OptionalPathSteps1<A> {
+
+        private static final OptionalMonad MONAD = OptionalMonad.INSTANCE;
+
+        private final Kind<OptionalKind.Witness, A> computation;
+
+        private OptionalPathSteps1(OptionalPath<A> source) {
+            this.computation = OptionalKindHelper.OPTIONAL.widen(source.run());
+        }
+
+        private OptionalPathSteps1(Kind<OptionalKind.Witness, A> computation) {
+            this.computation = computation;
+        }
+
+        public <B> OptionalPathSteps2<A, B> from(Function<A, OptionalPath<B>> next) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <B> OptionalPathSteps2<A, B> let(Function<A, B> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <B> OptionalPathSteps2<A, B> focus(FocusPath<A, B> focusPath) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <B> OptionalPathSteps2<A, B> match(AffinePath<A, B> affinePath) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public OptionalPathSteps1<A> when(Predicate<A> predicate) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <T extends WitnessArity<TypeArity.Unary>, C, B> OptionalPathSteps2<A, Kind<T, B>> traverse(Traverse<T> traversable, Function<A, Kind<T, C>> extractor, Function<C, Kind<OptionalKind.Witness, B>> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <T extends WitnessArity<TypeArity.Unary>, B> OptionalPathSteps2<A, Kind<T, B>> sequence(Traverse<T> traversable, Function<A, Kind<T, Kind<OptionalKind.Witness, B>>> extractor) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <T extends WitnessArity<TypeArity.Unary>, C, B> OptionalPathSteps2<A, Kind<T, B>> flatTraverse(Traverse<T> traversable, Monad<T> innerMonad, Function<A, Kind<T, C>> extractor, Function<C, Kind<OptionalKind.Witness, Kind<T, B>>> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <R> OptionalPath<R> yield(Function<A, R> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
     }
 
+    // ========================================================================
+    // EitherPath Steps (Non-Filterable)
+    // ========================================================================
     /**
-     * Traverses a structure extracted from the current value with an effectful function.
-     *
-     * @param traversable the Traverse instance
-     * @param extractor extracts the traversable structure
-     * @param f the effectful function
-     * @param <T> the traversable witness type
-     * @param <C> the element type
-     * @param <B> the result element type
-     * @return the next step with the traversed result
+     * First step in an EitherPath comprehension.
      */
-    public <T extends WitnessArity<TypeArity.Unary>, C, B>
-        FreePathSteps2<F, A, Kind<T, B>> traverse(
-            Traverse<T> traversable,
-            Function<A, Kind<T, C>> extractor,
-            Function<C, Kind<FreeKind.Witness<F>, B>> f) {
-      Objects.requireNonNull(traversable, "traversable must not be null");
-      Objects.requireNonNull(extractor, "extractor must not be null");
-      Objects.requireNonNull(f, "function must not be null");
-      return new FreePathSteps2<>(
-          monad, functor, traverseImpl(monad, computation, traversable, extractor, f));
+    public static final class EitherPathSteps1<E, A> {
+
+        private final Kind<EitherKind.Witness<E>, A> computation;
+
+        private static <E> EitherMonad<E> monad() {
+            return EitherMonad.instance();
+        }
+
+        private EitherPathSteps1(EitherPath<E, A> source) {
+            this.computation = EitherKindHelper.EITHER.widen(source.run());
+        }
+
+        public <B> EitherPathSteps2<E, A, B> from(Function<A, EitherPath<E, B>> next) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <B> EitherPathSteps2<E, A, B> let(Function<A, B> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <B> EitherPathSteps2<E, A, B> focus(FocusPath<A, B> focusPath) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <T extends WitnessArity<TypeArity.Unary>, C, B> EitherPathSteps2<E, A, Kind<T, B>> traverse(Traverse<T> traversable, Function<A, Kind<T, C>> extractor, Function<C, Kind<EitherKind.Witness<E>, B>> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <T extends WitnessArity<TypeArity.Unary>, B> EitherPathSteps2<E, A, Kind<T, B>> sequence(Traverse<T> traversable, Function<A, Kind<T, Kind<EitherKind.Witness<E>, B>>> extractor) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <T extends WitnessArity<TypeArity.Unary>, C, B> EitherPathSteps2<E, A, Kind<T, B>> flatTraverse(Traverse<T> traversable, Monad<T> innerMonad, Function<A, Kind<T, C>> extractor, Function<C, Kind<EitherKind.Witness<E>, Kind<T, B>>> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <R> EitherPath<E, R> yield(Function<A, R> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
     }
 
+    // ========================================================================
+    // TryPath Steps
+    // ========================================================================
     /**
-     * Sequences a traversable of Free computations extracted from the current value.
-     *
-     * @param traversable the Traverse instance
-     * @param extractor extracts the traversable of computations
-     * @param <T> the traversable witness type
-     * @param <B> the result element type
-     * @return the next step with the sequenced result
+     * First step in a TryPath comprehension.
      */
-    public <T extends WitnessArity<TypeArity.Unary>, B> FreePathSteps2<F, A, Kind<T, B>> sequence(
-        Traverse<T> traversable, Function<A, Kind<T, Kind<FreeKind.Witness<F>, B>>> extractor) {
-      Objects.requireNonNull(traversable, "traversable must not be null");
-      Objects.requireNonNull(extractor, "extractor must not be null");
-      return new FreePathSteps2<>(
-          monad, functor, sequenceImpl(monad, computation, traversable, extractor));
+    public static final class TryPathSteps1<A> {
+
+        private static final TryMonad MONAD = TryMonad.INSTANCE;
+
+        private final Kind<TryKind.Witness, A> computation;
+
+        private TryPathSteps1(TryPath<A> source) {
+            this.computation = TryKindHelper.TRY.widen(source.run());
+        }
+
+        public <B> TryPathSteps2<A, B> from(Function<A, TryPath<B>> next) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <B> TryPathSteps2<A, B> let(Function<A, B> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <B> TryPathSteps2<A, B> focus(FocusPath<A, B> focusPath) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <T extends WitnessArity<TypeArity.Unary>, C, B> TryPathSteps2<A, Kind<T, B>> traverse(Traverse<T> traversable, Function<A, Kind<T, C>> extractor, Function<C, Kind<TryKind.Witness, B>> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <T extends WitnessArity<TypeArity.Unary>, B> TryPathSteps2<A, Kind<T, B>> sequence(Traverse<T> traversable, Function<A, Kind<T, Kind<TryKind.Witness, B>>> extractor) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <T extends WitnessArity<TypeArity.Unary>, C, B> TryPathSteps2<A, Kind<T, B>> flatTraverse(Traverse<T> traversable, Monad<T> innerMonad, Function<A, Kind<T, C>> extractor, Function<C, Kind<TryKind.Witness, Kind<T, B>>> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <R> TryPath<R> yield(Function<A, R> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
     }
 
+    // ========================================================================
+    // IOPath Steps
+    // ========================================================================
     /**
-     * Traverses, applies an effectful function, and flattens the inner traversable layer.
-     *
-     * @param traversable the Traverse instance
-     * @param innerMonad the Monad for the inner traversable
-     * @param extractor extracts the traversable structure
-     * @param f the effectful function returning nested traversable results
-     * @param <T> the traversable witness type
-     * @param <C> the element type
-     * @param <B> the result element type
-     * @return the next step with the flattened result
+     * First step in an IOPath comprehension.
      */
-    public <T extends WitnessArity<TypeArity.Unary>, C, B>
-        FreePathSteps2<F, A, Kind<T, B>> flatTraverse(
-            Traverse<T> traversable,
-            Monad<T> innerMonad,
-            Function<A, Kind<T, C>> extractor,
-            Function<C, Kind<FreeKind.Witness<F>, Kind<T, B>>> f) {
-      Objects.requireNonNull(traversable, "traversable must not be null");
-      Objects.requireNonNull(innerMonad, "innerMonad must not be null");
-      Objects.requireNonNull(extractor, "extractor must not be null");
-      Objects.requireNonNull(f, "function must not be null");
-      return new FreePathSteps2<>(
-          monad,
-          functor,
-          flatTraverseImpl(monad, computation, traversable, innerMonad, extractor, f));
+    public static final class IOPathSteps1<A> {
+
+        private static final IOMonad MONAD = IOMonad.INSTANCE;
+
+        private final Kind<IOKind.Witness, A> computation;
+
+        private IOPathSteps1(IOPath<A> source) {
+            this.computation = IOKindHelper.IO_OP.widen(source.run());
+        }
+
+        public <B> IOPathSteps2<A, B> from(Function<A, IOPath<B>> next) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <B> IOPathSteps2<A, B> let(Function<A, B> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <B> IOPathSteps2<A, B> focus(FocusPath<A, B> focusPath) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <T extends WitnessArity<TypeArity.Unary>, C, B> IOPathSteps2<A, Kind<T, B>> traverse(Traverse<T> traversable, Function<A, Kind<T, C>> extractor, Function<C, Kind<IOKind.Witness, B>> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <T extends WitnessArity<TypeArity.Unary>, B> IOPathSteps2<A, Kind<T, B>> sequence(Traverse<T> traversable, Function<A, Kind<T, Kind<IOKind.Witness, B>>> extractor) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <T extends WitnessArity<TypeArity.Unary>, C, B> IOPathSteps2<A, Kind<T, B>> flatTraverse(Traverse<T> traversable, Monad<T> innerMonad, Function<A, Kind<T, C>> extractor, Function<C, Kind<IOKind.Witness, Kind<T, B>>> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <R> IOPath<R> yield(Function<A, R> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
     }
 
+    // ========================================================================
+    // VTaskPath Steps
+    // ========================================================================
     /**
-     * Terminates the comprehension by projecting bound values into a result.
-     *
-     * @param f the projection function
-     * @param <R> the result type
-     * @return a FreePath containing the projected result
+     * First step in a VTaskPath comprehension.
      */
-    public <R> FreePath<F, R> yield(Function<A, R> f) {
-      Kind<FreeKind.Witness<F>, R> result = monad.map(f, computation);
-      return FreePath.of(FreeKindHelper.FREE.narrow(result), functor);
-    }
-  }
+    public static final class VTaskPathSteps1<A> {
 
-  // ===== GenericPathSteps1 =====
+        private static final VTaskMonad MONAD = VTaskMonad.INSTANCE;
 
-  /** First step in a GenericPath comprehension. */
-  public static final class GenericPathSteps1<F extends WitnessArity<TypeArity.Unary>, A> {
-    private final Monad<F> monad;
-    private final Kind<F, A> computation;
+        private final Kind<VTaskKind.Witness, A> computation;
 
-    private GenericPathSteps1(GenericPath<F, A> source) {
-      this.monad = source.monad();
-      this.computation = source.runKind();
-    }
+        private VTaskPathSteps1(VTaskPath<A> source) {
+            this.computation = VTaskKindHelper.VTASK.widen(source.run());
+        }
 
-    public <B> GenericPathSteps2<F, A, B> from(Function<A, GenericPath<F, B>> next) {
-      Kind<F, Tuple2<A, B>> newComp =
-          monad.flatMap(a -> monad.map(b -> Tuple.of(a, b), next.apply(a).runKind()), computation);
-      return new GenericPathSteps2<>(monad, newComp);
-    }
+        public <B> VTaskPathSteps2<A, B> from(Function<A, VTaskPath<B>> next) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
 
-    public <B> GenericPathSteps2<F, A, B> let(Function<A, B> f) {
-      Kind<F, Tuple2<A, B>> newComp = monad.map(a -> Tuple.of(a, f.apply(a)), computation);
-      return new GenericPathSteps2<>(monad, newComp);
-    }
+        public <B> VTaskPathSteps2<A, B> let(Function<A, B> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
 
-    public <B> GenericPathSteps2<F, A, B> focus(FocusPath<A, B> focusPath) {
-      Objects.requireNonNull(focusPath, "focusPath must not be null");
-      Kind<F, Tuple2<A, B>> newComp = monad.map(a -> Tuple.of(a, focusPath.get(a)), computation);
-      return new GenericPathSteps2<>(monad, newComp);
-    }
+        public <B> VTaskPathSteps2<A, B> focus(FocusPath<A, B> focusPath) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
 
-    public <T extends WitnessArity<TypeArity.Unary>, C, B>
-        GenericPathSteps2<F, A, Kind<T, B>> traverse(
-            Traverse<T> traversable, Function<A, Kind<T, C>> extractor, Function<C, Kind<F, B>> f) {
-      Objects.requireNonNull(traversable, "traversable must not be null");
-      Objects.requireNonNull(extractor, "extractor must not be null");
-      Objects.requireNonNull(f, "function must not be null");
-      return new GenericPathSteps2<>(
-          monad, traverseImpl(monad, computation, traversable, extractor, f));
+        public <T extends WitnessArity<TypeArity.Unary>, C, B> VTaskPathSteps2<A, Kind<T, B>> traverse(Traverse<T> traversable, Function<A, Kind<T, C>> extractor, Function<C, Kind<VTaskKind.Witness, B>> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <T extends WitnessArity<TypeArity.Unary>, B> VTaskPathSteps2<A, Kind<T, B>> sequence(Traverse<T> traversable, Function<A, Kind<T, Kind<VTaskKind.Witness, B>>> extractor) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <T extends WitnessArity<TypeArity.Unary>, C, B> VTaskPathSteps2<A, Kind<T, B>> flatTraverse(Traverse<T> traversable, Monad<T> innerMonad, Function<A, Kind<T, C>> extractor, Function<C, Kind<VTaskKind.Witness, Kind<T, B>>> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <R> VTaskPath<R> yield(Function<A, R> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
     }
 
-    public <T extends WitnessArity<TypeArity.Unary>, B>
-        GenericPathSteps2<F, A, Kind<T, B>> sequence(
-            Traverse<T> traversable, Function<A, Kind<T, Kind<F, B>>> extractor) {
-      Objects.requireNonNull(traversable, "traversable must not be null");
-      Objects.requireNonNull(extractor, "extractor must not be null");
-      return new GenericPathSteps2<>(
-          monad, sequenceImpl(monad, computation, traversable, extractor));
+    // ========================================================================
+    // IdPath Steps
+    // ========================================================================
+    /**
+     * First step in an IdPath comprehension.
+     */
+    public static final class IdPathSteps1<A> {
+
+        private static final IdMonad MONAD = IdMonad.instance();
+
+        private final Kind<IdKind.Witness, A> computation;
+
+        private IdPathSteps1(IdPath<A> source) {
+            this.computation = IdKindHelper.ID.widen(source.run());
+        }
+
+        public <B> IdPathSteps2<A, B> from(Function<A, IdPath<B>> next) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <B> IdPathSteps2<A, B> let(Function<A, B> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <B> IdPathSteps2<A, B> focus(FocusPath<A, B> focusPath) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <T extends WitnessArity<TypeArity.Unary>, C, B> IdPathSteps2<A, Kind<T, B>> traverse(Traverse<T> traversable, Function<A, Kind<T, C>> extractor, Function<C, Kind<IdKind.Witness, B>> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <T extends WitnessArity<TypeArity.Unary>, B> IdPathSteps2<A, Kind<T, B>> sequence(Traverse<T> traversable, Function<A, Kind<T, Kind<IdKind.Witness, B>>> extractor) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <T extends WitnessArity<TypeArity.Unary>, C, B> IdPathSteps2<A, Kind<T, B>> flatTraverse(Traverse<T> traversable, Monad<T> innerMonad, Function<A, Kind<T, C>> extractor, Function<C, Kind<IdKind.Witness, Kind<T, B>>> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <R> IdPath<R> yield(Function<A, R> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
     }
 
-    public <T extends WitnessArity<TypeArity.Unary>, C, B>
-        GenericPathSteps2<F, A, Kind<T, B>> flatTraverse(
-            Traverse<T> traversable,
-            Monad<T> innerMonad,
-            Function<A, Kind<T, C>> extractor,
-            Function<C, Kind<F, Kind<T, B>>> f) {
-      Objects.requireNonNull(traversable, "traversable must not be null");
-      Objects.requireNonNull(innerMonad, "innerMonad must not be null");
-      Objects.requireNonNull(extractor, "extractor must not be null");
-      Objects.requireNonNull(f, "function must not be null");
-      return new GenericPathSteps2<>(
-          monad, flatTraverseImpl(monad, computation, traversable, innerMonad, extractor, f));
+    // ========================================================================
+    // NonDetPath Steps (Filterable, uses Cartesian product semantics)
+    // ========================================================================
+    /**
+     * First step in a NonDetPath comprehension.
+     */
+    public static final class NonDetPathSteps1<A> {
+
+        private static final ListMonad MONAD = ListMonad.INSTANCE;
+
+        private final Kind<ListKind.Witness, A> computation;
+
+        private NonDetPathSteps1(NonDetPath<A> source) {
+            this.computation = ListKindHelper.LIST.widen(source.run());
+        }
+
+        private NonDetPathSteps1(Kind<ListKind.Witness, A> computation) {
+            this.computation = computation;
+        }
+
+        public <B> NonDetPathSteps2<A, B> from(Function<A, NonDetPath<B>> next) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <B> NonDetPathSteps2<A, B> let(Function<A, B> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public NonDetPathSteps1<A> when(Predicate<A> predicate) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <T extends WitnessArity<TypeArity.Unary>, C, B> NonDetPathSteps2<A, Kind<T, B>> traverse(Traverse<T> traversable, Function<A, Kind<T, C>> extractor, Function<C, Kind<ListKind.Witness, B>> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <T extends WitnessArity<TypeArity.Unary>, B> NonDetPathSteps2<A, Kind<T, B>> sequence(Traverse<T> traversable, Function<A, Kind<T, Kind<ListKind.Witness, B>>> extractor) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <T extends WitnessArity<TypeArity.Unary>, C, B> NonDetPathSteps2<A, Kind<T, B>> flatTraverse(Traverse<T> traversable, Monad<T> innerMonad, Function<A, Kind<T, C>> extractor, Function<C, Kind<ListKind.Witness, Kind<T, B>>> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <R> NonDetPath<R> yield(Function<A, R> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
     }
 
-    public <R> GenericPath<F, R> yield(Function<A, R> f) {
-      Kind<F, R> result = monad.map(f, computation);
-      return GenericPath.of(result, monad);
+    // ========================================================================
+    // GenericPath Steps (Escape Hatch)
+    // ========================================================================
+    // ===== FreePathSteps1 =====
+    /**
+     * Step 1 in a FreePath comprehension.
+     *
+     * <p>Binds the first value from a Free monad program. Subsequent steps use {@code from()} to add
+     * monadic bindings, {@code let()} for pure computations, {@code focus()} for optic extraction, or
+     * {@code par()} for parallel composition.
+     *
+     * @param <F> the effect functor witness type
+     * @param <A> the type of the first bound value
+     */
+    public static final class FreePathSteps1<F extends WitnessArity<TypeArity.Unary>, A> {
+
+        private final Monad<FreeKind.Witness<F>> monad;
+
+        private final Functor<F> functor;
+
+        private final Kind<FreeKind.Witness<F>, A> computation;
+
+        private FreePathSteps1(FreePath<F, A> source) {
+            this.functor = source.functor();
+            this.monad = new FreeMonad<>();
+            this.computation = source.runKind();
+        }
+
+        /**
+         * Adds a generator that produces another FreePath.
+         *
+         * @param next function producing the next FreePath
+         * @param <B> the new value type
+         * @return the next step
+         */
+        public <B> FreePathSteps2<F, A, B> from(Function<A, FreePath<F, B>> next) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Binds the result of a pure computation.
+         *
+         * @param f the pure computation
+         * @param <B> the result type
+         * @return the next step
+         */
+        public <B> FreePathSteps2<F, A, B> let(Function<A, B> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Extracts a value using a FocusPath.
+         *
+         * @param focusPath the lens to apply
+         * @param <B> the focused type
+         * @return the next step
+         */
+        public <B> FreePathSteps2<F, A, B> focus(FocusPath<A, B> focusPath) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Traverses a structure extracted from the current value with an effectful function.
+         *
+         * @param traversable the Traverse instance
+         * @param extractor extracts the traversable structure
+         * @param f the effectful function
+         * @param <T> the traversable witness type
+         * @param <C> the element type
+         * @param <B> the result element type
+         * @return the next step with the traversed result
+         */
+        public <T extends WitnessArity<TypeArity.Unary>, C, B> FreePathSteps2<F, A, Kind<T, B>> traverse(Traverse<T> traversable, Function<A, Kind<T, C>> extractor, Function<C, Kind<FreeKind.Witness<F>, B>> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Sequences a traversable of Free computations extracted from the current value.
+         *
+         * @param traversable the Traverse instance
+         * @param extractor extracts the traversable of computations
+         * @param <T> the traversable witness type
+         * @param <B> the result element type
+         * @return the next step with the sequenced result
+         */
+        public <T extends WitnessArity<TypeArity.Unary>, B> FreePathSteps2<F, A, Kind<T, B>> sequence(Traverse<T> traversable, Function<A, Kind<T, Kind<FreeKind.Witness<F>, B>>> extractor) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Traverses, applies an effectful function, and flattens the inner traversable layer.
+         *
+         * @param traversable the Traverse instance
+         * @param innerMonad the Monad for the inner traversable
+         * @param extractor extracts the traversable structure
+         * @param f the effectful function returning nested traversable results
+         * @param <T> the traversable witness type
+         * @param <C> the element type
+         * @param <B> the result element type
+         * @return the next step with the flattened result
+         */
+        public <T extends WitnessArity<TypeArity.Unary>, C, B> FreePathSteps2<F, A, Kind<T, B>> flatTraverse(Traverse<T> traversable, Monad<T> innerMonad, Function<A, Kind<T, C>> extractor, Function<C, Kind<FreeKind.Witness<F>, Kind<T, B>>> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Terminates the comprehension by projecting bound values into a result.
+         *
+         * @param f the projection function
+         * @param <R> the result type
+         * @return a FreePath containing the projected result
+         */
+        public <R> FreePath<F, R> yield(Function<A, R> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
     }
-  }
+
+    // ===== GenericPathSteps1 =====
+    /**
+     * First step in a GenericPath comprehension.
+     */
+    public static final class GenericPathSteps1<F extends WitnessArity<TypeArity.Unary>, A> {
+
+        private final Monad<F> monad;
+
+        private final Kind<F, A> computation;
+
+        private GenericPathSteps1(GenericPath<F, A> source) {
+            this.monad = source.monad();
+            this.computation = source.runKind();
+        }
+
+        public <B> GenericPathSteps2<F, A, B> from(Function<A, GenericPath<F, B>> next) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <B> GenericPathSteps2<F, A, B> let(Function<A, B> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <B> GenericPathSteps2<F, A, B> focus(FocusPath<A, B> focusPath) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <T extends WitnessArity<TypeArity.Unary>, C, B> GenericPathSteps2<F, A, Kind<T, B>> traverse(Traverse<T> traversable, Function<A, Kind<T, C>> extractor, Function<C, Kind<F, B>> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <T extends WitnessArity<TypeArity.Unary>, B> GenericPathSteps2<F, A, Kind<T, B>> sequence(Traverse<T> traversable, Function<A, Kind<T, Kind<F, B>>> extractor) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <T extends WitnessArity<TypeArity.Unary>, C, B> GenericPathSteps2<F, A, Kind<T, B>> flatTraverse(Traverse<T> traversable, Monad<T> innerMonad, Function<A, Kind<T, C>> extractor, Function<C, Kind<F, Kind<T, B>>> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public <R> GenericPath<F, R> yield(Function<A, R> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+    }
 }

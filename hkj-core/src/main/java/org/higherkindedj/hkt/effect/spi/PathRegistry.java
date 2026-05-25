@@ -36,129 +36,113 @@ import org.higherkindedj.hkt.effect.capability.Chainable;
  */
 public final class PathRegistry {
 
-  private static final Map<Class<?>, PathProvider<?>> providers = new ConcurrentHashMap<>();
-  private static volatile boolean loaded = false;
+    private static final Map<Class<?>, PathProvider<?>> providers = new ConcurrentHashMap<>();
 
-  private PathRegistry() {
-    // Utility class - no instantiation
-  }
+    private static volatile boolean loaded = false;
 
-  /**
-   * Creates a Path from a Kind value using the appropriate registered provider.
-   *
-   * @param value the Kind value to wrap; must not be null
-   * @param witnessType the witness type class
-   * @param <F> the witness type
-   * @param <A> the value type
-   * @return an Optional containing the path if a provider is found
-   */
-  public static <F extends WitnessArity<TypeArity.Unary>, A> Optional<Chainable<A>> createPath(
-      Kind<F, A> value, Class<?> witnessType) {
-    ensureLoaded();
-    @SuppressWarnings("unchecked")
-    PathProvider<F> provider = (PathProvider<F>) providers.get(witnessType);
-    if (provider == null) {
-      return Optional.empty();
+    private PathRegistry() {
+        // Utility class - no instantiation
     }
-    return Optional.of(provider.createPath(value));
-  }
 
-  /**
-   * Returns the provider for a given witness type, if registered.
-   *
-   * @param witnessType the witness type class
-   * @return an Optional containing the provider if found
-   */
-  public static Optional<PathProvider<?>> getProvider(Class<?> witnessType) {
-    ensureLoaded();
-    return Optional.ofNullable(providers.get(witnessType));
-  }
-
-  /**
-   * Registers a provider manually.
-   *
-   * <p>Useful for testing or when ServiceLoader is not available.
-   *
-   * @param provider the provider to register; must not be null
-   */
-  public static void register(PathProvider<?> provider) {
-    if (provider == null) {
-      throw new NullPointerException("provider must not be null");
+    /**
+     * Creates a Path from a Kind value using the appropriate registered provider.
+     *
+     * @param value the Kind value to wrap; must not be null
+     * @param witnessType the witness type class
+     * @param <F> the witness type
+     * @param <A> the value type
+     * @return an Optional containing the path if a provider is found
+     */
+    public static <F extends WitnessArity<TypeArity.Unary>, A> Optional<Chainable<A>> createPath(Kind<F, A> value, Class<?> witnessType) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-    ensureLoaded();
-    providers.put(provider.witnessType(), provider);
-  }
 
-  /**
-   * Unregisters a provider for a given witness type.
-   *
-   * <p>Useful for testing.
-   *
-   * @param witnessType the witness type class to unregister
-   * @return the previously registered provider, or null if none
-   */
-  public static PathProvider<?> unregister(Class<?> witnessType) {
-    return providers.remove(witnessType);
-  }
+    /**
+     * Returns the provider for a given witness type, if registered.
+     *
+     * @param witnessType the witness type class
+     * @return an Optional containing the provider if found
+     */
+    public static Optional<PathProvider<?>> getProvider(Class<?> witnessType) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Returns all registered providers.
-   *
-   * @return an unmodifiable collection of all providers
-   */
-  public static Collection<PathProvider<?>> allProviders() {
-    ensureLoaded();
-    return Collections.unmodifiableCollection(providers.values());
-  }
+    /**
+     * Registers a provider manually.
+     *
+     * <p>Useful for testing or when ServiceLoader is not available.
+     *
+     * @param provider the provider to register; must not be null
+     */
+    public static void register(PathProvider<?> provider) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Returns whether a provider is registered for the given witness type.
-   *
-   * @param witnessType the witness type class
-   * @return true if a provider is registered
-   */
-  public static boolean hasProvider(Class<?> witnessType) {
-    ensureLoaded();
-    return providers.containsKey(witnessType);
-  }
+    /**
+     * Unregisters a provider for a given witness type.
+     *
+     * <p>Useful for testing.
+     *
+     * @param witnessType the witness type class to unregister
+     * @return the previously registered provider, or null if none
+     */
+    public static PathProvider<?> unregister(Class<?> witnessType) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Clears all registered providers.
-   *
-   * <p>Useful for testing to reset state between tests.
-   */
-  public static void clear() {
-    providers.clear();
-    loaded = false;
-  }
+    /**
+     * Returns all registered providers.
+     *
+     * @return an unmodifiable collection of all providers
+     */
+    public static Collection<PathProvider<?>> allProviders() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Forces reloading of providers from ServiceLoader.
-   *
-   * <p>This is useful if new providers have been added to the classpath.
-   */
-  public static void reload() {
-    providers.clear();
-    loaded = false;
-    ensureLoaded();
-  }
+    /**
+     * Returns whether a provider is registered for the given witness type.
+     *
+     * @param witnessType the witness type class
+     * @return true if a provider is registered
+     */
+    public static boolean hasProvider(Class<?> witnessType) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  private static void ensureLoaded() {
-    if (!loaded) {
-      synchronized (PathRegistry.class) {
+    /**
+     * Clears all registered providers.
+     *
+     * <p>Useful for testing to reset state between tests.
+     */
+    public static void clear() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Forces reloading of providers from ServiceLoader.
+     *
+     * <p>This is useful if new providers have been added to the classpath.
+     */
+    public static void reload() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    private static void ensureLoaded() {
         if (!loaded) {
-          loadProviders();
-          loaded = true;
+            synchronized (PathRegistry.class) {
+                if (!loaded) {
+                    loadProviders();
+                    loaded = true;
+                }
+            }
         }
-      }
     }
-  }
 
-  @SuppressWarnings("rawtypes")
-  private static void loadProviders() {
-    ServiceLoader<PathProvider> loader = ServiceLoader.load(PathProvider.class);
-    for (PathProvider<?> provider : loader) {
-      providers.put(provider.witnessType(), provider);
+    @SuppressWarnings("rawtypes")
+    private static void loadProviders() {
+        ServiceLoader<PathProvider> loader = ServiceLoader.load(PathProvider.class);
+        for (PathProvider<?> provider : loader) {
+            providers.put(provider.witnessType(), provider);
+        }
     }
-  }
 }

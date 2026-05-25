@@ -25,27 +25,23 @@ import java.util.Set;
 @FunctionalInterface
 public interface Guard<K> {
 
-  /**
-   * Inspect a round's pending keyset. Return normally to allow the round; throw {@link
-   * GuardViolationException} to refuse it.
-   *
-   * @param pendingKeys the uncached keys this round would dispatch (never null, possibly empty)
-   * @param roundIndex zero-based round counter
-   * @param backendCallsSoFar number of non-empty rounds that have already dispatched (i.e.
-   *     completed backend calls before this round). Lets guards enforce cross-round budgets
-   *     statelessly; the runner is the single source of truth for the count
-   * @throws GuardViolationException to refuse the round
-   */
-  void check(Set<K> pendingKeys, int roundIndex, int backendCallsSoFar);
+    /**
+     * Inspect a round's pending keyset. Return normally to allow the round; throw {@link
+     * GuardViolationException} to refuse it.
+     *
+     * @param pendingKeys the uncached keys this round would dispatch (never null, possibly empty)
+     * @param roundIndex zero-based round counter
+     * @param backendCallsSoFar number of non-empty rounds that have already dispatched (i.e.
+     *     completed backend calls before this round). Lets guards enforce cross-round budgets
+     *     statelessly; the runner is the single source of truth for the count
+     * @throws GuardViolationException to refuse the round
+     */
+    void check(Set<K> pendingKeys, int roundIndex, int backendCallsSoFar);
 
-  /**
-   * Compose two guards. The result calls {@code this} then {@code other}; the first to throw wins.
-   */
-  default Guard<K> and(Guard<K> other) {
-    java.util.Objects.requireNonNull(other, "other");
-    return (keys, round, calls) -> {
-      check(keys, round, calls);
-      other.check(keys, round, calls);
-    };
-  }
+    /**
+     * Compose two guards. The result calls {@code this} then {@code other}; the first to throw wins.
+     */
+    default Guard<K> and(Guard<K> other) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

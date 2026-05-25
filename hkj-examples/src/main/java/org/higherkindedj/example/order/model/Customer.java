@@ -18,34 +18,30 @@ import org.higherkindedj.optics.annotations.GenerateLenses;
  */
 @GenerateLenses
 @GenerateFocus
-public record Customer(
-    CustomerId id,
-    String name,
-    String email,
-    String phone,
-    CustomerStatus status,
-    LoyaltyTier loyaltyTier) {
-  /** Customer account status. */
-  public enum CustomerStatus {
-    ACTIVE,
-    SUSPENDED,
-    CLOSED
-  }
+public record Customer(CustomerId id, String name, String email, String phone, CustomerStatus status, LoyaltyTier loyaltyTier) {
 
-  /** Loyalty programme tier, affecting discounts and benefits. */
-  public enum LoyaltyTier {
-    BRONZE,
-    SILVER,
-    GOLD,
-    PLATINUM
-  }
+    /**
+     * Customer account status.
+     */
+    public enum CustomerStatus {
 
-  /**
-   * Checks if the customer account is active.
-   *
-   * @return true if the customer can place orders
-   */
-  public boolean isActive() {
-    return status == CustomerStatus.ACTIVE;
-  }
+        ACTIVE, SUSPENDED, CLOSED
+    }
+
+    /**
+     * Loyalty programme tier, affecting discounts and benefits.
+     */
+    public enum LoyaltyTier {
+
+        BRONZE, SILVER, GOLD, PLATINUM
+    }
+
+    /**
+     * Checks if the customer account is active.
+     *
+     * @return true if the customer can place orders
+     */
+    public boolean isActive() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

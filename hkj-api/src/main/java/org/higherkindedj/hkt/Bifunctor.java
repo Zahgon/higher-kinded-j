@@ -267,218 +267,217 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public interface Bifunctor<F extends WitnessArity<TypeArity.Binary>> {
 
-  /**
-   * Maps over both type parameters simultaneously, applying {@code f} to the first parameter and
-   * {@code g} to the second parameter.
-   *
-   * <p>This is the fundamental operation of the Bifunctor type class. It allows you to transform
-   * both "contents" of a two-parameter context without affecting the structure itself.
-   *
-   * <p><b>Type Transformation:</b>
-   *
-   * <pre>
-   * F&lt;A, B&gt; ──bimap(f: A → C, g: B → D)──&gt; F&lt;C, D&gt;
-   *
-   * Examples:
-   * Either&lt;String, Integer&gt;         ──bimap(Exception::new, n -&gt; n * 2)──&gt;
-   *                                                     Either&lt;Exception, Integer&gt;
-   * Tuple2&lt;String, Integer&gt;         ──bimap(String::length, Object::toString)──&gt;
-   *                                                     Tuple2&lt;Integer, String&gt;
-   * Validated&lt;List&lt;Error&gt;, User&gt;    ──bimap(errors -&gt; ..., User::getName)──&gt;
-   *                                                     Validated&lt;List&lt;String&gt;, String&gt;
-   * </pre>
-   *
-   * <p><b>Example Usage:</b>
-   *
-   * <pre>{@code
-   * // Example 1: Transforming an Either
-   * Bifunctor<EitherKind2.Witness> eitherBifunctor = ...;
-   * Kind2<EitherKind2.Witness, String, Integer> either =
-   *     EitherKind2.widen(Either.right(42));
-   *
-   * Kind2<EitherKind2.Witness, Exception, String> result = eitherBifunctor.bimap(
-   *     Exception::new,           // Transform left (error) type
-   *     n -> "Number: " + n,      // Transform right (success) type
-   *     either
-   * );
-   * // Result: Either.right("Number: 42")
-   *
-   * // Example 2: Transforming a Tuple2
-   * Bifunctor<Tuple2Kind2.Witness> tupleBifunctor = ...;
-   * Kind2<Tuple2Kind2.Witness, String, Integer> tuple =
-   *     Tuple2Kind2.widen(new Tuple2<>("Alice", 30));
-   *
-   * Kind2<Tuple2Kind2.Witness, Integer, String> result = tupleBifunctor.bimap(
-   *     String::length,           // Transform first element
-   *     age -> age + " years",    // Transform second element
-   *     tuple
-   * );
-   * // Result: new Tuple2<>(5, "30 years")
-   * }</pre>
-   *
-   * <p><b>Law Verification:</b>
-   *
-   * <p>When implementing this method, ensure both Bifunctor laws are satisfied:
-   *
-   * <pre>{@code
-   * // Identity law: mapping both with identity is a no-op
-   * bimap(x -> x, y -> y, fab).equals(fab)  // must be true
-   *
-   * // Composition law: mapping twice = mapping with composed functions
-   * bimap(f2.compose(f1), g2.compose(g1), fab).equals(
-   *     bimap(f2, g2, bimap(f1, g1, fab))
-   * )  // must be true
-   * }</pre>
-   *
-   * @param <A> The type of the first parameter in the input bifunctor {@code fab}
-   * @param <B> The type of the second parameter in the input bifunctor {@code fab}
-   * @param <C> The type of the first parameter in the output bifunctor
-   * @param <D> The type of the second parameter in the output bifunctor
-   * @param f The pure function to apply to the first parameter. Must not be null.
-   * @param g The pure function to apply to the second parameter. Must not be null.
-   * @param fab The bifunctor structure containing values of types {@code A} and {@code B}. Must not
-   *     be null.
-   * @return A new bifunctor structure of type {@code Kind2<F, C, D>} with both parameters
-   *     transformed. Guaranteed to be non-null.
-   * @throws NullPointerException if {@code f}, {@code g}, or {@code fab} is null
-   *     (implementation-dependent)
-   * @see #first(Function, Kind2)
-   * @see #second(Function, Kind2)
-   */
-  <A, B, C, D> Kind2<F, C, D> bimap(
-      Function<? super A, ? extends C> f, Function<? super B, ? extends D> g, Kind2<F, A, B> fab);
+    /**
+     * Maps over both type parameters simultaneously, applying {@code f} to the first parameter and
+     * {@code g} to the second parameter.
+     *
+     * <p>This is the fundamental operation of the Bifunctor type class. It allows you to transform
+     * both "contents" of a two-parameter context without affecting the structure itself.
+     *
+     * <p><b>Type Transformation:</b>
+     *
+     * <pre>
+     * F&lt;A, B&gt; ──bimap(f: A → C, g: B → D)──&gt; F&lt;C, D&gt;
+     *
+     * Examples:
+     * Either&lt;String, Integer&gt;         ──bimap(Exception::new, n -&gt; n * 2)──&gt;
+     *                                                     Either&lt;Exception, Integer&gt;
+     * Tuple2&lt;String, Integer&gt;         ──bimap(String::length, Object::toString)──&gt;
+     *                                                     Tuple2&lt;Integer, String&gt;
+     * Validated&lt;List&lt;Error&gt;, User&gt;    ──bimap(errors -&gt; ..., User::getName)──&gt;
+     *                                                     Validated&lt;List&lt;String&gt;, String&gt;
+     * </pre>
+     *
+     * <p><b>Example Usage:</b>
+     *
+     * <pre>{@code
+     * // Example 1: Transforming an Either
+     * Bifunctor<EitherKind2.Witness> eitherBifunctor = ...;
+     * Kind2<EitherKind2.Witness, String, Integer> either =
+     *     EitherKind2.widen(Either.right(42));
+     *
+     * Kind2<EitherKind2.Witness, Exception, String> result = eitherBifunctor.bimap(
+     *     Exception::new,           // Transform left (error) type
+     *     n -> "Number: " + n,      // Transform right (success) type
+     *     either
+     * );
+     * // Result: Either.right("Number: 42")
+     *
+     * // Example 2: Transforming a Tuple2
+     * Bifunctor<Tuple2Kind2.Witness> tupleBifunctor = ...;
+     * Kind2<Tuple2Kind2.Witness, String, Integer> tuple =
+     *     Tuple2Kind2.widen(new Tuple2<>("Alice", 30));
+     *
+     * Kind2<Tuple2Kind2.Witness, Integer, String> result = tupleBifunctor.bimap(
+     *     String::length,           // Transform first element
+     *     age -> age + " years",    // Transform second element
+     *     tuple
+     * );
+     * // Result: new Tuple2<>(5, "30 years")
+     * }</pre>
+     *
+     * <p><b>Law Verification:</b>
+     *
+     * <p>When implementing this method, ensure both Bifunctor laws are satisfied:
+     *
+     * <pre>{@code
+     * // Identity law: mapping both with identity is a no-op
+     * bimap(x -> x, y -> y, fab).equals(fab)  // must be true
+     *
+     * // Composition law: mapping twice = mapping with composed functions
+     * bimap(f2.compose(f1), g2.compose(g1), fab).equals(
+     *     bimap(f2, g2, bimap(f1, g1, fab))
+     * )  // must be true
+     * }</pre>
+     *
+     * @param <A> The type of the first parameter in the input bifunctor {@code fab}
+     * @param <B> The type of the second parameter in the input bifunctor {@code fab}
+     * @param <C> The type of the first parameter in the output bifunctor
+     * @param <D> The type of the second parameter in the output bifunctor
+     * @param f The pure function to apply to the first parameter. Must not be null.
+     * @param g The pure function to apply to the second parameter. Must not be null.
+     * @param fab The bifunctor structure containing values of types {@code A} and {@code B}. Must not
+     *     be null.
+     * @return A new bifunctor structure of type {@code Kind2<F, C, D>} with both parameters
+     *     transformed. Guaranteed to be non-null.
+     * @throws NullPointerException if {@code f}, {@code g}, or {@code fab} is null
+     *     (implementation-dependent)
+     * @see #first(Function, Kind2)
+     * @see #second(Function, Kind2)
+     */
+    <A, B, C, D> Kind2<F, C, D> bimap(Function<? super A, ? extends C> f, Function<? super B, ? extends D> g, Kind2<F, A, B> fab);
 
-  /**
-   * Maps over the first type parameter only, leaving the second parameter unchanged.
-   *
-   * <p>This is a convenience method that applies a transformation to only the first type parameter.
-   * It is equivalent to calling {@code bimap(f, Function.identity(), fab)}.
-   *
-   * <p><b>Type Transformation:</b>
-   *
-   * <pre>
-   * F&lt;A, B&gt; ──first(f: A → C)──&gt; F&lt;C, B&gt;
-   *
-   * Examples:
-   * Either&lt;String, Integer&gt;     ──first(Exception::new)──&gt;     Either&lt;Exception, Integer&gt;
-   * Tuple2&lt;String, Integer&gt;     ──first(String::length)──&gt;     Tuple2&lt;Integer, Integer&gt;
-   * Validated&lt;Error, User&gt;      ──first(Error::getMessage)──&gt;  Validated&lt;String, User&gt;
-   * </pre>
-   *
-   * <p><b>Example Usage:</b>
-   *
-   * <pre>{@code
-   * // Example 1: Transforming only the left side of an Either
-   * Bifunctor<EitherKind2.Witness> bifunctor = ...;
-   * Kind2<EitherKind2.Witness, String, Integer> either =
-   *     EitherKind2.widen(Either.left("error"));
-   *
-   * Kind2<EitherKind2.Witness, Exception, Integer> result = bifunctor.first(
-   *     Exception::new,
-   *     either
-   * );
-   * // Result: Either.left(new Exception("error"))
-   *
-   * // Example 2: Transforming the first element of a Tuple2
-   * Bifunctor<Tuple2Kind2.Witness> bifunctor = ...;
-   * Kind2<Tuple2Kind2.Witness, String, Integer> tuple =
-   *     Tuple2Kind2.widen(new Tuple2<>("Alice", 30));
-   *
-   * Kind2<Tuple2Kind2.Witness, Integer, Integer> result = bifunctor.first(
-   *     String::length,
-   *     tuple
-   * );
-   * // Result: new Tuple2<>(5, 30)
-   * }</pre>
-   *
-   * <p><b>Default Implementation:</b>
-   *
-   * <p>The default implementation delegates to {@code bimap} with {@code Function.identity()} for
-   * the second parameter. Implementations may override this for better performance.
-   *
-   * @param <A> The type of the first parameter in the input bifunctor {@code fab}
-   * @param <B> The type of the second parameter (unchanged)
-   * @param <C> The type of the first parameter in the output bifunctor
-   * @param f The pure function to apply to the first parameter. Must not be null.
-   * @param fab The bifunctor structure containing values of types {@code A} and {@code B}. Must not
-   *     be null.
-   * @return A new bifunctor structure of type {@code Kind2<F, C, B>} with the first parameter
-   *     transformed. Guaranteed to be non-null.
-   * @throws NullPointerException if {@code f} or {@code fab} is null (implementation-dependent)
-   * @see #bimap(Function, Function, Kind2)
-   * @see #second(Function, Kind2)
-   */
-  default <A, B, C> Kind2<F, C, B> first(Function<? super A, ? extends C> f, Kind2<F, A, B> fab) {
-    return bimap(f, Function.identity(), fab);
-  }
+    /**
+     * Maps over the first type parameter only, leaving the second parameter unchanged.
+     *
+     * <p>This is a convenience method that applies a transformation to only the first type parameter.
+     * It is equivalent to calling {@code bimap(f, Function.identity(), fab)}.
+     *
+     * <p><b>Type Transformation:</b>
+     *
+     * <pre>
+     * F&lt;A, B&gt; ──first(f: A → C)──&gt; F&lt;C, B&gt;
+     *
+     * Examples:
+     * Either&lt;String, Integer&gt;     ──first(Exception::new)──&gt;     Either&lt;Exception, Integer&gt;
+     * Tuple2&lt;String, Integer&gt;     ──first(String::length)──&gt;     Tuple2&lt;Integer, Integer&gt;
+     * Validated&lt;Error, User&gt;      ──first(Error::getMessage)──&gt;  Validated&lt;String, User&gt;
+     * </pre>
+     *
+     * <p><b>Example Usage:</b>
+     *
+     * <pre>{@code
+     * // Example 1: Transforming only the left side of an Either
+     * Bifunctor<EitherKind2.Witness> bifunctor = ...;
+     * Kind2<EitherKind2.Witness, String, Integer> either =
+     *     EitherKind2.widen(Either.left("error"));
+     *
+     * Kind2<EitherKind2.Witness, Exception, Integer> result = bifunctor.first(
+     *     Exception::new,
+     *     either
+     * );
+     * // Result: Either.left(new Exception("error"))
+     *
+     * // Example 2: Transforming the first element of a Tuple2
+     * Bifunctor<Tuple2Kind2.Witness> bifunctor = ...;
+     * Kind2<Tuple2Kind2.Witness, String, Integer> tuple =
+     *     Tuple2Kind2.widen(new Tuple2<>("Alice", 30));
+     *
+     * Kind2<Tuple2Kind2.Witness, Integer, Integer> result = bifunctor.first(
+     *     String::length,
+     *     tuple
+     * );
+     * // Result: new Tuple2<>(5, 30)
+     * }</pre>
+     *
+     * <p><b>Default Implementation:</b>
+     *
+     * <p>The default implementation delegates to {@code bimap} with {@code Function.identity()} for
+     * the second parameter. Implementations may override this for better performance.
+     *
+     * @param <A> The type of the first parameter in the input bifunctor {@code fab}
+     * @param <B> The type of the second parameter (unchanged)
+     * @param <C> The type of the first parameter in the output bifunctor
+     * @param f The pure function to apply to the first parameter. Must not be null.
+     * @param fab The bifunctor structure containing values of types {@code A} and {@code B}. Must not
+     *     be null.
+     * @return A new bifunctor structure of type {@code Kind2<F, C, B>} with the first parameter
+     *     transformed. Guaranteed to be non-null.
+     * @throws NullPointerException if {@code f} or {@code fab} is null (implementation-dependent)
+     * @see #bimap(Function, Function, Kind2)
+     * @see #second(Function, Kind2)
+     */
+    default <A, B, C> Kind2<F, C, B> first(Function<? super A, ? extends C> f, Kind2<F, A, B> fab) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Maps over the second type parameter only, leaving the first parameter unchanged.
-   *
-   * <p>This is a convenience method that applies a transformation to only the second type
-   * parameter. It is equivalent to calling {@code bimap(Function.identity(), g, fab)}.
-   *
-   * <p><b>Type Transformation:</b>
-   *
-   * <pre>
-   * F&lt;A, B&gt; ──second(g: B → D)──&gt; F&lt;A, D&gt;
-   *
-   * Examples:
-   * Either&lt;String, Integer&gt;     ──second(n -&gt; n * 2)──&gt;        Either&lt;String, Integer&gt;
-   * Tuple2&lt;String, Integer&gt;     ──second(Object::toString)──&gt;  Tuple2&lt;String, String&gt;
-   * Validated&lt;Error, User&gt;      ──second(User::getName)──&gt;     Validated&lt;Error, String&gt;
-   * </pre>
-   *
-   * <p><b>Example Usage:</b>
-   *
-   * <pre>{@code
-   * // Example 1: Transforming only the right side of an Either
-   * Bifunctor<EitherKind2.Witness> bifunctor = ...;
-   * Kind2<EitherKind2.Witness, String, Integer> either =
-   *     EitherKind2.widen(Either.right(42));
-   *
-   * Kind2<EitherKind2.Witness, String, String> result = bifunctor.second(
-   *     n -> "Number: " + n,
-   *     either
-   * );
-   * // Result: Either.right("Number: 42")
-   *
-   * // Example 2: Transforming the second element of a Tuple2
-   * Bifunctor<Tuple2Kind2.Witness> bifunctor = ...;
-   * Kind2<Tuple2Kind2.Witness, String, Integer> tuple =
-   *     Tuple2Kind2.widen(new Tuple2<>("Alice", 30));
-   *
-   * Kind2<Tuple2Kind2.Witness, String, String> result = bifunctor.second(
-   *     age -> age + " years old",
-   *     tuple
-   * );
-   * // Result: new Tuple2<>("Alice", "30 years old")
-   * }</pre>
-   *
-   * <p><b>Default Implementation:</b>
-   *
-   * <p>The default implementation delegates to {@code bimap} with {@code Function.identity()} for
-   * the first parameter. Implementations may override this for better performance.
-   *
-   * <p><b>Note on Functor:</b>
-   *
-   * <p>For many bifunctors (like {@code Either}, {@code Validated}), {@code second} is equivalent
-   * to the {@link Functor#map} operation, as these types are typically "right-biased" when viewed
-   * as single-parameter functors.
-   *
-   * @param <A> The type of the first parameter (unchanged)
-   * @param <B> The type of the second parameter in the input bifunctor {@code fab}
-   * @param <D> The type of the second parameter in the output bifunctor
-   * @param g The pure function to apply to the second parameter. Must not be null.
-   * @param fab The bifunctor structure containing values of types {@code A} and {@code B}. Must not
-   *     be null.
-   * @return A new bifunctor structure of type {@code Kind2<F, A, D>} with the second parameter
-   *     transformed. Guaranteed to be non-null.
-   * @throws NullPointerException if {@code g} or {@code fab} is null (implementation-dependent)
-   * @see #bimap(Function, Function, Kind2)
-   * @see #first(Function, Kind2)
-   */
-  default <A, B, D> Kind2<F, A, D> second(Function<? super B, ? extends D> g, Kind2<F, A, B> fab) {
-    return bimap(Function.identity(), g, fab);
-  }
+    /**
+     * Maps over the second type parameter only, leaving the first parameter unchanged.
+     *
+     * <p>This is a convenience method that applies a transformation to only the second type
+     * parameter. It is equivalent to calling {@code bimap(Function.identity(), g, fab)}.
+     *
+     * <p><b>Type Transformation:</b>
+     *
+     * <pre>
+     * F&lt;A, B&gt; ──second(g: B → D)──&gt; F&lt;A, D&gt;
+     *
+     * Examples:
+     * Either&lt;String, Integer&gt;     ──second(n -&gt; n * 2)──&gt;        Either&lt;String, Integer&gt;
+     * Tuple2&lt;String, Integer&gt;     ──second(Object::toString)──&gt;  Tuple2&lt;String, String&gt;
+     * Validated&lt;Error, User&gt;      ──second(User::getName)──&gt;     Validated&lt;Error, String&gt;
+     * </pre>
+     *
+     * <p><b>Example Usage:</b>
+     *
+     * <pre>{@code
+     * // Example 1: Transforming only the right side of an Either
+     * Bifunctor<EitherKind2.Witness> bifunctor = ...;
+     * Kind2<EitherKind2.Witness, String, Integer> either =
+     *     EitherKind2.widen(Either.right(42));
+     *
+     * Kind2<EitherKind2.Witness, String, String> result = bifunctor.second(
+     *     n -> "Number: " + n,
+     *     either
+     * );
+     * // Result: Either.right("Number: 42")
+     *
+     * // Example 2: Transforming the second element of a Tuple2
+     * Bifunctor<Tuple2Kind2.Witness> bifunctor = ...;
+     * Kind2<Tuple2Kind2.Witness, String, Integer> tuple =
+     *     Tuple2Kind2.widen(new Tuple2<>("Alice", 30));
+     *
+     * Kind2<Tuple2Kind2.Witness, String, String> result = bifunctor.second(
+     *     age -> age + " years old",
+     *     tuple
+     * );
+     * // Result: new Tuple2<>("Alice", "30 years old")
+     * }</pre>
+     *
+     * <p><b>Default Implementation:</b>
+     *
+     * <p>The default implementation delegates to {@code bimap} with {@code Function.identity()} for
+     * the first parameter. Implementations may override this for better performance.
+     *
+     * <p><b>Note on Functor:</b>
+     *
+     * <p>For many bifunctors (like {@code Either}, {@code Validated}), {@code second} is equivalent
+     * to the {@link Functor#map} operation, as these types are typically "right-biased" when viewed
+     * as single-parameter functors.
+     *
+     * @param <A> The type of the first parameter (unchanged)
+     * @param <B> The type of the second parameter in the input bifunctor {@code fab}
+     * @param <D> The type of the second parameter in the output bifunctor
+     * @param g The pure function to apply to the second parameter. Must not be null.
+     * @param fab The bifunctor structure containing values of types {@code A} and {@code B}. Must not
+     *     be null.
+     * @return A new bifunctor structure of type {@code Kind2<F, A, D>} with the second parameter
+     *     transformed. Guaranteed to be non-null.
+     * @throws NullPointerException if {@code g} or {@code fab} is null (implementation-dependent)
+     * @see #bimap(Function, Function, Kind2)
+     * @see #first(Function, Kind2)
+     */
+    default <A, B, D> Kind2<F, A, D> second(Function<? super B, ? extends D> g, Kind2<F, A, B> fab) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

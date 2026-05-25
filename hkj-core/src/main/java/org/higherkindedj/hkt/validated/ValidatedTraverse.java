@@ -4,7 +4,6 @@ package org.higherkindedj.hkt.validated;
 
 import static org.higherkindedj.hkt.util.validation.Operation.*;
 import static org.higherkindedj.hkt.validated.ValidatedKindHelper.VALIDATED;
-
 import java.util.function.Function;
 import org.higherkindedj.hkt.Applicative;
 import org.higherkindedj.hkt.Foldable;
@@ -25,50 +24,28 @@ import org.higherkindedj.hkt.util.validation.Validation;
  */
 public final class ValidatedTraverse<E> implements Traverse<ValidatedKind.Witness<E>> {
 
-  private static final ValidatedTraverse<?> INSTANCE = new ValidatedTraverse<>();
+    private static final ValidatedTraverse<?> INSTANCE = new ValidatedTraverse<>();
 
-  private ValidatedTraverse() {}
+    private ValidatedTraverse() {
+    }
 
-  @SuppressWarnings("unchecked")
-  public static <E> ValidatedTraverse<E> instance() {
-    return (ValidatedTraverse<E>) INSTANCE;
-  }
+    @SuppressWarnings("unchecked")
+    public static <E> ValidatedTraverse<E> instance() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public <A, B> Kind<ValidatedKind.Witness<E>, B> map(
-      Function<? super A, ? extends B> f, Kind<ValidatedKind.Witness<E>, A> fa) {
+    @Override
+    public <A, B> Kind<ValidatedKind.Witness<E>, B> map(Function<? super A, ? extends B> f, Kind<ValidatedKind.Witness<E>, A> fa) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    Validation.function().validateMap(f, fa);
+    @Override
+    public <G extends WitnessArity<TypeArity.Unary>, A, B> Kind<G, Kind<ValidatedKind.Witness<E>, B>> traverse(Applicative<G> applicative, Function<? super A, ? extends Kind<G, ? extends B>> f, Kind<ValidatedKind.Witness<E>, A> ta) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    return VALIDATED.widen(VALIDATED.narrow(fa).map(f));
-  }
-
-  @Override
-  public <G extends WitnessArity<TypeArity.Unary>, A, B>
-      Kind<G, Kind<ValidatedKind.Witness<E>, B>> traverse(
-          Applicative<G> applicative,
-          Function<? super A, ? extends Kind<G, ? extends B>> f,
-          Kind<ValidatedKind.Witness<E>, A> ta) {
-
-    Validation.function().validateTraverse(applicative, f, ta);
-
-    return VALIDATED
-        .narrow(ta)
-        .fold(
-            // Invalid case: Lift the Invalid instance directly into the applicative context.
-            error -> applicative.of(VALIDATED.widen(Validated.invalid(error))),
-
-            // Valid case: Apply the effectful function and map the result back into a Valid.
-            value -> applicative.map(b -> VALIDATED.widen(Validated.valid(b)), f.apply(value)));
-  }
-
-  @Override
-  public <A, M> M foldMap(
-      Monoid<M> monoid, Function<? super A, ? extends M> f, Kind<ValidatedKind.Witness<E>, A> fa) {
-
-    Validation.function().validateFoldMap(monoid, f, fa);
-
-    // If Valid, map the value. If Invalid, return the monoid's empty value.
-    return VALIDATED.narrow(fa).fold(error -> monoid.empty(), f);
-  }
+    @Override
+    public <A, M> M foldMap(Monoid<M> monoid, Function<? super A, ? extends M> f, Kind<ValidatedKind.Witness<E>, A> fa) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

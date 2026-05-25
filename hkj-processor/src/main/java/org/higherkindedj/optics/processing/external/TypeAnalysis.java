@@ -19,133 +19,107 @@ import javax.lang.model.element.TypeElement;
  * @param enumConstants enum constants for enum types
  * @param hasMutableFields whether the type has mutable fields (setters)
  */
-public record TypeAnalysis(
-    TypeElement typeElement,
-    TypeKind typeKind,
-    List<FieldInfo> fields,
-    List<WitherInfo> witherMethods,
-    List<TypeElement> permittedSubtypes,
-    List<String> enumConstants,
-    boolean hasMutableFields) {
+public record TypeAnalysis(TypeElement typeElement, TypeKind typeKind, List<FieldInfo> fields, List<WitherInfo> witherMethods, List<TypeElement> permittedSubtypes, List<String> enumConstants, boolean hasMutableFields) {
 
-  /** The kind of type that was analysed. */
-  public enum TypeKind {
-    /** A Java record type. Lenses are generated via canonical constructor. */
-    RECORD,
+    /**
+     * The kind of type that was analysed.
+     */
+    public enum TypeKind {
 
-    /** A sealed interface. Prisms are generated for each permitted subtype. */
-    SEALED_INTERFACE,
+        /**
+         * A Java record type. Lenses are generated via canonical constructor.
+         */
+        RECORD,
+        /**
+         * A sealed interface. Prisms are generated for each permitted subtype.
+         */
+        SEALED_INTERFACE,
+        /**
+         * An enum type. Prisms are generated for each constant.
+         */
+        ENUM,
+        /**
+         * A class with wither methods. Lenses are generated via withX() methods.
+         */
+        WITHER_CLASS,
+        /**
+         * A type that cannot have optics generated (e.g., mutable class without withers).
+         */
+        UNSUPPORTED
+    }
 
-    /** An enum type. Prisms are generated for each constant. */
-    ENUM,
+    /**
+     * Creates an analysis result for a record type.
+     *
+     * @param typeElement the record type element
+     * @param fields the record components as field info
+     * @return a new TypeAnalysis for the record
+     */
+    public static TypeAnalysis forRecord(TypeElement typeElement, List<FieldInfo> fields) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    /** A class with wither methods. Lenses are generated via withX() methods. */
-    WITHER_CLASS,
+    /**
+     * Creates an analysis result for a sealed interface.
+     *
+     * @param typeElement the sealed interface element
+     * @param permittedSubtypes the permitted subtypes
+     * @return a new TypeAnalysis for the sealed interface
+     */
+    public static TypeAnalysis forSealedInterface(TypeElement typeElement, List<TypeElement> permittedSubtypes) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    /** A type that cannot have optics generated (e.g., mutable class without withers). */
-    UNSUPPORTED
-  }
+    /**
+     * Creates an analysis result for an enum type.
+     *
+     * @param typeElement the enum type element
+     * @param enumConstants the enum constant names
+     * @return a new TypeAnalysis for the enum
+     */
+    public static TypeAnalysis forEnum(TypeElement typeElement, List<String> enumConstants) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates an analysis result for a record type.
-   *
-   * @param typeElement the record type element
-   * @param fields the record components as field info
-   * @return a new TypeAnalysis for the record
-   */
-  public static TypeAnalysis forRecord(TypeElement typeElement, List<FieldInfo> fields) {
-    return new TypeAnalysis(
-        typeElement, TypeKind.RECORD, fields, List.of(), List.of(), List.of(), false);
-  }
+    /**
+     * Creates an analysis result for a class with wither methods.
+     *
+     * @param typeElement the class type element
+     * @param fields the fields derived from wither methods
+     * @param witherMethods the detected wither methods
+     * @param hasMutableFields whether the class also has setter methods
+     * @return a new TypeAnalysis for the wither class
+     */
+    public static TypeAnalysis forWitherClass(TypeElement typeElement, List<FieldInfo> fields, List<WitherInfo> witherMethods, boolean hasMutableFields) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates an analysis result for a sealed interface.
-   *
-   * @param typeElement the sealed interface element
-   * @param permittedSubtypes the permitted subtypes
-   * @return a new TypeAnalysis for the sealed interface
-   */
-  public static TypeAnalysis forSealedInterface(
-      TypeElement typeElement, List<TypeElement> permittedSubtypes) {
-    return new TypeAnalysis(
-        typeElement,
-        TypeKind.SEALED_INTERFACE,
-        List.of(),
-        List.of(),
-        permittedSubtypes,
-        List.of(),
-        false);
-  }
+    /**
+     * Creates an analysis result for an unsupported type.
+     *
+     * @param typeElement the unsupported type element
+     * @param hasMutableFields whether the type has mutable fields
+     * @return a new TypeAnalysis indicating the type is unsupported
+     */
+    public static TypeAnalysis unsupported(TypeElement typeElement, boolean hasMutableFields) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates an analysis result for an enum type.
-   *
-   * @param typeElement the enum type element
-   * @param enumConstants the enum constant names
-   * @return a new TypeAnalysis for the enum
-   */
-  public static TypeAnalysis forEnum(TypeElement typeElement, List<String> enumConstants) {
-    return new TypeAnalysis(
-        typeElement, TypeKind.ENUM, List.of(), List.of(), List.of(), enumConstants, false);
-  }
+    /**
+     * Returns whether this type supports lens generation.
+     *
+     * @return true if lenses can be generated for this type
+     */
+    public boolean supportsLenses() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates an analysis result for a class with wither methods.
-   *
-   * @param typeElement the class type element
-   * @param fields the fields derived from wither methods
-   * @param witherMethods the detected wither methods
-   * @param hasMutableFields whether the class also has setter methods
-   * @return a new TypeAnalysis for the wither class
-   */
-  public static TypeAnalysis forWitherClass(
-      TypeElement typeElement,
-      List<FieldInfo> fields,
-      List<WitherInfo> witherMethods,
-      boolean hasMutableFields) {
-    return new TypeAnalysis(
-        typeElement,
-        TypeKind.WITHER_CLASS,
-        fields,
-        witherMethods,
-        List.of(),
-        List.of(),
-        hasMutableFields);
-  }
-
-  /**
-   * Creates an analysis result for an unsupported type.
-   *
-   * @param typeElement the unsupported type element
-   * @param hasMutableFields whether the type has mutable fields
-   * @return a new TypeAnalysis indicating the type is unsupported
-   */
-  public static TypeAnalysis unsupported(TypeElement typeElement, boolean hasMutableFields) {
-    return new TypeAnalysis(
-        typeElement,
-        TypeKind.UNSUPPORTED,
-        List.of(),
-        List.of(),
-        List.of(),
-        List.of(),
-        hasMutableFields);
-  }
-
-  /**
-   * Returns whether this type supports lens generation.
-   *
-   * @return true if lenses can be generated for this type
-   */
-  public boolean supportsLenses() {
-    return typeKind == TypeKind.RECORD || typeKind == TypeKind.WITHER_CLASS;
-  }
-
-  /**
-   * Returns whether this type supports prism generation.
-   *
-   * @return true if prisms can be generated for this type
-   */
-  public boolean supportsPrisms() {
-    return typeKind == TypeKind.SEALED_INTERFACE || typeKind == TypeKind.ENUM;
-  }
+    /**
+     * Returns whether this type supports prism generation.
+     *
+     * @return true if prisms can be generated for this type
+     */
+    public boolean supportsPrisms() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

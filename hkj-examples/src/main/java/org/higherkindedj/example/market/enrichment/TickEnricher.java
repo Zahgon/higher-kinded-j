@@ -31,51 +31,49 @@ import org.higherkindedj.hkt.vtask.VTask;
  */
 public class TickEnricher {
 
-  private final ReferenceDataService refData;
-  private final FxRateService fxService;
-  private final int concurrency;
+    private final ReferenceDataService refData;
 
-  /**
-   * Creates a tick enricher.
-   *
-   * @param refData the reference data service
-   * @param fxService the FX rate service
-   * @param concurrency max concurrent enrichments (typically 4-16 for I/O-bound lookups)
-   */
-  public TickEnricher(ReferenceDataService refData, FxRateService fxService, int concurrency) {
-    this.refData = Objects.requireNonNull(refData);
-    this.fxService = Objects.requireNonNull(fxService);
-    if (concurrency <= 0) {
-      throw new IllegalArgumentException("concurrency must be positive");
+    private final FxRateService fxService;
+
+    private final int concurrency;
+
+    /**
+     * Creates a tick enricher.
+     *
+     * @param refData the reference data service
+     * @param fxService the FX rate service
+     * @param concurrency max concurrent enrichments (typically 4-16 for I/O-bound lookups)
+     */
+    public TickEnricher(ReferenceDataService refData, FxRateService fxService, int concurrency) {
+        this.refData = Objects.requireNonNull(refData);
+        this.fxService = Objects.requireNonNull(fxService);
+        if (concurrency <= 0) {
+            throw new IllegalArgumentException("concurrency must be positive");
+        }
+        this.concurrency = concurrency;
     }
-    this.concurrency = concurrency;
-  }
 
-  /**
-   * Enriches a single tick by fetching instrument and FX data concurrently.
-   *
-   * <p>Uses {@link Par#map2} to execute both lookups in parallel on virtual threads.
-   *
-   * @param tick the raw price tick
-   * @return a VTask producing the enriched tick
-   */
-  public VTask<EnrichedTick> enrichOne(PriceTick tick) {
-    VTask<Instrument> instrumentTask = refData.lookup(tick.symbol());
-    VTask<BigDecimal> fxTask = fxService.rateToUsd(tick.exchange().currency());
+    /**
+     * Enriches a single tick by fetching instrument and FX data concurrently.
+     *
+     * <p>Uses {@link Par#map2} to execute both lookups in parallel on virtual threads.
+     *
+     * @param tick the raw price tick
+     * @return a VTask producing the enriched tick
+     */
+    public VTask<EnrichedTick> enrichOne(PriceTick tick) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    return Par.map2(
-        instrumentTask, fxTask, (instrument, fxRate) -> new EnrichedTick(tick, instrument, fxRate));
-  }
-
-  /**
-   * Enriches a stream of ticks with bounded concurrency.
-   *
-   * <p>Uses {@link VStreamPar#parEvalMap} to process up to {@code concurrency} ticks at once.
-   *
-   * @param ticks the raw tick stream
-   * @return a stream of enriched ticks
-   */
-  public VStream<EnrichedTick> enrich(VStream<PriceTick> ticks) {
-    return VStreamPar.parEvalMap(ticks, concurrency, this::enrichOne);
-  }
+    /**
+     * Enriches a stream of ticks with bounded concurrency.
+     *
+     * <p>Uses {@link VStreamPar#parEvalMap} to process up to {@code concurrency} ticks at once.
+     *
+     * @param ticks the raw tick stream
+     * @return a stream of enriched ticks
+     */
+    public VStream<EnrichedTick> enrich(VStream<PriceTick> ticks) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

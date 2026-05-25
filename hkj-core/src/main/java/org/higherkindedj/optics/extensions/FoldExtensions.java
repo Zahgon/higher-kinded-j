@@ -96,114 +96,112 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public final class FoldExtensions {
 
-  private FoldExtensions() {
-    throw new UnsupportedOperationException("Utility class - do not instantiate");
-  }
+    private FoldExtensions() {
+        throw new UnsupportedOperationException("Utility class - do not instantiate");
+    }
 
-  /**
-   * Returns the first focused part as {@link Maybe}.
-   *
-   * <p>This is a {@code Maybe}-based alternative to {@link Fold#preview(Object)}.
-   *
-   * <p>Example:
-   *
-   * <pre>{@code
-   * Maybe<User> firstUser = previewMaybe(userFold, team);
-   * firstUser.ifJust(user -> System.out.println("Found: " + user));
-   *
-   * // Chain with other Maybe operations
-   * Maybe<String> userName = previewMaybe(userFold, team)
-   *     .map(User::name)
-   *     .map(String::toUpperCase);
-   * }</pre>
-   *
-   * @param fold The fold to use for focusing on parts of the structure
-   * @param source The source structure to query
-   * @param <S> The source type
-   * @param <A> The focused value type
-   * @return {@code Maybe.just(value)} if a focus exists, {@code Maybe.nothing()} otherwise
-   */
-  public static <S, A> Maybe<A> previewMaybe(Fold<S, A> fold, S source) {
-    return Maybe.fromOptional(fold.preview(source));
-  }
+    /**
+     * Returns the first focused part as {@link Maybe}.
+     *
+     * <p>This is a {@code Maybe}-based alternative to {@link Fold#preview(Object)}.
+     *
+     * <p>Example:
+     *
+     * <pre>{@code
+     * Maybe<User> firstUser = previewMaybe(userFold, team);
+     * firstUser.ifJust(user -> System.out.println("Found: " + user));
+     *
+     * // Chain with other Maybe operations
+     * Maybe<String> userName = previewMaybe(userFold, team)
+     *     .map(User::name)
+     *     .map(String::toUpperCase);
+     * }</pre>
+     *
+     * @param fold The fold to use for focusing on parts of the structure
+     * @param source The source structure to query
+     * @param <S> The source type
+     * @param <A> The focused value type
+     * @return {@code Maybe.just(value)} if a focus exists, {@code Maybe.nothing()} otherwise
+     */
+    public static <S, A> Maybe<A> previewMaybe(Fold<S, A> fold, S source) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Finds the first focused part matching the given predicate as {@link Maybe}.
-   *
-   * <p>This is a {@code Maybe}-based alternative to {@link Fold#find(Predicate, Object)}.
-   *
-   * <p>Example:
-   *
-   * <pre>{@code
-   * Maybe<Item> expensiveItem = findMaybe(
-   *     itemFold,
-   *     item -> item.price() > 100,
-   *     order
-   * );
-   *
-   * expensiveItem.fold(
-   *     () -> System.out.println("No expensive items"),
-   *     item -> applyDiscount(item)
-   * );
-   * }</pre>
-   *
-   * @param fold The fold to use for focusing on parts of the structure
-   * @param predicate The predicate to test each focused part against
-   * @param source The source structure to query
-   * @param <S> The source type
-   * @param <A> The focused value type
-   * @return {@code Maybe.just(value)} if a matching focus exists, {@code Maybe.nothing()} otherwise
-   */
-  public static <S, A> Maybe<A> findMaybe(
-      Fold<S, A> fold, Predicate<? super A> predicate, S source) {
-    return Maybe.fromOptional(fold.find(predicate, source));
-  }
+    /**
+     * Finds the first focused part matching the given predicate as {@link Maybe}.
+     *
+     * <p>This is a {@code Maybe}-based alternative to {@link Fold#find(Predicate, Object)}.
+     *
+     * <p>Example:
+     *
+     * <pre>{@code
+     * Maybe<Item> expensiveItem = findMaybe(
+     *     itemFold,
+     *     item -> item.price() > 100,
+     *     order
+     * );
+     *
+     * expensiveItem.fold(
+     *     () -> System.out.println("No expensive items"),
+     *     item -> applyDiscount(item)
+     * );
+     * }</pre>
+     *
+     * @param fold The fold to use for focusing on parts of the structure
+     * @param predicate The predicate to test each focused part against
+     * @param source The source structure to query
+     * @param <S> The source type
+     * @param <A> The focused value type
+     * @return {@code Maybe.just(value)} if a matching focus exists, {@code Maybe.nothing()} otherwise
+     */
+    public static <S, A> Maybe<A> findMaybe(Fold<S, A> fold, Predicate<? super A> predicate, S source) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Gets all focused parts wrapped in {@link Maybe}.
-   *
-   * <p>Returns {@code Maybe.just(list)} if the list is non-empty, {@code Maybe.nothing()} for empty
-   * lists. This is useful when you want to distinguish between "no results" and "results exist".
-   *
-   * <p>This method differs from {@link Fold#getAll(Object)} by wrapping the result in {@code
-   * Maybe}, allowing you to treat an empty result as a failure case that can be handled with {@code
-   * Maybe}'s monadic operations.
-   *
-   * <p>Example:
-   *
-   * <pre>{@code
-   * Maybe<List<String>> names = getAllMaybe(nameFold, team);
-   *
-   * names.fold(
-   *     () -> System.out.println("No names found"),
-   *     list -> System.out.println("Found " + list.size() + " names")
-   * );
-   *
-   * // Chain with Maybe operations
-   * Maybe<Integer> totalLength = getAllMaybe(nameFold, team)
-   *     .map(list -> list.stream()
-   *         .mapToInt(String::length)
-   *         .sum());
-   * }</pre>
-   *
-   * <h3>When to Use This vs {@code getAll}</h3>
-   *
-   * <ul>
-   *   <li>Use {@code getAllMaybe} when an empty result should be treated as a "nothing" case that
-   *       can be chained with other {@code Maybe} operations
-   *   <li>Use {@link Fold#getAll(Object)} when you need the list directly and will handle emptiness
-   *       with {@code List.isEmpty()}
-   * </ul>
-   *
-   * @param fold The fold to use for focusing on parts of the structure
-   * @param source The source structure to query
-   * @param <S> The source type
-   * @param <A> The focused value type
-   * @return {@code Maybe.just(list)} if the list is non-empty, {@code Maybe.nothing()} if the list
-   *     is empty
-   */
-  public static <S, A> Maybe<List<A>> getAllMaybe(Fold<S, A> fold, S source) {
-    List<A> all = fold.getAll(source);
-    return all.isEmpty() ? Maybe.nothing() : Maybe.just(all);
-  }
+    /**
+     * Gets all focused parts wrapped in {@link Maybe}.
+     *
+     * <p>Returns {@code Maybe.just(list)} if the list is non-empty, {@code Maybe.nothing()} for empty
+     * lists. This is useful when you want to distinguish between "no results" and "results exist".
+     *
+     * <p>This method differs from {@link Fold#getAll(Object)} by wrapping the result in {@code
+     * Maybe}, allowing you to treat an empty result as a failure case that can be handled with {@code
+     * Maybe}'s monadic operations.
+     *
+     * <p>Example:
+     *
+     * <pre>{@code
+     * Maybe<List<String>> names = getAllMaybe(nameFold, team);
+     *
+     * names.fold(
+     *     () -> System.out.println("No names found"),
+     *     list -> System.out.println("Found " + list.size() + " names")
+     * );
+     *
+     * // Chain with Maybe operations
+     * Maybe<Integer> totalLength = getAllMaybe(nameFold, team)
+     *     .map(list -> list.stream()
+     *         .mapToInt(String::length)
+     *         .sum());
+     * }</pre>
+     *
+     * <h3>When to Use This vs {@code getAll}</h3>
+     *
+     * <ul>
+     *   <li>Use {@code getAllMaybe} when an empty result should be treated as a "nothing" case that
+     *       can be chained with other {@code Maybe} operations
+     *   <li>Use {@link Fold#getAll(Object)} when you need the list directly and will handle emptiness
+     *       with {@code List.isEmpty()}
+     * </ul>
+     *
+     * @param fold The fold to use for focusing on parts of the structure
+     * @param source The source structure to query
+     * @param <S> The source type
+     * @param <A> The focused value type
+     * @return {@code Maybe.just(list)} if the list is non-empty, {@code Maybe.nothing()} if the list
+     *     is empty
+     */
+    public static <S, A> Maybe<List<A>> getAllMaybe(Fold<S, A> fold, S source) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

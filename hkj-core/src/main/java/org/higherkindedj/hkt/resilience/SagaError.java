@@ -19,35 +19,32 @@ import org.higherkindedj.hkt.either.Either;
  * @param compensationResults the results of each compensation attempt
  * @see Saga
  */
-public record SagaError(
-    Throwable originalError, String failedStep, List<CompensationResult> compensationResults) {
+public record SagaError(Throwable originalError, String failedStep, List<CompensationResult> compensationResults) {
 
-  /**
-   * Represents the result of a single compensation attempt.
-   *
-   * @param stepName the name of the step being compensated
-   * @param result {@code Either.right(Unit)} on success, {@code Either.left(Throwable)} on failure
-   */
-  public record CompensationResult(String stepName, Either<Throwable, Unit> result) {}
+    /**
+     * Represents the result of a single compensation attempt.
+     *
+     * @param stepName the name of the step being compensated
+     * @param result {@code Either.right(Unit)} on success, {@code Either.left(Throwable)} on failure
+     */
+    public record CompensationResult(String stepName, Either<Throwable, Unit> result) {
+    }
 
-  /**
-   * Returns {@code true} if all compensation actions completed successfully.
-   *
-   * @return true if no compensation failures occurred
-   */
-  public boolean allCompensationsSucceeded() {
-    return compensationResults.stream().allMatch(cr -> cr.result().isRight());
-  }
+    /**
+     * Returns {@code true} if all compensation actions completed successfully.
+     *
+     * @return true if no compensation failures occurred
+     */
+    public boolean allCompensationsSucceeded() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Returns the list of exceptions from failed compensations.
-   *
-   * @return a list of compensation failure exceptions (empty if all succeeded)
-   */
-  public List<Throwable> compensationFailures() {
-    return compensationResults.stream()
-        .filter(cr -> cr.result().isLeft())
-        .map(cr -> cr.result().getLeft())
-        .toList();
-  }
+    /**
+     * Returns the list of exceptions from failed compensations.
+     *
+     * @return a list of compensation failure exceptions (empty if all succeeded)
+     */
+    public List<Throwable> compensationFailures() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

@@ -15,52 +15,53 @@ import org.jspecify.annotations.Nullable;
  * org.higherkindedj.hkt.id.IdKindHelper.ID; ID.widen(...);}
  */
 public enum IdKindHelper implements IdConverterOps {
-  ID;
 
-  private static final Class<Id> ID_CLASS = Id.class;
+    ID;
 
-  /**
-   * Widens an {@code Id<A>} instance to a {@code Kind<IdKind.Witness, A>}.
-   *
-   * <p>This is essentially a type-safe cast, as {@link Id} already implements {@code
-   * Kind<IdKind.Witness, A>}.
-   *
-   * @param id The {@link Id} instance to widen. Must not be null.
-   * @param <A> The type of the value.
-   * @return The {@link Id} instance typed as a {@link Kind}. Never null.
-   * @throws NullPointerException if id is null.
-   */
-  @Override
-  public <A> Kind<IdKind.Witness, A> widen(Id<A> id) {
-    Validation.kind().requireForWiden(id, ID_CLASS);
-    return id;
-  }
+    private static final Class<Id> ID_CLASS = Id.class;
 
-  /**
-   * Narrows a {@code Kind<IdKind.Witness, A>} to its concrete type {@code Id<A>}.
-   *
-   * @param kind The {@link Kind} to narrow. May be null.
-   * @param <A> The type of the value.
-   * @return The narrowed {@link Id} instance. Never null.
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if kind is null or not an Id
-   *     instance.
-   */
-  @Override
-  public <A> Id<A> narrow(@Nullable Kind<IdKind.Witness, A> kind) {
-    return Validation.kind().narrowWithTypeCheck(kind, ID_CLASS);
-  }
+    /**
+     * Widens an {@code Id<A>} instance to a {@code Kind<IdKind.Witness, A>}.
+     *
+     * <p>This is essentially a type-safe cast, as {@link Id} already implements {@code
+     * Kind<IdKind.Witness, A>}.
+     *
+     * @param id The {@link Id} instance to widen. Must not be null.
+     * @param <A> The type of the value.
+     * @return The {@link Id} instance typed as a {@link Kind}. Never null.
+     * @throws NullPointerException if id is null.
+     */
+    @Override
+    public <A> Kind<IdKind.Witness, A> widen(Id<A> id) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Unwraps the value from a {@code Kind<IdKind.Witness, A>}. This is a convenience method that
-   * combines narrowing and then calling {@link Id#value()}.
-   *
-   * @param kind The {@link Kind} to unwrap. Must not be null.
-   * @param <A> The type of the value.
-   * @return The underlying value. Can be null if the {@link Id} wrapped a null.
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if kind is null or not an Id
-   *     instance.
-   */
-  public <A> @Nullable A unwrap(Kind<IdKind.Witness, A> kind) {
-    return this.narrow(kind).value();
-  }
+    /**
+     * Narrows a {@code Kind<IdKind.Witness, A>} to its concrete type {@code Id<A>}.
+     *
+     * @param kind The {@link Kind} to narrow. May be null.
+     * @param <A> The type of the value.
+     * @return The narrowed {@link Id} instance. Never null.
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if kind is null or not an Id
+     *     instance.
+     */
+    @Override
+    public <A> Id<A> narrow(@Nullable Kind<IdKind.Witness, A> kind) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Unwraps the value from a {@code Kind<IdKind.Witness, A>}. This is a convenience method that
+     * combines narrowing and then calling {@link Id#value()}.
+     *
+     * @param kind The {@link Kind} to unwrap. Must not be null.
+     * @param <A> The type of the value.
+     * @return The underlying value. Can be null if the {@link Id} wrapped a null.
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if kind is null or not an Id
+     *     instance.
+     */
+    @Nullable
+    public <A> A unwrap(Kind<IdKind.Witness, A> kind) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

@@ -9,36 +9,37 @@ package org.higherkindedj.hkt.resilience;
  */
 public class BulkheadFullException extends RuntimeException {
 
-  private final int maxConcurrent;
-  private final int currentWaiting;
+    private final int maxConcurrent;
 
-  /**
-   * Creates a new BulkheadFullException.
-   *
-   * @param maxConcurrent the maximum concurrent executions allowed by the bulkhead
-   * @param currentWaiting the current number of callers waiting for a permit
-   */
-  public BulkheadFullException(int maxConcurrent, int currentWaiting) {
-    super("Bulkhead full: maxConcurrent=" + maxConcurrent + ", waiting=" + currentWaiting);
-    this.maxConcurrent = maxConcurrent;
-    this.currentWaiting = currentWaiting;
-  }
+    private final int currentWaiting;
 
-  /**
-   * Returns the maximum concurrent executions allowed.
-   *
-   * @return the maximum concurrent executions
-   */
-  public int maxConcurrent() {
-    return maxConcurrent;
-  }
+    /**
+     * Creates a new BulkheadFullException.
+     *
+     * @param maxConcurrent the maximum concurrent executions allowed by the bulkhead
+     * @param currentWaiting the current number of callers waiting for a permit
+     */
+    public BulkheadFullException(int maxConcurrent, int currentWaiting) {
+        super("Bulkhead full: maxConcurrent=" + maxConcurrent + ", waiting=" + currentWaiting);
+        this.maxConcurrent = maxConcurrent;
+        this.currentWaiting = currentWaiting;
+    }
 
-  /**
-   * Returns the number of callers that were waiting when this exception was thrown.
-   *
-   * @return the number of waiting callers
-   */
-  public int currentWaiting() {
-    return currentWaiting;
-  }
+    /**
+     * Returns the maximum concurrent executions allowed.
+     *
+     * @return the maximum concurrent executions
+     */
+    public int maxConcurrent() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Returns the number of callers that were waiting when this exception was thrown.
+     *
+     * @return the number of waiting callers
+     */
+    public int currentWaiting() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

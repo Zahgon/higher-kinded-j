@@ -3,7 +3,6 @@
 package org.higherkindedj.hkt.free_ap;
 
 import static org.higherkindedj.hkt.free_ap.FreeApKindHelper.FREE_AP;
-
 import java.util.function.Function;
 import org.higherkindedj.hkt.Functor;
 import org.higherkindedj.hkt.Kind;
@@ -28,43 +27,40 @@ import org.higherkindedj.hkt.util.validation.Validation;
  *
  * @param <F> The underlying instruction set type (not required to have any instances)
  */
-public class FreeApFunctor<F extends WitnessArity<TypeArity.Unary>>
-    implements Functor<FreeApKind.Witness<F>> {
+public class FreeApFunctor<F extends WitnessArity<TypeArity.Unary>> implements Functor<FreeApKind.Witness<F>> {
 
-  private static final FreeApFunctor<?> INSTANCE = new FreeApFunctor<>();
+    private static final FreeApFunctor<?> INSTANCE = new FreeApFunctor<>();
 
-  /** Creates a new FreeApFunctor instance. */
-  protected FreeApFunctor() {}
+    /**
+     * Creates a new FreeApFunctor instance.
+     */
+    protected FreeApFunctor() {
+    }
 
-  /**
-   * Returns a singleton instance of FreeApFunctor.
-   *
-   * @param <F> The underlying instruction set type
-   * @return A FreeApFunctor instance
-   */
-  @SuppressWarnings("unchecked")
-  public static <F extends WitnessArity<TypeArity.Unary>> FreeApFunctor<F> instance() {
-    return (FreeApFunctor<F>) INSTANCE;
-  }
+    /**
+     * Returns a singleton instance of FreeApFunctor.
+     *
+     * @param <F> The underlying instruction set type
+     * @return A FreeApFunctor instance
+     */
+    @SuppressWarnings("unchecked")
+    public static <F extends WitnessArity<TypeArity.Unary>> FreeApFunctor<F> instance() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Maps a function over a FreeAp value.
-   *
-   * @param f The function to apply. Must not be null.
-   * @param fa The FreeAp value to map over. Must not be null.
-   * @param <A> The input type
-   * @param <B> The output type
-   * @return A new FreeAp with the function applied
-   * @throws NullPointerException if f or fa is null
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if fa cannot be unwrapped
-   */
-  @Override
-  public <A, B> Kind<FreeApKind.Witness<F>, B> map(
-      Function<? super A, ? extends B> f, Kind<FreeApKind.Witness<F>, A> fa) {
-    Validation.function().validateMap(f, fa);
-
-    FreeAp<F, A> freeAp = FREE_AP.narrow(fa);
-    FreeAp<F, B> mapped = freeAp.map(f);
-    return FREE_AP.widen(mapped);
-  }
+    /**
+     * Maps a function over a FreeAp value.
+     *
+     * @param f The function to apply. Must not be null.
+     * @param fa The FreeAp value to map over. Must not be null.
+     * @param <A> The input type
+     * @param <B> The output type
+     * @return A new FreeAp with the function applied
+     * @throws NullPointerException if f or fa is null
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if fa cannot be unwrapped
+     */
+    @Override
+    public <A, B> Kind<FreeApKind.Witness<F>, B> map(Function<? super A, ? extends B> f, Kind<FreeApKind.Witness<F>, A> fa) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

@@ -3,7 +3,6 @@
 package org.higherkindedj.example.payment.interpreter;
 
 import static org.higherkindedj.hkt.instances.Witnesses.*;
-
 import java.util.Objects;
 import org.higherkindedj.example.payment.effect.PaymentGatewayOp;
 import org.higherkindedj.example.payment.effect.PaymentGatewayOpInterpreter;
@@ -27,35 +26,22 @@ import org.jspecify.annotations.NullMarked;
  * compliance review.
  */
 @NullMarked
-public final class AuditGatewayInterpreter
-    extends PaymentGatewayOpInterpreter<WriterTKind.Witness<IdKind.Witness, AuditLog>> {
+public final class AuditGatewayInterpreter extends PaymentGatewayOpInterpreter<WriterTKind.Witness<IdKind.Witness, AuditLog>> {
 
-  private static final Monad<IdKind.Witness> ID = Instances.monad(id());
+    private static final Monad<IdKind.Witness> ID = Instances.monad(id());
 
-  @Override
-  protected <A> Kind<WriterTKind.Witness<IdKind.Witness, AuditLog>, A> handleAuthorise(
-      PaymentGatewayOp.Authorise<A> op) {
-    Objects.requireNonNull(op, "op cannot be null");
-    A result = op.k().apply(new AuthorisationToken("audit-auth", op.amount()));
-    AuditLog log = AuditLog.of("AUTHORISE", op.amount() + " via " + op.method());
-    return WriterT.writer(ID, result, log);
-  }
+    @Override
+    protected <A> Kind<WriterTKind.Witness<IdKind.Witness, AuditLog>, A> handleAuthorise(PaymentGatewayOp.Authorise<A> op) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  protected <A> Kind<WriterTKind.Witness<IdKind.Witness, AuditLog>, A> handleCharge(
-      PaymentGatewayOp.Charge<A> op) {
-    Objects.requireNonNull(op, "op cannot be null");
-    A result = op.k().apply(ChargeResult.success(new TransactionId("audit-txn-001"), op.amount()));
-    AuditLog log = AuditLog.of("CHARGE", op.amount() + " via " + op.method());
-    return WriterT.writer(ID, result, log);
-  }
+    @Override
+    protected <A> Kind<WriterTKind.Witness<IdKind.Witness, AuditLog>, A> handleCharge(PaymentGatewayOp.Charge<A> op) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  protected <A> Kind<WriterTKind.Witness<IdKind.Witness, AuditLog>, A> handleRefund(
-      PaymentGatewayOp.Refund<A> op) {
-    Objects.requireNonNull(op, "op cannot be null");
-    A result = op.k().apply(ChargeResult.success(op.transactionId(), op.amount()));
-    AuditLog log = AuditLog.of("REFUND", op.transactionId() + " for " + op.amount());
-    return WriterT.writer(ID, result, log);
-  }
+    @Override
+    protected <A> Kind<WriterTKind.Witness<IdKind.Witness, AuditLog>, A> handleRefund(PaymentGatewayOp.Refund<A> op) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

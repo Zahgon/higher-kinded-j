@@ -15,42 +15,34 @@ import org.higherkindedj.hkt.vtask.VTask;
  */
 public class InMemoryReferenceDataService implements ReferenceDataService {
 
-  private final Map<Symbol, Instrument> instruments = new ConcurrentHashMap<>();
-  private final long lookupDelayMs;
+    private final Map<Symbol, Instrument> instruments = new ConcurrentHashMap<>();
 
-  public InMemoryReferenceDataService(long lookupDelayMs) {
-    this.lookupDelayMs = lookupDelayMs;
-    loadDefaults();
-  }
+    private final long lookupDelayMs;
 
-  public InMemoryReferenceDataService() {
-    this(2); // 2ms simulated latency
-  }
+    public InMemoryReferenceDataService(long lookupDelayMs) {
+        this.lookupDelayMs = lookupDelayMs;
+        loadDefaults();
+    }
 
-  private void loadDefaults() {
-    add(new Instrument(new Symbol("AAPL"), "Apple Inc.", "Equity", 100));
-    add(new Instrument(new Symbol("GOOGL"), "Alphabet Inc.", "Equity", 100));
-    add(new Instrument(new Symbol("MSFT"), "Microsoft Corp.", "Equity", 100));
-    add(new Instrument(new Symbol("TSLA"), "Tesla Inc.", "Equity", 100));
-    add(new Instrument(new Symbol("AMZN"), "Amazon.com Inc.", "Equity", 100));
-  }
+    public InMemoryReferenceDataService() {
+        // 2ms simulated latency
+        this(2);
+    }
 
-  public void add(Instrument instrument) {
-    instruments.put(instrument.symbol(), instrument);
-  }
+    private void loadDefaults() {
+        add(new Instrument(new Symbol("AAPL"), "Apple Inc.", "Equity", 100));
+        add(new Instrument(new Symbol("GOOGL"), "Alphabet Inc.", "Equity", 100));
+        add(new Instrument(new Symbol("MSFT"), "Microsoft Corp.", "Equity", 100));
+        add(new Instrument(new Symbol("TSLA"), "Tesla Inc.", "Equity", 100));
+        add(new Instrument(new Symbol("AMZN"), "Amazon.com Inc.", "Equity", 100));
+    }
 
-  @Override
-  public VTask<Instrument> lookup(Symbol symbol) {
-    return VTask.of(
-        () -> {
-          if (lookupDelayMs > 0) {
-            Thread.sleep(lookupDelayMs);
-          }
-          Instrument inst = instruments.get(symbol);
-          if (inst == null) {
-            throw new RuntimeException("Unknown instrument: " + symbol);
-          }
-          return inst;
-        });
-  }
+    public void add(Instrument instrument) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public VTask<Instrument> lookup(Symbol symbol) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

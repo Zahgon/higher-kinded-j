@@ -14,52 +14,48 @@ import org.jspecify.annotations.Nullable;
 @NullMarked
 public final class FunctionKindHelper {
 
-  /** The single instance of this class. */
-  public static final FunctionKindHelper FUNCTION = new FunctionKindHelper();
+    /**
+     * The single instance of this class.
+     */
+    public static final FunctionKindHelper FUNCTION = new FunctionKindHelper();
 
-  private FunctionKindHelper() {}
-
-  /**
-   * Widens a {@link Function} to a {@link Kind2} of {@link FunctionKind.Witness}.
-   *
-   * @param function the function to widen
-   * @param <A> the input type of the function
-   * @param <B> the output type of the function
-   * @return the widened function
-   */
-  public <A, B> Kind2<FunctionKind.Witness, A, B> widen(Function<A, B> function) {
-    return new FunctionKind<>(function);
-  }
-
-  /**
-   * Narrows a {@link Kind2} of {@link FunctionKind.Witness} to a {@link FunctionKind}.
-   *
-   * @param kind the kind to narrow
-   * @param <A> the input type of the function
-   * @param <B> the output type of the function
-   * @return the narrowed function
-   */
-  @SuppressWarnings("unchecked")
-  public <A, B> FunctionKind<A, B> narrow(@Nullable Kind2<FunctionKind.Witness, A, B> kind) {
-    if (kind == null) {
-      throw new NullPointerException("Cannot narrow null Kind2 to FunctionKind");
+    private FunctionKindHelper() {
     }
-    if (!(kind instanceof FunctionKind<?, ?>)) {
-      throw new IllegalArgumentException(
-          "Expected FunctionKind but got: " + kind.getClass().getName());
-    }
-    return (FunctionKind<A, B>) kind;
-  }
 
-  /**
-   * Extracts the underlying {@link Function} from a {@link Kind2} of {@link FunctionKind.Witness}.
-   *
-   * @param kind the kind to extract the function from
-   * @param <A> the input type of the function
-   * @param <B> the output type of the function
-   * @return the underlying function
-   */
-  public <A, B> Function<A, B> getFunction(Kind2<FunctionKind.Witness, A, B> kind) {
-    return narrow(kind).getFunction();
-  }
+    /**
+     * Widens a {@link Function} to a {@link Kind2} of {@link FunctionKind.Witness}.
+     *
+     * @param function the function to widen
+     * @param <A> the input type of the function
+     * @param <B> the output type of the function
+     * @return the widened function
+     */
+    public <A, B> Kind2<FunctionKind.Witness, A, B> widen(Function<A, B> function) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Narrows a {@link Kind2} of {@link FunctionKind.Witness} to a {@link FunctionKind}.
+     *
+     * @param kind the kind to narrow
+     * @param <A> the input type of the function
+     * @param <B> the output type of the function
+     * @return the narrowed function
+     */
+    @SuppressWarnings("unchecked")
+    public <A, B> FunctionKind<A, B> narrow(@Nullable Kind2<FunctionKind.Witness, A, B> kind) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Extracts the underlying {@link Function} from a {@link Kind2} of {@link FunctionKind.Witness}.
+     *
+     * @param kind the kind to extract the function from
+     * @param <A> the input type of the function
+     * @param <B> the output type of the function
+     * @return the underlying function
+     */
+    public <A, B> Function<A, B> getFunction(Kind2<FunctionKind.Witness, A, B> kind) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

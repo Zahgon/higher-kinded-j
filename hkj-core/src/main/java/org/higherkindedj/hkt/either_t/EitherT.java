@@ -3,7 +3,6 @@
 package org.higherkindedj.hkt.either_t;
 
 import static org.higherkindedj.hkt.util.validation.Operation.*;
-
 import java.util.function.Function;
 import org.higherkindedj.hkt.Kind;
 import org.higherkindedj.hkt.Monad;
@@ -31,152 +30,133 @@ import org.jspecify.annotations.Nullable;
  * @see EitherTMonad
  * @see EitherTKindHelper
  */
-public record EitherT<F extends WitnessArity<TypeArity.Unary>, L, R>(Kind<F, Either<L, R>> value)
-    implements EitherTKind<F, L, R> {
+public record EitherT<F extends WitnessArity<TypeArity.Unary>, L, R>(Kind<F, Either<L, R>> value) implements EitherTKind<F, L, R> {
 
-  private static final Class<EitherT> EITHER_T_CLASS = EitherT.class;
+    private static final Class<EitherT> EITHER_T_CLASS = EitherT.class;
 
-  /**
-   * Canonical constructor for {@code EitherT}.
-   *
-   * @param value The underlying monadic value {@code Kind<F, Either<L, R>>}.
-   * @throws NullPointerException if {@code value} is null.
-   */
-  public EitherT {
-    Validation.kind().requireNonNull(value, CONSTRUCTION);
-  }
+    /**
+     * Canonical constructor for {@code EitherT}.
+     *
+     * @param value The underlying monadic value {@code Kind<F, Either<L, R>>}.
+     * @throws NullPointerException if {@code value} is null.
+     */
+    public EitherT {
+        Validation.kind().requireNonNull(value, CONSTRUCTION);
+    }
 
-  /**
-   * Creates an {@code EitherT} from an existing {@code Kind<F, Either<L, R>>}.
-   *
-   * @param value The monadic value to wrap. Must not be null.
-   * @param <F> The witness type of the outer monad.
-   * @param <L> The type of the 'left' value.
-   * @param <R> The type of the 'right' value.
-   * @return A new {@code EitherT} instance.
-   * @throws NullPointerException if {@code value} is null.
-   */
-  public static <F extends WitnessArity<TypeArity.Unary>, L, R> EitherT<F, L, R> fromKind(
-      Kind<F, Either<L, R>> value) {
-    return new EitherT<>(value);
-  }
+    /**
+     * Creates an {@code EitherT} from an existing {@code Kind<F, Either<L, R>>}.
+     *
+     * @param value The monadic value to wrap. Must not be null.
+     * @param <F> The witness type of the outer monad.
+     * @param <L> The type of the 'left' value.
+     * @param <R> The type of the 'right' value.
+     * @return A new {@code EitherT} instance.
+     * @throws NullPointerException if {@code value} is null.
+     */
+    public static <F extends WitnessArity<TypeArity.Unary>, L, R> EitherT<F, L, R> fromKind(Kind<F, Either<L, R>> value) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Lifts a 'right' value {@code r} into {@code EitherT<F, L, R>}, resulting in {@code
-   * F<Right(r)>}.
-   *
-   * @param outerMonad The {@link Monad} instance for the outer type {@code F}. Must not be null.
-   * @param r The 'right' value to wrap. Can be null if {@code R} is nullable.
-   * @param <F> The witness type of the outer monad.
-   * @param <L> The type of the 'left' value.
-   * @param <R> The type of the 'right' value.
-   * @return A new {@code EitherT} instance representing {@code outerMonad.of(Either.right(r))}.
-   * @throws NullPointerException if {@code outerMonad} is null.
-   */
-  public static <F extends WitnessArity<TypeArity.Unary>, L, R> EitherT<F, L, R> right(
-      Monad<F> outerMonad, @Nullable R r) {
-    Validation.transformer().requireOuterMonad(outerMonad, EITHER_T_CLASS, RIGHT);
-    Kind<F, Either<L, R>> lifted = outerMonad.of(Either.right(r));
-    return new EitherT<>(lifted);
-  }
+    /**
+     * Lifts a 'right' value {@code r} into {@code EitherT<F, L, R>}, resulting in {@code
+     * F<Right(r)>}.
+     *
+     * @param outerMonad The {@link Monad} instance for the outer type {@code F}. Must not be null.
+     * @param r The 'right' value to wrap. Can be null if {@code R} is nullable.
+     * @param <F> The witness type of the outer monad.
+     * @param <L> The type of the 'left' value.
+     * @param <R> The type of the 'right' value.
+     * @return A new {@code EitherT} instance representing {@code outerMonad.of(Either.right(r))}.
+     * @throws NullPointerException if {@code outerMonad} is null.
+     */
+    public static <F extends WitnessArity<TypeArity.Unary>, L, R> EitherT<F, L, R> right(Monad<F> outerMonad, @Nullable R r) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Lifts a 'left' value {@code l} into {@code EitherT<F, L, R>}, resulting in {@code F<Left(l)>}.
-   *
-   * @param outerMonad The {@link Monad} instance for the outer type {@code F}. Must not be null.
-   * @param l The 'left' value to wrap. Can be null if {@code L} is nullable.
-   * @param <F> The witness type of the outer monad.
-   * @param <L> The type of the 'left' value.
-   * @param <R> The type of the 'right' value.
-   * @return A new {@code EitherT} instance representing {@code outerMonad.of(Either.left(l))}.
-   * @throws NullPointerException if {@code outerMonad} is null.
-   */
-  public static <F extends WitnessArity<TypeArity.Unary>, L, R> EitherT<F, L, R> left(
-      Monad<F> outerMonad, @Nullable L l) {
-    Validation.transformer().requireOuterMonad(outerMonad, EITHER_T_CLASS, LEFT);
-    Kind<F, Either<L, R>> lifted = outerMonad.of(Either.left(l));
-    return new EitherT<>(lifted);
-  }
+    /**
+     * Lifts a 'left' value {@code l} into {@code EitherT<F, L, R>}, resulting in {@code F<Left(l)>}.
+     *
+     * @param outerMonad The {@link Monad} instance for the outer type {@code F}. Must not be null.
+     * @param l The 'left' value to wrap. Can be null if {@code L} is nullable.
+     * @param <F> The witness type of the outer monad.
+     * @param <L> The type of the 'left' value.
+     * @param <R> The type of the 'right' value.
+     * @return A new {@code EitherT} instance representing {@code outerMonad.of(Either.left(l))}.
+     * @throws NullPointerException if {@code outerMonad} is null.
+     */
+    public static <F extends WitnessArity<TypeArity.Unary>, L, R> EitherT<F, L, R> left(Monad<F> outerMonad, @Nullable L l) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Lifts a plain {@link Either<L, R>} into {@code EitherT<F, L, R>}, resulting in {@code
-   * F<Either<L, R>>}.
-   *
-   * @param outerMonad The {@link Monad} instance for the outer type {@code F}. Must not be null.
-   * @param either The {@link Either} instance to lift. Must not be null.
-   * @param <F> The witness type of the outer monad.
-   * @param <L> The type of the 'left' value.
-   * @param <R> The type of the 'right' value.
-   * @return A new {@code EitherT} instance representing {@code outerMonad.of(either)}.
-   * @throws NullPointerException if {@code outerMonad} or {@code either} is null.
-   */
-  public static <F extends WitnessArity<TypeArity.Unary>, L, R> EitherT<F, L, R> fromEither(
-      Monad<F> outerMonad, Either<L, R> either) {
-    Validation.transformer().requireOuterMonad(outerMonad, EITHER_T_CLASS, FROM_EITHER);
-    Validation.transformer()
-        .requireTransformerComponent(either, "inner Either", EITHER_T_CLASS, FROM_EITHER);
-    Kind<F, Either<L, R>> lifted = outerMonad.of(either);
-    return new EitherT<>(lifted);
-  }
+    /**
+     * Lifts a plain {@link Either<L, R>} into {@code EitherT<F, L, R>}, resulting in {@code
+     * F<Either<L, R>>}.
+     *
+     * @param outerMonad The {@link Monad} instance for the outer type {@code F}. Must not be null.
+     * @param either The {@link Either} instance to lift. Must not be null.
+     * @param <F> The witness type of the outer monad.
+     * @param <L> The type of the 'left' value.
+     * @param <R> The type of the 'right' value.
+     * @return A new {@code EitherT} instance representing {@code outerMonad.of(either)}.
+     * @throws NullPointerException if {@code outerMonad} or {@code either} is null.
+     */
+    public static <F extends WitnessArity<TypeArity.Unary>, L, R> EitherT<F, L, R> fromEither(Monad<F> outerMonad, Either<L, R> either) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Lifts a monadic value {@code Kind<F, R>} into {@code EitherT<F, L, R>}, treating the value
-   * {@code R} as a 'right' value. This results in {@code F<Either<L, R>>} where the {@code Either}
-   * is {@code Right(r)}.
-   *
-   * @param outerMonad The {@link Monad} instance for the outer type {@code F}. Must not be null.
-   * @param fr The monadic value {@code Kind<F, R>} to lift. Must not be null.
-   * @param <F> The witness type of the outer monad.
-   * @param <L> The type of the 'left' value.
-   * @param <R> The type of the 'right' value.
-   * @return A new {@code EitherT} instance.
-   * @throws NullPointerException if {@code outerMonad} or {@code fr} is null.
-   */
-  public static <F extends WitnessArity<TypeArity.Unary>, L, R> EitherT<F, L, R> liftF(
-      Monad<F> outerMonad, Kind<F, R> fr) {
-    Validation.transformer().requireOuterMonad(outerMonad, EITHER_T_CLASS, LIFT_F);
-    Validation.kind().requireNonNull(fr, LIFT_F, "source Kind");
-    Kind<F, Either<L, R>> mapped = outerMonad.map(Either::right, fr);
-    return new EitherT<>(mapped);
-  }
+    /**
+     * Lifts a monadic value {@code Kind<F, R>} into {@code EitherT<F, L, R>}, treating the value
+     * {@code R} as a 'right' value. This results in {@code F<Either<L, R>>} where the {@code Either}
+     * is {@code Right(r)}.
+     *
+     * @param outerMonad The {@link Monad} instance for the outer type {@code F}. Must not be null.
+     * @param fr The monadic value {@code Kind<F, R>} to lift. Must not be null.
+     * @param <F> The witness type of the outer monad.
+     * @param <L> The type of the 'left' value.
+     * @param <R> The type of the 'right' value.
+     * @return A new {@code EitherT} instance.
+     * @throws NullPointerException if {@code outerMonad} or {@code fr} is null.
+     */
+    public static <F extends WitnessArity<TypeArity.Unary>, L, R> EitherT<F, L, R> liftF(Monad<F> outerMonad, Kind<F, R> fr) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Transforms the outer monad layer of this {@code EitherT} by applying the given function to the
-   * underlying {@code Kind<F, Either<L, R>>}, producing a new {@code EitherT<G, L, R>} wrapping the
-   * result. The inner {@link Either} value is left untouched — only the surrounding monadic context
-   * changes.
-   *
-   * <p>This is useful for applying cross-cutting concerns (logging, retry, timeout) at the monad
-   * level, or for switching between monadic contexts via a natural transformation.
-   *
-   * <p><b>Example — switching from IO to Task via a natural transformation:</b>
-   *
-   * <pre>{@code
-   * EitherT<IOKind.Witness, String, Integer> ioResult = ...;
-   * Natural<IOKind.Witness, TaskKind.Witness> ioToTask = ...;
-   *
-   * EitherT<TaskKind.Witness, String, Integer> taskResult = ioResult.mapT(ioToTask::apply);
-   * }</pre>
-   *
-   * @param f The function to apply to the underlying {@code Kind<F, Either<L, R>>}. Must not be
-   *     null.
-   * @param <G> The witness type of the target outer monad.
-   * @return A new {@code EitherT<G, L, R>} wrapping the transformed monadic value.
-   * @throws NullPointerException if {@code f} is null.
-   */
-  public <G extends WitnessArity<TypeArity.Unary>> EitherT<G, L, R> mapT(
-      Function<Kind<F, Either<L, R>>, Kind<G, Either<L, R>>> f) {
-    Validation.function().require(f, "f", MAP_T);
-    return EitherT.fromKind(f.apply(this.value()));
-  }
+    /**
+     * Transforms the outer monad layer of this {@code EitherT} by applying the given function to the
+     * underlying {@code Kind<F, Either<L, R>>}, producing a new {@code EitherT<G, L, R>} wrapping the
+     * result. The inner {@link Either} value is left untouched — only the surrounding monadic context
+     * changes.
+     *
+     * <p>This is useful for applying cross-cutting concerns (logging, retry, timeout) at the monad
+     * level, or for switching between monadic contexts via a natural transformation.
+     *
+     * <p><b>Example — switching from IO to Task via a natural transformation:</b>
+     *
+     * <pre>{@code
+     * EitherT<IOKind.Witness, String, Integer> ioResult = ...;
+     * Natural<IOKind.Witness, TaskKind.Witness> ioToTask = ...;
+     *
+     * EitherT<TaskKind.Witness, String, Integer> taskResult = ioResult.mapT(ioToTask::apply);
+     * }</pre>
+     *
+     * @param f The function to apply to the underlying {@code Kind<F, Either<L, R>>}. Must not be
+     *     null.
+     * @param <G> The witness type of the target outer monad.
+     * @return A new {@code EitherT<G, L, R>} wrapping the transformed monadic value.
+     * @throws NullPointerException if {@code f} is null.
+     */
+    public <G extends WitnessArity<TypeArity.Unary>> EitherT<G, L, R> mapT(Function<Kind<F, Either<L, R>>, Kind<G, Either<L, R>>> f) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Accessor for the underlying monadic value.
-   *
-   * @return The {@code Kind<F, Either<L, R>>} wrapped by this {@code EitherT}.
-   */
-  @Override
-  public Kind<F, Either<L, R>> value() {
-    return value;
-  }
+    /**
+     * Accessor for the underlying monadic value.
+     *
+     * @return The {@code Kind<F, Either<L, R>>} wrapped by this {@code EitherT}.
+     */
+    @Override
+    public Kind<F, Either<L, R>> value() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

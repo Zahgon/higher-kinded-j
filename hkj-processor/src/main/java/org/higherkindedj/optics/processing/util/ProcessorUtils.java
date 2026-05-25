@@ -13,99 +13,57 @@ import javax.lang.model.type.WildcardType;
  */
 public final class ProcessorUtils {
 
-  private ProcessorUtils() {
-    // Utility class - prevent instantiation
-  }
-
-  /**
-   * Resolves a wildcard type to its effective type for focus extraction.
-   *
-   * <ul>
-   *   <li>{@code ? extends T} → {@code T} (upper bound)
-   *   <li>{@code ? super T} → {@code null} (caller should treat as Object)
-   *   <li>{@code ?} (unbounded) → {@code null} (caller should treat as Object)
-   * </ul>
-   *
-   * <p>If the type is not a wildcard, it is returned unchanged.
-   *
-   * @param type the type to resolve
-   * @return the resolved type, or null if the wildcard should be treated as Object
-   * @since 0.4.0
-   */
-  public static TypeMirror resolveWildcard(TypeMirror type) {
-    if (type instanceof WildcardType wildcard) {
-      TypeMirror extendsBound = wildcard.getExtendsBound();
-      if (extendsBound != null) {
-        return extendsBound;
-      }
-      // ? super T or unbounded ? — caller should use Object
-      return null;
-    }
-    return type;
-  }
-
-  /**
-   * Converts a string to camelCase.
-   *
-   * <p>Handles various input formats:
-   *
-   * <ul>
-   *   <li>SNAKE_CASE: "MY_CONSTANT" → "myConstant"
-   *   <li>ALL_CAPS: "MONDAY" → "monday"
-   *   <li>PascalCase: "MyClass" → "myClass"
-   *   <li>Already camelCase: "myMethod" → "myMethod"
-   * </ul>
-   *
-   * @param s the string to convert
-   * @return the camelCase version of the string
-   */
-  public static String toCamelCase(String s) {
-    if (s == null || s.isEmpty()) {
-      return s;
+    private ProcessorUtils() {
+        // Utility class - prevent instantiation
     }
 
-    // Handle SNAKE_CASE (with underscores)
-    if (s.contains("_")) {
-      String[] parts = s.split("_");
-      StringBuilder camelCaseString = new StringBuilder(parts[0].toLowerCase(Locale.ROOT));
-      for (int i = 1; i < parts.length; i++) {
-        if (!parts[i].isEmpty()) {
-          camelCaseString
-              .append(parts[i].substring(0, 1).toUpperCase(Locale.ROOT))
-              .append(parts[i].substring(1).toLowerCase(Locale.ROOT));
-        }
-      }
-      return camelCaseString.toString();
+    /**
+     * Resolves a wildcard type to its effective type for focus extraction.
+     *
+     * <ul>
+     *   <li>{@code ? extends T} → {@code T} (upper bound)
+     *   <li>{@code ? super T} → {@code null} (caller should treat as Object)
+     *   <li>{@code ?} (unbounded) → {@code null} (caller should treat as Object)
+     * </ul>
+     *
+     * <p>If the type is not a wildcard, it is returned unchanged.
+     *
+     * @param type the type to resolve
+     * @return the resolved type, or null if the wildcard should be treated as Object
+     * @since 0.4.0
+     */
+    public static TypeMirror resolveWildcard(TypeMirror type) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    // Handle ALL_CAPS (no underscores but all uppercase letters)
-    if (isAllUpperCase(s)) {
-      return s.toLowerCase(Locale.ROOT);
+    /**
+     * Converts a string to camelCase.
+     *
+     * <p>Handles various input formats:
+     *
+     * <ul>
+     *   <li>SNAKE_CASE: "MY_CONSTANT" → "myConstant"
+     *   <li>ALL_CAPS: "MONDAY" → "monday"
+     *   <li>PascalCase: "MyClass" → "myClass"
+     *   <li>Already camelCase: "myMethod" → "myMethod"
+     * </ul>
+     *
+     * @param s the string to convert
+     * @return the camelCase version of the string
+     */
+    public static String toCamelCase(String s) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    // Handle PascalCase
-    if (Character.isUpperCase(s.charAt(0))) {
-      return Character.toLowerCase(s.charAt(0)) + s.substring(1);
+    /**
+     * Checks if a string contains only uppercase letters.
+     *
+     * <p>Non-letter characters are ignored in the check.
+     *
+     * @param s the string to check
+     * @return true if all letter characters are uppercase, false otherwise
+     */
+    public static boolean isAllUpperCase(String s) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-
-    return s;
-  }
-
-  /**
-   * Checks if a string contains only uppercase letters.
-   *
-   * <p>Non-letter characters are ignored in the check.
-   *
-   * @param s the string to check
-   * @return true if all letter characters are uppercase, false otherwise
-   */
-  public static boolean isAllUpperCase(String s) {
-    for (int i = 0; i < s.length(); i++) {
-      char c = s.charAt(i);
-      if (Character.isLetter(c) && !Character.isUpperCase(c)) {
-        return false;
-      }
-    }
-    return true;
-  }
 }

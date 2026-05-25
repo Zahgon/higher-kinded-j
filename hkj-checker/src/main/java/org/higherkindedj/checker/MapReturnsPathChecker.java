@@ -36,89 +36,81 @@ import javax.tools.Diagnostic;
  */
 public final class MapReturnsPathChecker implements CheckVisitor {
 
-  private final Trees trees;
-  private final Types types;
-  private final Elements elements;
-  private final Diagnostic.Kind severity;
+    private final Trees trees;
 
-  /**
-   * Creates a checker reporting at {@link Diagnostic.Kind#WARNING} (sole-signal soak default).
-   *
-   * @param trees the {@link Trees} utility for AST and type resolution
-   * @param types the {@link Types} utility for type operations
-   * @param elements the {@link Elements} utility for element operations
-   */
-  public MapReturnsPathChecker(Trees trees, Types types, Elements elements) {
-    this(trees, types, elements, Diagnostic.Kind.WARNING);
-  }
+    private final Types types;
 
-  /**
-   * Creates a checker reporting at the given severity.
-   *
-   * @param trees the Trees utility from the javac task; must not be null
-   * @param types the model Types utility from the javac task
-   * @param elements the model Elements utility from the javac task
-   * @param severity the severity at which the diagnostic is reported
-   */
-  public MapReturnsPathChecker(
-      Trees trees, Types types, Elements elements, Diagnostic.Kind severity) {
-    this.trees = trees;
-    this.types = types;
-    this.elements = elements;
-    this.severity = severity;
-  }
+    private final Elements elements;
 
-  @Override
-  public void onMethodInvocation(MethodInvocationTree node, TreePath path) {
-    inspect(node, path);
-  }
+    private final Diagnostic.Kind severity;
 
-  private void inspect(MethodInvocationTree node, TreePath path) {
-    if (!(node.getMethodSelect() instanceof MemberSelectTree select)
-        || !select.getIdentifier().contentEquals("map")
-        || node.getArguments().isEmpty()) {
-      return;
-    }
-    TypeElement chainable = elements.getTypeElement(DiscardedEffectChecker.CHAINABLE_FQN);
-    if (chainable == null) {
-      return; // effect API not on the classpath
-    }
-    TypeMirror chainableErasure = types.erasure(chainable.asType());
-
-    TypeMirror receiver = LambdaReturns.typeOf(trees, path, select.getExpression());
-    String receiverFqn = declaredFqn(receiver);
-    if (receiverFqn == null || !types.isAssignable(types.erasure(receiver), chainableErasure)) {
-      return; // not an HKJ Chainable receiver: out of scope (filters plain-Java map)
+    /**
+     * Creates a checker reporting at {@link Diagnostic.Kind#WARNING} (sole-signal soak default).
+     *
+     * @param trees the {@link Trees} utility for AST and type resolution
+     * @param types the {@link Types} utility for type operations
+     * @param elements the {@link Elements} utility for element operations
+     */
+    public MapReturnsPathChecker(Trees trees, Types types, Elements elements) {
+        this(trees, types, elements, Diagnostic.Kind.WARNING);
     }
 
-    List<TypeMirror> returns =
-        LambdaReturns.lambdaReturnTypes(trees, path, node.getArguments().getFirst());
-    // A lambda may mix a nesting and a non-nesting return; flag the first nesting one.
-    for (TypeMirror ret : returns) {
-      if (ret.getKind() != TypeKind.DECLARED) {
-        continue; // type-var / wildcard: skip silently
-      }
-      // Same-category only: excludes the ambiguous collection/cross-category cases.
-      if (receiverFqn.equals(declaredFqn(ret))) {
-        trees.printMessage(
-            severity,
-            DiagnosticMessages.mapNestsEffect(simpleName(ret)),
-            node,
-            path.getCompilationUnit());
-        return;
-      }
+    /**
+     * Creates a checker reporting at the given severity.
+     *
+     * @param trees the Trees utility from the javac task; must not be null
+     * @param types the model Types utility from the javac task
+     * @param elements the model Elements utility from the javac task
+     * @param severity the severity at which the diagnostic is reported
+     */
+    public MapReturnsPathChecker(Trees trees, Types types, Elements elements, Diagnostic.Kind severity) {
+        this.trees = trees;
+        this.types = types;
+        this.elements = elements;
+        this.severity = severity;
     }
-  }
 
-  private static String declaredFqn(TypeMirror t) {
-    return t instanceof DeclaredType dt && dt.asElement() instanceof TypeElement te
-        ? te.getQualifiedName().toString()
-        : null;
-  }
+    @Override
+    public void onMethodInvocation(MethodInvocationTree node, TreePath path) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  private static String simpleName(TypeMirror t) {
-    return t instanceof DeclaredType dt && dt.asElement() instanceof TypeElement te
-        ? te.getSimpleName().toString()
-        : String.valueOf(t);
-  }
+    private void inspect(MethodInvocationTree node, TreePath path) {
+        if (!(node.getMethodSelect() instanceof MemberSelectTree select) || !select.getIdentifier().contentEquals("map") || node.getArguments().isEmpty()) {
+            return;
+        }
+        TypeElement chainable = elements.getTypeElement(DiscardedEffectChecker.CHAINABLE_FQN);
+        if (chainable == null) {
+            // effect API not on the classpath
+            return;
+        }
+        TypeMirror chainableErasure = types.erasure(chainable.asType());
+        TypeMirror receiver = LambdaReturns.typeOf(trees, path, select.getExpression());
+        String receiverFqn = declaredFqn(receiver);
+        if (receiverFqn == null || !types.isAssignable(types.erasure(receiver), chainableErasure)) {
+            // not an HKJ Chainable receiver: out of scope (filters plain-Java map)
+            return;
+        }
+        List<TypeMirror> returns = LambdaReturns.lambdaReturnTypes(trees, path, node.getArguments().getFirst());
+        // A lambda may mix a nesting and a non-nesting return; flag the first nesting one.
+        for (TypeMirror ret : returns) {
+            if (ret.getKind() != TypeKind.DECLARED) {
+                // type-var / wildcard: skip silently
+                continue;
+            }
+            // Same-category only: excludes the ambiguous collection/cross-category cases.
+            if (receiverFqn.equals(declaredFqn(ret))) {
+                trees.printMessage(severity, DiagnosticMessages.mapNestsEffect(simpleName(ret)), node, path.getCompilationUnit());
+                return;
+            }
+        }
+    }
+
+    private static String declaredFqn(TypeMirror t) {
+        return t instanceof DeclaredType dt && dt.asElement() instanceof TypeElement te ? te.getQualifiedName().toString() : null;
+    }
+
+    private static String simpleName(TypeMirror t) {
+        return t instanceof DeclaredType dt && dt.asElement() instanceof TypeElement te ? te.getSimpleName().toString() : String.valueOf(t);
+    }
 }

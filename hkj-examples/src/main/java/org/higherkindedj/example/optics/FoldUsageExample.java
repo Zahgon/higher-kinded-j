@@ -29,170 +29,22 @@ import org.higherkindedj.optics.util.Traversals;
  */
 public class FoldUsageExample {
 
-  @GenerateLenses
-  @GenerateFolds
-  public record ProductItem(String name, double price, String category, boolean inStock) {}
+    @GenerateLenses
+    @GenerateFolds
+    public record ProductItem(String name, double price, String category, boolean inStock) {
+    }
 
-  @GenerateLenses
-  @GenerateFolds
-  public record Order(String orderId, List<ProductItem> items, String customerName) {}
+    @GenerateLenses
+    @GenerateFolds
+    public record Order(String orderId, List<ProductItem> items, String customerName) {
+    }
 
-  @GenerateLenses
-  @GenerateFolds
-  public record OrderHistory(List<Order> orders) {}
+    @GenerateLenses
+    @GenerateFolds
+    public record OrderHistory(List<Order> orders) {
+    }
 
-  public static void main(String[] args) {
-    // Create sample data
-    var order1 =
-        new Order(
-            "ORD-001",
-            List.of(
-                new ProductItem("Laptop", 999.99, "Electronics", true),
-                new ProductItem("Mouse", 25.00, "Electronics", true),
-                new ProductItem("Desk", 350.00, "Furniture", false)),
-            "Alice");
-
-    var order2 =
-        new Order(
-            "ORD-002",
-            List.of(
-                new ProductItem("Keyboard", 75.00, "Electronics", true),
-                new ProductItem("Monitor", 450.00, "Electronics", true),
-                new ProductItem("Chair", 200.00, "Furniture", true)),
-            "Bob");
-
-    var history = new OrderHistory(List.of(order1, order2));
-
-    System.out.println("=== FOLD USAGE EXAMPLE ===\n");
-
-    // --- SCENARIO 1: Basic Query Operations ---
-    System.out.println("--- Scenario 1: Basic Query Operations ---");
-    Fold<Order, ProductItem> itemsFold = OrderFolds.items();
-
-    List<ProductItem> allItems = itemsFold.getAll(order1);
-    System.out.println("All items: " + allItems.size() + " products");
-
-    Optional<ProductItem> firstItem = itemsFold.preview(order1);
-    System.out.println("First item: " + firstItem.map(ProductItem::name).orElse("none"));
-
-    int count = itemsFold.length(order1);
-    System.out.println("Item count: " + count);
-
-    boolean isEmpty = itemsFold.isEmpty(order1);
-    System.out.println("Is empty: " + isEmpty + "\n");
-
-    // --- SCENARIO 2: Conditional Queries ---
-    System.out.println("--- Scenario 2: Conditional Queries ---");
-
-    boolean hasOutOfStock = itemsFold.exists(p -> !p.inStock(), order1);
-    System.out.println("Has out of stock items: " + hasOutOfStock);
-
-    boolean allInStock = itemsFold.all(ProductItem::inStock, order1);
-    System.out.println("All items in stock: " + allInStock);
-
-    Optional<ProductItem> expensiveItem = itemsFold.find(p -> p.price() > 500, order1);
-    System.out.println(
-        "First expensive item: " + expensiveItem.map(ProductItem::name).orElse("none") + "\n");
-
-    // --- SCENARIO 3: Composition ---
-    System.out.println("--- Scenario 3: Composed Folds ---");
-
-    Fold<OrderHistory, ProductItem> allProducts =
-        OrderHistoryFolds.orders().andThen(OrderFolds.items());
-
-    List<ProductItem> allProductsFromHistory = allProducts.getAll(history);
-    System.out.println("Total products across all orders: " + allProductsFromHistory.size());
-
-    Fold<OrderHistory, String> allCategories =
-        allProducts.andThen(ProductItemLenses.category().asFold());
-
-    Set<String> uniqueCategories = new HashSet<>(allCategories.getAll(history));
-    System.out.println("Unique categories: " + uniqueCategories + "\n");
-
-    // --- SCENARIO 4: Monoid Aggregation ---
-    System.out.println("--- Scenario 4: Monoid-Based Aggregation ---");
-
-    // Use standard monoids from Monoids utility class
-    Monoid<Double> sumMonoid = Monoids.doubleAddition();
-
-    double orderTotal = itemsFold.foldMap(sumMonoid, ProductItem::price, order1);
-    System.out.println("Order 1 total: £" + String.format("%.2f", orderTotal));
-
-    double historyTotal = allProducts.foldMap(sumMonoid, ProductItem::price, history);
-    System.out.println("All orders total: £" + String.format("%.2f", historyTotal));
-
-    // Boolean AND monoid for checking conditions
-    Monoid<Boolean> andMonoid = Monoids.booleanAnd();
-
-    boolean allAffordable = itemsFold.foldMap(andMonoid, p -> p.price() < 1000, order1);
-    System.out.println("All items under £1000: " + allAffordable);
-
-    // Boolean OR monoid for checking any condition
-    Monoid<Boolean> orMonoid = Monoids.booleanOr();
-
-    boolean hasElectronics =
-        allProducts.foldMap(orMonoid, p -> "Electronics".equals(p.category()), history);
-    System.out.println("Has electronics: " + hasElectronics + "\n");
-
-    // --- SCENARIO 5: Analytics ---
-    System.out.println("--- Scenario 5: Real-World Analytics ---");
-
-    // Most expensive product
-    Optional<ProductItem> mostExpensive =
-        allProducts.getAll(history).stream().max(Comparator.comparing(ProductItem::price));
-    System.out.println(
-        "Most expensive product: "
-            + mostExpensive.map(p -> p.name() + " (£" + p.price() + ")").orElse("none"));
-
-    // Average price
-    List<ProductItem> allProds = allProducts.getAll(history);
-    double avgPrice = allProds.isEmpty() ? 0.0 : historyTotal / allProds.size();
-    System.out.println("Average product price: £" + String.format("%.2f", avgPrice));
-
-    // Count by category
-    long electronicsCount =
-        allProducts.getAll(history).stream()
-            .filter(p -> "Electronics".equals(p.category()))
-            .count();
-    System.out.println("Electronics count: " + electronicsCount);
-
-    // --- SCENARIO 6: Traversal-Derived Folds ---
-    System.out.println("--- Scenario 6: Traversal-Derived Folds via asFold() ---");
-
-    // Build a Traversal for all items across all orders, then convert to Fold
-    Lens<OrderHistory, List<Order>> ordersLens =
-        Lens.of(OrderHistory::orders, (h, os) -> new OrderHistory(os));
-    Lens<Order, List<ProductItem>> itemsLens =
-        Lens.of(Order::items, (o, is) -> new Order(o.orderId(), is, o.customerName()));
-
-    Traversal<OrderHistory, ProductItem> allItemsTraversal =
-        ordersLens
-            .asTraversal()
-            .andThen(Traversals.<Order>forList())
-            .andThen(itemsLens.asTraversal())
-            .andThen(Traversals.forList());
-
-    // Convert to Fold — now we have the same query power as generated folds
-    Fold<OrderHistory, ProductItem> traversalDerivedFold = allItemsTraversal.asFold();
-
-    // These produce the same results as using the generated folds
-    List<ProductItem> allItems2 = traversalDerivedFold.getAll(history);
-    System.out.println("Products via traversal-derived fold: " + allItems2.size());
-
-    double total =
-        traversalDerivedFold.foldMap(Monoids.doubleAddition(), ProductItem::price, history);
-    System.out.println("Total via traversal-derived fold: £" + String.format("%.2f", total));
-
-    // Filter the traversal, then convert to Fold for targeted queries
-    Fold<OrderHistory, ProductItem> electronicsFold =
-        allItemsTraversal.filtered(p -> "Electronics".equals(p.category())).asFold();
-
-    int electronicsCount2 = electronicsFold.length(history);
-    double electronicsTotal =
-        electronicsFold.foldMap(Monoids.doubleAddition(), ProductItem::price, history);
-    System.out.println("Electronics count: " + electronicsCount2);
-    System.out.println("Electronics total: £" + String.format("%.2f", electronicsTotal));
-
-    System.out.println("\n=== END OF EXAMPLE ===");
-  }
+    public static void main(String[] args) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

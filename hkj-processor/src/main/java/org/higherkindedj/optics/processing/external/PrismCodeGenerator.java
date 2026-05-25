@@ -23,123 +23,86 @@ import org.higherkindedj.optics.processing.external.SpecAnalysis.PrismHintKind;
  */
 public class PrismCodeGenerator {
 
-  /** Creates a new PrismCodeGenerator. */
-  public PrismCodeGenerator() {}
+    /**
+     * Creates a new PrismCodeGenerator.
+     */
+    public PrismCodeGenerator() {
+    }
 
-  private static final ClassName PRISM_CLASS = ClassName.get(Prism.class);
-  private static final ClassName OPTIONAL_CLASS = ClassName.get(Optional.class);
+    private static final ClassName PRISM_CLASS = ClassName.get(Prism.class);
 
-  /**
-   * Generates the prism code block.
-   *
-   * @param hintKind the prism hint kind
-   * @param info the parsed annotation values
-   * @param sourceType the source type S
-   * @param focusType the focus type A
-   * @return the generated code block for creating the prism
-   */
-  public CodeBlock generatePrismCode(
-      PrismHintKind hintKind, PrismHintInfo info, TypeMirror sourceType, TypeMirror focusType) {
+    private static final ClassName OPTIONAL_CLASS = ClassName.get(Optional.class);
 
-    return switch (hintKind) {
-      case INSTANCE_OF -> generateInstanceOfPrism(info, sourceType, focusType);
-      case MATCH_WHEN -> generateMatchWhenPrism(info, sourceType, focusType);
-      case NONE -> throw new IllegalArgumentException("No prism hint specified");
-    };
-  }
+    /**
+     * Generates the prism code block.
+     *
+     * @param hintKind the prism hint kind
+     * @param info the parsed annotation values
+     * @param sourceType the source type S
+     * @param focusType the focus type A
+     * @return the generated code block for creating the prism
+     */
+    public CodeBlock generatePrismCode(PrismHintKind hintKind, PrismHintInfo info, TypeMirror sourceType, TypeMirror focusType) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Generates an instanceof-based prism.
-   *
-   * <p>Generated code:
-   *
-   * <pre>{@code
-   * Prism.of(
-   *     source -> source instanceof SubType s ? Optional.of(s) : Optional.empty(),
-   *     subtype -> subtype
-   * )
-   * }</pre>
-   *
-   * @param info the @InstanceOf annotation values
-   * @param sourceType the source type
-   * @param focusType the focus/target type
-   * @return the code block
-   */
-  private CodeBlock generateInstanceOfPrism(
-      PrismHintInfo info, TypeMirror sourceType, TypeMirror focusType) {
+    /**
+     * Generates an instanceof-based prism.
+     *
+     * <p>Generated code:
+     *
+     * <pre>{@code
+     * Prism.of(
+     *     source -> source instanceof SubType s ? Optional.of(s) : Optional.empty(),
+     *     subtype -> subtype
+     * )
+     * }</pre>
+     *
+     * @param info the @InstanceOf annotation values
+     * @param sourceType the source type
+     * @param focusType the focus/target type
+     * @return the code block
+     */
+    private CodeBlock generateInstanceOfPrism(PrismHintInfo info, TypeMirror sourceType, TypeMirror focusType) {
+        TypeMirror targetType = info.targetType();
+        TypeName targetTypeName = TypeName.get(targetType != null ? targetType : focusType);
+        // Use pattern matching instanceof (Java 16+)
+        return CodeBlock.builder().add("$T.of(\n", PRISM_CLASS).indent().add("source -> source instanceof $T t ? $T.of(t) : $T.empty(),\n", targetTypeName, OPTIONAL_CLASS, OPTIONAL_CLASS).add("subtype -> subtype").unindent().add(")").build();
+    }
 
-    TypeMirror targetType = info.targetType();
-    TypeName targetTypeName = TypeName.get(targetType != null ? targetType : focusType);
+    /**
+     * Generates a predicate-based prism.
+     *
+     * <p>Generated code:
+     *
+     * <pre>{@code
+     * Prism.of(
+     *     source -> source.isElement() ? Optional.of(source.asElement()) : Optional.empty(),
+     *     element -> element
+     * )
+     * }</pre>
+     *
+     * @param info the @MatchWhen annotation values
+     * @param sourceType the source type
+     * @param focusType the focus type
+     * @return the code block
+     */
+    private CodeBlock generateMatchWhenPrism(PrismHintInfo info, TypeMirror sourceType, TypeMirror focusType) {
+        String predicate = info.predicate();
+        String getter = info.getter();
+        return CodeBlock.builder().add("$T.of(\n", PRISM_CLASS).indent().add("source -> source.$L() ? $T.of(source.$L()) : $T.empty(),\n", predicate, OPTIONAL_CLASS, getter, OPTIONAL_CLASS).add("value -> value").unindent().add(")").build();
+    }
 
-    // Use pattern matching instanceof (Java 16+)
-    return CodeBlock.builder()
-        .add("$T.of(\n", PRISM_CLASS)
-        .indent()
-        .add(
-            "source -> source instanceof $T t ? $T.of(t) : $T.empty(),\n",
-            targetTypeName,
-            OPTIONAL_CLASS,
-            OPTIONAL_CLASS)
-        .add("subtype -> subtype")
-        .unindent()
-        .add(")")
-        .build();
-  }
-
-  /**
-   * Generates a predicate-based prism.
-   *
-   * <p>Generated code:
-   *
-   * <pre>{@code
-   * Prism.of(
-   *     source -> source.isElement() ? Optional.of(source.asElement()) : Optional.empty(),
-   *     element -> element
-   * )
-   * }</pre>
-   *
-   * @param info the @MatchWhen annotation values
-   * @param sourceType the source type
-   * @param focusType the focus type
-   * @return the code block
-   */
-  private CodeBlock generateMatchWhenPrism(
-      PrismHintInfo info, TypeMirror sourceType, TypeMirror focusType) {
-
-    String predicate = info.predicate();
-    String getter = info.getter();
-
-    return CodeBlock.builder()
-        .add("$T.of(\n", PRISM_CLASS)
-        .indent()
-        .add(
-            "source -> source.$L() ? $T.of(source.$L()) : $T.empty(),\n",
-            predicate,
-            OPTIONAL_CLASS,
-            getter,
-            OPTIONAL_CLASS)
-        .add("value -> value")
-        .unindent()
-        .add(")")
-        .build();
-  }
-
-  /**
-   * Generates the return statement for a prism method.
-   *
-   * @param hintKind the prism hint kind
-   * @param info the parsed annotation values
-   * @param sourceType the source type S
-   * @param focusType the focus type A
-   * @return the code block for the return statement
-   */
-  public CodeBlock generatePrismReturnStatement(
-      PrismHintKind hintKind, PrismHintInfo info, TypeMirror sourceType, TypeMirror focusType) {
-
-    return CodeBlock.builder()
-        .add("return ")
-        .add(generatePrismCode(hintKind, info, sourceType, focusType))
-        .add(";")
-        .build();
-  }
+    /**
+     * Generates the return statement for a prism method.
+     *
+     * @param hintKind the prism hint kind
+     * @param info the parsed annotation values
+     * @param sourceType the source type S
+     * @param focusType the focus type A
+     * @return the code block for the return statement
+     */
+    public CodeBlock generatePrismReturnStatement(PrismHintKind hintKind, PrismHintInfo info, TypeMirror sourceType, TypeMirror focusType) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

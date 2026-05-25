@@ -16,52 +16,61 @@ import javax.lang.model.type.TypeMirror;
  */
 public record ContainerType(Kind kind, TypeMirror elementType, TypeMirror keyType) {
 
-  /** The kind of container. */
-  public enum Kind {
-    /** A {@code java.util.List<E>} container. */
-    LIST,
+    /**
+     * The kind of container.
+     */
+    public enum Kind {
 
-    /** A {@code java.util.Set<E>} container. */
-    SET,
+        /**
+         * A {@code java.util.List<E>} container.
+         */
+        LIST,
+        /**
+         * A {@code java.util.Set<E>} container.
+         */
+        SET,
+        /**
+         * A {@code java.util.Optional<E>} container.
+         */
+        OPTIONAL,
+        /**
+         * A Java array type {@code E[]}.
+         */
+        ARRAY,
+        /**
+         * A {@code java.util.Map<K, V>} container. Traversal is over values only.
+         */
+        MAP
+    }
 
-    /** A {@code java.util.Optional<E>} container. */
-    OPTIONAL,
+    /**
+     * Creates a ContainerType for a single-element container (List, Set, Optional, array).
+     *
+     * @param kind the container kind
+     * @param elementType the element type
+     * @return a new ContainerType
+     */
+    public static ContainerType of(Kind kind, TypeMirror elementType) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    /** A Java array type {@code E[]}. */
-    ARRAY,
+    /**
+     * Creates a ContainerType for a Map container.
+     *
+     * @param keyType the key type
+     * @param valueType the value type (used as element type for traversal)
+     * @return a new ContainerType for Map
+     */
+    public static ContainerType forMap(TypeMirror keyType, TypeMirror valueType) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    /** A {@code java.util.Map<K, V>} container. Traversal is over values only. */
-    MAP
-  }
-
-  /**
-   * Creates a ContainerType for a single-element container (List, Set, Optional, array).
-   *
-   * @param kind the container kind
-   * @param elementType the element type
-   * @return a new ContainerType
-   */
-  public static ContainerType of(Kind kind, TypeMirror elementType) {
-    return new ContainerType(kind, elementType, null);
-  }
-
-  /**
-   * Creates a ContainerType for a Map container.
-   *
-   * @param keyType the key type
-   * @param valueType the value type (used as element type for traversal)
-   * @return a new ContainerType for Map
-   */
-  public static ContainerType forMap(TypeMirror keyType, TypeMirror valueType) {
-    return new ContainerType(Kind.MAP, valueType, keyType);
-  }
-
-  /**
-   * Returns whether this is a Map container.
-   *
-   * @return true if this is a Map container
-   */
-  public boolean isMap() {
-    return kind == Kind.MAP;
-  }
+    /**
+     * Returns whether this is a Map container.
+     *
+     * @return true if this is a Map container
+     */
+    public boolean isMap() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

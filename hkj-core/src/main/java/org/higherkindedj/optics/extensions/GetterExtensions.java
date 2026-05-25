@@ -94,66 +94,66 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public final class GetterExtensions {
 
-  private GetterExtensions() {
-    throw new UnsupportedOperationException("Utility class - do not instantiate");
-  }
+    private GetterExtensions() {
+        throw new UnsupportedOperationException("Utility class - do not instantiate");
+    }
 
-  /**
-   * Gets the focused value as {@link Maybe}, returning {@code Maybe.nothing()} if the value is
-   * null.
-   *
-   * <p>This method provides null-safe access to getter values, converting null results to {@code
-   * Maybe.nothing()} and non-null results to {@code Maybe.just(value)}.
-   *
-   * <p>Example:
-   *
-   * <pre>{@code
-   * record User(String name, @Nullable String email) {}
-   *
-   * Getter<User, String> emailGetter = Getter.of(User::email);
-   *
-   * User userWithEmail = new User("Alice", "alice@example.com");
-   * User userWithoutEmail = new User("Bob", null);
-   *
-   * // Safe access with Maybe
-   * Maybe<String> email1 = getMaybe(emailGetter, userWithEmail);
-   * email1.ifJust(e -> sendEmail(e)); // Sends email
-   *
-   * Maybe<String> email2 = getMaybe(emailGetter, userWithoutEmail);
-   * email2.ifJust(e -> sendEmail(e)); // Does nothing
-   *
-   * // Chain operations safely
-   * Maybe<String> uppercaseEmail = getMaybe(emailGetter, userWithEmail)
-   *     .map(String::toUpperCase);
-   *
-   * // Provide default value
-   * String displayEmail = getMaybe(emailGetter, userWithoutEmail)
-   *     .orElse("no-email@example.com");
-   * }</pre>
-   *
-   * <h3>When to Use This</h3>
-   *
-   * <ul>
-   *   <li>When working with data structures that may contain null values
-   *   <li>When you want to chain operations safely without null checks
-   *   <li>When integrating with external systems that may return null
-   *   <li>When you want consistent {@code Maybe}-based error handling across your codebase
-   * </ul>
-   *
-   * <h3>Performance Note</h3>
-   *
-   * <p>This method has minimal overhead compared to direct {@code get} usage. The conversion from
-   * null to {@code Maybe.nothing()} is a simple branch, and {@code Maybe} instances are typically
-   * allocated on the stack by modern JVMs with escape analysis.
-   *
-   * @param getter The getter to use for extracting the value
-   * @param source The source structure to extract from
-   * @param <S> The source type
-   * @param <A> The focused value type
-   * @return {@code Maybe.just(value)} if the value is non-null, {@code Maybe.nothing()} if the
-   *     value is null
-   */
-  public static <S, A> Maybe<A> getMaybe(Getter<S, A> getter, S source) {
-    return Maybe.fromNullable(getter.get(source));
-  }
+    /**
+     * Gets the focused value as {@link Maybe}, returning {@code Maybe.nothing()} if the value is
+     * null.
+     *
+     * <p>This method provides null-safe access to getter values, converting null results to {@code
+     * Maybe.nothing()} and non-null results to {@code Maybe.just(value)}.
+     *
+     * <p>Example:
+     *
+     * <pre>{@code
+     * record User(String name, @Nullable String email) {}
+     *
+     * Getter<User, String> emailGetter = Getter.of(User::email);
+     *
+     * User userWithEmail = new User("Alice", "alice@example.com");
+     * User userWithoutEmail = new User("Bob", null);
+     *
+     * // Safe access with Maybe
+     * Maybe<String> email1 = getMaybe(emailGetter, userWithEmail);
+     * email1.ifJust(e -> sendEmail(e)); // Sends email
+     *
+     * Maybe<String> email2 = getMaybe(emailGetter, userWithoutEmail);
+     * email2.ifJust(e -> sendEmail(e)); // Does nothing
+     *
+     * // Chain operations safely
+     * Maybe<String> uppercaseEmail = getMaybe(emailGetter, userWithEmail)
+     *     .map(String::toUpperCase);
+     *
+     * // Provide default value
+     * String displayEmail = getMaybe(emailGetter, userWithoutEmail)
+     *     .orElse("no-email@example.com");
+     * }</pre>
+     *
+     * <h3>When to Use This</h3>
+     *
+     * <ul>
+     *   <li>When working with data structures that may contain null values
+     *   <li>When you want to chain operations safely without null checks
+     *   <li>When integrating with external systems that may return null
+     *   <li>When you want consistent {@code Maybe}-based error handling across your codebase
+     * </ul>
+     *
+     * <h3>Performance Note</h3>
+     *
+     * <p>This method has minimal overhead compared to direct {@code get} usage. The conversion from
+     * null to {@code Maybe.nothing()} is a simple branch, and {@code Maybe} instances are typically
+     * allocated on the stack by modern JVMs with escape analysis.
+     *
+     * @param getter The getter to use for extracting the value
+     * @param source The source structure to extract from
+     * @param <S> The source type
+     * @param <A> The focused value type
+     * @return {@code Maybe.just(value)} if the value is non-null, {@code Maybe.nothing()} if the
+     *     value is null
+     */
+    public static <S, A> Maybe<A> getMaybe(Getter<S, A> getter, S source) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

@@ -15,68 +15,68 @@ import org.jspecify.annotations.Nullable;
  * org.higherkindedj.hkt.maybe.MaybeKindHelper.MAYBE; MAYBE.widen(...);}
  */
 public enum MaybeKindHelper implements MaybeConverterOps {
-  MAYBE;
 
-  private static final Class<Maybe> MAYBE_CLASS = Maybe.class;
+    MAYBE;
 
-  /**
-   * Widens a concrete {@link Maybe}&lt;A&gt; instance into its HKT representation, {@link
-   * Kind}&lt;{@link MaybeKind.Witness}, A&gt;. Implements {@link MaybeConverterOps#widen}.
-   *
-   * <p>Since {@code Just} and {@code Nothing} directly implement {@code MaybeKind}, this method
-   * performs a simple type-safe cast without requiring a wrapper object.
-   *
-   * @param <A> The element type of the {@code Maybe}.
-   * @param maybe The concrete {@link Maybe}&lt;A&gt; instance to widen. Must be non-null.
-   * @return The {@link Kind<MaybeKind.Witness, A>} representation of the input {@code maybe}.
-   * @throws NullPointerException if {@code maybe} is {@code null}.
-   */
-  @Override
-  @SuppressWarnings("unchecked")
-  public <A> Kind<MaybeKind.Witness, A> widen(Maybe<A> maybe) {
-    Validation.kind().requireForWiden(maybe, MAYBE_CLASS);
-    return (Kind<MaybeKind.Witness, A>) maybe;
-  }
+    private static final Class<Maybe> MAYBE_CLASS = Maybe.class;
 
-  /**
-   * Narrows a {@link Kind}&lt;{@link MaybeKind.Witness}, A&gt; back to its concrete {@link
-   * Maybe}&lt;A&gt; representation. Implements {@link MaybeConverterOps#narrow}.
-   *
-   * <p>Since {@code Just} and {@code Nothing} directly implement {@code MaybeKind}, this method
-   * performs a direct type check and cast without needing to unwrap from a holder.
-   *
-   * @param <A> The element type of the {@code Maybe}.
-   * @param kind The {@code Kind} instance to narrow. May be {@code null}.
-   * @return The underlying, non-null {@link Maybe}&lt;A&gt; instance.
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code kind} is {@code null}, or
-   *     if {@code kind} is not an instance of {@code Maybe}.
-   */
-  @Override
-  public <A> Maybe<A> narrow(@Nullable Kind<MaybeKind.Witness, A> kind) {
-    return Validation.kind().narrowWithTypeCheck(kind, MAYBE_CLASS);
-  }
+    /**
+     * Widens a concrete {@link Maybe}&lt;A&gt; instance into its HKT representation, {@link
+     * Kind}&lt;{@link MaybeKind.Witness}, A&gt;. Implements {@link MaybeConverterOps#widen}.
+     *
+     * <p>Since {@code Just} and {@code Nothing} directly implement {@code MaybeKind}, this method
+     * performs a simple type-safe cast without requiring a wrapper object.
+     *
+     * @param <A> The element type of the {@code Maybe}.
+     * @param maybe The concrete {@link Maybe}&lt;A&gt; instance to widen. Must be non-null.
+     * @return The {@link Kind<MaybeKind.Witness, A>} representation of the input {@code maybe}.
+     * @throws NullPointerException if {@code maybe} is {@code null}.
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public <A> Kind<MaybeKind.Witness, A> widen(Maybe<A> maybe) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * A convenience factory method that creates a {@link Maybe#just(Object)} from the given non-null
-   * value and then wraps it into a {@link Kind}&lt;{@link MaybeKind.Witness}, A&gt;.
-   *
-   * @param <A> The element type. The provided {@code value} must conform to this type.
-   * @param value The non-null value to be wrapped in a {@link Just} and then as a {@link Kind}.
-   * @return A {@link Kind}&lt;{@link MaybeKind.Witness}, A&gt; representing {@code Just(value)}.
-   * @throws NullPointerException if {@code value} is {@code null}.
-   */
-  public <A> Kind<MaybeKind.Witness, A> just(A value) {
-    return this.widen(Maybe.just(value));
-  }
+    /**
+     * Narrows a {@link Kind}&lt;{@link MaybeKind.Witness}, A&gt; back to its concrete {@link
+     * Maybe}&lt;A&gt; representation. Implements {@link MaybeConverterOps#narrow}.
+     *
+     * <p>Since {@code Just} and {@code Nothing} directly implement {@code MaybeKind}, this method
+     * performs a direct type check and cast without needing to unwrap from a holder.
+     *
+     * @param <A> The element type of the {@code Maybe}.
+     * @param kind The {@code Kind} instance to narrow. May be {@code null}.
+     * @return The underlying, non-null {@link Maybe}&lt;A&gt; instance.
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code kind} is {@code null}, or
+     *     if {@code kind} is not an instance of {@code Maybe}.
+     */
+    @Override
+    public <A> Maybe<A> narrow(@Nullable Kind<MaybeKind.Witness, A> kind) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * A convenience factory method that retrieves the singleton {@link Maybe#nothing()} instance and
-   * wraps it into a {@link Kind}&lt;{@link MaybeKind.Witness}, A&gt;.
-   *
-   * @param <A> The phantom element type for the {@code Nothing} state.
-   * @return A {@link Kind}&lt;{@link MaybeKind.Witness}, A&gt; representing {@code Nothing}.
-   */
-  public <A> Kind<MaybeKind.Witness, A> nothing() {
-    return this.widen(Maybe.nothing());
-  }
+    /**
+     * A convenience factory method that creates a {@link Maybe#just(Object)} from the given non-null
+     * value and then wraps it into a {@link Kind}&lt;{@link MaybeKind.Witness}, A&gt;.
+     *
+     * @param <A> The element type. The provided {@code value} must conform to this type.
+     * @param value The non-null value to be wrapped in a {@link Just} and then as a {@link Kind}.
+     * @return A {@link Kind}&lt;{@link MaybeKind.Witness}, A&gt; representing {@code Just(value)}.
+     * @throws NullPointerException if {@code value} is {@code null}.
+     */
+    public <A> Kind<MaybeKind.Witness, A> just(A value) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * A convenience factory method that retrieves the singleton {@link Maybe#nothing()} instance and
+     * wraps it into a {@link Kind}&lt;{@link MaybeKind.Witness}, A&gt;.
+     *
+     * @param <A> The phantom element type for the {@code Nothing} state.
+     * @return A {@link Kind}&lt;{@link MaybeKind.Witness}, A&gt; representing {@code Nothing}.
+     */
+    public <A> Kind<MaybeKind.Witness, A> nothing() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

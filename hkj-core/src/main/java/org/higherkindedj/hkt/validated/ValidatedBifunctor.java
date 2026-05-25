@@ -4,7 +4,6 @@ package org.higherkindedj.hkt.validated;
 
 import static org.higherkindedj.hkt.util.validation.Operation.*;
 import static org.higherkindedj.hkt.validated.ValidatedKindHelper.VALIDATED;
-
 import java.util.Objects;
 import java.util.function.Function;
 import org.higherkindedj.hkt.Bifunctor;
@@ -33,47 +32,26 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public class ValidatedBifunctor implements Bifunctor<ValidatedKind2.Witness> {
 
-  /** Singleton instance of the ValidatedBifunctor. */
-  public static final ValidatedBifunctor INSTANCE = new ValidatedBifunctor();
+    /**
+     * Singleton instance of the ValidatedBifunctor.
+     */
+    public static final ValidatedBifunctor INSTANCE = new ValidatedBifunctor();
 
-  private ValidatedBifunctor() {}
+    private ValidatedBifunctor() {
+    }
 
-  @Override
-  public <A, B, C, D> Kind2<ValidatedKind2.Witness, C, D> bimap(
-      Function<? super A, ? extends C> f,
-      Function<? super B, ? extends D> g,
-      Kind2<ValidatedKind2.Witness, A, B> fab) {
+    @Override
+    public <A, B, C, D> Kind2<ValidatedKind2.Witness, C, D> bimap(Function<? super A, ? extends C> f, Function<? super B, ? extends D> g, Kind2<ValidatedKind2.Witness, A, B> fab) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    Validation.function().require(f, "f", BIMAP);
-    Validation.function().require(g, "g", BIMAP);
-    Objects.requireNonNull(fab, "Kind for bimap cannot be null");
+    @Override
+    public <A, B, C> Kind2<ValidatedKind2.Witness, C, B> first(Function<? super A, ? extends C> f, Kind2<ValidatedKind2.Witness, A, B> fab) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    Validated<A, B> validated = VALIDATED.narrow2(fab);
-    Validated<C, D> result = validated.bimap(f, g);
-    return VALIDATED.widen2(result);
-  }
-
-  @Override
-  public <A, B, C> Kind2<ValidatedKind2.Witness, C, B> first(
-      Function<? super A, ? extends C> f, Kind2<ValidatedKind2.Witness, A, B> fab) {
-
-    Validation.function().require(f, "f", FIRST);
-    Objects.requireNonNull(fab, "Kind for first cannot be null");
-
-    Validated<A, B> validated = VALIDATED.narrow2(fab);
-    Validated<C, B> result = validated.mapError(f);
-    return VALIDATED.widen2(result);
-  }
-
-  @Override
-  public <A, B, D> Kind2<ValidatedKind2.Witness, A, D> second(
-      Function<? super B, ? extends D> g, Kind2<ValidatedKind2.Witness, A, B> fab) {
-
-    Validation.function().require(g, "g", SECOND);
-    Objects.requireNonNull(fab, "Kind for second cannot be null");
-
-    Validated<A, B> validated = VALIDATED.narrow2(fab);
-    Validated<A, D> result = validated.map(g);
-    return VALIDATED.widen2(result);
-  }
+    @Override
+    public <A, B, D> Kind2<ValidatedKind2.Witness, A, D> second(Function<? super B, ? extends D> g, Kind2<ValidatedKind2.Witness, A, B> fab) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

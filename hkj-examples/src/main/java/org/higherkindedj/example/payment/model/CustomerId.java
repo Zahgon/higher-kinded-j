@@ -13,15 +13,15 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public record CustomerId(String value) {
 
-  public CustomerId {
-    Objects.requireNonNull(value, "CustomerId value cannot be null");
-    if (value.isBlank()) {
-      throw new IllegalArgumentException("CustomerId cannot be blank");
+    public CustomerId {
+        Objects.requireNonNull(value, "CustomerId value cannot be null");
+        if (value.isBlank()) {
+            throw new IllegalArgumentException("CustomerId cannot be blank");
+        }
     }
-  }
 
-  @Override
-  public String toString() {
-    return value;
-  }
+    @Override
+    public String toString() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

@@ -33,175 +33,105 @@ import org.springframework.stereotype.Service;
 @Service
 public class VirtualThreadUserService {
 
-  private final UserService userService;
+    private final UserService userService;
 
-  /**
-   * Constructs a VirtualThreadUserService.
-   *
-   * @param userService the underlying user service
-   */
-  public VirtualThreadUserService(UserService userService) {
-    this.userService = userService;
-  }
+    /**
+     * Constructs a VirtualThreadUserService.
+     *
+     * @param userService the underlying user service
+     */
+    public VirtualThreadUserService(UserService userService) {
+        this.userService = userService;
+    }
 
-  /**
-   * Find user by ID on a virtual thread.
-   *
-   * <p>The computation is deferred — nothing executes until the Spring handler invokes the VTask.
-   * When executed, it runs on a virtual thread automatically.
-   *
-   * @param id the user ID to find
-   * @return VTaskPath containing the User, or failing with an exception
-   */
-  public VTaskPath<User> findById(String id) {
-    return Path.vtask(
-            () -> {
-              // Simulate I/O delay (database call, external service)
-              Thread.sleep(100);
+    /**
+     * Find user by ID on a virtual thread.
+     *
+     * <p>The computation is deferred — nothing executes until the Spring handler invokes the VTask.
+     * When executed, it runs on a virtual thread automatically.
+     *
+     * @param id the user ID to find
+     * @return VTaskPath containing the User, or failing with an exception
+     */
+    public VTaskPath<User> findById(String id) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-              return userService
-                  .findById(id)
-                  .fold(
-                      error -> {
-                        if (error instanceof UserNotFoundError notFound) {
-                          throw new RuntimeException("User not found: " + notFound.userId());
-                        }
-                        throw new RuntimeException(error.message());
-                      },
-                      user -> user);
-            })
-        .timeout(Duration.ofSeconds(5));
-  }
+    /**
+     * Get enriched user data using structured concurrency.
+     *
+     * <p>Demonstrates {@link Scope#allSucceed()} to fan out to multiple services in parallel on
+     * virtual threads, then combine results. If any subtask fails, all others are cancelled
+     * automatically.
+     *
+     * @param id the user ID
+     * @return VTaskPath with enriched user data
+     */
+    @SuppressWarnings("preview")
+    public VTaskPath<EnrichedUser> getEnrichedUser(String id) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Get enriched user data using structured concurrency.
-   *
-   * <p>Demonstrates {@link Scope#allSucceed()} to fan out to multiple services in parallel on
-   * virtual threads, then combine results. If any subtask fails, all others are cancelled
-   * automatically.
-   *
-   * @param id the user ID
-   * @return VTaskPath with enriched user data
-   */
-  @SuppressWarnings("preview")
-  public VTaskPath<EnrichedUser> getEnrichedUser(String id) {
-    VTask<User> userTask =
-        VTask.of(
-            () -> {
-              Thread.sleep(100);
-              return userService
-                  .findById(id)
-                  .fold(
-                      error -> {
-                        throw new RuntimeException(error.message());
-                      },
-                      user -> user);
-            });
+    /**
+     * Stream all users as Server-Sent Events on virtual threads.
+     *
+     * <p>Demonstrates VStreamPath for streaming HTTP responses. Each element is produced lazily on a
+     * virtual thread and sent as an SSE event. No WebFlux/Reactor needed.
+     *
+     * @return VStreamPath that emits users one by one
+     */
+    public VStreamPath<User> streamAllUsers() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    VTask<Profile> profileTask =
-        VTask.of(
-            () -> {
-              Thread.sleep(80);
-              return new Profile(id, "Premium", 150);
-            });
+    /**
+     * Stream a countdown of tick events.
+     *
+     * <p>Demonstrates VStreamPath with an infinite stream source that is limited via take().
+     *
+     * @param count the number of ticks to emit
+     * @return VStreamPath that emits tick events
+     */
+    public VStreamPath<TickEvent> streamTicks(int count) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    VTask<OrderSummary> orderTask =
-        VTask.of(
-            () -> {
-              Thread.sleep(60);
-              return new OrderSummary(id, 42, 1299.99);
-            });
+    /**
+     * Enriched user combining user, profile, and order data.
+     *
+     * @param user the user
+     * @param profile the user's profile
+     * @param orders the user's order summary
+     */
+    public record EnrichedUser(User user, Profile profile, OrderSummary orders) {
+    }
 
-    // Use structured concurrency: all three tasks run in parallel on virtual threads
-    // If any fails, the others are cancelled automatically
-    return Path.vtaskPath(
-            Scope.<Object>allSucceed().fork(userTask).fork(profileTask).fork(orderTask).join())
-        .map(
-            results -> {
-              User user = (User) results.get(0);
-              Profile profile = (Profile) results.get(1);
-              OrderSummary orders = (OrderSummary) results.get(2);
-              return new EnrichedUser(user, profile, orders);
-            });
-  }
+    /**
+     * User profile data.
+     *
+     * @param userId the user ID
+     * @param tier the membership tier
+     * @param points the loyalty points
+     */
+    public record Profile(String userId, String tier, int points) {
+    }
 
-  /**
-   * Stream all users as Server-Sent Events on virtual threads.
-   *
-   * <p>Demonstrates VStreamPath for streaming HTTP responses. Each element is produced lazily on a
-   * virtual thread and sent as an SSE event. No WebFlux/Reactor needed.
-   *
-   * @return VStreamPath that emits users one by one
-   */
-  public VStreamPath<User> streamAllUsers() {
-    return Path.vstream(
-        VStream.fromList(userService.findAll().fold(err -> List.of(), users -> users))
-            .map(
-                user -> {
-                  // Simulate per-element processing delay
-                  try {
-                    Thread.sleep(200);
-                  } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                  }
-                  return user;
-                }));
-  }
+    /**
+     * Order summary data.
+     *
+     * @param userId the user ID
+     * @param totalOrders the total number of orders
+     * @param totalAmount the total monetary amount
+     */
+    public record OrderSummary(String userId, int totalOrders, double totalAmount) {
+    }
 
-  /**
-   * Stream a countdown of tick events.
-   *
-   * <p>Demonstrates VStreamPath with an infinite stream source that is limited via take().
-   *
-   * @param count the number of ticks to emit
-   * @return VStreamPath that emits tick events
-   */
-  public VStreamPath<TickEvent> streamTicks(int count) {
-    return Path.vstreamIterate(1, n -> n + 1)
-        .map(
-            n -> {
-              try {
-                Thread.sleep(500);
-              } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-              }
-              return new TickEvent(n, System.currentTimeMillis());
-            })
-        .take(count);
-  }
-
-  /**
-   * Enriched user combining user, profile, and order data.
-   *
-   * @param user the user
-   * @param profile the user's profile
-   * @param orders the user's order summary
-   */
-  public record EnrichedUser(User user, Profile profile, OrderSummary orders) {}
-
-  /**
-   * User profile data.
-   *
-   * @param userId the user ID
-   * @param tier the membership tier
-   * @param points the loyalty points
-   */
-  public record Profile(String userId, String tier, int points) {}
-
-  /**
-   * Order summary data.
-   *
-   * @param userId the user ID
-   * @param totalOrders the total number of orders
-   * @param totalAmount the total monetary amount
-   */
-  public record OrderSummary(String userId, int totalOrders, double totalAmount) {}
-
-  /**
-   * A tick event for streaming demonstration.
-   *
-   * @param sequence the tick sequence number
-   * @param timestamp the tick timestamp in milliseconds
-   */
-  public record TickEvent(int sequence, long timestamp) {}
+    /**
+     * A tick event for streaming demonstration.
+     *
+     * @param sequence the tick sequence number
+     * @param timestamp the tick timestamp in milliseconds
+     */
+    public record TickEvent(int sequence, long timestamp) {
+    }
 }

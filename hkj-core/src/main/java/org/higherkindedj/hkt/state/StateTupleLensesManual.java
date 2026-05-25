@@ -10,19 +10,21 @@ import org.higherkindedj.optics.Lens;
  */
 public final class StateTupleLensesManual {
 
-  private StateTupleLensesManual() {
-    // private constructor for utility class
-  }
+    private StateTupleLensesManual() {
+        // private constructor for utility class
+    }
 
-  /** Creates a Lens that focuses on the 'value' component of a StateTuple. */
-  public static <S, A> Lens<StateTuple<S, A>, A> value() {
-    return Lens.of(
-        StateTuple::value, (tuple, newValue) -> new StateTuple<>(newValue, tuple.state()));
-  }
+    /**
+     * Creates a Lens that focuses on the 'value' component of a StateTuple.
+     */
+    public static <S, A> Lens<StateTuple<S, A>, A> value() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /** Creates a Lens that focuses on the 'state' component of a StateTuple. */
-  public static <S, A> Lens<StateTuple<S, A>, S> state() {
-    return Lens.of(
-        StateTuple::state, (tuple, newState) -> new StateTuple<>(tuple.value(), newState));
-  }
+    /**
+     * Creates a Lens that focuses on the 'state' component of a StateTuple.
+     */
+    public static <S, A> Lens<StateTuple<S, A>, S> state() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

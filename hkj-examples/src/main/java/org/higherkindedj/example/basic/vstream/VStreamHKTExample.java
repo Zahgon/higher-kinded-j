@@ -4,7 +4,6 @@ package org.higherkindedj.example.basic.vstream;
 
 import static org.higherkindedj.hkt.instances.Witnesses.*;
 import static org.higherkindedj.hkt.vstream.VStreamKindHelper.VSTREAM;
-
 import java.util.List;
 import java.util.function.Function;
 import org.higherkindedj.hkt.Kind;
@@ -27,117 +26,42 @@ import org.higherkindedj.hkt.vstream.VStreamTraverse;
  */
 public class VStreamHKTExample {
 
-  public static void main(String[] args) {
-    VStreamHKTExample example = new VStreamHKTExample();
+    public static void main(String[] args) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    System.out.println("=== VStream Monad (flatMap via HKT) ===");
-    example.monadFlatMap();
+    /**
+     * Demonstrates VStreamMonad flatMap via the HKT interface.
+     */
+    void monadFlatMap() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    System.out.println("\n=== Foldable (foldMap with Monoids) ===");
-    example.foldableExample();
+    /**
+     * Demonstrates VStreamTraverse (Foldable) with monoid-based aggregation.
+     */
+    void foldableExample() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    System.out.println("\n=== Alternative (stream concatenation and guard) ===");
-    example.alternativeExample();
+    /**
+     * Demonstrates VStreamAlternative for stream concatenation and guard filtering.
+     */
+    void alternativeExample() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    System.out.println("\n=== Polymorphic Function ===");
-    example.polymorphicFunction();
-  }
+    /**
+     * Demonstrates writing a generic function parameterised by Monad that works with VStream.
+     */
+    void polymorphicFunction() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /** Demonstrates VStreamMonad flatMap via the HKT interface. */
-  void monadFlatMap() {
-    Monad<VStreamKind.Witness> monad = Instances.monad(vstream());
-
-    Kind<VStreamKind.Witness, Integer> stream = VSTREAM.widen(VStream.of(1, 2, 3));
-
-    // Each element is expanded into a sub-stream
-    Kind<VStreamKind.Witness, Integer> result =
-        monad.flatMap(i -> VSTREAM.widen(VStream.of(i, i * 10)), stream);
-
-    List<Integer> collected = VSTREAM.narrow(result).toList().run();
-    System.out.println("flatMap expansion: " + collected);
-    // Output: [1, 10, 2, 20, 3, 30]
-  }
-
-  /** Demonstrates VStreamTraverse (Foldable) with monoid-based aggregation. */
-  void foldableExample() {
-    VStreamTraverse foldable = VStreamTraverse.INSTANCE;
-
-    Kind<VStreamKind.Witness, Integer> stream = VSTREAM.widen(VStream.of(1, 2, 3, 4, 5));
-
-    // Sum using integer addition monoid
-    Monoid<Integer> sumMonoid =
-        new Monoid<>() {
-          @Override
-          public Integer empty() {
-            return 0;
-          }
-
-          @Override
-          public Integer combine(Integer a, Integer b) {
-            return a + b;
-          }
-        };
-
-    Integer sum = foldable.foldMap(sumMonoid, Function.identity(), stream);
-    System.out.println("Sum of 1..5: " + sum);
-    // Output: 15
-
-    // String concatenation monoid
-    Kind<VStreamKind.Witness, String> words = VSTREAM.widen(VStream.of("Hello", " ", "World"));
-
-    Monoid<String> stringMonoid =
-        new Monoid<>() {
-          @Override
-          public String empty() {
-            return "";
-          }
-
-          @Override
-          public String combine(String a, String b) {
-            return a + b;
-          }
-        };
-
-    String joined = foldable.foldMap(stringMonoid, Function.identity(), words);
-    System.out.println("Joined: " + joined);
-    // Output: Hello World
-  }
-
-  /** Demonstrates VStreamAlternative for stream concatenation and guard filtering. */
-  void alternativeExample() {
-    VStreamAlternative alt = VStreamAlternative.INSTANCE;
-
-    // Concatenation via orElse
-    Kind<VStreamKind.Witness, Integer> a = VSTREAM.widen(VStream.of(1, 2));
-    Kind<VStreamKind.Witness, Integer> b = VSTREAM.widen(VStream.of(3, 4));
-    Kind<VStreamKind.Witness, Integer> combined = alt.orElse(a, () -> b);
-
-    System.out.println("orElse concatenation: " + VSTREAM.narrow(combined).toList().run());
-    // Output: [1, 2, 3, 4]
-
-    // guard filtering
-    Kind<VStreamKind.Witness, Unit> trueGuard = alt.guard(true);
-    Kind<VStreamKind.Witness, Unit> falseGuard = alt.guard(false);
-
-    System.out.println("guard(true): " + VSTREAM.narrow(trueGuard).toList().run());
-    // Output: [Unit.INSTANCE]
-    System.out.println("guard(false): " + VSTREAM.narrow(falseGuard).toList().run());
-    // Output: []
-  }
-
-  /** Demonstrates writing a generic function parameterised by Monad that works with VStream. */
-  void polymorphicFunction() {
-    // A generic function that works with ANY Monad
-    Kind<VStreamKind.Witness, String> result =
-        greetAll(Instances.monad(vstream()), VSTREAM.widen(VStream.of("Alice", "Bob", "Charlie")));
-
-    System.out.println("Polymorphic greetAll: " + VSTREAM.narrow(result).toList().run());
-    // Output: [Hello, Alice!, Hello, Bob!, Hello, Charlie!]
-  }
-
-  /** Generic function parameterised by Monad, usable with any monad type. */
-  static <M extends WitnessArity<TypeArity.Unary>> Kind<M, String> greetAll(
-      Monad<M> monad, Kind<M, String> names) {
-    return monad.flatMap(name -> monad.of("Hello, " + name + "!"), names);
-  }
+    /**
+     * Generic function parameterised by Monad, usable with any monad type.
+     */
+    static <M extends WitnessArity<TypeArity.Unary>> Kind<M, String> greetAll(Monad<M> monad, Kind<M, String> names) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

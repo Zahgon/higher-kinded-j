@@ -14,15 +14,16 @@ import org.jspecify.annotations.NullMarked;
  */
 @NullMarked
 public enum AuditLogMonoid implements Monoid<AuditLog> {
-  INSTANCE;
 
-  @Override
-  public AuditLog empty() {
-    return AuditLog.EMPTY;
-  }
+    INSTANCE;
 
-  @Override
-  public AuditLog combine(AuditLog a, AuditLog b) {
-    return a.append(b);
-  }
+    @Override
+    public AuditLog empty() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public AuditLog combine(AuditLog a, AuditLog b) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

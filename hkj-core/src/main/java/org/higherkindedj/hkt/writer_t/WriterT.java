@@ -3,7 +3,6 @@
 package org.higherkindedj.hkt.writer_t;
 
 import static org.higherkindedj.hkt.util.validation.Operation.*;
-
 import java.util.function.Function;
 import org.higherkindedj.hkt.Kind;
 import org.higherkindedj.hkt.Monad;
@@ -32,137 +31,121 @@ import org.higherkindedj.hkt.util.validation.Validation;
  * @see Monoid
  * @see Pair
  */
-public record WriterT<F extends WitnessArity<TypeArity.Unary>, W, A>(Kind<F, Pair<A, W>> run)
-    implements WriterTKind<F, W, A> {
+public record WriterT<F extends WitnessArity<TypeArity.Unary>, W, A>(Kind<F, Pair<A, W>> run) implements WriterTKind<F, W, A> {
 
-  private static final Class<WriterT> WRITER_T_CLASS = WriterT.class;
+    private static final Class<WriterT> WRITER_T_CLASS = WriterT.class;
 
-  /**
-   * Compact constructor. Validates that the run function is not null.
-   *
-   * @param run The wrapped monadic computation. Must not be null.
-   * @throws NullPointerException if {@code run} is null.
-   */
-  public WriterT {
-    Validation.kind().requireNonNull(run, CONSTRUCTION, "run");
-  }
+    /**
+     * Compact constructor. Validates that the run function is not null.
+     *
+     * @param run The wrapped monadic computation. Must not be null.
+     * @throws NullPointerException if {@code run} is null.
+     */
+    public WriterT {
+        Validation.kind().requireNonNull(run, CONSTRUCTION, "run");
+    }
 
-  /**
-   * Creates a {@link WriterT} from an existing {@code Kind<F, Pair<A, W>>}.
-   *
-   * @param <F> The witness type of the outer monad.
-   * @param <W> The type of the accumulated output.
-   * @param <A> The type of the value.
-   * @param run The wrapped monadic computation. Must not be null.
-   * @return A new {@link WriterT} instance.
-   * @throws NullPointerException if {@code run} is null.
-   */
-  public static <F extends WitnessArity<TypeArity.Unary>, W, A> WriterT<F, W, A> fromKind(
-      Kind<F, Pair<A, W>> run) {
-    return new WriterT<>(run);
-  }
+    /**
+     * Creates a {@link WriterT} from an existing {@code Kind<F, Pair<A, W>>}.
+     *
+     * @param <F> The witness type of the outer monad.
+     * @param <W> The type of the accumulated output.
+     * @param <A> The type of the value.
+     * @param run The wrapped monadic computation. Must not be null.
+     * @return A new {@link WriterT} instance.
+     * @throws NullPointerException if {@code run} is null.
+     */
+    public static <F extends WitnessArity<TypeArity.Unary>, W, A> WriterT<F, W, A> fromKind(Kind<F, Pair<A, W>> run) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a {@link WriterT} with a pure value and an empty output.
-   *
-   * @param <F> The witness type of the outer monad.
-   * @param <W> The type of the accumulated output.
-   * @param <A> The type of the value.
-   * @param monad The {@link Monad} instance for the outer monad. Must not be null.
-   * @param monoid The {@link Monoid} instance for the output type. Must not be null.
-   * @param value The value to wrap.
-   * @return A new {@link WriterT} instance with the given value and empty output.
-   * @throws NullPointerException if {@code monad} or {@code monoid} is null.
-   */
-  public static <F extends WitnessArity<TypeArity.Unary>, W, A> WriterT<F, W, A> of(
-      Monad<F> monad, Monoid<W> monoid, A value) {
-    Validation.transformer().requireOuterMonad(monad, WRITER_T_CLASS, OF);
-    Validation.function().require(monoid, "monoid", OF);
-    return new WriterT<>(monad.of(Pair.of(value, monoid.empty())));
-  }
+    /**
+     * Creates a {@link WriterT} with a pure value and an empty output.
+     *
+     * @param <F> The witness type of the outer monad.
+     * @param <W> The type of the accumulated output.
+     * @param <A> The type of the value.
+     * @param monad The {@link Monad} instance for the outer monad. Must not be null.
+     * @param monoid The {@link Monoid} instance for the output type. Must not be null.
+     * @param value The value to wrap.
+     * @return A new {@link WriterT} instance with the given value and empty output.
+     * @throws NullPointerException if {@code monad} or {@code monoid} is null.
+     */
+    public static <F extends WitnessArity<TypeArity.Unary>, W, A> WriterT<F, W, A> of(Monad<F> monad, Monoid<W> monoid, A value) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a {@link WriterT} that records the given output with {@link Unit#INSTANCE} as its
-   * value.
-   *
-   * @param <F> The witness type of the outer monad.
-   * @param <W> The type of the accumulated output.
-   * @param monad The {@link Monad} instance for the outer monad. Must not be null.
-   * @param w The output to record. Must not be null.
-   * @return A new {@link WriterT} with the specified output and {@link Unit#INSTANCE} as value.
-   * @throws NullPointerException if {@code monad} or {@code w} is null.
-   */
-  public static <F extends WitnessArity<TypeArity.Unary>, W> WriterT<F, W, Unit> tell(
-      Monad<F> monad, W w) {
-    Validation.transformer().requireOuterMonad(monad, WRITER_T_CLASS, TELL);
-    Validation.coreType().requireValue(w, "w", WRITER_T_CLASS, TELL);
-    return new WriterT<>(monad.of(Pair.of(Unit.INSTANCE, w)));
-  }
+    /**
+     * Creates a {@link WriterT} that records the given output with {@link Unit#INSTANCE} as its
+     * value.
+     *
+     * @param <F> The witness type of the outer monad.
+     * @param <W> The type of the accumulated output.
+     * @param monad The {@link Monad} instance for the outer monad. Must not be null.
+     * @param w The output to record. Must not be null.
+     * @return A new {@link WriterT} with the specified output and {@link Unit#INSTANCE} as value.
+     * @throws NullPointerException if {@code monad} or {@code w} is null.
+     */
+    public static <F extends WitnessArity<TypeArity.Unary>, W> WriterT<F, W, Unit> tell(Monad<F> monad, W w) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Lifts a monadic value into the {@link WriterT} context with empty output.
-   *
-   * @param <F> The witness type of the outer monad.
-   * @param <W> The type of the accumulated output.
-   * @param <A> The type of the value.
-   * @param monad The {@link Monad} instance for the outer monad. Must not be null.
-   * @param monoid The {@link Monoid} instance for the output type. Must not be null.
-   * @param fa The monadic value to lift. Must not be null.
-   * @return A new {@link WriterT} wrapping the lifted value with empty output.
-   * @throws NullPointerException if any argument is null.
-   */
-  public static <F extends WitnessArity<TypeArity.Unary>, W, A> WriterT<F, W, A> liftF(
-      Monad<F> monad, Monoid<W> monoid, Kind<F, A> fa) {
-    Validation.transformer().requireOuterMonad(monad, WRITER_T_CLASS, LIFT_F);
-    Validation.function().require(monoid, "monoid", LIFT_F);
-    Validation.kind().requireNonNull(fa, LIFT_F, "source Kind");
-    return new WriterT<>(monad.map(a -> Pair.of(a, monoid.empty()), fa));
-  }
+    /**
+     * Lifts a monadic value into the {@link WriterT} context with empty output.
+     *
+     * @param <F> The witness type of the outer monad.
+     * @param <W> The type of the accumulated output.
+     * @param <A> The type of the value.
+     * @param monad The {@link Monad} instance for the outer monad. Must not be null.
+     * @param monoid The {@link Monoid} instance for the output type. Must not be null.
+     * @param fa The monadic value to lift. Must not be null.
+     * @return A new {@link WriterT} wrapping the lifted value with empty output.
+     * @throws NullPointerException if any argument is null.
+     */
+    public static <F extends WitnessArity<TypeArity.Unary>, W, A> WriterT<F, W, A> liftF(Monad<F> monad, Monoid<W> monoid, Kind<F, A> fa) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Transforms the outer monad layer of this {@code WriterT} by applying the given function to the
-   * underlying {@code Kind<F, Pair<A, W>>}, producing a new {@code WriterT<G, W, A>} wrapping the
-   * result. The inner {@link Pair} of value and accumulated output is left untouched — only the
-   * surrounding monadic context changes.
-   *
-   * <p>This is useful for applying cross-cutting concerns (logging, retry, timeout) at the monad
-   * level, or for switching between monadic contexts via a natural transformation.
-   *
-   * <p><b>Example — switching from IO to Task via a natural transformation:</b>
-   *
-   * <pre>{@code
-   * WriterT<IOKind.Witness, String, Integer> ioResult = ...;
-   * Natural<IOKind.Witness, TaskKind.Witness> ioToTask = ...;
-   *
-   * WriterT<TaskKind.Witness, String, Integer> taskResult = ioResult.mapT(ioToTask::apply);
-   * }</pre>
-   *
-   * @param f The function to apply to the underlying {@code Kind<F, Pair<A, W>>}. Must not be null.
-   * @param <G> The witness type of the target outer monad.
-   * @return A new {@code WriterT<G, W, A>} wrapping the transformed monadic value.
-   * @throws NullPointerException if {@code f} is null.
-   */
-  public <G extends WitnessArity<TypeArity.Unary>> WriterT<G, W, A> mapT(
-      Function<Kind<F, Pair<A, W>>, Kind<G, Pair<A, W>>> f) {
-    Validation.function().require(f, "f", MAP_T);
-    return WriterT.fromKind(f.apply(this.run()));
-  }
+    /**
+     * Transforms the outer monad layer of this {@code WriterT} by applying the given function to the
+     * underlying {@code Kind<F, Pair<A, W>>}, producing a new {@code WriterT<G, W, A>} wrapping the
+     * result. The inner {@link Pair} of value and accumulated output is left untouched — only the
+     * surrounding monadic context changes.
+     *
+     * <p>This is useful for applying cross-cutting concerns (logging, retry, timeout) at the monad
+     * level, or for switching between monadic contexts via a natural transformation.
+     *
+     * <p><b>Example — switching from IO to Task via a natural transformation:</b>
+     *
+     * <pre>{@code
+     * WriterT<IOKind.Witness, String, Integer> ioResult = ...;
+     * Natural<IOKind.Witness, TaskKind.Witness> ioToTask = ...;
+     *
+     * WriterT<TaskKind.Witness, String, Integer> taskResult = ioResult.mapT(ioToTask::apply);
+     * }</pre>
+     *
+     * @param f The function to apply to the underlying {@code Kind<F, Pair<A, W>>}. Must not be null.
+     * @param <G> The witness type of the target outer monad.
+     * @return A new {@code WriterT<G, W, A>} wrapping the transformed monadic value.
+     * @throws NullPointerException if {@code f} is null.
+     */
+    public <G extends WitnessArity<TypeArity.Unary>> WriterT<G, W, A> mapT(Function<Kind<F, Pair<A, W>>, Kind<G, Pair<A, W>>> f) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a {@link WriterT} with an explicit value and output.
-   *
-   * @param <F> The witness type of the outer monad.
-   * @param <W> The type of the accumulated output.
-   * @param <A> The type of the value.
-   * @param monad The {@link Monad} instance for the outer monad. Must not be null.
-   * @param value The value.
-   * @param output The output.
-   * @return A new {@link WriterT} with the given value and output.
-   * @throws NullPointerException if {@code monad} is null.
-   */
-  public static <F extends WitnessArity<TypeArity.Unary>, W, A> WriterT<F, W, A> writer(
-      Monad<F> monad, A value, W output) {
-    Validation.transformer().requireOuterMonad(monad, WRITER_T_CLASS, CONSTRUCTION);
-    return new WriterT<>(monad.of(Pair.of(value, output)));
-  }
+    /**
+     * Creates a {@link WriterT} with an explicit value and output.
+     *
+     * @param <F> The witness type of the outer monad.
+     * @param <W> The type of the accumulated output.
+     * @param <A> The type of the value.
+     * @param monad The {@link Monad} instance for the outer monad. Must not be null.
+     * @param value The value.
+     * @param output The output.
+     * @return A new {@link WriterT} with the given value and output.
+     * @throws NullPointerException if {@code monad} is null.
+     */
+    public static <F extends WitnessArity<TypeArity.Unary>, W, A> WriterT<F, W, A> writer(Monad<F> monad, A value, W output) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

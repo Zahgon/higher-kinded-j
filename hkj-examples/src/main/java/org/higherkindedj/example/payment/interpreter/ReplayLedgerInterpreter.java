@@ -3,7 +3,6 @@
 package org.higherkindedj.example.payment.interpreter;
 
 import static org.higherkindedj.hkt.instances.Witnesses.*;
-
 import java.util.Objects;
 import org.higherkindedj.example.payment.effect.LedgerOp;
 import org.higherkindedj.example.payment.effect.LedgerOpInterpreter;
@@ -25,22 +24,17 @@ import org.jspecify.annotations.NullMarked;
  * the event log.
  */
 @NullMarked
-public final class ReplayLedgerInterpreter
-    extends LedgerOpInterpreter<ReaderTKind.Witness<IdKind.Witness, EventLog>> {
+public final class ReplayLedgerInterpreter extends LedgerOpInterpreter<ReaderTKind.Witness<IdKind.Witness, EventLog>> {
 
-  private static final Monad<IdKind.Witness> ID = Instances.monad(id());
+    private static final Monad<IdKind.Witness> ID = Instances.monad(id());
 
-  @Override
-  protected <A> Kind<ReaderTKind.Witness<IdKind.Witness, EventLog>, A> handleRecordEntry(
-      LedgerOp.RecordEntry<A> op) {
-    Objects.requireNonNull(op, "op cannot be null");
-    return ReaderT.reader(ID, (EventLog log) -> op.k().apply(log.<LedgerEntry>get("ledgerRecord")));
-  }
+    @Override
+    protected <A> Kind<ReaderTKind.Witness<IdKind.Witness, EventLog>, A> handleRecordEntry(LedgerOp.RecordEntry<A> op) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  protected <A> Kind<ReaderTKind.Witness<IdKind.Witness, EventLog>, A> handleGetBalance(
-      LedgerOp.GetBalance<A> op) {
-    Objects.requireNonNull(op, "op cannot be null");
-    return ReaderT.reader(ID, (EventLog log) -> op.k().apply(log.<Money>get("balance")));
-  }
+    @Override
+    protected <A> Kind<ReaderTKind.Witness<IdKind.Witness, EventLog>, A> handleGetBalance(LedgerOp.GetBalance<A> op) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

@@ -34,50 +34,28 @@ import org.jspecify.annotations.Nullable;
  */
 final class ErrorResponseHeaders {
 
-  private ErrorResponseHeaders() {
-    throw new UnsupportedOperationException("Utility class");
-  }
+    private ErrorResponseHeaders() {
+        throw new UnsupportedOperationException("Utility class");
+    }
 
-  /**
-   * Applies any headers the error payload wishes to surface to the response.
-   *
-   * @param error the error payload (may be {@code null})
-   * @param response the servlet response
-   */
-  static void applyTo(@Nullable Object error, HttpServletResponse response) {
-    if (error == null) {
-      return;
+    /**
+     * Applies any headers the error payload wishes to surface to the response.
+     *
+     * @param error the error payload (may be {@code null})
+     * @param response the servlet response
+     */
+    static void applyTo(@Nullable Object error, HttpServletResponse response) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-    if (error instanceof HttpHeaderCarrier carrier) {
-      copy(carrier.headers(), response);
-      return;
-    }
-    if (error instanceof Collection<?> collection) {
-      for (Object element : collection) {
-        if (element instanceof HttpHeaderCarrier carrier) {
-          copy(carrier.headers(), response);
-        }
-      }
-      return;
-    }
-    if (error instanceof Object[] array) {
-      for (Object element : array) {
-        if (element instanceof HttpHeaderCarrier carrier) {
-          copy(carrier.headers(), response);
-        }
-      }
-    }
-  }
 
-  private static void copy(@Nullable Map<String, String> headers, HttpServletResponse response) {
-    if (headers == null || headers.isEmpty()) {
-      return;
-    }
-    headers.forEach(
-        (name, value) -> {
-          if (name != null && value != null) {
-            response.addHeader(name, value);
-          }
+    private static void copy(@Nullable Map<String, String> headers, HttpServletResponse response) {
+        if (headers == null || headers.isEmpty()) {
+            return;
+        }
+        headers.forEach((name, value) -> {
+            if (name != null && value != null) {
+                response.addHeader(name, value);
+            }
         });
-  }
+    }
 }

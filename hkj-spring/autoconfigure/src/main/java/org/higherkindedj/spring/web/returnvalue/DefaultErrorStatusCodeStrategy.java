@@ -16,34 +16,31 @@ import org.jspecify.annotations.Nullable;
  */
 public final class DefaultErrorStatusCodeStrategy implements ErrorStatusCodeStrategy {
 
-  private final Map<String, Integer> errorStatusMappings;
+    private final Map<String, Integer> errorStatusMappings;
 
-  /**
-   * Creates a strategy backed by the supplied mapping table.
-   *
-   * @param errorStatusMappings explicit overrides keyed by simple or fully-qualified class name;
-   *     {@code null} is treated as an empty map. A defensive copy is taken so subsequent mutations
-   *     of the supplied map do not affect resolution.
-   */
-  public DefaultErrorStatusCodeStrategy(@Nullable Map<String, Integer> errorStatusMappings) {
-    this.errorStatusMappings =
-        errorStatusMappings == null || errorStatusMappings.isEmpty()
-            ? Map.of()
-            : Map.copyOf(errorStatusMappings);
-  }
+    /**
+     * Creates a strategy backed by the supplied mapping table.
+     *
+     * @param errorStatusMappings explicit overrides keyed by simple or fully-qualified class name;
+     *     {@code null} is treated as an empty map. A defensive copy is taken so subsequent mutations
+     *     of the supplied map do not affect resolution.
+     */
+    public DefaultErrorStatusCodeStrategy(@Nullable Map<String, Integer> errorStatusMappings) {
+        this.errorStatusMappings = errorStatusMappings == null || errorStatusMappings.isEmpty() ? Map.of() : Map.copyOf(errorStatusMappings);
+    }
 
-  @Override
-  public int statusCodeFor(Object error, int defaultStatus) {
-    return ErrorStatusCodeMapper.determineStatusCode(error, defaultStatus, errorStatusMappings);
-  }
+    @Override
+    public int statusCodeFor(Object error, int defaultStatus) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Returns an unmodifiable view of the mappings backing this strategy. Useful for diagnostics and
-   * tests.
-   *
-   * @return the configured mappings
-   */
-  public Map<String, Integer> mappings() {
-    return errorStatusMappings;
-  }
+    /**
+     * Returns an unmodifiable view of the mappings backing this strategy. Useful for diagnostics and
+     * tests.
+     *
+     * @return the configured mappings
+     */
+    public Map<String, Integer> mappings() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

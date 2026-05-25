@@ -4,7 +4,6 @@ package org.higherkindedj.hkt.constant;
 
 import static org.higherkindedj.hkt.constant.ConstKindHelper.CONST;
 import static org.higherkindedj.hkt.util.validation.Operation.*;
-
 import java.util.Objects;
 import java.util.function.Function;
 import org.higherkindedj.hkt.Bifunctor;
@@ -53,47 +52,26 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public class ConstBifunctor implements Bifunctor<ConstKind2.Witness> {
 
-  /** Singleton instance of the ConstBifunctor. */
-  public static final ConstBifunctor INSTANCE = new ConstBifunctor();
+    /**
+     * Singleton instance of the ConstBifunctor.
+     */
+    public static final ConstBifunctor INSTANCE = new ConstBifunctor();
 
-  private ConstBifunctor() {}
+    private ConstBifunctor() {
+    }
 
-  @Override
-  public <A, B, C, D> Kind2<ConstKind2.Witness, C, D> bimap(
-      Function<? super A, ? extends C> f,
-      Function<? super B, ? extends D> g,
-      Kind2<ConstKind2.Witness, A, B> fab) {
+    @Override
+    public <A, B, C, D> Kind2<ConstKind2.Witness, C, D> bimap(Function<? super A, ? extends C> f, Function<? super B, ? extends D> g, Kind2<ConstKind2.Witness, A, B> fab) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    Validation.function().require(f, "f", BIMAP);
-    Validation.function().require(g, "g", BIMAP);
-    Objects.requireNonNull(fab, "Kind for bimap cannot be null");
+    @Override
+    public <A, B, C> Kind2<ConstKind2.Witness, C, B> first(Function<? super A, ? extends C> f, Kind2<ConstKind2.Witness, A, B> fab) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    Const<A, B> const_ = CONST.narrow2(fab);
-    Const<C, D> result = const_.bimap(f, g);
-    return CONST.widen2(result);
-  }
-
-  @Override
-  public <A, B, C> Kind2<ConstKind2.Witness, C, B> first(
-      Function<? super A, ? extends C> f, Kind2<ConstKind2.Witness, A, B> fab) {
-
-    Validation.function().require(f, "f", FIRST);
-    Objects.requireNonNull(fab, "Kind for first cannot be null");
-
-    Const<A, B> const_ = CONST.narrow2(fab);
-    Const<C, B> result = const_.mapFirst(f);
-    return CONST.widen2(result);
-  }
-
-  @Override
-  public <A, B, D> Kind2<ConstKind2.Witness, A, D> second(
-      Function<? super B, ? extends D> g, Kind2<ConstKind2.Witness, A, B> fab) {
-
-    Validation.function().require(g, "g", SECOND);
-    Objects.requireNonNull(fab, "Kind for second cannot be null");
-
-    Const<A, B> const_ = CONST.narrow2(fab);
-    Const<A, D> result = const_.mapSecond(g);
-    return CONST.widen2(result);
-  }
+    @Override
+    public <A, B, D> Kind2<ConstKind2.Witness, A, D> second(Function<? super B, ? extends D> g, Kind2<ConstKind2.Witness, A, B> fab) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

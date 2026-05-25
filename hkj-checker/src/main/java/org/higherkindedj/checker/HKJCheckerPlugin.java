@@ -51,102 +51,24 @@ import java.util.List;
  */
 public class HKJCheckerPlugin implements Plugin {
 
-  /** Creates a new HKJChecker plugin instance. */
-  public HKJCheckerPlugin() {}
-
-  /** The plugin name used with {@code -Xplugin:HKJChecker}. */
-  public static final String PLUGIN_NAME = "HKJChecker";
-
-  @Override
-  public String getName() {
-    return PLUGIN_NAME;
-  }
-
-  @Override
-  public void init(JavacTask task, String... args) {
-    Trees trees = Trees.instance(task);
-    javax.lang.model.util.Types types = task.getTypes();
-    javax.lang.model.util.Elements elements = task.getElements();
-    CheckerConfig config = CheckerConfig.parse(args);
-
-    // Build the enabled checks once, in stable dispatch order. Each check reports at
-    // config.severityFor(id): an explicit severity:<id>=… override wins; the warn-default
-    // checks (error-type-mismatch, map-nests-effect, migration-nudge) otherwise stay
-    // WARNING; everything else uses the global severity.
-    List<CheckVisitor> checks = new ArrayList<>();
-    if (config.isEnabled(CheckerConfig.PATH_TYPE_MISMATCH)) {
-      checks.add(
-          new PathTypeMismatchChecker(trees, config.severityFor(CheckerConfig.PATH_TYPE_MISMATCH)));
-    }
-    if (config.isEnabled(CheckerConfig.EFFECT_COMPOSITION)) {
-      checks.add(
-          new EffectCompositionChecker(
-              trees, config.severityFor(CheckerConfig.EFFECT_COMPOSITION)));
-    }
-    if (config.isEnabled(CheckerConfig.TRANSFORMER_MISSING_MONAD)) {
-      checks.add(
-          new TransformerMissingMonadChecker(
-              trees, config.severityFor(CheckerConfig.TRANSFORMER_MISSING_MONAD)));
-    }
-    if (config.isEnabled(CheckerConfig.FREE_SWITCH_EXHAUSTIVE)) {
-      checks.add(
-          new FreeSwitchExhaustivenessChecker(
-              trees, config.severityFor(CheckerConfig.FREE_SWITCH_EXHAUSTIVE)));
-    }
-    if (config.isEnabled(CheckerConfig.DISCARDED_EFFECT)) {
-      checks.add(
-          new DiscardedEffectChecker(
-              trees, types, elements, config.severityFor(CheckerConfig.DISCARDED_EFFECT)));
-    }
-    if (config.isEnabled(CheckerConfig.STATE_T_MAPT_ARITY)) {
-      checks.add(
-          new StateTMapTArityChecker(trees, config.severityFor(CheckerConfig.STATE_T_MAPT_ARITY)));
-    }
-    if (config.isEnabled(CheckerConfig.ERROR_TYPE_MISMATCH)) {
-      checks.add(
-          new ErrorTypeMismatchChecker(
-              trees, types, config.severityFor(CheckerConfig.ERROR_TYPE_MISMATCH)));
-    }
-    if (config.isEnabled(CheckerConfig.KIND_VALUE_NARROW)) {
-      checks.add(
-          new KindValueNarrowChecker(trees, config.severityFor(CheckerConfig.KIND_VALUE_NARROW)));
-    }
-    if (config.isEnabled(CheckerConfig.WITNESS_ARITY)) {
-      checks.add(
-          new WitnessArityChecker(
-              trees, types, elements, config.severityFor(CheckerConfig.WITNESS_ARITY)));
-    }
-    if (config.isEnabled(CheckerConfig.VIA_NON_PATH)) {
-      checks.add(
-          new ViaNonPathChecker(
-              trees, types, elements, config.severityFor(CheckerConfig.VIA_NON_PATH)));
-    }
-    if (config.isEnabled(CheckerConfig.MAP_NESTS_EFFECT)) {
-      checks.add(
-          new MapReturnsPathChecker(
-              trees, types, elements, config.severityFor(CheckerConfig.MAP_NESTS_EFFECT)));
-    }
-    if (config.isEnabled(CheckerConfig.MIGRATION_NUDGE)) {
-      checks.add(
-          new MigrationNudgeChecker(trees, config.severityFor(CheckerConfig.MIGRATION_NUDGE)));
+    /**
+     * Creates a new HKJChecker plugin instance.
+     */
+    public HKJCheckerPlugin() {
     }
 
-    if (checks.isEmpty()) {
-      return; // nothing enabled: no listener, no traversal
-    }
-    HkjCheckScanner scanner = new HkjCheckScanner(checks);
+    /**
+     * The plugin name used with {@code -Xplugin:HKJChecker}.
+     */
+    public static final String PLUGIN_NAME = "HKJChecker";
 
-    task.addTaskListener(
-        new TaskListener() {
-          @Override
-          public void finished(TaskEvent event) {
-            if (event.getKind() == TaskEvent.Kind.ANALYZE) {
-              var compilationUnit = event.getCompilationUnit();
-              if (compilationUnit != null) {
-                scanner.scan(compilationUnit, null);
-              }
-            }
-          }
-        });
-  }
+    @Override
+    public String getName() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public void init(JavacTask task, String... args) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

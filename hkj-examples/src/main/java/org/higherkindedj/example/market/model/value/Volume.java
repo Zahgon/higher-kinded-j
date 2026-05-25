@@ -8,22 +8,23 @@ package org.higherkindedj.example.market.model.value;
  * @param value the number of units traded
  */
 public record Volume(long value) {
-  public Volume {
-    if (value < 0) {
-      throw new IllegalArgumentException("volume must not be negative: " + value);
+
+    public Volume {
+        if (value < 0) {
+            throw new IllegalArgumentException("volume must not be negative: " + value);
+        }
     }
-  }
 
-  public static Volume of(long v) {
-    return new Volume(v);
-  }
+    public static Volume of(long v) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  public Volume add(Volume other) {
-    return new Volume(value + other.value);
-  }
+    public Volume add(Volume other) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public String toString() {
-    return String.valueOf(value);
-  }
+    @Override
+    public String toString() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

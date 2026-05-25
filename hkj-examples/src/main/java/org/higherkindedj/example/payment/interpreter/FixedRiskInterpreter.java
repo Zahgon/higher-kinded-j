@@ -20,21 +20,19 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public final class FixedRiskInterpreter extends FraudCheckOpInterpreter<IdKind.Witness> {
 
-  private final RiskScore fixedScore;
+    private final RiskScore fixedScore;
 
-  /**
-   * Creates an interpreter that always returns the given risk score.
-   *
-   * @param fixedScore the risk score to return for all checks
-   */
-  public FixedRiskInterpreter(RiskScore fixedScore) {
-    this.fixedScore = Objects.requireNonNull(fixedScore, "fixedScore cannot be null");
-  }
+    /**
+     * Creates an interpreter that always returns the given risk score.
+     *
+     * @param fixedScore the risk score to return for all checks
+     */
+    public FixedRiskInterpreter(RiskScore fixedScore) {
+        this.fixedScore = Objects.requireNonNull(fixedScore, "fixedScore cannot be null");
+    }
 
-  @Override
-  protected <A> Kind<IdKind.Witness, A> handleCheckTransaction(
-      FraudCheckOp.CheckTransaction<A> op) {
-    Objects.requireNonNull(op, "op cannot be null");
-    return new Id<>(op.k().apply(fixedScore));
-  }
+    @Override
+    protected <A> Kind<IdKind.Witness, A> handleCheckTransaction(FraudCheckOp.CheckTransaction<A> op) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

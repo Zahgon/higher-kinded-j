@@ -15,24 +15,24 @@ import java.util.UUID;
  */
 public record OrderId(String value) {
 
-  public OrderId {
-    Objects.requireNonNull(value, "OrderId value cannot be null");
-    if (value.isBlank()) {
-      throw new IllegalArgumentException("OrderId cannot be blank");
+    public OrderId {
+        Objects.requireNonNull(value, "OrderId value cannot be null");
+        if (value.isBlank()) {
+            throw new IllegalArgumentException("OrderId cannot be blank");
+        }
     }
-  }
 
-  /**
-   * Generates a new unique order identifier.
-   *
-   * @return a new OrderId with a unique value
-   */
-  public static OrderId generate() {
-    return new OrderId("ORD-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
-  }
+    /**
+     * Generates a new unique order identifier.
+     *
+     * @return a new OrderId with a unique value
+     */
+    public static OrderId generate() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public String toString() {
-    return value;
-  }
+    @Override
+    public String toString() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

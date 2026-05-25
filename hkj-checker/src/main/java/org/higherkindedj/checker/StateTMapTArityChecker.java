@@ -34,53 +34,48 @@ import javax.tools.Diagnostic;
  */
 public final class StateTMapTArityChecker implements CheckVisitor {
 
-  static final String STATE_T_FQN = "org.higherkindedj.hkt.state_t.StateT";
+    static final String STATE_T_FQN = "org.higherkindedj.hkt.state_t.StateT";
 
-  private final Trees trees;
-  private final Diagnostic.Kind severity;
+    private final Trees trees;
 
-  /**
-   * Creates a checker reporting at {@link Diagnostic.Kind#ERROR}.
-   *
-   * @param trees the {@link Trees} utility for AST and type resolution
-   */
-  public StateTMapTArityChecker(Trees trees) {
-    this(trees, Diagnostic.Kind.ERROR);
-  }
+    private final Diagnostic.Kind severity;
 
-  /**
-   * Creates a checker reporting at the given severity.
-   *
-   * @param trees the Trees utility from the javac task; must not be null
-   * @param severity the severity at which the companion diagnostic is reported
-   */
-  public StateTMapTArityChecker(Trees trees, Diagnostic.Kind severity) {
-    this.trees = trees;
-    this.severity = severity;
-  }
-
-  @Override
-  public void onMethodInvocation(MethodInvocationTree node, TreePath path) {
-    if (node.getArguments().size() == 1
-        && node.getMethodSelect() instanceof MemberSelectTree select
-        && select.getIdentifier().contentEquals("mapT")
-        && receiverIsStateT(select.getExpression(), path)) {
-      trees.printMessage(
-          severity, DiagnosticMessages.stateTMapTArity(), node, path.getCompilationUnit());
+    /**
+     * Creates a checker reporting at {@link Diagnostic.Kind#ERROR}.
+     *
+     * @param trees the {@link Trees} utility for AST and type resolution
+     */
+    public StateTMapTArityChecker(Trees trees) {
+        this(trees, Diagnostic.Kind.ERROR);
     }
-  }
 
-  private boolean receiverIsStateT(ExpressionTree receiver, TreePath path) {
-    TypeMirror t;
-    try {
-      t = trees.getTypeMirror(new TreePath(path, receiver));
-    } catch (RuntimeException e) {
-      return false; // cannot resolve: skip silently (no false positives)
+    /**
+     * Creates a checker reporting at the given severity.
+     *
+     * @param trees the Trees utility from the javac task; must not be null
+     * @param severity the severity at which the companion diagnostic is reported
+     */
+    public StateTMapTArityChecker(Trees trees, Diagnostic.Kind severity) {
+        this.trees = trees;
+        this.severity = severity;
     }
-    if (!(t instanceof DeclaredType declared)) {
-      return false;
+
+    @Override
+    public void onMethodInvocation(MethodInvocationTree node, TreePath path) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-    return declared.asElement() instanceof TypeElement element
-        && element.getQualifiedName().contentEquals(STATE_T_FQN);
-  }
+
+    private boolean receiverIsStateT(ExpressionTree receiver, TreePath path) {
+        TypeMirror t;
+        try {
+            t = trees.getTypeMirror(new TreePath(path, receiver));
+        } catch (RuntimeException e) {
+            // cannot resolve: skip silently (no false positives)
+            return false;
+        }
+        if (!(t instanceof DeclaredType declared)) {
+            return false;
+        }
+        return declared.asElement() instanceof TypeElement element && element.getQualifiedName().contentEquals(STATE_T_FQN);
+    }
 }

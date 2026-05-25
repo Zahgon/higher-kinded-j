@@ -3,7 +3,6 @@
 package org.higherkindedj.hkt.free;
 
 import static org.higherkindedj.hkt.util.validation.Operation.CONSTRUCTION;
-
 import org.higherkindedj.hkt.util.validation.Validation;
 import org.jspecify.annotations.NullMarked;
 
@@ -26,49 +25,34 @@ import org.jspecify.annotations.NullMarked;
  *     analysed
  */
 @NullMarked
-public record ProgramAnalysis(
-    int suspendCount,
-    int recoveryPoints,
-    int parallelScopes,
-    int flatMapDepth,
-    boolean hasOpaqueRegions) {
+public record ProgramAnalysis(int suspendCount, int recoveryPoints, int parallelScopes, int flatMapDepth, boolean hasOpaqueRegions) {
 
-  /** An empty analysis (identity for combining). */
-  public static final ProgramAnalysis EMPTY = new ProgramAnalysis(0, 0, 0, 0, false);
+    /**
+     * An empty analysis (identity for combining).
+     */
+    public static final ProgramAnalysis EMPTY = new ProgramAnalysis(0, 0, 0, 0, false);
 
-  /**
-   * Combines this analysis with another by summing counts and merging flags.
-   *
-   * @param other the other analysis to combine with
-   * @return a combined ProgramAnalysis
-   */
-  public ProgramAnalysis combine(ProgramAnalysis other) {
-    Validation.function().require(other, "other", CONSTRUCTION);
-    return new ProgramAnalysis(
-        suspendCount + other.suspendCount,
-        recoveryPoints + other.recoveryPoints,
-        parallelScopes + other.parallelScopes,
-        flatMapDepth + other.flatMapDepth,
-        hasOpaqueRegions || other.hasOpaqueRegions);
-  }
+    /**
+     * Combines this analysis with another by summing counts and merging flags.
+     *
+     * @param other the other analysis to combine with
+     * @return a combined ProgramAnalysis
+     */
+    public ProgramAnalysis combine(ProgramAnalysis other) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Total number of analysable instructions (Suspend + Ap nodes).
-   *
-   * @return the total instruction count (lower bound)
-   */
-  public int totalInstructions() {
-    return suspendCount + parallelScopes;
-  }
+    /**
+     * Total number of analysable instructions (Suspend + Ap nodes).
+     *
+     * @return the total instruction count (lower bound)
+     */
+    public int totalInstructions() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public String toString() {
-    return String.format(
-        "ProgramAnalysis[%d suspend, %d recovery, %d parallel, %d flatMap%s]",
-        suspendCount,
-        recoveryPoints,
-        parallelScopes,
-        flatMapDepth,
-        hasOpaqueRegions ? ", opaque regions present" : "");
-  }
+    @Override
+    public String toString() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

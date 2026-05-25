@@ -16,22 +16,24 @@ import org.jspecify.annotations.NullMarked;
 @EffectAlgebra
 public sealed interface NotifyOp<A> permits NotifyOp.SendConfirmation {
 
-  /** Maps a function over the result type. */
-  <B> NotifyOp<B> mapK(Function<? super A, ? extends B> f);
+    /**
+     * Maps a function over the result type.
+     */
+    <B> NotifyOp<B> mapK(Function<? super A, ? extends B> f);
 
-  /**
-   * Send an order confirmation notification.
-   *
-   * @param customerId the customer to notify
-   * @param orderId the order that was confirmed
-   * @param k continuation from Unit to A
-   * @param <A> the result type
-   */
-  record SendConfirmation<A>(String customerId, String orderId, Function<Unit, A> k)
-      implements NotifyOp<A> {
-    @Override
-    public <B> NotifyOp<B> mapK(Function<? super A, ? extends B> f) {
-      return new SendConfirmation<>(customerId, orderId, k.andThen(f));
+    /**
+     * Send an order confirmation notification.
+     *
+     * @param customerId the customer to notify
+     * @param orderId the order that was confirmed
+     * @param k continuation from Unit to A
+     * @param <A> the result type
+     */
+    record SendConfirmation<A>(String customerId, String orderId, Function<Unit, A> k) implements NotifyOp<A> {
+
+        @Override
+        public <B> NotifyOp<B> mapK(Function<? super A, ? extends B> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
     }
-  }
 }

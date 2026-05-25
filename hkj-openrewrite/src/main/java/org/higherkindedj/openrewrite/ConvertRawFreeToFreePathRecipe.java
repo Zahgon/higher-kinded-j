@@ -42,47 +42,33 @@ import org.openrewrite.marker.SearchResult;
  */
 public class ConvertRawFreeToFreePathRecipe extends Recipe {
 
-  /** Creates a new instance of this recipe. */
-  public ConvertRawFreeToFreePathRecipe() {}
+    /**
+     * Creates a new instance of this recipe.
+     */
+    public ConvertRawFreeToFreePathRecipe() {
+    }
 
-  @Override
-  public String getDisplayName() {
-    return "Convert raw Free monad usage to FreePath API";
-  }
+    @Override
+    public String getDisplayName() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public String getDescription() {
-    return "Detects direct Free.liftF() and Free.suspend() calls that could be replaced with "
-        + "FreePath fluent API or generated *Ops smart constructors. Tags detected usages "
-        + "with a search-result marker for manual migration.";
-  }
+    @Override
+    public String getDescription() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public Set<String> getTags() {
-    return Set.of("higher-kinded-j", "effects", "free", "migration");
-  }
+    @Override
+    public Set<String> getTags() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  private static final MethodMatcher FREE_LIFT_F =
-      new MethodMatcher("org.higherkindedj.hkt.free.Free liftF(..)");
-  private static final MethodMatcher FREE_SUSPEND =
-      new MethodMatcher("org.higherkindedj.hkt.free.Free suspend(..)");
+    private static final MethodMatcher FREE_LIFT_F = new MethodMatcher("org.higherkindedj.hkt.free.Free liftF(..)");
 
-  @Override
-  public TreeVisitor<?, ExecutionContext> getVisitor() {
-    return new JavaIsoVisitor<>() {
+    private static final MethodMatcher FREE_SUSPEND = new MethodMatcher("org.higherkindedj.hkt.free.Free suspend(..)");
 
-      @Override
-      public J.MethodInvocation visitMethodInvocation(
-          J.MethodInvocation method, ExecutionContext ctx) {
-        J.MethodInvocation mi = super.visitMethodInvocation(method, ctx);
-
-        if (FREE_LIFT_F.matches(mi) || FREE_SUSPEND.matches(mi)) {
-          return SearchResult.found(
-              mi, "Consider generated *Ops methods or the FreePath API instead of raw Free");
-        }
-
-        return mi;
-      }
-    };
-  }
+    @Override
+    public TreeVisitor<?, ExecutionContext> getVisitor() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

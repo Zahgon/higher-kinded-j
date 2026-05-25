@@ -49,60 +49,60 @@ import org.higherkindedj.hkt.effect.capability.Chainable;
  */
 public interface PathProvider<F extends WitnessArity<TypeArity.Unary>> {
 
-  /**
-   * Returns the witness type class this provider handles.
-   *
-   * @return the witness type class
-   */
-  Class<?> witnessType();
+    /**
+     * Returns the witness type class this provider handles.
+     *
+     * @return the witness type class
+     */
+    Class<?> witnessType();
 
-  /**
-   * Creates a Path from a Kind value.
-   *
-   * @param kind the Kind value to wrap; must not be null
-   * @param <A> the value type
-   * @return a Chainable path wrapping the Kind value
-   */
-  <A> Chainable<A> createPath(Kind<F, A> kind);
+    /**
+     * Creates a Path from a Kind value.
+     *
+     * @param kind the Kind value to wrap; must not be null
+     * @param <A> the value type
+     * @return a Chainable path wrapping the Kind value
+     */
+    <A> Chainable<A> createPath(Kind<F, A> kind);
 
-  /**
-   * Returns the Monad instance for this effect type.
-   *
-   * @return the Monad instance
-   */
-  Monad<F> monad();
+    /**
+     * Returns the Monad instance for this effect type.
+     *
+     * @return the Monad instance
+     */
+    Monad<F> monad();
 
-  /**
-   * Returns the MonadError instance if this effect supports error handling.
-   *
-   * <p>Default implementation returns null, indicating no error handling support.
-   *
-   * @param <E> the error type
-   * @return the MonadError instance, or null if not supported
-   */
-  default <E> MonadError<F, E> monadError() {
-    return null;
-  }
+    /**
+     * Returns the MonadError instance if this effect supports error handling.
+     *
+     * <p>Default implementation returns null, indicating no error handling support.
+     *
+     * @param <E> the error type
+     * @return the MonadError instance, or null if not supported
+     */
+    default <E> MonadError<F, E> monadError() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Returns whether this provider supports error recovery operations.
-   *
-   * <p>When true, the {@link #monadError()} method returns a valid MonadError instance.
-   *
-   * @return true if error recovery is supported
-   */
-  default boolean supportsRecovery() {
-    return monadError() != null;
-  }
+    /**
+     * Returns whether this provider supports error recovery operations.
+     *
+     * <p>When true, the {@link #monadError()} method returns a valid MonadError instance.
+     *
+     * @return true if error recovery is supported
+     */
+    default boolean supportsRecovery() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Returns a human-readable name for this provider.
-   *
-   * <p>Used in error messages and debugging.
-   *
-   * @return the provider name
-   */
-  default String name() {
-    return witnessType().getSimpleName() + "PathProvider";
-  }
+    /**
+     * Returns a human-readable name for this provider.
+     *
+     * <p>Used in error messages and debugging.
+     *
+     * @return the provider name
+     */
+    default String name() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

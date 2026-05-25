@@ -27,66 +27,60 @@ import java.util.Collection;
  */
 final class PathToString {
 
-  private PathToString() {}
-
-  /** An unevaluated deferred computation (e.g. {@code IOPath}, {@code VTaskPath}). */
-  static final String DEFERRED = "<deferred>";
-
-  /** A lazy stream that has not been consumed (e.g. {@code StreamPath}, {@code VStreamPath}). */
-  static final String STREAM = "<stream>";
-
-  /** An empty optional-like path with no value present. */
-  static final String EMPTY = "<empty>";
-
-  /** An asynchronous computation that has not yet completed. */
-  static final String PENDING = "<pending>";
-
-  /** An asynchronous or lazy computation that completed exceptionally. */
-  static final String FAILED = "<failed>";
-
-  /** Default maximum number of collection elements rendered before truncation. */
-  static final int DEFAULT_LIMIT = 10;
-
-  /**
-   * Renders a collection with at most {@link #DEFAULT_LIMIT} elements, appending {@code …(+k more)}
-   * when the collection is larger.
-   *
-   * @param collection the collection to render; must not be {@code null}
-   * @return a bounded bracketed representation, identical to {@code List.toString()} when the
-   *     collection size is within the limit
-   */
-  static String elements(Collection<?> collection) {
-    return elements(collection, DEFAULT_LIMIT);
-  }
-
-  /**
-   * Renders a collection with at most {@code limit} elements, appending {@code …(+k more)} when the
-   * collection is larger.
-   *
-   * @param collection the collection to render; must not be {@code null}
-   * @param limit the maximum number of elements to render
-   * @return a bounded bracketed representation
-   */
-  static String elements(Collection<?> collection, int limit) {
-    int size = collection.size();
-    StringBuilder sb = new StringBuilder("[");
-    int i = 0;
-    for (Object element : collection) {
-      if (i == limit) {
-        break;
-      }
-      if (i > 0) {
-        sb.append(", ");
-      }
-      sb.append(element);
-      i++;
+    private PathToString() {
     }
-    if (size > limit) {
-      if (i > 0) {
-        sb.append(", ");
-      }
-      sb.append("…(+").append(size - limit).append(" more)");
+
+    /**
+     * An unevaluated deferred computation (e.g. {@code IOPath}, {@code VTaskPath}).
+     */
+    static final String DEFERRED = "<deferred>";
+
+    /**
+     * A lazy stream that has not been consumed (e.g. {@code StreamPath}, {@code VStreamPath}).
+     */
+    static final String STREAM = "<stream>";
+
+    /**
+     * An empty optional-like path with no value present.
+     */
+    static final String EMPTY = "<empty>";
+
+    /**
+     * An asynchronous computation that has not yet completed.
+     */
+    static final String PENDING = "<pending>";
+
+    /**
+     * An asynchronous or lazy computation that completed exceptionally.
+     */
+    static final String FAILED = "<failed>";
+
+    /**
+     * Default maximum number of collection elements rendered before truncation.
+     */
+    static final int DEFAULT_LIMIT = 10;
+
+    /**
+     * Renders a collection with at most {@link #DEFAULT_LIMIT} elements, appending {@code …(+k more)}
+     * when the collection is larger.
+     *
+     * @param collection the collection to render; must not be {@code null}
+     * @return a bounded bracketed representation, identical to {@code List.toString()} when the
+     *     collection size is within the limit
+     */
+    static String elements(Collection<?> collection) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-    return sb.append(']').toString();
-  }
+
+    /**
+     * Renders a collection with at most {@code limit} elements, appending {@code …(+k more)} when the
+     * collection is larger.
+     *
+     * @param collection the collection to render; must not be {@code null}
+     * @param limit the maximum number of elements to render
+     * @return a bounded bracketed representation
+     */
+    static String elements(Collection<?> collection, int limit) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

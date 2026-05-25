@@ -3,7 +3,6 @@
 package org.higherkindedj.hkt.eitherf;
 
 import static org.higherkindedj.hkt.util.validation.Operation.CONSTRUCTION;
-
 import java.util.function.Function;
 import org.higherkindedj.hkt.Functor;
 import org.higherkindedj.hkt.Kind;
@@ -25,64 +24,54 @@ import org.jspecify.annotations.NullMarked;
  * @see EitherFKind
  */
 @NullMarked
-public final class EitherFFunctor<
-        F extends WitnessArity<TypeArity.Unary>, G extends WitnessArity<TypeArity.Unary>>
-    implements Functor<EitherFKind.Witness<F, G>> {
+public final class EitherFFunctor<F extends WitnessArity<TypeArity.Unary>, G extends WitnessArity<TypeArity.Unary>> implements Functor<EitherFKind.Witness<F, G>> {
 
-  private final Functor<F> functorF;
-  private final Functor<G> functorG;
+    private final Functor<F> functorF;
 
-  /**
-   * Creates an EitherFFunctor with the required sub-functor instances.
-   *
-   * @param functorF The functor instance for the left effect algebra. Must not be null.
-   * @param functorG The functor instance for the right effect algebra. Must not be null.
-   */
-  private EitherFFunctor(Functor<F> functorF, Functor<G> functorG) {
-    this.functorF = Validation.function().require(functorF, "functorF", CONSTRUCTION);
-    this.functorG = Validation.function().require(functorG, "functorG", CONSTRUCTION);
-  }
+    private final Functor<G> functorG;
 
-  /**
-   * Creates an EitherFFunctor from two sub-functor instances.
-   *
-   * <p>Unlike the {@code instance()} factories on stateless type class instances (which return a
-   * cached singleton), this method creates a new instance each time because EitherFFunctor holds
-   * references to its sub-functors.
-   *
-   * @param functorF The functor instance for the left effect algebra. Must not be null.
-   * @param functorG The functor instance for the right effect algebra. Must not be null.
-   * @param <F> The witness type for the left effect algebra
-   * @param <G> The witness type for the right effect algebra
-   * @return a new EitherFFunctor
-   */
-  public static <F extends WitnessArity<TypeArity.Unary>, G extends WitnessArity<TypeArity.Unary>>
-      EitherFFunctor<F, G> of(Functor<F> functorF, Functor<G> functorG) {
-    return new EitherFFunctor<>(functorF, functorG);
-  }
+    /**
+     * Creates an EitherFFunctor with the required sub-functor instances.
+     *
+     * @param functorF The functor instance for the left effect algebra. Must not be null.
+     * @param functorG The functor instance for the right effect algebra. Must not be null.
+     */
+    private EitherFFunctor(Functor<F> functorF, Functor<G> functorG) {
+        this.functorF = Validation.function().require(functorF, "functorF", CONSTRUCTION);
+        this.functorG = Validation.function().require(functorG, "functorG", CONSTRUCTION);
+    }
 
-  /**
-   * Maps a function over the value inside this EitherF, delegating to the appropriate sub-functor.
-   *
-   * <p>If the EitherF is a Left, delegates to {@code functorF.map}. If it is a Right, delegates to
-   * {@code functorG.map}.
-   *
-   * @param f The function to apply. Must not be null.
-   * @param fa The EitherF wrapped as a Kind. Must not be null.
-   * @param <A> The input value type
-   * @param <B> The output value type
-   * @return A new Kind wrapping the mapped EitherF
-   */
-  @Override
-  public <A, B> Kind<EitherFKind.Witness<F, G>, B> map(
-      Function<? super A, ? extends B> f, Kind<EitherFKind.Witness<F, G>, A> fa) {
-    Validation.function().validateMap(f, fa);
+    /**
+     * Creates an EitherFFunctor from two sub-functor instances.
+     *
+     * <p>Unlike the {@code instance()} factories on stateless type class instances (which return a
+     * cached singleton), this method creates a new instance each time because EitherFFunctor holds
+     * references to its sub-functors.
+     *
+     * @param functorF The functor instance for the left effect algebra. Must not be null.
+     * @param functorG The functor instance for the right effect algebra. Must not be null.
+     * @param <F> The witness type for the left effect algebra
+     * @param <G> The witness type for the right effect algebra
+     * @return a new EitherFFunctor
+     */
+    public static <F extends WitnessArity<TypeArity.Unary>, G extends WitnessArity<TypeArity.Unary>> EitherFFunctor<F, G> of(Functor<F> functorF, Functor<G> functorG) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    EitherF<F, G, A> eitherF = EitherFKindHelper.EITHERF.narrow(fa);
-    EitherF<F, G, B> mapped =
-        eitherF.fold(
-            left -> new EitherF.Left<>(functorF.map(f, left)),
-            right -> new EitherF.Right<>(functorG.map(f, right)));
-    return EitherFKindHelper.EITHERF.widen(mapped);
-  }
+    /**
+     * Maps a function over the value inside this EitherF, delegating to the appropriate sub-functor.
+     *
+     * <p>If the EitherF is a Left, delegates to {@code functorF.map}. If it is a Right, delegates to
+     * {@code functorG.map}.
+     *
+     * @param f The function to apply. Must not be null.
+     * @param fa The EitherF wrapped as a Kind. Must not be null.
+     * @param <A> The input value type
+     * @param <B> The output value type
+     * @return A new Kind wrapping the mapped EitherF
+     */
+    @Override
+    public <A, B> Kind<EitherFKind.Witness<F, G>, B> map(Function<? super A, ? extends B> f, Kind<EitherFKind.Witness<F, G>, A> fa) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

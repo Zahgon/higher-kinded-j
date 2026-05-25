@@ -75,310 +75,216 @@ import org.higherkindedj.hkt.state.StateTuple;
  */
 public final class WithStatePath<S, A> implements Chainable<A> {
 
-  private final State<S, A> state;
+    private final State<S, A> state;
 
-  /**
-   * Creates a new WithStatePath wrapping the given State.
-   *
-   * @param state the State to wrap; must not be null
-   */
-  WithStatePath(State<S, A> state) {
-    this.state = Objects.requireNonNull(state, "state must not be null");
-  }
-
-  // ===== Factory Methods =====
-
-  /**
-   * Creates a WithStatePath that returns a constant value without modifying state.
-   *
-   * @param value the value to return
-   * @param <S> the state type
-   * @param <A> the type of the value
-   * @return a WithStatePath that always returns the given value
-   */
-  public static <S, A> WithStatePath<S, A> pure(A value) {
-    return new WithStatePath<>(State.pure(value));
-  }
-
-  /**
-   * Creates a WithStatePath that returns the current state as its value.
-   *
-   * @param <S> the state type
-   * @return a WithStatePath that returns the current state
-   */
-  public static <S> WithStatePath<S, S> get() {
-    return new WithStatePath<>(State.get());
-  }
-
-  /**
-   * Creates a WithStatePath that sets the state to the given value and returns {@link Unit}.
-   *
-   * @param newState the new state value; must not be null
-   * @param <S> the state type
-   * @return a WithStatePath that sets the state
-   * @throws NullPointerException if newState is null
-   */
-  public static <S> WithStatePath<S, Unit> set(S newState) {
-    Objects.requireNonNull(newState, "newState must not be null");
-    return new WithStatePath<>(State.set(newState));
-  }
-
-  /**
-   * Creates a WithStatePath that modifies the state using the given function and returns {@link
-   * Unit}.
-   *
-   * @param f the function to modify the state; must not be null
-   * @param <S> the state type
-   * @return a WithStatePath that modifies the state
-   * @throws NullPointerException if f is null
-   */
-  public static <S> WithStatePath<S, Unit> modify(UnaryOperator<S> f) {
-    Objects.requireNonNull(f, "f must not be null");
-    return new WithStatePath<>(State.modify(f));
-  }
-
-  /**
-   * Creates a WithStatePath that extracts a value from the state without modifying it.
-   *
-   * @param f the function to extract a value from the state; must not be null
-   * @param <S> the state type
-   * @param <A> the type of the extracted value
-   * @return a WithStatePath that inspects the state
-   * @throws NullPointerException if f is null
-   */
-  public static <S, A> WithStatePath<S, A> inspect(Function<? super S, ? extends A> f) {
-    Objects.requireNonNull(f, "f must not be null");
-    return new WithStatePath<>(State.inspect(f::apply));
-  }
-
-  // ===== Terminal Operations =====
-
-  /**
-   * Runs this computation with the given initial state.
-   *
-   * @param initialState the initial state; must not be null
-   * @return a tuple containing the computed value and the final state
-   * @throws NullPointerException if initialState is null
-   */
-  public StateTuple<S, A> run(S initialState) {
-    Objects.requireNonNull(initialState, "initialState must not be null");
-    return state.run(initialState);
-  }
-
-  /**
-   * Runs this computation and returns only the result, discarding the final state.
-   *
-   * @param initialState the initial state; must not be null
-   * @return the computed value
-   * @throws NullPointerException if initialState is null
-   */
-  public A evalState(S initialState) {
-    return run(initialState).value();
-  }
-
-  /**
-   * Runs this computation and returns only the final state, discarding the result.
-   *
-   * @param initialState the initial state; must not be null
-   * @return the final state
-   * @throws NullPointerException if initialState is null
-   */
-  public S execState(S initialState) {
-    return run(initialState).state();
-  }
-
-  /**
-   * Returns the underlying State.
-   *
-   * @return the wrapped State
-   */
-  public State<S, A> toState() {
-    return state;
-  }
-
-  // ===== Composable implementation =====
-
-  @Override
-  public <B> WithStatePath<S, B> map(Function<? super A, ? extends B> mapper) {
-    Objects.requireNonNull(mapper, "mapper must not be null");
-    return new WithStatePath<>(state.map(mapper));
-  }
-
-  @Override
-  public WithStatePath<S, A> peek(Consumer<? super A> consumer) {
-    Objects.requireNonNull(consumer, "consumer must not be null");
-    return new WithStatePath<>(
-        State.of(
-            s -> {
-              StateTuple<S, A> result = state.run(s);
-              consumer.accept(result.value());
-              return result;
-            }));
-  }
-
-  // ===== Combinable implementation =====
-
-  @Override
-  public <B, C> WithStatePath<S, C> zipWith(
-      Combinable<B> other, BiFunction<? super A, ? super B, ? extends C> combiner) {
-    Objects.requireNonNull(other, "other must not be null");
-    Objects.requireNonNull(combiner, "combiner must not be null");
-
-    if (!(other instanceof WithStatePath<?, ?> otherState)) {
-      throw new IllegalArgumentException("Cannot zipWith non-WithStatePath: " + other.getClass());
+    /**
+     * Creates a new WithStatePath wrapping the given State.
+     *
+     * @param state the State to wrap; must not be null
+     */
+    WithStatePath(State<S, A> state) {
+        this.state = Objects.requireNonNull(state, "state must not be null");
     }
 
-    @SuppressWarnings("unchecked")
-    WithStatePath<S, B> typedOther = (WithStatePath<S, B>) otherState;
+    // ===== Factory Methods =====
+    /**
+     * Creates a WithStatePath that returns a constant value without modifying state.
+     *
+     * @param value the value to return
+     * @param <S> the state type
+     * @param <A> the type of the value
+     * @return a WithStatePath that always returns the given value
+     */
+    public static <S, A> WithStatePath<S, A> pure(A value) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    return new WithStatePath<>(
-        State.of(
-            s -> {
-              StateTuple<S, A> resultA = this.state.run(s);
-              StateTuple<S, B> resultB = typedOther.state.run(resultA.state());
-              return new StateTuple<>(
-                  combiner.apply(resultA.value(), resultB.value()), resultB.state());
-            }));
-  }
+    /**
+     * Creates a WithStatePath that returns the current state as its value.
+     *
+     * @param <S> the state type
+     * @return a WithStatePath that returns the current state
+     */
+    public static <S> WithStatePath<S, S> get() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Combines this path with two others using a ternary function.
-   *
-   * @param second the second path; must not be null
-   * @param third the third path; must not be null
-   * @param combiner the function to combine the values; must not be null
-   * @param <B> the type of the second path's value
-   * @param <C> the type of the third path's value
-   * @param <D> the type of the combined result
-   * @return a new path containing the combined result
-   */
-  public <B, C, D> WithStatePath<S, D> zipWith3(
-      WithStatePath<S, B> second,
-      WithStatePath<S, C> third,
-      Function3<? super A, ? super B, ? super C, ? extends D> combiner) {
-    Objects.requireNonNull(second, "second must not be null");
-    Objects.requireNonNull(third, "third must not be null");
-    Objects.requireNonNull(combiner, "combiner must not be null");
+    /**
+     * Creates a WithStatePath that sets the state to the given value and returns {@link Unit}.
+     *
+     * @param newState the new state value; must not be null
+     * @param <S> the state type
+     * @return a WithStatePath that sets the state
+     * @throws NullPointerException if newState is null
+     */
+    public static <S> WithStatePath<S, Unit> set(S newState) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    return new WithStatePath<>(
-        State.of(
-            s -> {
-              StateTuple<S, A> resultA = this.state.run(s);
-              StateTuple<S, B> resultB = second.state.run(resultA.state());
-              StateTuple<S, C> resultC = third.state.run(resultB.state());
-              return new StateTuple<>(
-                  combiner.apply(resultA.value(), resultB.value(), resultC.value()),
-                  resultC.state());
-            }));
-  }
+    /**
+     * Creates a WithStatePath that modifies the state using the given function and returns {@link
+     * Unit}.
+     *
+     * @param f the function to modify the state; must not be null
+     * @param <S> the state type
+     * @return a WithStatePath that modifies the state
+     * @throws NullPointerException if f is null
+     */
+    public static <S> WithStatePath<S, Unit> modify(UnaryOperator<S> f) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  // ===== Chainable implementation =====
+    /**
+     * Creates a WithStatePath that extracts a value from the state without modifying it.
+     *
+     * @param f the function to extract a value from the state; must not be null
+     * @param <S> the state type
+     * @param <A> the type of the extracted value
+     * @return a WithStatePath that inspects the state
+     * @throws NullPointerException if f is null
+     */
+    public static <S, A> WithStatePath<S, A> inspect(Function<? super S, ? extends A> f) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public <B> WithStatePath<S, B> via(Function<? super A, ? extends Chainable<B>> mapper) {
-    Objects.requireNonNull(mapper, "mapper must not be null");
+    // ===== Terminal Operations =====
+    /**
+     * Runs this computation with the given initial state.
+     *
+     * @param initialState the initial state; must not be null
+     * @return a tuple containing the computed value and the final state
+     * @throws NullPointerException if initialState is null
+     */
+    public StateTuple<S, A> run(S initialState) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    return new WithStatePath<>(
-        state.flatMap(
-            a -> {
-              Chainable<B> result = mapper.apply(a);
-              Objects.requireNonNull(result, "mapper must not return null");
+    /**
+     * Runs this computation and returns only the result, discarding the final state.
+     *
+     * @param initialState the initial state; must not be null
+     * @return the computed value
+     * @throws NullPointerException if initialState is null
+     */
+    public A evalState(S initialState) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-              if (!(result instanceof WithStatePath<?, ?> statePath)) {
-                throw new IllegalArgumentException(
-                    "via mapper must return WithStatePath, got: " + result.getClass());
-              }
+    /**
+     * Runs this computation and returns only the final state, discarding the result.
+     *
+     * @param initialState the initial state; must not be null
+     * @return the final state
+     * @throws NullPointerException if initialState is null
+     */
+    public S execState(S initialState) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-              @SuppressWarnings("unchecked")
-              WithStatePath<S, B> typedResult = (WithStatePath<S, B>) statePath;
-              return typedResult.state;
-            }));
-  }
+    /**
+     * Returns the underlying State.
+     *
+     * @return the wrapped State
+     */
+    public State<S, A> toState() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public <B> WithStatePath<S, B> then(Supplier<? extends Chainable<B>> supplier) {
-    Objects.requireNonNull(supplier, "supplier must not be null");
+    // ===== Composable implementation =====
+    @Override
+    public <B> WithStatePath<S, B> map(Function<? super A, ? extends B> mapper) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    return new WithStatePath<>(
-        State.of(
-            s -> {
-              // Run this state computation to get the new state
-              StateTuple<S, A> result = this.state.run(s);
+    @Override
+    public WithStatePath<S, A> peek(Consumer<? super A> consumer) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-              Chainable<B> next = supplier.get();
-              Objects.requireNonNull(next, "supplier must not return null");
+    // ===== Combinable implementation =====
+    @Override
+    public <B, C> WithStatePath<S, C> zipWith(Combinable<B> other, BiFunction<? super A, ? super B, ? extends C> combiner) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-              if (!(next instanceof WithStatePath<?, ?> statePath)) {
-                throw new IllegalArgumentException(
-                    "then supplier must return WithStatePath, got: " + next.getClass());
-              }
+    /**
+     * Combines this path with two others using a ternary function.
+     *
+     * @param second the second path; must not be null
+     * @param third the third path; must not be null
+     * @param combiner the function to combine the values; must not be null
+     * @param <B> the type of the second path's value
+     * @param <C> the type of the third path's value
+     * @param <D> the type of the combined result
+     * @return a new path containing the combined result
+     */
+    public <B, C, D> WithStatePath<S, D> zipWith3(WithStatePath<S, B> second, WithStatePath<S, C> third, Function3<? super A, ? super B, ? super C, ? extends D> combiner) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-              @SuppressWarnings("unchecked")
-              WithStatePath<S, B> typedResult = (WithStatePath<S, B>) statePath;
-              return typedResult.state.run(result.state());
-            }));
-  }
+    // ===== Chainable implementation =====
+    @Override
+    public <B> WithStatePath<S, B> via(Function<? super A, ? extends Chainable<B>> mapper) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  // ===== Conversions =====
+    @Override
+    public <B> WithStatePath<S, B> then(Supplier<? extends Chainable<B>> supplier) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Converts to an IOPath by providing the initial state.
-   *
-   * <p>The resulting IOPath, when run, will execute this State with the given initial state and
-   * return only the computed value.
-   *
-   * @param initialState the initial state to use; must not be null
-   * @return an IOPath that produces the computed value
-   * @throws NullPointerException if initialState is null
-   */
-  public IOPath<A> toIOPath(S initialState) {
-    Objects.requireNonNull(initialState, "initialState must not be null");
-    return new IOPath<>(() -> evalState(initialState));
-  }
+    // ===== Conversions =====
+    /**
+     * Converts to an IOPath by providing the initial state.
+     *
+     * <p>The resulting IOPath, when run, will execute this State with the given initial state and
+     * return only the computed value.
+     *
+     * @param initialState the initial state to use; must not be null
+     * @return an IOPath that produces the computed value
+     * @throws NullPointerException if initialState is null
+     */
+    public IOPath<A> toIOPath(S initialState) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Converts to an IdPath by providing the initial state.
-   *
-   * @param initialState the initial state to use; must not be null
-   * @return an IdPath containing the computed value
-   * @throws NullPointerException if initialState is null
-   */
-  public IdPath<A> toIdPath(S initialState) {
-    Objects.requireNonNull(initialState, "initialState must not be null");
-    return new IdPath<>(Id.of(evalState(initialState)));
-  }
+    /**
+     * Converts to an IdPath by providing the initial state.
+     *
+     * @param initialState the initial state to use; must not be null
+     * @return an IdPath containing the computed value
+     * @throws NullPointerException if initialState is null
+     */
+    public IdPath<A> toIdPath(S initialState) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Converts to a MaybePath by providing the initial state.
-   *
-   * <p>If the computed value is null, returns an empty MaybePath.
-   *
-   * @param initialState the initial state to use; must not be null
-   * @return a MaybePath containing the computed value if non-null
-   * @throws NullPointerException if initialState is null
-   */
-  public MaybePath<A> toMaybePath(S initialState) {
-    Objects.requireNonNull(initialState, "initialState must not be null");
-    A result = evalState(initialState);
-    return result != null ? new MaybePath<>(Maybe.just(result)) : new MaybePath<>(Maybe.nothing());
-  }
+    /**
+     * Converts to a MaybePath by providing the initial state.
+     *
+     * <p>If the computed value is null, returns an empty MaybePath.
+     *
+     * @param initialState the initial state to use; must not be null
+     * @return a MaybePath containing the computed value if non-null
+     * @throws NullPointerException if initialState is null
+     */
+    public MaybePath<A> toMaybePath(S initialState) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  // ===== Object methods =====
+    // ===== Object methods =====
+    @Override
+    public boolean equals(Object obj) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (!(obj instanceof WithStatePath<?, ?> other)) return false;
-    return state.equals(other.state);
-  }
+    @Override
+    public int hashCode() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public int hashCode() {
-    return state.hashCode();
-  }
-
-  @Override
-  public String toString() {
-    return "WithStatePath(" + PathToString.DEFERRED + ")";
-  }
+    @Override
+    public String toString() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

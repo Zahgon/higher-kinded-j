@@ -42,40 +42,40 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public final class OpticInterpreters {
 
-  private OpticInterpreters() {
-    throw new UnsupportedOperationException("Utility class");
-  }
+    private OpticInterpreters() {
+        throw new UnsupportedOperationException("Utility class");
+    }
 
-  /**
-   * Creates a direct interpreter that executes operations immediately.
-   *
-   * <p>This is the standard interpreter for production use.
-   *
-   * @return A new {@link DirectOpticInterpreter}
-   */
-  public static DirectOpticInterpreter direct() {
-    return new DirectOpticInterpreter();
-  }
+    /**
+     * Creates a direct interpreter that executes operations immediately.
+     *
+     * <p>This is the standard interpreter for production use.
+     *
+     * @return A new {@link DirectOpticInterpreter}
+     */
+    public static DirectOpticInterpreter direct() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a logging interpreter that records all operations.
-   *
-   * <p>Use this for debugging, audit trails, or testing.
-   *
-   * @return A new {@link LoggingOpticInterpreter}
-   */
-  public static LoggingOpticInterpreter logging() {
-    return new LoggingOpticInterpreter();
-  }
+    /**
+     * Creates a logging interpreter that records all operations.
+     *
+     * <p>Use this for debugging, audit trails, or testing.
+     *
+     * @return A new {@link LoggingOpticInterpreter}
+     */
+    public static LoggingOpticInterpreter logging() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a validation interpreter that checks operations without executing them.
-   *
-   * <p>Use this to validate programs before execution.
-   *
-   * @return A new {@link ValidationOpticInterpreter}
-   */
-  public static ValidationOpticInterpreter validating() {
-    return new ValidationOpticInterpreter();
-  }
+    /**
+     * Creates a validation interpreter that checks operations without executing them.
+     *
+     * <p>Use this to validate programs before execution.
+     *
+     * @return A new {@link ValidationOpticInterpreter}
+     */
+    public static ValidationOpticInterpreter validating() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

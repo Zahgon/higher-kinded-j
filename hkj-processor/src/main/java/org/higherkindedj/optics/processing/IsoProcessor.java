@@ -5,7 +5,6 @@ package org.higherkindedj.optics.processing;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
-
 import com.google.auto.service.AutoService;
 import com.palantir.javapoet.*;
 import java.io.IOException;
@@ -34,79 +33,50 @@ import org.higherkindedj.optics.processing.util.ExcludeFromJacocoGeneratedReport
 @SupportedSourceVersion(SourceVersion.RELEASE_25)
 public final class IsoProcessor extends AbstractProcessor {
 
-  /** Creates a new IsoProcessor. */
-  public IsoProcessor() {}
+    /**
+     * Creates a new IsoProcessor.
+     */
+    public IsoProcessor() {
+    }
 
-  @Override
-  public boolean process(
-      final Set<? extends TypeElement> annotations, final RoundEnvironment roundEnv) {
-    for (final TypeElement annotation : annotations) {
-      for (final Element element : roundEnv.getElementsAnnotatedWith(annotation)) {
-        if (element.getKind() == ElementKind.METHOD) {
-          writeIsoFile((ExecutableElement) element);
+    @Override
+    public boolean process(final Set<? extends TypeElement> annotations, final RoundEnvironment roundEnv) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @ExcludeFromJacocoGeneratedReport
+    private void writeIsoFile(final ExecutableElement method) {
+        try {
+            processMethod(method);
+        } catch (final IOException e) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage());
         }
-      }
-    }
-    return true;
-  }
-
-  @ExcludeFromJacocoGeneratedReport
-  private void writeIsoFile(final ExecutableElement method) {
-    try {
-      processMethod(method);
-    } catch (final IOException e) {
-      processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage());
-    }
-  }
-
-  private void processMethod(final ExecutableElement method) throws IOException {
-    final TypeElement classElement = (TypeElement) method.getEnclosingElement();
-    final String methodName = method.getSimpleName().toString();
-    final String className = classElement.getSimpleName().toString();
-    final String defaultPackage =
-        processingEnv.getElementUtils().getPackageOf(classElement).getQualifiedName().toString();
-
-    // Check for custom target package in annotation
-    final GenerateIsos annotation = method.getAnnotation(GenerateIsos.class);
-    final String targetPackage = annotation.targetPackage();
-    final String packageName = targetPackage.isEmpty() ? defaultPackage : targetPackage;
-
-    final DeclaredType isoType = (DeclaredType) method.getReturnType();
-    final List<? extends TypeMirror> typeArguments = isoType.getTypeArguments();
-    if (typeArguments.size() != 2) {
-      processingEnv
-          .getMessager()
-          .printMessage(Diagnostic.Kind.ERROR, "Iso must have two type arguments", method);
-      return;
     }
 
-    final TypeName sTypeName = TypeName.get(typeArguments.get(0));
-    final TypeName aTypeName = TypeName.get(typeArguments.get(1));
-    final TypeName isoTypeName =
-        ParameterizedTypeName.get(ClassName.get(Iso.class), sTypeName, aTypeName);
-
-    final String generatedClassName = className + "Isos";
-
-    final FieldSpec isoField =
-        FieldSpec.builder(isoTypeName, methodName, PUBLIC, STATIC, FINAL)
-            .initializer("$T.$L()", ClassName.get(classElement), methodName)
-            .build();
-
-    final MethodSpec constructor =
-        MethodSpec.constructorBuilder().addModifiers(Modifier.PRIVATE).build();
-
-    final ClassName generatedAnnotation =
-        ClassName.get("org.higherkindedj.optics.annotations", "Generated");
-
-    final TypeSpec isoContainer =
-        TypeSpec.classBuilder(generatedClassName)
-            // Add the @Generated annotation to the class
-            .addAnnotation(generatedAnnotation)
-            .addModifiers(PUBLIC, FINAL)
-            .addField(isoField)
-            .addMethod(constructor)
-            .build();
-
-    JavaFile.builder(packageName, isoContainer).build().writeTo(processingEnv.getFiler());
-  }
+    private void processMethod(final ExecutableElement method) throws IOException {
+        final TypeElement classElement = (TypeElement) method.getEnclosingElement();
+        final String methodName = method.getSimpleName().toString();
+        final String className = classElement.getSimpleName().toString();
+        final String defaultPackage = processingEnv.getElementUtils().getPackageOf(classElement).getQualifiedName().toString();
+        // Check for custom target package in annotation
+        final GenerateIsos annotation = method.getAnnotation(GenerateIsos.class);
+        final String targetPackage = annotation.targetPackage();
+        final String packageName = targetPackage.isEmpty() ? defaultPackage : targetPackage;
+        final DeclaredType isoType = (DeclaredType) method.getReturnType();
+        final List<? extends TypeMirror> typeArguments = isoType.getTypeArguments();
+        if (typeArguments.size() != 2) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Iso must have two type arguments", method);
+            return;
+        }
+        final TypeName sTypeName = TypeName.get(typeArguments.get(0));
+        final TypeName aTypeName = TypeName.get(typeArguments.get(1));
+        final TypeName isoTypeName = ParameterizedTypeName.get(ClassName.get(Iso.class), sTypeName, aTypeName);
+        final String generatedClassName = className + "Isos";
+        final FieldSpec isoField = FieldSpec.builder(isoTypeName, methodName, PUBLIC, STATIC, FINAL).initializer("$T.$L()", ClassName.get(classElement), methodName).build();
+        final MethodSpec constructor = MethodSpec.constructorBuilder().addModifiers(Modifier.PRIVATE).build();
+        final ClassName generatedAnnotation = ClassName.get("org.higherkindedj.optics.annotations", "Generated");
+        final TypeSpec isoContainer = TypeSpec.classBuilder(generatedClassName).// Add the @Generated annotation to the class
+        addAnnotation(generatedAnnotation).addModifiers(PUBLIC, FINAL).addField(isoField).addMethod(constructor).build();
+        JavaFile.builder(packageName, isoContainer).build().writeTo(processingEnv.getFiler());
+    }
 }

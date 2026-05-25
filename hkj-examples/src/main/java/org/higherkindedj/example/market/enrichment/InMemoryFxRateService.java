@@ -14,41 +14,33 @@ import org.higherkindedj.hkt.vtask.VTask;
  */
 public class InMemoryFxRateService implements FxRateService {
 
-  private final Map<String, BigDecimal> rates = new ConcurrentHashMap<>();
-  private final long lookupDelayMs;
+    private final Map<String, BigDecimal> rates = new ConcurrentHashMap<>();
 
-  public InMemoryFxRateService(long lookupDelayMs) {
-    this.lookupDelayMs = lookupDelayMs;
-    loadDefaults();
-  }
+    private final long lookupDelayMs;
 
-  public InMemoryFxRateService() {
-    this(2); // 2ms simulated latency
-  }
+    public InMemoryFxRateService(long lookupDelayMs) {
+        this.lookupDelayMs = lookupDelayMs;
+        loadDefaults();
+    }
 
-  private void loadDefaults() {
-    rates.put("USD", BigDecimal.ONE);
-    rates.put("GBP", new BigDecimal("1.27"));
-    rates.put("JPY", new BigDecimal("0.0067"));
-    rates.put("EUR", new BigDecimal("1.08"));
-  }
+    public InMemoryFxRateService() {
+        // 2ms simulated latency
+        this(2);
+    }
 
-  public void setRate(String currency, BigDecimal rate) {
-    rates.put(currency, rate);
-  }
+    private void loadDefaults() {
+        rates.put("USD", BigDecimal.ONE);
+        rates.put("GBP", new BigDecimal("1.27"));
+        rates.put("JPY", new BigDecimal("0.0067"));
+        rates.put("EUR", new BigDecimal("1.08"));
+    }
 
-  @Override
-  public VTask<BigDecimal> rateToUsd(String sourceCurrency) {
-    return VTask.of(
-        () -> {
-          if (lookupDelayMs > 0) {
-            Thread.sleep(lookupDelayMs);
-          }
-          BigDecimal rate = rates.get(sourceCurrency);
-          if (rate == null) {
-            throw new RuntimeException("Unknown currency: " + sourceCurrency);
-          }
-          return rate;
-        });
-  }
+    public void setRate(String currency, BigDecimal rate) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public VTask<BigDecimal> rateToUsd(String sourceCurrency) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

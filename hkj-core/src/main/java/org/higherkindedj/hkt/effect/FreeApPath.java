@@ -65,227 +65,176 @@ import org.higherkindedj.hkt.function.Function3;
  * @param <F> the functor witness type
  * @param <A> the result type
  */
-public final class FreeApPath<F extends WitnessArity<TypeArity.Unary>, A>
-    implements Composable<A>, Combinable<A> {
+public final class FreeApPath<F extends WitnessArity<TypeArity.Unary>, A> implements Composable<A>, Combinable<A> {
 
-  private final FreeAp<F, A> freeAp;
-  private final Functor<F> functor;
+    private final FreeAp<F, A> freeAp;
 
-  private FreeApPath(FreeAp<F, A> freeAp, Functor<F> functor) {
-    this.freeAp = Objects.requireNonNull(freeAp, "freeAp must not be null");
-    this.functor = Objects.requireNonNull(functor, "functor must not be null");
-  }
+    private final Functor<F> functor;
 
-  // ===== Factory Methods =====
-
-  /**
-   * Creates a FreeApPath containing a pure value.
-   *
-   * @param value the value to wrap
-   * @param functor the Functor instance for F; must not be null
-   * @param <F> the functor witness type
-   * @param <A> the value type
-   * @return a FreeApPath containing the value
-   * @throws NullPointerException if functor is null
-   */
-  public static <F extends WitnessArity<TypeArity.Unary>, A> FreeApPath<F, A> pure(
-      A value, Functor<F> functor) {
-    Objects.requireNonNull(functor, "functor must not be null");
-    return new FreeApPath<>(FreeAp.pure(value), functor);
-  }
-
-  /**
-   * Lifts a functor value into FreeApPath.
-   *
-   * <p>This is the primary way to create DSL instructions. The functor value represents a single
-   * independent operation in your DSL.
-   *
-   * @param fa the functor value to lift; must not be null
-   * @param functor the Functor instance for F; must not be null
-   * @param <F> the functor witness type
-   * @param <A> the result type
-   * @return a FreeApPath containing the lifted instruction
-   * @throws NullPointerException if fa or functor is null
-   */
-  public static <F extends WitnessArity<TypeArity.Unary>, A> FreeApPath<F, A> liftF(
-      Kind<F, A> fa, Functor<F> functor) {
-    Objects.requireNonNull(fa, "fa must not be null");
-    Objects.requireNonNull(functor, "functor must not be null");
-    return new FreeApPath<>(FreeAp.lift(fa), functor);
-  }
-
-  /**
-   * Creates a FreeApPath from an existing FreeAp.
-   *
-   * @param freeAp the FreeAp to wrap; must not be null
-   * @param functor the Functor instance for F; must not be null
-   * @param <F> the functor witness type
-   * @param <A> the value type
-   * @return a FreeApPath wrapping the FreeAp
-   * @throws NullPointerException if freeAp or functor is null
-   */
-  public static <F extends WitnessArity<TypeArity.Unary>, A> FreeApPath<F, A> of(
-      FreeAp<F, A> freeAp, Functor<F> functor) {
-    return new FreeApPath<>(freeAp, functor);
-  }
-
-  // ===== Interpretation =====
-
-  /**
-   * Interprets this FreeApPath into a target monad using a natural transformation.
-   *
-   * <p>This method returns a GenericPath, which requires a Monad instance. If you only have an
-   * Applicative, use {@link #foldMapKind(Natural, Applicative)} instead.
-   *
-   * @param interpreter natural transformation from F to G; must not be null
-   * @param targetMonad the target monad instance; must not be null
-   * @param <G> the target monad witness type
-   * @return a GenericPath containing the interpreted result
-   * @throws NullPointerException if interpreter or targetMonad is null
-   */
-  public <G extends WitnessArity<TypeArity.Unary>> GenericPath<G, A> foldMap(
-      Natural<F, G> interpreter, Monad<G> targetMonad) {
-    Objects.requireNonNull(interpreter, "interpreter must not be null");
-    Objects.requireNonNull(targetMonad, "targetMonad must not be null");
-    Kind<G, A> result = freeAp.foldMap(interpreter, targetMonad);
-    return GenericPath.of(result, targetMonad);
-  }
-
-  /**
-   * Interprets this FreeApPath into a target applicative, returning raw Kind.
-   *
-   * <p>Use this method when the target type is only Applicative (not Monad), or when you don't need
-   * the GenericPath wrapper.
-   *
-   * @param interpreter natural transformation from F to G; must not be null
-   * @param targetApplicative the target applicative instance; must not be null
-   * @param <G> the target applicative witness type
-   * @return the interpreted result as a Kind
-   * @throws NullPointerException if interpreter or targetApplicative is null
-   */
-  public <G extends WitnessArity<TypeArity.Unary>> Kind<G, A> foldMapKind(
-      Natural<F, G> interpreter, Applicative<G> targetApplicative) {
-    Objects.requireNonNull(interpreter, "interpreter must not be null");
-    Objects.requireNonNull(targetApplicative, "targetApplicative must not be null");
-    return freeAp.foldMap(interpreter, targetApplicative);
-  }
-
-  /**
-   * Interprets using the effect package's NaturalTransformation.
-   *
-   * @param interpreter natural transformation from F to G; must not be null
-   * @param targetApplicative the target applicative instance; must not be null
-   * @param <G> the target applicative witness type
-   * @return the interpreted result as a Kind
-   * @throws NullPointerException if interpreter or targetApplicative is null
-   */
-  public <G extends WitnessArity<TypeArity.Unary>> Kind<G, A> foldMapWith(
-      NaturalTransformation<F, G> interpreter, Applicative<G> targetApplicative) {
-    Objects.requireNonNull(interpreter, "interpreter must not be null");
-    Objects.requireNonNull(targetApplicative, "targetApplicative must not be null");
-
-    // Adapt NaturalTransformation to Natural
-    Natural<F, G> adapted = interpreter::apply;
-    return freeAp.foldMap(adapted, targetApplicative);
-  }
-
-  /**
-   * Returns the underlying FreeAp.
-   *
-   * @return the wrapped FreeAp
-   */
-  public FreeAp<F, A> toFreeAp() {
-    return freeAp;
-  }
-
-  /**
-   * Returns the Functor instance for this FreeApPath.
-   *
-   * @return the Functor instance
-   */
-  public Functor<F> functor() {
-    return functor;
-  }
-
-  // ===== Composable Implementation =====
-
-  @Override
-  public <B> FreeApPath<F, B> map(Function<? super A, ? extends B> mapper) {
-    Objects.requireNonNull(mapper, "mapper must not be null");
-    return new FreeApPath<>(freeAp.map(mapper), functor);
-  }
-
-  @Override
-  public FreeApPath<F, A> peek(Consumer<? super A> consumer) {
-    Objects.requireNonNull(consumer, "consumer must not be null");
-    return map(
-        a -> {
-          consumer.accept(a);
-          return a;
-        });
-  }
-
-  // ===== Combinable Implementation =====
-
-  @Override
-  @SuppressWarnings("unchecked")
-  public <B, C> FreeApPath<F, C> zipWith(
-      Combinable<B> other, BiFunction<? super A, ? super B, ? extends C> combiner) {
-    Objects.requireNonNull(other, "other must not be null");
-    Objects.requireNonNull(combiner, "combiner must not be null");
-
-    if (!(other instanceof FreeApPath<?, ?> otherFreeAp)) {
-      throw new IllegalArgumentException(
-          "FreeApPath.zipWith requires FreeApPath. Got: " + other.getClass());
+    private FreeApPath(FreeAp<F, A> freeAp, Functor<F> functor) {
+        this.freeAp = Objects.requireNonNull(freeAp, "freeAp must not be null");
+        this.functor = Objects.requireNonNull(functor, "functor must not be null");
     }
 
-    FreeApPath<F, B> typedOther = (FreeApPath<F, B>) otherFreeAp;
-    FreeAp<F, C> combined = freeAp.map2(typedOther.freeAp, combiner);
-    return new FreeApPath<>(combined, functor);
-  }
+    // ===== Factory Methods =====
+    /**
+     * Creates a FreeApPath containing a pure value.
+     *
+     * @param value the value to wrap
+     * @param functor the Functor instance for F; must not be null
+     * @param <F> the functor witness type
+     * @param <A> the value type
+     * @return a FreeApPath containing the value
+     * @throws NullPointerException if functor is null
+     */
+    public static <F extends WitnessArity<TypeArity.Unary>, A> FreeApPath<F, A> pure(A value, Functor<F> functor) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Combines three FreeApPaths using a ternary function.
-   *
-   * <p>All three computations are independent and can be executed in parallel.
-   *
-   * @param second the second FreeApPath; must not be null
-   * @param third the third FreeApPath; must not be null
-   * @param combiner the function to combine the three values; must not be null
-   * @param <B> the type of the second value
-   * @param <C> the type of the third value
-   * @param <D> the type of the combined result
-   * @return a FreeApPath containing the combined result
-   * @throws NullPointerException if any argument is null
-   */
-  public <B, C, D> FreeApPath<F, D> zipWith3(
-      FreeApPath<F, B> second,
-      FreeApPath<F, C> third,
-      Function3<? super A, ? super B, ? super C, ? extends D> combiner) {
-    Objects.requireNonNull(second, "second must not be null");
-    Objects.requireNonNull(third, "third must not be null");
-    Objects.requireNonNull(combiner, "combiner must not be null");
+    /**
+     * Lifts a functor value into FreeApPath.
+     *
+     * <p>This is the primary way to create DSL instructions. The functor value represents a single
+     * independent operation in your DSL.
+     *
+     * @param fa the functor value to lift; must not be null
+     * @param functor the Functor instance for F; must not be null
+     * @param <F> the functor witness type
+     * @param <A> the result type
+     * @return a FreeApPath containing the lifted instruction
+     * @throws NullPointerException if fa or functor is null
+     */
+    public static <F extends WitnessArity<TypeArity.Unary>, A> FreeApPath<F, A> liftF(Kind<F, A> fa, Functor<F> functor) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    return this.zipWith(second, (a, b) -> (Function<C, D>) c -> combiner.apply(a, b, c))
-        .zipWith(third, Function::apply);
-  }
+    /**
+     * Creates a FreeApPath from an existing FreeAp.
+     *
+     * @param freeAp the FreeAp to wrap; must not be null
+     * @param functor the Functor instance for F; must not be null
+     * @param <F> the functor witness type
+     * @param <A> the value type
+     * @return a FreeApPath wrapping the FreeAp
+     * @throws NullPointerException if freeAp or functor is null
+     */
+    public static <F extends WitnessArity<TypeArity.Unary>, A> FreeApPath<F, A> of(FreeAp<F, A> freeAp, Functor<F> functor) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  // ===== Object Methods =====
+    // ===== Interpretation =====
+    /**
+     * Interprets this FreeApPath into a target monad using a natural transformation.
+     *
+     * <p>This method returns a GenericPath, which requires a Monad instance. If you only have an
+     * Applicative, use {@link #foldMapKind(Natural, Applicative)} instead.
+     *
+     * @param interpreter natural transformation from F to G; must not be null
+     * @param targetMonad the target monad instance; must not be null
+     * @param <G> the target monad witness type
+     * @return a GenericPath containing the interpreted result
+     * @throws NullPointerException if interpreter or targetMonad is null
+     */
+    public <G extends WitnessArity<TypeArity.Unary>> GenericPath<G, A> foldMap(Natural<F, G> interpreter, Monad<G> targetMonad) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (!(obj instanceof FreeApPath<?, ?> other)) return false;
-    return freeAp.equals(other.freeAp);
-  }
+    /**
+     * Interprets this FreeApPath into a target applicative, returning raw Kind.
+     *
+     * <p>Use this method when the target type is only Applicative (not Monad), or when you don't need
+     * the GenericPath wrapper.
+     *
+     * @param interpreter natural transformation from F to G; must not be null
+     * @param targetApplicative the target applicative instance; must not be null
+     * @param <G> the target applicative witness type
+     * @return the interpreted result as a Kind
+     * @throws NullPointerException if interpreter or targetApplicative is null
+     */
+    public <G extends WitnessArity<TypeArity.Unary>> Kind<G, A> foldMapKind(Natural<F, G> interpreter, Applicative<G> targetApplicative) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public int hashCode() {
-    return freeAp.hashCode();
-  }
+    /**
+     * Interprets using the effect package's NaturalTransformation.
+     *
+     * @param interpreter natural transformation from F to G; must not be null
+     * @param targetApplicative the target applicative instance; must not be null
+     * @param <G> the target applicative witness type
+     * @return the interpreted result as a Kind
+     * @throws NullPointerException if interpreter or targetApplicative is null
+     */
+    public <G extends WitnessArity<TypeArity.Unary>> Kind<G, A> foldMapWith(NaturalTransformation<F, G> interpreter, Applicative<G> targetApplicative) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public String toString() {
-    return "FreeApPath(" + freeAp + ")";
-  }
+    /**
+     * Returns the underlying FreeAp.
+     *
+     * @return the wrapped FreeAp
+     */
+    public FreeAp<F, A> toFreeAp() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Returns the Functor instance for this FreeApPath.
+     *
+     * @return the Functor instance
+     */
+    public Functor<F> functor() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== Composable Implementation =====
+    @Override
+    public <B> FreeApPath<F, B> map(Function<? super A, ? extends B> mapper) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public FreeApPath<F, A> peek(Consumer<? super A> consumer) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== Combinable Implementation =====
+    @Override
+    @SuppressWarnings("unchecked")
+    public <B, C> FreeApPath<F, C> zipWith(Combinable<B> other, BiFunction<? super A, ? super B, ? extends C> combiner) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Combines three FreeApPaths using a ternary function.
+     *
+     * <p>All three computations are independent and can be executed in parallel.
+     *
+     * @param second the second FreeApPath; must not be null
+     * @param third the third FreeApPath; must not be null
+     * @param combiner the function to combine the three values; must not be null
+     * @param <B> the type of the second value
+     * @param <C> the type of the third value
+     * @param <D> the type of the combined result
+     * @return a FreeApPath containing the combined result
+     * @throws NullPointerException if any argument is null
+     */
+    public <B, C, D> FreeApPath<F, D> zipWith3(FreeApPath<F, B> second, FreeApPath<F, C> third, Function3<? super A, ? super B, ? super C, ? extends D> combiner) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== Object Methods =====
+    @Override
+    public boolean equals(Object obj) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public int hashCode() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public String toString() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

@@ -41,24 +41,23 @@ import org.higherkindedj.hkt.vstream.VStreamMonad;
  */
 public class VStreamPathProvider implements PathProvider<VStreamKind.Witness> {
 
-  @Override
-  public Class<?> witnessType() {
-    return VStreamKind.Witness.class;
-  }
+    @Override
+    public Class<?> witnessType() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public <A> Chainable<A> createPath(Kind<VStreamKind.Witness, A> kind) {
-    VStream<A> stream = VStreamKindHelper.VSTREAM.narrow(kind);
-    return new DefaultVStreamPath<>(stream);
-  }
+    @Override
+    public <A> Chainable<A> createPath(Kind<VStreamKind.Witness, A> kind) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public Monad<VStreamKind.Witness> monad() {
-    return VStreamMonad.INSTANCE;
-  }
+    @Override
+    public Monad<VStreamKind.Witness> monad() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public String name() {
-    return "VStream";
-  }
+    @Override
+    public String name() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

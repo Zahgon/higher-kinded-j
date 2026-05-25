@@ -17,96 +17,86 @@ import org.jspecify.annotations.Nullable;
  * static org.higherkindedj.hkt.either.EitherKindHelper.EITHER; EITHER.widen(...);}
  */
 public enum EitherKindHelper implements EitherConverterOps {
-  EITHER;
 
-  private static final Class<Either> EITHER_CLASS = Either.class;
+    EITHER;
 
-  /**
-   * Widens a concrete {@code Either<L, R>} instance into its higher-kinded representation, {@code
-   * Kind<EitherKind.Witness<L>, R>}. Implements {@link EitherConverterOps#widen}.
-   *
-   * <p>Since {@code Left} and {@code Right} directly implement {@code EitherKind}, this method
-   * performs a simple type-safe cast without requiring a wrapper object.
-   *
-   * @param <L> The type of the "Left" value of the {@code Either}.
-   * @param <R> The type of the "Right" value of the {@code Either}.
-   * @param either The concrete {@code Either<L, R>} instance to widen. Must not be null.
-   * @return A {@code Kind<EitherKind.Witness<L>, R>} representing the {@code Either}. Never null.
-   * @throws NullPointerException if {@code either} is {@code null}.
-   */
-  @Override
-  @SuppressWarnings("unchecked")
-  public <L, R> Kind<EitherKind.Witness<L>, R> widen(Either<L, R> either) {
-    Validation.kind().requireForWiden(either, EITHER_CLASS);
-    return (Kind<EitherKind.Witness<L>, R>) either;
-  }
+    private static final Class<Either> EITHER_CLASS = Either.class;
 
-  /**
-   * Narrows a {@code Kind<EitherKind.Witness<L>, R>} back to its concrete {@code Either<L, R>}
-   * type. Implements {@link EitherConverterOps#narrow}.
-   *
-   * <p>Since {@code Left} and {@code Right} directly implement {@code EitherKind}, this method
-   * performs a direct type check and cast without needing to unwrap from a holder.
-   *
-   * @param <L> The type of the "Left" value of the target {@code Either}.
-   * @param <R> The type of the "Right" value of the target {@code Either}.
-   * @param kind The {@code Kind<EitherKind.Witness<L>, R>} instance to narrow. May be {@code null}.
-   * @return The underlying {@code Either<L, R>} instance. Never null.
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if the input {@code kind} is {@code
-   *     null} or not an instance of {@code Either}.
-   */
-  @Override
-  public <L, R> Either<L, R> narrow(@Nullable Kind<EitherKind.Witness<L>, R> kind) {
-    return Validation.kind().narrowWithTypeCheck(kind, EITHER_CLASS);
-  }
-
-  /**
-   * Widens a concrete {@code Either<L, R>} instance into its Kind2 representation, {@code
-   * Kind2<EitherKind2.Witness, L, R>}. Implements {@link EitherConverterOps#widen2}.
-   *
-   * <p>Since {@code Left} and {@code Right} directly implement {@code EitherKind2}, this method
-   * performs a simple type-safe cast without requiring a wrapper object.
-   *
-   * @param <L> The type of the "Left" value of the {@code Either}.
-   * @param <R> The type of the "Right" value of the {@code Either}.
-   * @param either The concrete {@code Either<L, R>} instance to widen. Must not be null.
-   * @return A {@code Kind2<EitherKind2.Witness, L, R>} representing the {@code Either}. Never null.
-   * @throws NullPointerException if {@code either} is {@code null}.
-   */
-  @Override
-  @SuppressWarnings("unchecked")
-  public <L, R> Kind2<EitherKind2.Witness, L, R> widen2(Either<L, R> either) {
-    Validation.kind().requireForWiden(either, EITHER_CLASS);
-    return (Kind2<EitherKind2.Witness, L, R>) either;
-  }
-
-  /**
-   * Narrows a {@code Kind2<EitherKind2.Witness, L, R>} back to its concrete {@code Either<L, R>}
-   * type. Implements {@link EitherConverterOps#narrow2}.
-   *
-   * <p>Since {@code Left} and {@code Right} directly implement {@code EitherKind2}, this method
-   * performs a direct type check and cast without needing to unwrap from a holder.
-   *
-   * @param <L> The type of the "Left" value of the target {@code Either}.
-   * @param <R> The type of the "Right" value of the target {@code Either}.
-   * @param kind The {@code Kind2<EitherKind2.Witness, L, R>} instance to narrow. May be {@code
-   *     null}.
-   * @return The underlying {@code Either<L, R>} instance. Never null.
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if the input {@code kind} is {@code
-   *     null} or not an instance of {@code Either}.
-   */
-  @Override
-  @SuppressWarnings("unchecked")
-  public <L, R> Either<L, R> narrow2(@Nullable Kind2<EitherKind2.Witness, L, R> kind) {
-    if (kind == null) {
-      throw new KindUnwrapException("Cannot narrow null Kind2 for Either");
+    /**
+     * Widens a concrete {@code Either<L, R>} instance into its higher-kinded representation, {@code
+     * Kind<EitherKind.Witness<L>, R>}. Implements {@link EitherConverterOps#widen}.
+     *
+     * <p>Since {@code Left} and {@code Right} directly implement {@code EitherKind}, this method
+     * performs a simple type-safe cast without requiring a wrapper object.
+     *
+     * @param <L> The type of the "Left" value of the {@code Either}.
+     * @param <R> The type of the "Right" value of the {@code Either}.
+     * @param either The concrete {@code Either<L, R>} instance to widen. Must not be null.
+     * @return A {@code Kind<EitherKind.Witness<L>, R>} representing the {@code Either}. Never null.
+     * @throws NullPointerException if {@code either} is {@code null}.
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public <L, R> Kind<EitherKind.Witness<L>, R> widen(Either<L, R> either) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-    if (!(kind instanceof Either<?, ?>)) {
-      throw new KindUnwrapException(
-          "Kind2 instance cannot be narrowed to Either (received: "
-              + kind.getClass().getSimpleName()
-              + ")");
+
+    /**
+     * Narrows a {@code Kind<EitherKind.Witness<L>, R>} back to its concrete {@code Either<L, R>}
+     * type. Implements {@link EitherConverterOps#narrow}.
+     *
+     * <p>Since {@code Left} and {@code Right} directly implement {@code EitherKind}, this method
+     * performs a direct type check and cast without needing to unwrap from a holder.
+     *
+     * @param <L> The type of the "Left" value of the target {@code Either}.
+     * @param <R> The type of the "Right" value of the target {@code Either}.
+     * @param kind The {@code Kind<EitherKind.Witness<L>, R>} instance to narrow. May be {@code null}.
+     * @return The underlying {@code Either<L, R>} instance. Never null.
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if the input {@code kind} is {@code
+     *     null} or not an instance of {@code Either}.
+     */
+    @Override
+    public <L, R> Either<L, R> narrow(@Nullable Kind<EitherKind.Witness<L>, R> kind) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-    return (Either<L, R>) kind;
-  }
+
+    /**
+     * Widens a concrete {@code Either<L, R>} instance into its Kind2 representation, {@code
+     * Kind2<EitherKind2.Witness, L, R>}. Implements {@link EitherConverterOps#widen2}.
+     *
+     * <p>Since {@code Left} and {@code Right} directly implement {@code EitherKind2}, this method
+     * performs a simple type-safe cast without requiring a wrapper object.
+     *
+     * @param <L> The type of the "Left" value of the {@code Either}.
+     * @param <R> The type of the "Right" value of the {@code Either}.
+     * @param either The concrete {@code Either<L, R>} instance to widen. Must not be null.
+     * @return A {@code Kind2<EitherKind2.Witness, L, R>} representing the {@code Either}. Never null.
+     * @throws NullPointerException if {@code either} is {@code null}.
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public <L, R> Kind2<EitherKind2.Witness, L, R> widen2(Either<L, R> either) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Narrows a {@code Kind2<EitherKind2.Witness, L, R>} back to its concrete {@code Either<L, R>}
+     * type. Implements {@link EitherConverterOps#narrow2}.
+     *
+     * <p>Since {@code Left} and {@code Right} directly implement {@code EitherKind2}, this method
+     * performs a direct type check and cast without needing to unwrap from a holder.
+     *
+     * @param <L> The type of the "Left" value of the target {@code Either}.
+     * @param <R> The type of the "Right" value of the target {@code Either}.
+     * @param kind The {@code Kind2<EitherKind2.Witness, L, R>} instance to narrow. May be {@code
+     *     null}.
+     * @return The underlying {@code Either<L, R>} instance. Never null.
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if the input {@code kind} is {@code
+     *     null} or not an instance of {@code Either}.
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public <L, R> Either<L, R> narrow2(@Nullable Kind2<EitherKind2.Witness, L, R> kind) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

@@ -33,34 +33,18 @@ import tools.jackson.databind.ser.std.StdSerializer;
  */
 public class EitherSerializer extends StdSerializer<Either<?, ?>> {
 
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  /** Creates a new EitherSerializer for {@link Either} types. */
-  @SuppressWarnings("unchecked")
-  public EitherSerializer() {
-    super((Class<Either<?, ?>>) (Class<?>) Either.class);
-  }
+    /**
+     * Creates a new EitherSerializer for {@link Either} types.
+     */
+    @SuppressWarnings("unchecked")
+    public EitherSerializer() {
+        super((Class<Either<?, ?>>) (Class<?>) Either.class);
+    }
 
-  @Override
-  public void serialize(Either<?, ?> value, JsonGenerator gen, SerializationContext ctxt) {
-    value.fold(
-        left -> {
-          gen.writeStartObject();
-          gen.writeName("isRight");
-          gen.writeBoolean(false);
-          gen.writeName("left");
-          gen.writePOJO(left);
-          gen.writeEndObject();
-          return null;
-        },
-        right -> {
-          gen.writeStartObject();
-          gen.writeName("isRight");
-          gen.writeBoolean(true);
-          gen.writeName("right");
-          gen.writePOJO(right);
-          gen.writeEndObject();
-          return null;
-        });
-  }
+    @Override
+    public void serialize(Either<?, ?> value, JsonGenerator gen, SerializationContext ctxt) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

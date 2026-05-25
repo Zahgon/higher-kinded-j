@@ -18,48 +18,32 @@ import org.higherkindedj.optics.annotations.KindSemantics;
  * @param isParameterised whether the witness type has type parameters (e.g., EitherKind.Witness)
  * @param witnessTypeArgs type arguments for parameterised witness types (may be empty)
  */
-public record KindFieldInfo(
-    String witnessType,
-    TypeName elementType,
-    String traverseExpression,
-    KindSemantics semantics,
-    boolean isParameterised,
-    String witnessTypeArgs) {
+public record KindFieldInfo(String witnessType, TypeName elementType, String traverseExpression, KindSemantics semantics, boolean isParameterised, String witnessTypeArgs) {
 
-  /**
-   * Creates a KindFieldInfo for a non-parameterised witness type.
-   *
-   * @param witnessType the witness type name
-   * @param elementType the element type
-   * @param traverseExpression the traverse instance expression
-   * @param semantics the cardinality semantics
-   * @return a new KindFieldInfo
-   */
-  public static KindFieldInfo of(
-      String witnessType,
-      TypeName elementType,
-      String traverseExpression,
-      KindSemantics semantics) {
-    return new KindFieldInfo(witnessType, elementType, traverseExpression, semantics, false, "");
-  }
+    /**
+     * Creates a KindFieldInfo for a non-parameterised witness type.
+     *
+     * @param witnessType the witness type name
+     * @param elementType the element type
+     * @param traverseExpression the traverse instance expression
+     * @param semantics the cardinality semantics
+     * @return a new KindFieldInfo
+     */
+    public static KindFieldInfo of(String witnessType, TypeName elementType, String traverseExpression, KindSemantics semantics) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a KindFieldInfo for a parameterised witness type.
-   *
-   * @param witnessType the witness type name
-   * @param elementType the element type
-   * @param traverseExpression the traverse instance expression
-   * @param semantics the cardinality semantics
-   * @param witnessTypeArgs the type arguments string
-   * @return a new KindFieldInfo
-   */
-  public static KindFieldInfo parameterised(
-      String witnessType,
-      TypeName elementType,
-      String traverseExpression,
-      KindSemantics semantics,
-      String witnessTypeArgs) {
-    return new KindFieldInfo(
-        witnessType, elementType, traverseExpression, semantics, true, witnessTypeArgs);
-  }
+    /**
+     * Creates a KindFieldInfo for a parameterised witness type.
+     *
+     * @param witnessType the witness type name
+     * @param elementType the element type
+     * @param traverseExpression the traverse instance expression
+     * @param semantics the cardinality semantics
+     * @param witnessTypeArgs the type arguments string
+     * @return a new KindFieldInfo
+     */
+    public static KindFieldInfo parameterised(String witnessType, TypeName elementType, String traverseExpression, KindSemantics semantics, String witnessTypeArgs) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

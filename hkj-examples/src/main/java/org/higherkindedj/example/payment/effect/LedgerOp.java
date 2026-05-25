@@ -21,34 +21,38 @@ import org.jspecify.annotations.NullMarked;
 @EffectAlgebra
 public sealed interface LedgerOp<A> permits LedgerOp.RecordEntry, LedgerOp.GetBalance {
 
-  /** Maps a function over the result type. */
-  <B> LedgerOp<B> mapK(Function<? super A, ? extends B> f);
+    /**
+     * Maps a function over the result type.
+     */
+    <B> LedgerOp<B> mapK(Function<? super A, ? extends B> f);
 
-  /**
-   * Record a ledger entry for a completed transaction.
-   *
-   * @param entry the ledger entry to record
-   * @param k continuation from {@link LedgerEntry} to {@code A}
-   * @param <A> the result type
-   */
-  record RecordEntry<A>(LedgerEntry entry, Function<LedgerEntry, A> k) implements LedgerOp<A> {
-    @Override
-    public <B> LedgerOp<B> mapK(Function<? super A, ? extends B> f) {
-      return new RecordEntry<>(entry, k.andThen(f));
-    }
-  }
+    /**
+     * Record a ledger entry for a completed transaction.
+     *
+     * @param entry the ledger entry to record
+     * @param k continuation from {@link LedgerEntry} to {@code A}
+     * @param <A> the result type
+     */
+    record RecordEntry<A>(LedgerEntry entry, Function<LedgerEntry, A> k) implements LedgerOp<A> {
 
-  /**
-   * Query the current balance for an account.
-   *
-   * @param accountId the account to query
-   * @param k continuation from {@link Money} to {@code A}
-   * @param <A> the result type
-   */
-  record GetBalance<A>(CustomerId accountId, Function<Money, A> k) implements LedgerOp<A> {
-    @Override
-    public <B> LedgerOp<B> mapK(Function<? super A, ? extends B> f) {
-      return new GetBalance<>(accountId, k.andThen(f));
+        @Override
+        public <B> LedgerOp<B> mapK(Function<? super A, ? extends B> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
     }
-  }
+
+    /**
+     * Query the current balance for an account.
+     *
+     * @param accountId the account to query
+     * @param k continuation from {@link Money} to {@code A}
+     * @param <A> the result type
+     */
+    record GetBalance<A>(CustomerId accountId, Function<Money, A> k) implements LedgerOp<A> {
+
+        @Override
+        public <B> LedgerOp<B> mapK(Function<? super A, ? extends B> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+    }
 }

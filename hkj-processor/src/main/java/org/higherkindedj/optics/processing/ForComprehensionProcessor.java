@@ -36,88 +36,47 @@ import org.higherkindedj.optics.processing.util.ExcludeFromJacocoGeneratedReport
 @SupportedSourceVersion(SourceVersion.RELEASE_25)
 public class ForComprehensionProcessor extends AbstractProcessor {
 
-  /** Creates a new ForComprehensionProcessor. */
-  public ForComprehensionProcessor() {}
-
-  private final Set<String> processedPackages = new HashSet<>();
-
-  @Override
-  public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-    for (TypeElement annotation : annotations) {
-      Set<? extends Element> annotatedElements = roundEnv.getElementsAnnotatedWith(annotation);
-      for (Element element : annotatedElements) {
-        if (element.getKind() != ElementKind.PACKAGE) {
-          error(
-              "The @GenerateForComprehensions annotation can only be applied to packages"
-                  + " (package-info.java).",
-              element);
-          continue;
-        }
-
-        String packageName = element.toString();
-        if (processedPackages.contains(packageName)) {
-          continue;
-        }
-        processedPackages.add(packageName);
-
-        GenerateForComprehensions ann = element.getAnnotation(GenerateForComprehensions.class);
-        if (ann == null) {
-          error("Could not read @GenerateForComprehensions annotation.", element);
-          continue;
-        }
-
-        int minArity = ann.minArity();
-        int maxArity = ann.maxArity();
-
-        if (minArity < 2) {
-          error("minArity must be >= 2, but was " + minArity, element);
-          continue;
-        }
-        if (maxArity < minArity) {
-          error("maxArity (" + maxArity + ") must be >= minArity (" + minArity + ")", element);
-          continue;
-        }
-        if (maxArity > 26) {
-          error("maxArity must be <= 26, but was " + maxArity, element);
-          continue;
-        }
-
-        runTupleGenerator(minArity, maxArity, element);
-        runForStepGenerator(minArity, maxArity, element);
-        runForPathStepGenerator(minArity, maxArity, element);
-      }
+    /**
+     * Creates a new ForComprehensionProcessor.
+     */
+    public ForComprehensionProcessor() {
     }
-    return true;
-  }
 
-  @ExcludeFromJacocoGeneratedReport
-  private void runTupleGenerator(int minArity, int maxArity, Element element) {
-    try {
-      TupleGenerator.generate(minArity, maxArity, processingEnv);
-    } catch (Exception e) {
-      error("Could not generate Tuple classes: " + e.getMessage(), element);
+    private final Set<String> processedPackages = new HashSet<>();
+
+    @Override
+    public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-  }
 
-  @ExcludeFromJacocoGeneratedReport
-  private void runForStepGenerator(int minArity, int maxArity, Element element) {
-    try {
-      ForStepGenerator.generate(minArity, maxArity, processingEnv);
-    } catch (Exception e) {
-      error("Could not generate For step classes: " + e.getMessage(), element);
+    @ExcludeFromJacocoGeneratedReport
+    private void runTupleGenerator(int minArity, int maxArity, Element element) {
+        try {
+            TupleGenerator.generate(minArity, maxArity, processingEnv);
+        } catch (Exception e) {
+            error("Could not generate Tuple classes: " + e.getMessage(), element);
+        }
     }
-  }
 
-  @ExcludeFromJacocoGeneratedReport
-  private void runForPathStepGenerator(int minArity, int maxArity, Element element) {
-    try {
-      ForPathStepGenerator.generate(minArity, maxArity, processingEnv);
-    } catch (Exception e) {
-      error("Could not generate ForPath step classes: " + e.getMessage(), element);
+    @ExcludeFromJacocoGeneratedReport
+    private void runForStepGenerator(int minArity, int maxArity, Element element) {
+        try {
+            ForStepGenerator.generate(minArity, maxArity, processingEnv);
+        } catch (Exception e) {
+            error("Could not generate For step classes: " + e.getMessage(), element);
+        }
     }
-  }
 
-  private void error(String msg, Element e) {
-    processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, msg, e);
-  }
+    @ExcludeFromJacocoGeneratedReport
+    private void runForPathStepGenerator(int minArity, int maxArity, Element element) {
+        try {
+            ForPathStepGenerator.generate(minArity, maxArity, processingEnv);
+        } catch (Exception e) {
+            error("Could not generate ForPath step classes: " + e.getMessage(), element);
+        }
+    }
+
+    private void error(String msg, Element e) {
+        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, msg, e);
+    }
 }

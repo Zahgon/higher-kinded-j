@@ -49,55 +49,19 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
  */
 public class HkjAsyncHealthIndicator implements HealthIndicator {
 
-  private final ThreadPoolTaskExecutor executor;
+    private final ThreadPoolTaskExecutor executor;
 
-  /**
-   * Creates a new HkjAsyncHealthIndicator.
-   *
-   * @param executor the async executor to monitor (may be null if not configured)
-   */
-  public HkjAsyncHealthIndicator(ThreadPoolTaskExecutor executor) {
-    this.executor = executor;
-  }
-
-  @Override
-  public Health health() {
-    if (executor == null) {
-      return Health.outOfService().withDetail("reason", "Async executor not configured").build();
+    /**
+     * Creates a new HkjAsyncHealthIndicator.
+     *
+     * @param executor the async executor to monitor (may be null if not configured)
+     */
+    public HkjAsyncHealthIndicator(ThreadPoolTaskExecutor executor) {
+        this.executor = executor;
     }
 
-    try {
-      var threadPoolExecutor = executor.getThreadPoolExecutor();
-
-      if (threadPoolExecutor == null || threadPoolExecutor.isShutdown()) {
-        return Health.down().withDetail("reason", "Thread pool is shutdown").build();
-      }
-
-      int activeCount = threadPoolExecutor.getActiveCount();
-      int poolSize = threadPoolExecutor.getPoolSize();
-      int corePoolSize = threadPoolExecutor.getCorePoolSize();
-      int maxPoolSize = threadPoolExecutor.getMaximumPoolSize();
-      int queueSize = threadPoolExecutor.getQueue().size();
-      int queueCapacity = executor.getQueueCapacity();
-      int queueRemainingCapacity = threadPoolExecutor.getQueue().remainingCapacity();
-
-      // Health check: queue should not be full
-      boolean queueFull = queueRemainingCapacity == 0 && queueCapacity > 0;
-
-      Health.Builder builder = queueFull ? Health.down() : Health.up();
-
-      return builder
-          .withDetail("activeCount", activeCount)
-          .withDetail("poolSize", poolSize)
-          .withDetail("corePoolSize", corePoolSize)
-          .withDetail("maxPoolSize", maxPoolSize)
-          .withDetail("queueSize", queueSize)
-          .withDetail("queueCapacity", queueCapacity)
-          .withDetail("queueRemainingCapacity", queueRemainingCapacity)
-          .build();
-
-    } catch (Exception e) {
-      return Health.down().withDetail("error", e.getMessage()).build();
+    @Override
+    public Health health() {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-  }
 }

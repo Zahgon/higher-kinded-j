@@ -40,360 +40,263 @@ import org.higherkindedj.optics.indexed.Pair;
  */
 public record DefaultVStreamPath<A>(VStream<A> stream) implements VStreamPath<A> {
 
-  public DefaultVStreamPath {
-    Objects.requireNonNull(stream, "stream must not be null");
-  }
-
-  @Override
-  public VStream<A> run() {
-    return stream;
-  }
-
-  // ===== Composable implementation =====
-
-  @Override
-  public <B> VStreamPath<B> map(Function<? super A, ? extends B> mapper) {
-    Objects.requireNonNull(mapper, "mapper must not be null");
-    return new DefaultVStreamPath<>(stream.map(mapper));
-  }
-
-  @Override
-  public VStreamPath<A> peek(Consumer<? super A> consumer) {
-    Objects.requireNonNull(consumer, "consumer must not be null");
-    return new DefaultVStreamPath<>(stream.peek(consumer));
-  }
-
-  @Override
-  public VStreamPath<Unit> asUnit() {
-    return new DefaultVStreamPath<>(stream.asUnit());
-  }
-
-  // ===== Chainable implementation =====
-
-  @Override
-  public <B> VStreamPath<B> via(Function<? super A, ? extends Chainable<B>> mapper) {
-    Objects.requireNonNull(mapper, "mapper must not be null");
-    return new DefaultVStreamPath<>(
-        stream.flatMap(
-            a -> {
-              Chainable<B> chainable = mapper.apply(a);
-              Objects.requireNonNull(chainable, "mapper must not return null");
-
-              if (!(chainable instanceof VStreamPath<?> vsp)) {
-                throw new IllegalArgumentException(
-                    "via mapper must return VStreamPath, got: " + chainable.getClass());
-              }
-
-              @SuppressWarnings("unchecked")
-              VStreamPath<B> typedResult = (VStreamPath<B>) vsp;
-              return typedResult.run();
-            }));
-  }
-
-  @Override
-  public <B> VStreamPath<B> then(Supplier<? extends Chainable<B>> supplier) {
-    Objects.requireNonNull(supplier, "supplier must not be null");
-    return via(ignored -> supplier.get());
-  }
-
-  // ===== Combinable implementation =====
-
-  @Override
-  public <B, C> VStreamPath<C> zipWith(
-      Combinable<B> other, BiFunction<? super A, ? super B, ? extends C> combiner) {
-    Objects.requireNonNull(other, "other must not be null");
-    Objects.requireNonNull(combiner, "combiner must not be null");
-
-    if (!(other instanceof VStreamPath<?> otherVStream)) {
-      throw new IllegalArgumentException("Cannot zipWith non-VStreamPath: " + other.getClass());
+    public DefaultVStreamPath {
+        Objects.requireNonNull(stream, "stream must not be null");
     }
 
+    @Override
+    public VStream<A> run() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== Composable implementation =====
+    @Override
+    public <B> VStreamPath<B> map(Function<? super A, ? extends B> mapper) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public VStreamPath<A> peek(Consumer<? super A> consumer) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public VStreamPath<Unit> asUnit() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== Chainable implementation =====
+    @Override
+    public <B> VStreamPath<B> via(Function<? super A, ? extends Chainable<B>> mapper) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public <B> VStreamPath<B> then(Supplier<? extends Chainable<B>> supplier) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== Combinable implementation =====
+    @Override
+    public <B, C> VStreamPath<C> zipWith(Combinable<B> other, BiFunction<? super A, ? super B, ? extends C> combiner) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public <B, C, D> VStreamPath<D> zipWith3(VStreamPath<B> second, VStreamPath<C> third, Function3<? super A, ? super B, ? super C, ? extends D> combiner) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== Stream-specific operations =====
+    @Override
+    public VStreamPath<A> filter(Predicate<? super A> predicate) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public VStreamPath<A> take(long n) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public VStreamPath<A> drop(long n) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public VStreamPath<A> takeWhile(Predicate<? super A> predicate) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public VStreamPath<A> dropWhile(Predicate<? super A> predicate) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public VStreamPath<A> distinct() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public VStreamPath<A> concat(VStreamPath<A> other) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== Terminal operations (bridge to VTaskPath) =====
+    @Override
+    public VTaskPath<List<A>> toList() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public VTaskPath<A> fold(A identity, BinaryOperator<A> op) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public <B> VTaskPath<B> foldLeft(B identity, BiFunction<B, A, B> f) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public <M> VTaskPath<M> foldMap(Monoid<M> monoid, Function<? super A, ? extends M> f) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public VTaskPath<Optional<A>> headOption() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public VTaskPath<Optional<A>> lastOption() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public VTaskPath<Long> count() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public VTaskPath<Boolean> exists(Predicate<? super A> predicate) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public VTaskPath<Boolean> forAll(Predicate<? super A> predicate) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public VTaskPath<Optional<A>> find(Predicate<? super A> predicate) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public VTaskPath<Unit> forEach(Consumer<? super A> consumer) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== Parallel operations =====
+    @Override
+    public <B> VStreamPath<B> parEvalMap(int concurrency, Function<? super A, VTask<B>> f) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public <B> VStreamPath<B> parEvalMapUnordered(int concurrency, Function<? super A, VTask<B>> f) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== Chunking operations =====
+    @Override
+    public VStreamPath<List<A>> chunk(int size) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public <B> VStreamPath<B> mapChunked(int size, Function<List<A>, List<B>> f) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public VTaskPath<List<A>> parCollect(int batchSize) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== Error handling =====
+    @Override
+    public VStreamPath<A> recover(Function<? super Throwable, ? extends A> recovery) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public VStreamPath<A> recoverWith(Function<? super Throwable, ? extends VStreamPath<A>> recovery) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public VStreamPath<A> mapError(Function<? super Throwable, ? extends Throwable> f) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public VStreamPath<A> onError(Consumer<? super Throwable> action) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== Effectful mapping =====
+    @Override
     @SuppressWarnings("unchecked")
-    VStreamPath<B> typedOther = (VStreamPath<B>) otherVStream;
+    public <B> VStreamPath<B> mapTask(Function<? super A, ? extends VTask<B>> f) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    return new DefaultVStreamPath<>(stream.zipWith(typedOther.run(), combiner::apply));
-  }
+    // ===== Rate limiting =====
+    @Override
+    public VStreamPath<A> throttle(int maxElements, Duration window) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public <B, C, D> VStreamPath<D> zipWith3(
-      VStreamPath<B> second,
-      VStreamPath<C> third,
-      Function3<? super A, ? super B, ? super C, ? extends D> combiner) {
-    Objects.requireNonNull(second, "second must not be null");
-    Objects.requireNonNull(third, "third must not be null");
-    Objects.requireNonNull(combiner, "combiner must not be null");
+    @Override
+    public VStreamPath<A> metered(Duration interval) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    // Zip this with second, then zip the result with third
-    VStream<D> zipped =
-        stream
-            .zipWith(second.run(), Pair::new)
-            .zipWith(third.run(), (pair, c) -> combiner.apply(pair.first(), pair.second(), c));
+    // ===== Resource management =====
+    @Override
+    public VStreamPath<A> onFinalize(VTask<Unit> finalizer) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    return new DefaultVStreamPath<>(zipped);
-  }
+    // ===== Reactive interop =====
+    @Override
+    public Flow.Publisher<A> toPublisher() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  // ===== Stream-specific operations =====
+    // ===== Focus bridge =====
+    @Override
+    public <B> VStreamPath<B> focus(FocusPath<A, B> path) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public VStreamPath<A> filter(Predicate<? super A> predicate) {
-    Objects.requireNonNull(predicate, "predicate must not be null");
-    return new DefaultVStreamPath<>(stream.filter(predicate));
-  }
+    @Override
+    public <B> VStreamPath<B> focus(AffinePath<A, B> path) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public VStreamPath<A> take(long n) {
-    return new DefaultVStreamPath<>(stream.take(n));
-  }
+    // ===== Conversions =====
+    @Override
+    public VTaskPath<A> first() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public VStreamPath<A> drop(long n) {
-    return new DefaultVStreamPath<>(stream.drop(n));
-  }
+    @Override
+    public VTaskPath<A> last() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public VStreamPath<A> takeWhile(Predicate<? super A> predicate) {
-    Objects.requireNonNull(predicate, "predicate must not be null");
-    return new DefaultVStreamPath<>(stream.takeWhile(predicate));
-  }
+    @Override
+    public StreamPath<A> toStreamPath() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public VStreamPath<A> dropWhile(Predicate<? super A> predicate) {
-    Objects.requireNonNull(predicate, "predicate must not be null");
-    return new DefaultVStreamPath<>(stream.dropWhile(predicate));
-  }
+    @Override
+    public ListPath<A> toListPath() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public VStreamPath<A> distinct() {
-    return new DefaultVStreamPath<>(stream.distinct());
-  }
+    @Override
+    public NonDetPath<A> toNonDetPath() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public VStreamPath<A> concat(VStreamPath<A> other) {
-    Objects.requireNonNull(other, "other must not be null");
-    return new DefaultVStreamPath<>(stream.concat(other.run()));
-  }
-
-  // ===== Terminal operations (bridge to VTaskPath) =====
-
-  @Override
-  public VTaskPath<List<A>> toList() {
-    return new DefaultVTaskPath<>(stream.toList());
-  }
-
-  @Override
-  public VTaskPath<A> fold(A identity, BinaryOperator<A> op) {
-    Objects.requireNonNull(op, "op must not be null");
-    return new DefaultVTaskPath<>(stream.fold(identity, op));
-  }
-
-  @Override
-  public <B> VTaskPath<B> foldLeft(B identity, BiFunction<B, A, B> f) {
-    Objects.requireNonNull(f, "f must not be null");
-    return new DefaultVTaskPath<>(stream.foldLeft(identity, f));
-  }
-
-  @Override
-  public <M> VTaskPath<M> foldMap(Monoid<M> monoid, Function<? super A, ? extends M> f) {
-    Objects.requireNonNull(monoid, "monoid must not be null");
-    Objects.requireNonNull(f, "f must not be null");
-    return new DefaultVTaskPath<>(
-        stream.foldLeft(monoid.empty(), (acc, a) -> monoid.combine(acc, f.apply(a))));
-  }
-
-  @Override
-  public VTaskPath<Optional<A>> headOption() {
-    return new DefaultVTaskPath<>(stream.headOption());
-  }
-
-  @Override
-  public VTaskPath<Optional<A>> lastOption() {
-    return new DefaultVTaskPath<>(stream.lastOption());
-  }
-
-  @Override
-  public VTaskPath<Long> count() {
-    return new DefaultVTaskPath<>(stream.count());
-  }
-
-  @Override
-  public VTaskPath<Boolean> exists(Predicate<? super A> predicate) {
-    Objects.requireNonNull(predicate, "predicate must not be null");
-    return new DefaultVTaskPath<>(stream.exists(predicate));
-  }
-
-  @Override
-  public VTaskPath<Boolean> forAll(Predicate<? super A> predicate) {
-    Objects.requireNonNull(predicate, "predicate must not be null");
-    return new DefaultVTaskPath<>(stream.forAll(predicate));
-  }
-
-  @Override
-  public VTaskPath<Optional<A>> find(Predicate<? super A> predicate) {
-    Objects.requireNonNull(predicate, "predicate must not be null");
-    return new DefaultVTaskPath<>(stream.find(predicate));
-  }
-
-  @Override
-  public VTaskPath<Unit> forEach(Consumer<? super A> consumer) {
-    Objects.requireNonNull(consumer, "consumer must not be null");
-    return new DefaultVTaskPath<>(stream.forEach(consumer));
-  }
-
-  // ===== Parallel operations =====
-
-  @Override
-  public <B> VStreamPath<B> parEvalMap(int concurrency, Function<? super A, VTask<B>> f) {
-    Objects.requireNonNull(f, "f must not be null");
-    @SuppressWarnings("unchecked")
-    Function<A, VTask<B>> typedF = (Function<A, VTask<B>>) (Function<?, ?>) f;
-    return new DefaultVStreamPath<>(VStreamPar.parEvalMap(stream, concurrency, typedF));
-  }
-
-  @Override
-  public <B> VStreamPath<B> parEvalMapUnordered(int concurrency, Function<? super A, VTask<B>> f) {
-    Objects.requireNonNull(f, "f must not be null");
-    @SuppressWarnings("unchecked")
-    Function<A, VTask<B>> typedF = (Function<A, VTask<B>>) (Function<?, ?>) f;
-    return new DefaultVStreamPath<>(VStreamPar.parEvalMapUnordered(stream, concurrency, typedF));
-  }
-
-  // ===== Chunking operations =====
-
-  @Override
-  public VStreamPath<List<A>> chunk(int size) {
-    return new DefaultVStreamPath<>(stream.chunk(size));
-  }
-
-  @Override
-  public <B> VStreamPath<B> mapChunked(int size, Function<List<A>, List<B>> f) {
-    Objects.requireNonNull(f, "f must not be null");
-    return new DefaultVStreamPath<>(stream.mapChunked(size, f));
-  }
-
-  @Override
-  public VTaskPath<List<A>> parCollect(int batchSize) {
-    return new DefaultVTaskPath<>(VStreamPar.parCollect(stream, batchSize));
-  }
-
-  // ===== Error handling =====
-
-  @Override
-  public VStreamPath<A> recover(Function<? super Throwable, ? extends A> recovery) {
-    Objects.requireNonNull(recovery, "recovery must not be null");
-    return new DefaultVStreamPath<>(stream.recover(recovery));
-  }
-
-  @Override
-  public VStreamPath<A> recoverWith(
-      Function<? super Throwable, ? extends VStreamPath<A>> recovery) {
-    Objects.requireNonNull(recovery, "recovery must not be null");
-    return new DefaultVStreamPath<>(stream.recoverWith(t -> recovery.apply(t).run()));
-  }
-
-  @Override
-  public VStreamPath<A> mapError(Function<? super Throwable, ? extends Throwable> f) {
-    Objects.requireNonNull(f, "f must not be null");
-    return new DefaultVStreamPath<>(stream.mapError(f));
-  }
-
-  @Override
-  public VStreamPath<A> onError(Consumer<? super Throwable> action) {
-    Objects.requireNonNull(action, "action must not be null");
-    return new DefaultVStreamPath<>(stream.onError(action));
-  }
-
-  // ===== Effectful mapping =====
-
-  @Override
-  @SuppressWarnings("unchecked")
-  public <B> VStreamPath<B> mapTask(Function<? super A, ? extends VTask<B>> f) {
-    Objects.requireNonNull(f, "f must not be null");
-    Function<A, VTask<B>> typedF = (Function<A, VTask<B>>) (Function<?, ?>) f;
-    return new DefaultVStreamPath<>(stream.mapTask(typedF));
-  }
-
-  // ===== Rate limiting =====
-
-  @Override
-  public VStreamPath<A> throttle(int maxElements, Duration window) {
-    return new DefaultVStreamPath<>(VStreamThrottle.throttle(stream, maxElements, window));
-  }
-
-  @Override
-  public VStreamPath<A> metered(Duration interval) {
-    return new DefaultVStreamPath<>(VStreamThrottle.metered(stream, interval));
-  }
-
-  // ===== Resource management =====
-
-  @Override
-  public VStreamPath<A> onFinalize(VTask<Unit> finalizer) {
-    Objects.requireNonNull(finalizer, "finalizer must not be null");
-    return new DefaultVStreamPath<>(stream.onFinalize(finalizer));
-  }
-
-  // ===== Reactive interop =====
-
-  @Override
-  public Flow.Publisher<A> toPublisher() {
-    return VStreamReactive.toPublisher(stream);
-  }
-
-  // ===== Focus bridge =====
-
-  @Override
-  public <B> VStreamPath<B> focus(FocusPath<A, B> path) {
-    Objects.requireNonNull(path, "path must not be null");
-    return map(path::get);
-  }
-
-  @Override
-  public <B> VStreamPath<B> focus(AffinePath<A, B> path) {
-    Objects.requireNonNull(path, "path must not be null");
-    return new DefaultVStreamPath<>(
-        stream.map(a -> path.getOptional(a)).filter(Optional::isPresent).map(Optional::get));
-  }
-
-  // ===== Conversions =====
-
-  @Override
-  public VTaskPath<A> first() {
-    return new DefaultVTaskPath<>(
-        stream
-            .headOption()
-            .map(opt -> opt.orElseThrow(() -> new NoSuchElementException("VStreamPath is empty"))));
-  }
-
-  @Override
-  public VTaskPath<A> last() {
-    return new DefaultVTaskPath<>(
-        stream
-            .lastOption()
-            .map(opt -> opt.orElseThrow(() -> new NoSuchElementException("VStreamPath is empty"))));
-  }
-
-  @Override
-  public StreamPath<A> toStreamPath() {
-    List<A> elements = stream.toList().run();
-    return StreamPath.fromList(elements);
-  }
-
-  @Override
-  public ListPath<A> toListPath() {
-    List<A> elements = stream.toList().run();
-    return ListPath.of(elements);
-  }
-
-  @Override
-  public NonDetPath<A> toNonDetPath() {
-    List<A> elements = stream.toList().run();
-    return NonDetPath.of(elements);
-  }
-
-  // ===== Object methods =====
-
-  @Override
-  public String toString() {
-    return "VStreamPath(" + PathToString.STREAM + ")";
-  }
+    // ===== Object methods =====
+    @Override
+    public String toString() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

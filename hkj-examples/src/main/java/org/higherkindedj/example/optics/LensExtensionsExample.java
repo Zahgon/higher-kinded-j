@@ -3,7 +3,6 @@
 package org.higherkindedj.example.optics;
 
 import static org.higherkindedj.optics.extensions.LensExtensions.*;
-
 import org.higherkindedj.hkt.either.Either;
 import org.higherkindedj.hkt.maybe.Maybe;
 import org.higherkindedj.hkt.trymonad.Try;
@@ -40,384 +39,272 @@ import org.higherkindedj.optics.annotations.GenerateLenses;
  */
 public class LensExtensionsExample {
 
-  // Domain model for user profile management
-  @GenerateLenses
-  record LEUserProfile(String userId, String name, String email, Integer age, String bio) {}
-
-  @GenerateLenses
-  record LEAddress(String street, String city, String postcode, String country) {}
-
-  @GenerateLenses
-  record LEUser(LEUserProfile profile, LEAddress address, String accountStatus) {}
-
-  // Validation errors
-  sealed interface ValidationError permits FieldError, BusinessRuleError {}
-
-  record FieldError(String field, String message) implements ValidationError {
-    @Override
-    public String toString() {
-      return field + ": " + message;
+    // Domain model for user profile management
+    @GenerateLenses
+    record LEUserProfile(String userId, String name, String email, Integer age, String bio) {
     }
-  }
 
-  record BusinessRuleError(String code, String message) implements ValidationError {
-    @Override
-    public String toString() {
-      return "[" + code + "] " + message;
+    @GenerateLenses
+    record LEAddress(String street, String city, String postcode, String country) {
     }
-  }
 
-  public static void main(String[] args) {
-    System.out.println("=== Lens Extensions Examples ===\n");
+    @GenerateLenses
+    record LEUser(LEUserProfile profile, LEAddress address, String accountStatus) {
+    }
 
-    demonstrateGetMaybe();
-    demonstrateGetEither();
-    demonstrateGetValidated();
-    demonstrateModifyMaybe();
-    demonstrateModifyEither();
-    demonstrateModifyValidated();
-    demonstrateModifyTry();
-    demonstrateSetIfValid();
-    demonstrateRealWorldScenario();
-  }
+    // Validation errors
+    sealed interface ValidationError permits FieldError, BusinessRuleError {
+    }
 
-  private static void demonstrateGetMaybe() {
-    System.out.println("--- getMaybe: Null-Safe Field Access ---");
+    record FieldError(String field, String message) implements ValidationError {
 
-    Lens<LEUserProfile, String> bioLens = LEUserProfileLenses.bio();
+        @Override
+        public String toString() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+    }
 
-    // Non-null field
-    LEUserProfile withBio =
-        new LEUserProfile("u1", "Alice", "alice@example.com", 30, "Software Engineer");
-    Maybe<String> bio = getMaybe(bioLens, withBio);
-    System.out.println("Bio (present): " + bio.orElse("No bio"));
+    record BusinessRuleError(String code, String message) implements ValidationError {
 
-    // Null field
-    LEUserProfile withoutBio = new LEUserProfile("u2", "Bob", "bob@example.com", 25, null);
-    Maybe<String> noBio = getMaybe(bioLens, withoutBio);
-    System.out.println("Bio (absent): " + noBio.orElse("No bio"));
+        @Override
+        public String toString() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+    }
 
-    System.out.println();
-  }
+    public static void main(String[] args) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  private static void demonstrateGetEither() {
-    System.out.println("--- getEither: Access with Default Error ---");
+    private static void demonstrateGetMaybe() {
+        System.out.println("--- getMaybe: Null-Safe Field Access ---");
+        Lens<LEUserProfile, String> bioLens = LEUserProfileLenses.bio();
+        // Non-null field
+        LEUserProfile withBio = new LEUserProfile("u1", "Alice", "alice@example.com", 30, "Software Engineer");
+        Maybe<String> bio = getMaybe(bioLens, withBio);
+        System.out.println("Bio (present): " + bio.orElse("No bio"));
+        // Null field
+        LEUserProfile withoutBio = new LEUserProfile("u2", "Bob", "bob@example.com", 25, null);
+        Maybe<String> noBio = getMaybe(bioLens, withoutBio);
+        System.out.println("Bio (absent): " + noBio.orElse("No bio"));
+        System.out.println();
+    }
 
-    Lens<LEUserProfile, Integer> ageLens = LEUserProfileLenses.age();
+    private static void demonstrateGetEither() {
+        System.out.println("--- getEither: Access with Default Error ---");
+        Lens<LEUserProfile, Integer> ageLens = LEUserProfileLenses.age();
+        // Valid age
+        LEUserProfile validProfile = new LEUserProfile("u1", "Alice", "alice@example.com", 30, "Engineer");
+        Either<String, Integer> age = getEither(ageLens, "Age not provided", validProfile);
+        System.out.println("Age (valid): " + age.fold(error -> "Error: " + error, a -> "Age: " + a));
+        // Null age
+        LEUserProfile invalidProfile = new LEUserProfile("u2", "Bob", "bob@example.com", null, "Student");
+        Either<String, Integer> noAge = getEither(ageLens, "Age not provided", invalidProfile);
+        System.out.println("Age (missing): " + noAge.fold(error -> "Error: " + error, a -> "Age: " + a));
+        System.out.println();
+    }
 
-    // Valid age
-    LEUserProfile validProfile =
-        new LEUserProfile("u1", "Alice", "alice@example.com", 30, "Engineer");
-    Either<String, Integer> age = getEither(ageLens, "Age not provided", validProfile);
-    System.out.println("Age (valid): " + age.fold(error -> "Error: " + error, a -> "Age: " + a));
+    private static void demonstrateGetValidated() {
+        System.out.println("--- getValidated: Access with Validation Error ---");
+        Lens<LEUserProfile, String> emailLens = LEUserProfileLenses.email();
+        // Valid email
+        LEUserProfile profile = new LEUserProfile("u1", "Alice", "alice@example.com", 30, "Engineer");
+        Validated<String, String> email = getValidated(emailLens, "Email is required", profile);
+        System.out.println("Email: " + email.fold(error -> "Error: " + error, e -> "Email: " + e));
+        // Null email
+        LEUserProfile noEmail = new LEUserProfile("u2", "Bob", null, 25, "Student");
+        Validated<String, String> missing = getValidated(emailLens, "Email is required", noEmail);
+        System.out.println("Email: " + missing.fold(error -> "Error: " + error, e -> "Email: " + e));
+        System.out.println();
+    }
 
-    // Null age
-    LEUserProfile invalidProfile =
-        new LEUserProfile("u2", "Bob", "bob@example.com", null, "Student");
-    Either<String, Integer> noAge = getEither(ageLens, "Age not provided", invalidProfile);
-    System.out.println(
-        "Age (missing): " + noAge.fold(error -> "Error: " + error, a -> "Age: " + a));
+    private static void demonstrateModifyMaybe() {
+        System.out.println("--- modifyMaybe: Optional Modifications ---");
+        Lens<LEUserProfile, String> nameLens = LEUserProfileLenses.name();
+        LEUserProfile profile = new LEUserProfile("u1", "Alice", "alice@example.com", 30, "Engineer");
+        // Successful modification
+        Maybe<LEUserProfile> updated = modifyMaybe(nameLens, name -> name.length() >= 2 ? Maybe.just(name.toUpperCase()) : Maybe.nothing(), profile);
+        System.out.println("Updated name: " + updated.map(p -> p.name()).orElse("Modification failed"));
+        // Failed modification
+        LEUserProfile shortName = new LEUserProfile("u2", "A", "a@example.com", 25, "Student");
+        Maybe<LEUserProfile> failed = modifyMaybe(nameLens, name -> name.length() >= 2 ? Maybe.just(name.toUpperCase()) : Maybe.nothing(), shortName);
+        System.out.println("Failed modification: " + failed.orElse(null));
+        System.out.println();
+    }
 
-    System.out.println();
-  }
+    private static void demonstrateModifyEither() {
+        System.out.println("--- modifyEither: Fail-Fast Validation ---");
+        Lens<LEUserProfile, Integer> ageLens = LEUserProfileLenses.age();
+        LEUserProfile profile = new LEUserProfile("u1", "Alice", "alice@example.com", 30, "Engineer");
+        // Valid modification
+        Either<String, LEUserProfile> updated = modifyEither(ageLens, age -> {
+            if (age < 0)
+                return Either.left("Age cannot be negative");
+            if (age > 150)
+                return Either.left("Age must be realistic");
+            // Birthday!
+            return Either.right(age + 1);
+        }, profile);
+        System.out.println("Updated age: " + updated.fold(error -> "Error: " + error, p -> "New age: " + p.age()));
+        // Invalid modification
+        LEUserProfile invalidAge = new LEUserProfile("u2", "Bob", "bob@example.com", 200, "Time traveller");
+        Either<String, LEUserProfile> failed = modifyEither(ageLens, age -> {
+            if (age < 0)
+                return Either.left("Age cannot be negative");
+            if (age > 150)
+                return Either.left("Age must be realistic");
+            return Either.right(age + 1);
+        }, invalidAge);
+        System.out.println("Failed modification: " + failed.fold(error -> "Error: " + error, p -> "New age: " + p.age()));
+        System.out.println();
+    }
 
-  private static void demonstrateGetValidated() {
-    System.out.println("--- getValidated: Access with Validation Error ---");
-
-    Lens<LEUserProfile, String> emailLens = LEUserProfileLenses.email();
-
-    // Valid email
-    LEUserProfile profile = new LEUserProfile("u1", "Alice", "alice@example.com", 30, "Engineer");
-    Validated<String, String> email = getValidated(emailLens, "Email is required", profile);
-    System.out.println("Email: " + email.fold(error -> "Error: " + error, e -> "Email: " + e));
-
-    // Null email
-    LEUserProfile noEmail = new LEUserProfile("u2", "Bob", null, 25, "Student");
-    Validated<String, String> missing = getValidated(emailLens, "Email is required", noEmail);
-    System.out.println("Email: " + missing.fold(error -> "Error: " + error, e -> "Email: " + e));
-
-    System.out.println();
-  }
-
-  private static void demonstrateModifyMaybe() {
-    System.out.println("--- modifyMaybe: Optional Modifications ---");
-
-    Lens<LEUserProfile, String> nameLens = LEUserProfileLenses.name();
-    LEUserProfile profile = new LEUserProfile("u1", "Alice", "alice@example.com", 30, "Engineer");
-
-    // Successful modification
-    Maybe<LEUserProfile> updated =
-        modifyMaybe(
-            nameLens,
-            name -> name.length() >= 2 ? Maybe.just(name.toUpperCase()) : Maybe.nothing(),
-            profile);
-    System.out.println("Updated name: " + updated.map(p -> p.name()).orElse("Modification failed"));
-
-    // Failed modification
-    LEUserProfile shortName = new LEUserProfile("u2", "A", "a@example.com", 25, "Student");
-    Maybe<LEUserProfile> failed =
-        modifyMaybe(
-            nameLens,
-            name -> name.length() >= 2 ? Maybe.just(name.toUpperCase()) : Maybe.nothing(),
-            shortName);
-    System.out.println("Failed modification: " + failed.orElse(null));
-
-    System.out.println();
-  }
-
-  private static void demonstrateModifyEither() {
-    System.out.println("--- modifyEither: Fail-Fast Validation ---");
-
-    Lens<LEUserProfile, Integer> ageLens = LEUserProfileLenses.age();
-    LEUserProfile profile = new LEUserProfile("u1", "Alice", "alice@example.com", 30, "Engineer");
-
-    // Valid modification
-    Either<String, LEUserProfile> updated =
-        modifyEither(
-            ageLens,
-            age -> {
-              if (age < 0) return Either.left("Age cannot be negative");
-              if (age > 150) return Either.left("Age must be realistic");
-              return Either.right(age + 1); // Birthday!
-            },
-            profile);
-    System.out.println(
-        "Updated age: " + updated.fold(error -> "Error: " + error, p -> "New age: " + p.age()));
-
-    // Invalid modification
-    LEUserProfile invalidAge =
-        new LEUserProfile("u2", "Bob", "bob@example.com", 200, "Time traveller");
-    Either<String, LEUserProfile> failed =
-        modifyEither(
-            ageLens,
-            age -> {
-              if (age < 0) return Either.left("Age cannot be negative");
-              if (age > 150) return Either.left("Age must be realistic");
-              return Either.right(age + 1);
-            },
-            invalidAge);
-    System.out.println(
-        "Failed modification: "
-            + failed.fold(error -> "Error: " + error, p -> "New age: " + p.age()));
-
-    System.out.println();
-  }
-
-  private static void demonstrateModifyValidated() {
-    System.out.println("--- modifyValidated: Validated Modifications ---");
-
-    Lens<LEUserProfile, String> emailLens = LEUserProfileLenses.email();
-    LEUserProfile profile = new LEUserProfile("u1", "Alice", "old@example.com", 30, "Engineer");
-
-    // Valid email format
-    Validated<String, LEUserProfile> updated =
-        modifyValidated(
-            emailLens,
-            email -> {
-              if (!email.contains("@")) {
+    private static void demonstrateModifyValidated() {
+        System.out.println("--- modifyValidated: Validated Modifications ---");
+        Lens<LEUserProfile, String> emailLens = LEUserProfileLenses.email();
+        LEUserProfile profile = new LEUserProfile("u1", "Alice", "old@example.com", 30, "Engineer");
+        // Valid email format
+        Validated<String, LEUserProfile> updated = modifyValidated(emailLens, email -> {
+            if (!email.contains("@")) {
                 return Validated.invalid("Email must contain @");
-              }
-              if (!email.endsWith(".com") && !email.endsWith(".co.uk")) {
+            }
+            if (!email.endsWith(".com") && !email.endsWith(".co.uk")) {
                 return Validated.invalid("Email must end with .com or .co.uk");
-              }
-              return Validated.valid(email.toLowerCase());
-            },
-            profile);
-    System.out.println(
-        "Updated email: "
-            + updated.fold(error -> "Error: " + error, p -> "New email: " + p.email()));
-
-    // Invalid email format
-    LEUserProfile badEmail = new LEUserProfile("u2", "Bob", "invalid-email", 25, "Student");
-    Validated<String, LEUserProfile> failed =
-        modifyValidated(
-            emailLens,
-            email -> {
-              if (!email.contains("@")) {
+            }
+            return Validated.valid(email.toLowerCase());
+        }, profile);
+        System.out.println("Updated email: " + updated.fold(error -> "Error: " + error, p -> "New email: " + p.email()));
+        // Invalid email format
+        LEUserProfile badEmail = new LEUserProfile("u2", "Bob", "invalid-email", 25, "Student");
+        Validated<String, LEUserProfile> failed = modifyValidated(emailLens, email -> {
+            if (!email.contains("@")) {
                 return Validated.invalid("Email must contain @");
-              }
-              if (!email.endsWith(".com") && !email.endsWith(".co.uk")) {
+            }
+            if (!email.endsWith(".com") && !email.endsWith(".co.uk")) {
                 return Validated.invalid("Email must end with .com or .co.uk");
-              }
-              return Validated.valid(email.toLowerCase());
-            },
-            badEmail);
-    System.out.println(
-        "Failed modification: "
-            + failed.fold(error -> "Error: " + error, p -> "New email: " + p.email()));
+            }
+            return Validated.valid(email.toLowerCase());
+        }, badEmail);
+        System.out.println("Failed modification: " + failed.fold(error -> "Error: " + error, p -> "New email: " + p.email()));
+        System.out.println();
+    }
 
-    System.out.println();
-  }
+    private static void demonstrateModifyTry() {
+        System.out.println("--- modifyTry: Exception-Safe Modifications ---");
+        Lens<LEUserProfile, String> emailLens = LEUserProfileLenses.email();
+        LEUserProfile profile = new LEUserProfile("u1", "Alice", "alice@example.com", 30, "Engineer");
+        // Successful database update
+        Try<LEUserProfile> updated = modifyTry(emailLens, email -> {
+            // Simulate database call that might throw
+            return Try.of(() -> updateEmailInDatabase(email));
+        }, profile);
+        System.out.println("Database update: " + updated.fold(p -> "Success: " + p.email(), ex -> "Failed: " + ex.getMessage()));
+        // Failed database update
+        LEUserProfile badEmail = new LEUserProfile("u2", "Bob", "fail@example.com", 25, "Student");
+        Try<LEUserProfile> failed = modifyTry(emailLens, email -> {
+            // Simulate database call that might throw
+            return Try.of(() -> updateEmailInDatabase(email));
+        }, badEmail);
+        System.out.println("Database update: " + failed.fold(p -> "Success: " + p.email(), ex -> "Failed: " + ex.getMessage()));
+        System.out.println();
+    }
 
-  private static void demonstrateModifyTry() {
-    System.out.println("--- modifyTry: Exception-Safe Modifications ---");
-
-    Lens<LEUserProfile, String> emailLens = LEUserProfileLenses.email();
-    LEUserProfile profile = new LEUserProfile("u1", "Alice", "alice@example.com", 30, "Engineer");
-
-    // Successful database update
-    Try<LEUserProfile> updated =
-        modifyTry(
-            emailLens,
-            email -> {
-              // Simulate database call that might throw
-              return Try.of(() -> updateEmailInDatabase(email));
-            },
-            profile);
-    System.out.println(
-        "Database update: "
-            + updated.fold(p -> "Success: " + p.email(), ex -> "Failed: " + ex.getMessage()));
-
-    // Failed database update
-    LEUserProfile badEmail = new LEUserProfile("u2", "Bob", "fail@example.com", 25, "Student");
-    Try<LEUserProfile> failed =
-        modifyTry(
-            emailLens,
-            email -> {
-              // Simulate database call that might throw
-              return Try.of(() -> updateEmailInDatabase(email));
-            },
-            badEmail);
-    System.out.println(
-        "Database update: "
-            + failed.fold(p -> "Success: " + p.email(), ex -> "Failed: " + ex.getMessage()));
-
-    System.out.println();
-  }
-
-  private static void demonstrateSetIfValid() {
-    System.out.println("--- setIfValid: Conditional Updates ---");
-
-    Lens<LEUserProfile, String> nameLens = LEUserProfileLenses.name();
-    LEUserProfile profile = new LEUserProfile("u1", "Alice", "alice@example.com", 30, "Engineer");
-
-    // Valid name format
-    Either<String, LEUserProfile> updated =
-        setIfValid(
-            nameLens,
-            name -> {
-              if (name.length() < 2) {
+    private static void demonstrateSetIfValid() {
+        System.out.println("--- setIfValid: Conditional Updates ---");
+        Lens<LEUserProfile, String> nameLens = LEUserProfileLenses.name();
+        LEUserProfile profile = new LEUserProfile("u1", "Alice", "alice@example.com", 30, "Engineer");
+        // Valid name format
+        Either<String, LEUserProfile> updated = setIfValid(nameLens, name -> {
+            if (name.length() < 2) {
                 return Either.left("Name must be at least 2 characters");
-              }
-              if (!name.matches("[A-Z][a-z]+")) {
+            }
+            if (!name.matches("[A-Z][a-z]+")) {
                 return Either.left("Name must start with capital letter");
-              }
-              return Either.right(name);
-            },
-            "Robert",
-            profile);
-    System.out.println(
-        "Updated name: " + updated.fold(error -> "Error: " + error, p -> "New name: " + p.name()));
-
-    // Invalid name format
-    Either<String, LEUserProfile> failed =
-        setIfValid(
-            nameLens,
-            name -> {
-              if (name.length() < 2) {
+            }
+            return Either.right(name);
+        }, "Robert", profile);
+        System.out.println("Updated name: " + updated.fold(error -> "Error: " + error, p -> "New name: " + p.name()));
+        // Invalid name format
+        Either<String, LEUserProfile> failed = setIfValid(nameLens, name -> {
+            if (name.length() < 2) {
                 return Either.left("Name must be at least 2 characters");
-              }
-              if (!name.matches("[A-Z][a-z]+")) {
+            }
+            if (!name.matches("[A-Z][a-z]+")) {
                 return Either.left("Name must start with capital letter");
-              }
-              return Either.right(name);
-            },
-            "bob123",
-            profile);
-    System.out.println(
-        "Failed update: " + failed.fold(error -> "Error: " + error, p -> "New name: " + p.name()));
+            }
+            return Either.right(name);
+        }, "bob123", profile);
+        System.out.println("Failed update: " + failed.fold(error -> "Error: " + error, p -> "New name: " + p.name()));
+        System.out.println();
+    }
 
-    System.out.println();
-  }
-
-  private static void demonstrateRealWorldScenario() {
-    System.out.println("--- Real-World Scenario: User Profile Update Form ---\n");
-
-    LEUserProfile original = new LEUserProfile("u1", "Alice", "alice@example.com", 30, "Engineer");
-    System.out.println("Original profile: " + original);
-
-    // Scenario 1: Update email with validation
-    System.out.println("\n📧 Updating email...");
-    Lens<LEUserProfile, String> emailLens = LEUserProfileLenses.email();
-    Either<String, LEUserProfile> emailUpdate =
-        modifyEither(emailLens, email -> validateEmail(email).map(e -> e.toLowerCase()), original);
-
-    emailUpdate.fold(
-        error -> {
-          System.out.println("  ❌ " + error);
-          return null;
-        },
-        updated -> {
-          System.out.println("  ✅ Email updated: " + updated.email());
-          return null;
+    private static void demonstrateRealWorldScenario() {
+        System.out.println("--- Real-World Scenario: User Profile Update Form ---\n");
+        LEUserProfile original = new LEUserProfile("u1", "Alice", "alice@example.com", 30, "Engineer");
+        System.out.println("Original profile: " + original);
+        // Scenario 1: Update email with validation
+        System.out.println("\n📧 Updating email...");
+        Lens<LEUserProfile, String> emailLens = LEUserProfileLenses.email();
+        Either<String, LEUserProfile> emailUpdate = modifyEither(emailLens, email -> validateEmail(email).map(e -> e.toLowerCase()), original);
+        emailUpdate.fold(error -> {
+            System.out.println("  ❌ " + error);
+            return null;
+        }, updated -> {
+            System.out.println("  ✅ Email updated: " + updated.email());
+            return null;
         });
-
-    // Scenario 2: Update age with validation
-    System.out.println("\n🎂 Celebrating birthday...");
-    Lens<LEUserProfile, Integer> ageLens = LEUserProfileLenses.age();
-    Either<String, LEUserProfile> ageUpdate =
-        modifyEither(ageLens, age -> validateAge(age).map(a -> a + 1), original);
-
-    ageUpdate.fold(
-        error -> {
-          System.out.println("  ❌ " + error);
-          return null;
-        },
-        updated -> {
-          System.out.println("  ✅ Happy birthday! New age: " + updated.age());
-          return null;
+        // Scenario 2: Update age with validation
+        System.out.println("\n🎂 Celebrating birthday...");
+        Lens<LEUserProfile, Integer> ageLens = LEUserProfileLenses.age();
+        Either<String, LEUserProfile> ageUpdate = modifyEither(ageLens, age -> validateAge(age).map(a -> a + 1), original);
+        ageUpdate.fold(error -> {
+            System.out.println("  ❌ " + error);
+            return null;
+        }, updated -> {
+            System.out.println("  ✅ Happy birthday! New age: " + updated.age());
+            return null;
         });
+        // Scenario 3: Update bio (optional field)
+        System.out.println("\n📝 Updating bio...");
+        Lens<LEUserProfile, String> bioLens = LEUserProfileLenses.bio();
+        Maybe<LEUserProfile> bioUpdate = modifyMaybe(bioLens, bio -> bio != null && bio.length() > 10 ? Maybe.just(bio.toUpperCase()) : Maybe.nothing(), original);
+        System.out.println(bioUpdate.isJust() ? "  ✅ Bio updated: " + bioUpdate.get().bio() : "  ℹ️ Bio unchanged (too short or null)");
+        System.out.println();
+    }
 
-    // Scenario 3: Update bio (optional field)
-    System.out.println("\n📝 Updating bio...");
-    Lens<LEUserProfile, String> bioLens = LEUserProfileLenses.bio();
-    Maybe<LEUserProfile> bioUpdate =
-        modifyMaybe(
-            bioLens,
-            bio ->
-                bio != null && bio.length() > 10 ? Maybe.just(bio.toUpperCase()) : Maybe.nothing(),
-            original);
+    // Validation helpers
+    private static Either<String, String> validateEmail(String email) {
+        if (email == null || email.isEmpty()) {
+            return Either.left("Email is required");
+        }
+        if (!email.contains("@")) {
+            return Either.left("Email must contain @");
+        }
+        if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
+            return Either.left("Email format is invalid");
+        }
+        return Either.right(email);
+    }
 
-    System.out.println(
-        bioUpdate.isJust()
-            ? "  ✅ Bio updated: " + bioUpdate.get().bio()
-            : "  ℹ️ Bio unchanged (too short or null)");
+    private static Either<String, Integer> validateAge(Integer age) {
+        if (age == null) {
+            return Either.left("Age is required");
+        }
+        if (age < 0) {
+            return Either.left("Age cannot be negative");
+        }
+        if (age > 150) {
+            return Either.left("Age must be realistic");
+        }
+        return Either.right(age);
+    }
 
-    System.out.println();
-  }
-
-  // Validation helpers
-  private static Either<String, String> validateEmail(String email) {
-    if (email == null || email.isEmpty()) {
-      return Either.left("Email is required");
+    // Simulate database operation
+    private static String updateEmailInDatabase(String email) {
+        if (email.contains("fail")) {
+            throw new RuntimeException("Database connection failed");
+        }
+        // Simulated successful update
+        return email;
     }
-    if (!email.contains("@")) {
-      return Either.left("Email must contain @");
-    }
-    if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
-      return Either.left("Email format is invalid");
-    }
-    return Either.right(email);
-  }
-
-  private static Either<String, Integer> validateAge(Integer age) {
-    if (age == null) {
-      return Either.left("Age is required");
-    }
-    if (age < 0) {
-      return Either.left("Age cannot be negative");
-    }
-    if (age > 150) {
-      return Either.left("Age must be realistic");
-    }
-    return Either.right(age);
-  }
-
-  // Simulate database operation
-  private static String updateEmailInDatabase(String email) {
-    if (email.contains("fail")) {
-      throw new RuntimeException("Database connection failed");
-    }
-    return email; // Simulated successful update
-  }
 }

@@ -10,8 +10,8 @@ package org.higherkindedj.example.basic.alternative;
  */
 public record ConfigValue(String value, ConfigSource source) {
 
-  @Override
-  public String toString() {
-    return String.format("ConfigValue[value='%s', source=%s]", value, source);
-  }
+    @Override
+    public String toString() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

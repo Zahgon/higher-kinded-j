@@ -4,7 +4,6 @@ package org.higherkindedj.hkt.optional;
 
 import static org.higherkindedj.hkt.optional.OptionalKindHelper.*;
 import static org.higherkindedj.hkt.util.validation.Operation.*;
-
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -55,246 +54,194 @@ import org.jspecify.annotations.Nullable;
  * @see Kind
  * @see Unit
  */
-public class OptionalMonad extends OptionalFunctor
-    implements MonadError<OptionalKind.Witness, Unit>, MonadZero<OptionalKind.Witness> {
+public class OptionalMonad extends OptionalFunctor implements MonadError<OptionalKind.Witness, Unit>, MonadZero<OptionalKind.Witness> {
 
-  /** Singleton instance of {@code OptionalMonad}. */
-  public static final OptionalMonad INSTANCE = new OptionalMonad();
+    /**
+     * Singleton instance of {@code OptionalMonad}.
+     */
+    public static final OptionalMonad INSTANCE = new OptionalMonad();
 
-  /** Private constructor to enforce the singleton pattern. */
-  protected OptionalMonad() {
-    // Default constructor
-  }
-
-  /**
-   * Lifts a value into the {@code OptionalKind} context. If the provided {@code value} is {@code
-   * null}, this method returns an empty {@code OptionalKind}. Otherwise, it returns an {@code
-   * OptionalKind} containing the value. This is equivalent to {@code Optional.ofNullable(value)}
-   * wrapped in {@code OptionalKind}.
-   *
-   * @param <A> The type of the value.
-   * @param value The value to lift. Can be {@code null}.
-   * @return A non-null {@code Kind<OptionalKind.Witness, A>} representing {@code
-   *     Optional.ofNullable(value)}.
-   */
-  @Override
-  public <A> Kind<OptionalKind.Witness, A> of(@Nullable A value) {
-    return OPTIONAL.widen(Optional.ofNullable(value));
-  }
-
-  /**
-   * Applies a function to the value contained within an {@code OptionalKind} context, if a value is
-   * present.
-   *
-   * <p>This method overrides the inherited {@link OptionalFunctor#map(Function, Kind)} to provide
-   * validation messages that identify this operation as belonging to {@code OptionalMonad} rather
-   * than {@code OptionalFunctor}.
-   *
-   * <p>If the input {@code OptionalKind} ({@code fa}) represents an {@code Optional.of(a)}, the
-   * function {@code f} is applied to {@code a}. If {@code f} returns a non-null value {@code b},
-   * the result is an {@code OptionalKind} representing {@code Optional.of(b)}. If {@code f} returns
-   * {@code null}, the result is an empty {@code OptionalKind} (representing {@code
-   * Optional.empty()}).
-   *
-   * <p>If {@code fa} represents {@code Optional.empty()}, an empty {@code OptionalKind} is
-   * returned, and the function {@code f} is not applied.
-   *
-   * @param <A> The type of the value in the input {@code OptionalKind}.
-   * @param <B> The type of the value in the output {@code OptionalKind} after applying the
-   *     function.
-   * @param f The non-null function to apply to the value inside the {@code OptionalKind} if
-   *     present. This function can return {@code @Nullable B}.
-   * @param fa The non-null {@code Kind<OptionalKind.Witness, A>} representing the {@code
-   *     Optional<A>} whose value is to be transformed.
-   * @return A non-null {@code Kind<OptionalKind.Witness, B>} representing a new {@code Optional<B>}
-   *     that will contain the transformed value if the input was present and the function returned
-   *     non-null, or will be empty otherwise.
-   * @throws NullPointerException if {@code f} or {@code fa} is null.
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code fa} is not a valid {@code
-   *     OptionalKind} representation.
-   */
-  @Override
-  public <A, B> Kind<OptionalKind.Witness, B> map(
-      Function<? super A, ? extends @Nullable B> f, Kind<OptionalKind.Witness, A> fa) {
-
-    Validation.function().validateMap(f, fa);
-
-    Optional<A> optionalA = OPTIONAL.narrow(fa);
-    // Optional.map correctly handles f returning null by creating Optional.empty()
-    Optional<B> resultOptional = optionalA.map(f);
-    return OPTIONAL.widen(resultOptional);
-  }
-
-  /**
-   * Applies a function to the value within an {@code OptionalKind} if it is present, and flattens
-   * the {@code OptionalKind} result. If the input {@code OptionalKind} ({@code ma}) is empty, or if
-   * the function {@code f} applied to the present value results in an empty {@code OptionalKind},
-   * an empty {@code OptionalKind} is returned.
-   *
-   * @param <A> The type of the value in the input {@code OptionalKind}.
-   * @param <B> The type of the value in the {@code OptionalKind} returned by the function {@code
-   *     f}.
-   * @param f The non-null function to apply to the value if present. This function must return a
-   *     {@code Kind<OptionalKind.Witness, B>}.
-   * @param ma The non-null {@code Kind<OptionalKind.Witness, A>} to transform.
-   * @return A non-null {@code Kind<OptionalKind.Witness, B>} representing the result of the flatMap
-   *     operation.
-   * @throws NullPointerException if {@code f} or {@code ma} is null.
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code ma} is not a valid {@code
-   *     OptionalKind} representation.
-   */
-  @Override
-  public <A, B> Kind<OptionalKind.Witness, B> flatMap(
-      Function<? super A, ? extends Kind<OptionalKind.Witness, B>> f,
-      Kind<OptionalKind.Witness, A> ma) {
-
-    Validation.function().validateFlatMap(f, ma);
-
-    Optional<A> optA = OPTIONAL.narrow(ma);
-    Optional<B> resultOpt =
-        optA.flatMap(
-            a -> {
-              Kind<OptionalKind.Witness, B> kindB = f.apply(a);
-              Validation.function().requireNonNullResult(kindB, "f", FLAT_MAP);
-              return OPTIONAL.narrow(kindB);
-            });
-    return OPTIONAL.widen(resultOpt);
-  }
-
-  /**
-   * Applies an {@code OptionalKind} containing a function to an {@code OptionalKind} containing a
-   * value. If both the function and the value are present, the function is applied to the value,
-   * and the result is wrapped in an {@code OptionalKind}. If either is empty, an empty {@code
-   * OptionalKind} is returned.
-   *
-   * @param <A> The input type of the function.
-   * @param <B> The output type of the function.
-   * @param ff The non-null {@code Kind<OptionalKind.Witness, Function<A, B>>} containing the
-   *     function.
-   * @param fa The non-null {@code Kind<OptionalKind.Witness, A>} containing the value.
-   * @return A non-null {@code Kind<OptionalKind.Witness, B>} representing the result of the
-   *     application.
-   * @throws NullPointerException if {@code ff} or {@code fa} is null.
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code ff} or {@code fa} is not
-   *     a valid {@code OptionalKind} representation.
-   */
-  @Override
-  public <A, B> Kind<OptionalKind.Witness, B> ap(
-      Kind<OptionalKind.Witness, ? extends Function<A, B>> ff, Kind<OptionalKind.Witness, A> fa) {
-
-    Validation.kind().validateAp(ff, fa);
-
-    Optional<? extends Function<A, B>> optF = OPTIONAL.narrow(ff);
-    Optional<A> optA = OPTIONAL.narrow(fa);
-    Optional<B> resultOpt = optF.flatMap(optA::map);
-    return OPTIONAL.widen(resultOpt);
-  }
-
-  /**
-   * Raises an error in the {@code OptionalKind} context, which corresponds to an empty {@code
-   * Optional}. The error parameter (of type {@link Unit}) is typically {@link Unit#INSTANCE}.
-   *
-   * @param <A> The phantom type of the value for the resulting empty {@code OptionalKind}.
-   * @param error The error value (typically {@link Unit#INSTANCE}). Must be non-null.
-   * @return A non-null {@code Kind<OptionalKind.Witness, A>} representing {@code Optional.empty()}.
-   */
-  @Override
-  public <A> Kind<OptionalKind.Witness, A> raiseError(Unit error) {
-    // No need to validate the Unit parameter as it's a marker type
-    return OPTIONAL.widen(Optional.empty());
-  }
-
-  /**
-   * Handles an error (an empty {@code OptionalKind}) by applying a recovery function. If the input
-   * {@code OptionalKind} ({@code ma}) is empty, the {@code handler} function is invoked (with
-   * {@link Unit#INSTANCE} as the argument) to produce a new {@code OptionalKind}. If {@code ma} is
-   * present, it is returned unchanged.
-   *
-   * @param <A> The type of the value.
-   * @param ma The non-null {@code Kind<OptionalKind.Witness, A>} to handle.
-   * @param handler The non-null function to apply if {@code ma} is empty. It takes {@link
-   *     Unit#INSTANCE} and returns a new {@code Kind<OptionalKind.Witness, A>}.
-   * @return A non-null {@code Kind<OptionalKind.Witness, A>}, either the original if present, or
-   *     the result of the handler if empty.
-   * @throws NullPointerException if {@code ma} or {@code handler} is null.
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code ma} is not a valid {@code
-   *     OptionalKind} representation.
-   */
-  @Override
-  public <A> Kind<OptionalKind.Witness, A> handleErrorWith(
-      Kind<OptionalKind.Witness, A> ma,
-      Function<? super Unit, ? extends Kind<OptionalKind.Witness, A>> handler) {
-
-    Validation.function().validateHandleErrorWith(ma, handler);
-
-    Optional<A> optional = OPTIONAL.narrow(ma);
-    if (optional.isEmpty()) {
-      Kind<OptionalKind.Witness, A> recoveryKind = handler.apply(Unit.INSTANCE);
-      Validation.function().requireNonNullResult(recoveryKind, "handler", HANDLE_ERROR_WITH);
-      return recoveryKind;
-    } else {
-      return ma;
-    }
-  }
-
-  /**
-   * Returns the "zero" or "empty" value for this Monad, which is {@code Optional.empty()}.
-   *
-   * @param <T> The type parameter of the Kind.
-   * @return A non-null {@code Kind<OptionalKind.Witness, T>} representing {@code Optional.empty()}.
-   */
-  @Override
-  public <T> Kind<OptionalKind.Witness, T> zero() {
-    return OPTIONAL.widen(Optional.empty());
-  }
-
-  // --- Alternative Methods ---
-
-  /**
-   * Combines two Optional values, returning the first if it's present, otherwise evaluating and
-   * returning the second.
-   *
-   * <p>This implements the Alternative pattern for Optional, providing a fallback mechanism. The
-   * second argument is lazy (supplied via {@link java.util.function.Supplier}) to avoid unnecessary
-   * computation when the first Optional is present.
-   *
-   * <p>Example:
-   *
-   * <pre>{@code
-   * Kind<OptionalKind.Witness, String> primary = OPTIONAL.widen(Optional.of("value"));
-   * Kind<OptionalKind.Witness, String> fallback = () -> OPTIONAL.widen(Optional.of("default"));
-   *
-   * Kind<OptionalKind.Witness, String> result = orElse(primary, fallback);
-   * // result is Optional.of("value")
-   *
-   * Kind<OptionalKind.Witness, String> result2 = orElse(OPTIONAL.widen(Optional.empty()), fallback);
-   * // result2 is Optional.of("default")
-   * }</pre>
-   *
-   * @param <A> The type of the value within the Optional
-   * @param oa The first Optional to try. Must not be null.
-   * @param ob A {@link java.util.function.Supplier} providing the fallback Optional. Must not be
-   *     null.
-   * @return The first Optional if it's present, otherwise the result of the supplier
-   * @throws NullPointerException if oa or ob is null
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if oa cannot be unwrapped
-   */
-  @Override
-  public <A> Kind<OptionalKind.Witness, A> orElse(
-      Kind<OptionalKind.Witness, A> oa, Supplier<Kind<OptionalKind.Witness, A>> ob) {
-
-    Validation.kind().requireNonNull(oa, OR_ELSE, "first alternative");
-    Validation.function().require(ob, "ob", OR_ELSE);
-
-    Optional<A> optionalA = OPTIONAL.narrow(oa);
-
-    if (optionalA.isPresent()) {
-      return oa;
+    /**
+     * Private constructor to enforce the singleton pattern.
+     */
+    protected OptionalMonad() {
+        // Default constructor
     }
 
-    Kind<OptionalKind.Witness, A> result = ob.get();
-    Validation.function().requireNonNullResult(result, "ob", OR_ELSE);
+    /**
+     * Lifts a value into the {@code OptionalKind} context. If the provided {@code value} is {@code
+     * null}, this method returns an empty {@code OptionalKind}. Otherwise, it returns an {@code
+     * OptionalKind} containing the value. This is equivalent to {@code Optional.ofNullable(value)}
+     * wrapped in {@code OptionalKind}.
+     *
+     * @param <A> The type of the value.
+     * @param value The value to lift. Can be {@code null}.
+     * @return A non-null {@code Kind<OptionalKind.Witness, A>} representing {@code
+     *     Optional.ofNullable(value)}.
+     */
+    @Override
+    public <A> Kind<OptionalKind.Witness, A> of(@Nullable A value) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    return result;
-  }
+    /**
+     * Applies a function to the value contained within an {@code OptionalKind} context, if a value is
+     * present.
+     *
+     * <p>This method overrides the inherited {@link OptionalFunctor#map(Function, Kind)} to provide
+     * validation messages that identify this operation as belonging to {@code OptionalMonad} rather
+     * than {@code OptionalFunctor}.
+     *
+     * <p>If the input {@code OptionalKind} ({@code fa}) represents an {@code Optional.of(a)}, the
+     * function {@code f} is applied to {@code a}. If {@code f} returns a non-null value {@code b},
+     * the result is an {@code OptionalKind} representing {@code Optional.of(b)}. If {@code f} returns
+     * {@code null}, the result is an empty {@code OptionalKind} (representing {@code
+     * Optional.empty()}).
+     *
+     * <p>If {@code fa} represents {@code Optional.empty()}, an empty {@code OptionalKind} is
+     * returned, and the function {@code f} is not applied.
+     *
+     * @param <A> The type of the value in the input {@code OptionalKind}.
+     * @param <B> The type of the value in the output {@code OptionalKind} after applying the
+     *     function.
+     * @param f The non-null function to apply to the value inside the {@code OptionalKind} if
+     *     present. This function can return {@code @Nullable B}.
+     * @param fa The non-null {@code Kind<OptionalKind.Witness, A>} representing the {@code
+     *     Optional<A>} whose value is to be transformed.
+     * @return A non-null {@code Kind<OptionalKind.Witness, B>} representing a new {@code Optional<B>}
+     *     that will contain the transformed value if the input was present and the function returned
+     *     non-null, or will be empty otherwise.
+     * @throws NullPointerException if {@code f} or {@code fa} is null.
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code fa} is not a valid {@code
+     *     OptionalKind} representation.
+     */
+    @Override
+    public <A, B> Kind<OptionalKind.Witness, B> map(Function<? super A, ? extends @Nullable B> f, Kind<OptionalKind.Witness, A> fa) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Applies a function to the value within an {@code OptionalKind} if it is present, and flattens
+     * the {@code OptionalKind} result. If the input {@code OptionalKind} ({@code ma}) is empty, or if
+     * the function {@code f} applied to the present value results in an empty {@code OptionalKind},
+     * an empty {@code OptionalKind} is returned.
+     *
+     * @param <A> The type of the value in the input {@code OptionalKind}.
+     * @param <B> The type of the value in the {@code OptionalKind} returned by the function {@code
+     *     f}.
+     * @param f The non-null function to apply to the value if present. This function must return a
+     *     {@code Kind<OptionalKind.Witness, B>}.
+     * @param ma The non-null {@code Kind<OptionalKind.Witness, A>} to transform.
+     * @return A non-null {@code Kind<OptionalKind.Witness, B>} representing the result of the flatMap
+     *     operation.
+     * @throws NullPointerException if {@code f} or {@code ma} is null.
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code ma} is not a valid {@code
+     *     OptionalKind} representation.
+     */
+    @Override
+    public <A, B> Kind<OptionalKind.Witness, B> flatMap(Function<? super A, ? extends Kind<OptionalKind.Witness, B>> f, Kind<OptionalKind.Witness, A> ma) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Applies an {@code OptionalKind} containing a function to an {@code OptionalKind} containing a
+     * value. If both the function and the value are present, the function is applied to the value,
+     * and the result is wrapped in an {@code OptionalKind}. If either is empty, an empty {@code
+     * OptionalKind} is returned.
+     *
+     * @param <A> The input type of the function.
+     * @param <B> The output type of the function.
+     * @param ff The non-null {@code Kind<OptionalKind.Witness, Function<A, B>>} containing the
+     *     function.
+     * @param fa The non-null {@code Kind<OptionalKind.Witness, A>} containing the value.
+     * @return A non-null {@code Kind<OptionalKind.Witness, B>} representing the result of the
+     *     application.
+     * @throws NullPointerException if {@code ff} or {@code fa} is null.
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code ff} or {@code fa} is not
+     *     a valid {@code OptionalKind} representation.
+     */
+    @Override
+    public <A, B> Kind<OptionalKind.Witness, B> ap(Kind<OptionalKind.Witness, ? extends Function<A, B>> ff, Kind<OptionalKind.Witness, A> fa) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Raises an error in the {@code OptionalKind} context, which corresponds to an empty {@code
+     * Optional}. The error parameter (of type {@link Unit}) is typically {@link Unit#INSTANCE}.
+     *
+     * @param <A> The phantom type of the value for the resulting empty {@code OptionalKind}.
+     * @param error The error value (typically {@link Unit#INSTANCE}). Must be non-null.
+     * @return A non-null {@code Kind<OptionalKind.Witness, A>} representing {@code Optional.empty()}.
+     */
+    @Override
+    public <A> Kind<OptionalKind.Witness, A> raiseError(Unit error) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Handles an error (an empty {@code OptionalKind}) by applying a recovery function. If the input
+     * {@code OptionalKind} ({@code ma}) is empty, the {@code handler} function is invoked (with
+     * {@link Unit#INSTANCE} as the argument) to produce a new {@code OptionalKind}. If {@code ma} is
+     * present, it is returned unchanged.
+     *
+     * @param <A> The type of the value.
+     * @param ma The non-null {@code Kind<OptionalKind.Witness, A>} to handle.
+     * @param handler The non-null function to apply if {@code ma} is empty. It takes {@link
+     *     Unit#INSTANCE} and returns a new {@code Kind<OptionalKind.Witness, A>}.
+     * @return A non-null {@code Kind<OptionalKind.Witness, A>}, either the original if present, or
+     *     the result of the handler if empty.
+     * @throws NullPointerException if {@code ma} or {@code handler} is null.
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code ma} is not a valid {@code
+     *     OptionalKind} representation.
+     */
+    @Override
+    public <A> Kind<OptionalKind.Witness, A> handleErrorWith(Kind<OptionalKind.Witness, A> ma, Function<? super Unit, ? extends Kind<OptionalKind.Witness, A>> handler) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Returns the "zero" or "empty" value for this Monad, which is {@code Optional.empty()}.
+     *
+     * @param <T> The type parameter of the Kind.
+     * @return A non-null {@code Kind<OptionalKind.Witness, T>} representing {@code Optional.empty()}.
+     */
+    @Override
+    public <T> Kind<OptionalKind.Witness, T> zero() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // --- Alternative Methods ---
+    /**
+     * Combines two Optional values, returning the first if it's present, otherwise evaluating and
+     * returning the second.
+     *
+     * <p>This implements the Alternative pattern for Optional, providing a fallback mechanism. The
+     * second argument is lazy (supplied via {@link java.util.function.Supplier}) to avoid unnecessary
+     * computation when the first Optional is present.
+     *
+     * <p>Example:
+     *
+     * <pre>{@code
+     * Kind<OptionalKind.Witness, String> primary = OPTIONAL.widen(Optional.of("value"));
+     * Kind<OptionalKind.Witness, String> fallback = () -> OPTIONAL.widen(Optional.of("default"));
+     *
+     * Kind<OptionalKind.Witness, String> result = orElse(primary, fallback);
+     * // result is Optional.of("value")
+     *
+     * Kind<OptionalKind.Witness, String> result2 = orElse(OPTIONAL.widen(Optional.empty()), fallback);
+     * // result2 is Optional.of("default")
+     * }</pre>
+     *
+     * @param <A> The type of the value within the Optional
+     * @param oa The first Optional to try. Must not be null.
+     * @param ob A {@link java.util.function.Supplier} providing the fallback Optional. Must not be
+     *     null.
+     * @return The first Optional if it's present, otherwise the result of the supplier
+     * @throws NullPointerException if oa or ob is null
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if oa cannot be unwrapped
+     */
+    @Override
+    public <A> Kind<OptionalKind.Witness, A> orElse(Kind<OptionalKind.Witness, A> oa, Supplier<Kind<OptionalKind.Witness, A>> ob) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

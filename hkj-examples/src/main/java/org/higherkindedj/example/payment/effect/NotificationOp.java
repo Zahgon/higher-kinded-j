@@ -20,41 +20,42 @@ import org.jspecify.annotations.NullMarked;
  */
 @NullMarked
 @EffectAlgebra
-public sealed interface NotificationOp<A>
-    permits NotificationOp.SendReceipt, NotificationOp.AlertFraudTeam {
+public sealed interface NotificationOp<A> permits NotificationOp.SendReceipt, NotificationOp.AlertFraudTeam {
 
-  /** Maps a function over the result type. */
-  <B> NotificationOp<B> mapK(Function<? super A, ? extends B> f);
+    /**
+     * Maps a function over the result type.
+     */
+    <B> NotificationOp<B> mapK(Function<? super A, ? extends B> f);
 
-  /**
-   * Send a payment receipt to the customer.
-   *
-   * @param customer the recipient
-   * @param chargeResult the charge details to include in the receipt
-   * @param k continuation from {@link Unit} to {@code A}
-   * @param <A> the result type
-   */
-  record SendReceipt<A>(Customer customer, ChargeResult chargeResult, Function<Unit, A> k)
-      implements NotificationOp<A> {
-    @Override
-    public <B> NotificationOp<B> mapK(Function<? super A, ? extends B> f) {
-      return new SendReceipt<>(customer, chargeResult, k.andThen(f));
+    /**
+     * Send a payment receipt to the customer.
+     *
+     * @param customer the recipient
+     * @param chargeResult the charge details to include in the receipt
+     * @param k continuation from {@link Unit} to {@code A}
+     * @param <A> the result type
+     */
+    record SendReceipt<A>(Customer customer, ChargeResult chargeResult, Function<Unit, A> k) implements NotificationOp<A> {
+
+        @Override
+        public <B> NotificationOp<B> mapK(Function<? super A, ? extends B> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
     }
-  }
 
-  /**
-   * Alert the fraud team about a high-risk transaction.
-   *
-   * @param customer the customer involved
-   * @param riskScore the risk assessment
-   * @param k continuation from {@link Unit} to {@code A}
-   * @param <A> the result type
-   */
-  record AlertFraudTeam<A>(Customer customer, RiskScore riskScore, Function<Unit, A> k)
-      implements NotificationOp<A> {
-    @Override
-    public <B> NotificationOp<B> mapK(Function<? super A, ? extends B> f) {
-      return new AlertFraudTeam<>(customer, riskScore, k.andThen(f));
+    /**
+     * Alert the fraud team about a high-risk transaction.
+     *
+     * @param customer the customer involved
+     * @param riskScore the risk assessment
+     * @param k continuation from {@link Unit} to {@code A}
+     * @param <A> the result type
+     */
+    record AlertFraudTeam<A>(Customer customer, RiskScore riskScore, Function<Unit, A> k) implements NotificationOp<A> {
+
+        @Override
+        public <B> NotificationOp<B> mapK(Function<? super A, ? extends B> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
     }
-  }
 }

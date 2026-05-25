@@ -21,48 +21,49 @@ import org.jspecify.annotations.Nullable;
  * <p>The singleton pattern ensures a single instance exists for these operations.
  */
 public enum FreeKindHelper {
-  /** Singleton instance of the FreeKindHelper. */
-  FREE;
 
-  /**
-   * Holder record that wraps a Free instance and implements FreeKind. This enables the concrete
-   * Free type to be represented as a Kind.
-   *
-   * @param <F> The functor type
-   * @param <A> The result type
-   */
-  record FreeHolder<F extends WitnessArity<TypeArity.Unary>, A>(Free<F, A> free)
-      implements FreeKind<F, A> {}
+    /**
+     * Singleton instance of the FreeKindHelper.
+     */
+    FREE;
 
-  /**
-   * Widens a concrete Free type to its Kind representation.
-   *
-   * <p>This allows Free to be used with type classes that operate on Kind types.
-   *
-   * @param free The Free instance to widen
-   * @param <F> The functor type
-   * @param <A> The result type
-   * @return The Kind representation of the Free instance
-   */
-  public <F extends WitnessArity<TypeArity.Unary>, A> Kind<FreeKind.Witness<F>, A> widen(
-      Free<F, A> free) {
-    return new FreeHolder<>(free);
-  }
+    /**
+     * Holder record that wraps a Free instance and implements FreeKind. This enables the concrete
+     * Free type to be represented as a Kind.
+     *
+     * @param <F> The functor type
+     * @param <A> The result type
+     */
+    record FreeHolder<F extends WitnessArity<TypeArity.Unary>, A>(Free<F, A> free) implements FreeKind<F, A> {
+    }
 
-  /**
-   * Narrows a Kind representation back to a concrete Free type.
-   *
-   * <p>This is the inverse of {@link #widen(Free)}.
-   *
-   * @param kind The Kind representation to narrow
-   * @param <F> The functor type
-   * @param <A> The result type
-   * @return The concrete Free instance
-   * @throws ClassCastException if the Kind is not a FreeHolder
-   */
-  @SuppressWarnings("unchecked")
-  public <F extends WitnessArity<TypeArity.Unary>, A> Free<F, A> narrow(
-      @Nullable Kind<FreeKind.Witness<F>, A> kind) {
-    return Validation.kind().narrowHolder(kind, Free.class, FreeHolder.class, FreeHolder::free);
-  }
+    /**
+     * Widens a concrete Free type to its Kind representation.
+     *
+     * <p>This allows Free to be used with type classes that operate on Kind types.
+     *
+     * @param free The Free instance to widen
+     * @param <F> The functor type
+     * @param <A> The result type
+     * @return The Kind representation of the Free instance
+     */
+    public <F extends WitnessArity<TypeArity.Unary>, A> Kind<FreeKind.Witness<F>, A> widen(Free<F, A> free) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Narrows a Kind representation back to a concrete Free type.
+     *
+     * <p>This is the inverse of {@link #widen(Free)}.
+     *
+     * @param kind The Kind representation to narrow
+     * @param <F> The functor type
+     * @param <A> The result type
+     * @return The concrete Free instance
+     * @throws ClassCastException if the Kind is not a FreeHolder
+     */
+    @SuppressWarnings("unchecked")
+    public <F extends WitnessArity<TypeArity.Unary>, A> Free<F, A> narrow(@Nullable Kind<FreeKind.Witness<F>, A> kind) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

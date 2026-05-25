@@ -20,30 +20,31 @@ import org.higherkindedj.hkt.vstream.VStreamPar;
  */
 public class RiskPipeline {
 
-  private final RiskCalculator calculator;
-  private final int concurrency;
+    private final RiskCalculator calculator;
 
-  /**
-   * Creates a risk pipeline.
-   *
-   * @param calculator the risk calculator to apply
-   * @param concurrency max concurrent assessments
-   */
-  public RiskPipeline(RiskCalculator calculator, int concurrency) {
-    this.calculator = Objects.requireNonNull(calculator);
-    if (concurrency <= 0) {
-      throw new IllegalArgumentException("concurrency must be positive");
+    private final int concurrency;
+
+    /**
+     * Creates a risk pipeline.
+     *
+     * @param calculator the risk calculator to apply
+     * @param concurrency max concurrent assessments
+     */
+    public RiskPipeline(RiskCalculator calculator, int concurrency) {
+        this.calculator = Objects.requireNonNull(calculator);
+        if (concurrency <= 0) {
+            throw new IllegalArgumentException("concurrency must be positive");
+        }
+        this.concurrency = concurrency;
     }
-    this.concurrency = concurrency;
-  }
 
-  /**
-   * Applies risk assessment across a stream of enriched ticks.
-   *
-   * @param enrichedTicks the input stream
-   * @return a stream of risk assessments (may arrive in any order)
-   */
-  public VStream<RiskAssessment> assess(VStream<EnrichedTick> enrichedTicks) {
-    return VStreamPar.parEvalMapUnordered(enrichedTicks, concurrency, calculator::assess);
-  }
+    /**
+     * Applies risk assessment across a stream of enriched ticks.
+     *
+     * @param enrichedTicks the input stream
+     * @return a stream of risk assessments (may arrive in any order)
+     */
+    public VStream<RiskAssessment> assess(VStream<EnrichedTick> enrichedTicks) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

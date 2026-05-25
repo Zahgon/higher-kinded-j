@@ -30,93 +30,85 @@ import javax.tools.Diagnostic;
  */
 public class EffectCompositionChecker implements CheckVisitor {
 
-  private static final String COMBINE_METHOD = "combine";
-  private static final String INTERPRETERS_CLASS = "Interpreters";
+    private static final String COMBINE_METHOD = "combine";
 
-  private final Trees trees;
-  private final Diagnostic.Kind severity;
+    private static final String INTERPRETERS_CLASS = "Interpreters";
 
-  /**
-   * Creates a new checker that reports at {@link Diagnostic.Kind#ERROR}.
-   *
-   * @param trees the Trees utility from the javac task; must not be null
-   */
-  public EffectCompositionChecker(Trees trees) {
-    this(trees, Diagnostic.Kind.ERROR);
-  }
+    private final Trees trees;
 
-  /**
-   * Creates a new checker reporting at the given severity.
-   *
-   * @param trees the Trees utility from the javac task; must not be null
-   * @param severity the severity at which composition errors are reported
-   */
-  public EffectCompositionChecker(Trees trees, Diagnostic.Kind severity) {
-    this.trees = Objects.requireNonNull(trees, "trees must not be null");
-    this.severity = severity;
-  }
+    private final Diagnostic.Kind severity;
 
-  @Override
-  public void onMethodInvocation(MethodInvocationTree node, TreePath path) {
-    String methodName = extractMethodName(node);
-    if (COMBINE_METHOD.equals(methodName)) {
-      checkCombineArity(node);
-    }
-  }
-
-  /**
-   * Checks that Interpreters.combine() is called with the correct number of arguments.
-   * Interpreters.combine() accepts 2, 3, or 4 interpreters.
-   */
-  private void checkCombineArity(MethodInvocationTree node) {
-    if (!isCallOnClass(node, INTERPRETERS_CLASS)) {
-      return;
+    /**
+     * Creates a new checker that reports at {@link Diagnostic.Kind#ERROR}.
+     *
+     * @param trees the Trees utility from the javac task; must not be null
+     */
+    public EffectCompositionChecker(Trees trees) {
+        this(trees, Diagnostic.Kind.ERROR);
     }
 
-    List<? extends ExpressionTree> args = node.getArguments();
-    int argCount = args.size();
-
-    if (argCount < 2 || argCount > 4) {
-      reportError(
-          node,
-          String.format(
-              "Interpreters.combine() accepts 2-4 interpreters, got %d. "
-                  + "Each interpreter handles one effect algebra in the EitherF composition.",
-              argCount));
+    /**
+     * Creates a new checker reporting at the given severity.
+     *
+     * @param trees the Trees utility from the javac task; must not be null
+     * @param severity the severity at which composition errors are reported
+     */
+    public EffectCompositionChecker(Trees trees, Diagnostic.Kind severity) {
+        this.trees = Objects.requireNonNull(trees, "trees must not be null");
+        this.severity = severity;
     }
-  }
 
-  /**
-   * Checks whether the method invocation is on the given class name.
-   *
-   * @param node the method invocation to check
-   * @param className the expected class name
-   * @return true if the receiver matches the class name
-   */
-  private boolean isCallOnClass(MethodInvocationTree node, String className) {
-    ExpressionTree methodSelect = node.getMethodSelect();
-    if (methodSelect instanceof MemberSelectTree memberSelect) {
-      String receiverStr = memberSelect.getExpression().toString();
-      return receiverStr.equals(className) || receiverStr.endsWith("." + className);
+    @Override
+    public void onMethodInvocation(MethodInvocationTree node, TreePath path) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-    return false;
-  }
 
-  /**
-   * Extracts the method name from a method invocation.
-   *
-   * @param node the method invocation tree
-   * @return the method name, or null if it cannot be determined
-   */
-  private String extractMethodName(MethodInvocationTree node) {
-    ExpressionTree methodSelect = node.getMethodSelect();
-    if (methodSelect instanceof MemberSelectTree memberSelect) {
-      return memberSelect.getIdentifier().toString();
+    /**
+     * Checks that Interpreters.combine() is called with the correct number of arguments.
+     * Interpreters.combine() accepts 2, 3, or 4 interpreters.
+     */
+    private void checkCombineArity(MethodInvocationTree node) {
+        if (!isCallOnClass(node, INTERPRETERS_CLASS)) {
+            return;
+        }
+        List<? extends ExpressionTree> args = node.getArguments();
+        int argCount = args.size();
+        if (argCount < 2 || argCount > 4) {
+            reportError(node, String.format("Interpreters.combine() accepts 2-4 interpreters, got %d. " + "Each interpreter handles one effect algebra in the EitherF composition.", argCount));
+        }
     }
-    return null;
-  }
 
-  private void reportError(MethodInvocationTree node, String message) {
-    trees.printMessage(severity, message, node, null);
-  }
+    /**
+     * Checks whether the method invocation is on the given class name.
+     *
+     * @param node the method invocation to check
+     * @param className the expected class name
+     * @return true if the receiver matches the class name
+     */
+    private boolean isCallOnClass(MethodInvocationTree node, String className) {
+        ExpressionTree methodSelect = node.getMethodSelect();
+        if (methodSelect instanceof MemberSelectTree memberSelect) {
+            String receiverStr = memberSelect.getExpression().toString();
+            return receiverStr.equals(className) || receiverStr.endsWith("." + className);
+        }
+        return false;
+    }
+
+    /**
+     * Extracts the method name from a method invocation.
+     *
+     * @param node the method invocation tree
+     * @return the method name, or null if it cannot be determined
+     */
+    private String extractMethodName(MethodInvocationTree node) {
+        ExpressionTree methodSelect = node.getMethodSelect();
+        if (methodSelect instanceof MemberSelectTree memberSelect) {
+            return memberSelect.getIdentifier().toString();
+        }
+        return null;
+    }
+
+    private void reportError(MethodInvocationTree node, String message) {
+        trees.printMessage(severity, message, node, null);
+    }
 }

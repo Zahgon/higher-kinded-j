@@ -16,16 +16,15 @@ import org.jspecify.annotations.NullMarked;
  */
 @NullMarked
 public enum OpticOpFunctor implements Functor<OpticOpKind.Witness> {
-  /** Singleton instance. */
-  INSTANCE;
 
-  @Override
-  @SuppressWarnings("unchecked")
-  public <A, B> Kind<OpticOpKind.Witness, B> map(
-      Function<? super A, ? extends B> f, Kind<OpticOpKind.Witness, A> fa) {
-    // OpticOp instructions are immutable descriptions
-    // The actual mapping happens during interpretation
-    // So we just preserve the structure here
-    return (Kind<OpticOpKind.Witness, B>) fa;
-  }
+    /**
+     * Singleton instance.
+     */
+    INSTANCE;
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <A, B> Kind<OpticOpKind.Witness, B> map(Function<? super A, ? extends B> f, Kind<OpticOpKind.Witness, A> fa) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

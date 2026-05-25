@@ -46,125 +46,73 @@ import tools.jackson.databind.json.JsonMapper;
  */
 public class FreePathReturnValueHandler implements HandlerMethodReturnValueHandler {
 
-  private static final Logger log = LoggerFactory.getLogger(FreePathReturnValueHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(FreePathReturnValueHandler.class);
 
-  private final JsonMapper jsonMapper;
-  private final ObjectWriter objectWriter;
-  private final int failureStatus;
-  private final boolean includeExceptionDetails;
-  private final ApplicationContext applicationContext;
-  private volatile EffectBoundary<?> cachedBoundary;
+    private final JsonMapper jsonMapper;
 
-  /**
-   * Creates a new FreePathReturnValueHandler.
-   *
-   * @param jsonMapper the Jackson 3.x JsonMapper for JSON serialisation
-   * @param failureStatus the HTTP status code for interpretation failures (default 500)
-   * @param includeExceptionDetails whether to include exception details in error responses
-   * @param applicationContext the Spring application context for looking up EffectBoundary beans
-   */
-  public FreePathReturnValueHandler(
-      JsonMapper jsonMapper,
-      int failureStatus,
-      boolean includeExceptionDetails,
-      ApplicationContext applicationContext) {
-    this.jsonMapper = jsonMapper;
-    this.objectWriter = jsonMapper.writer();
-    this.failureStatus = failureStatus;
-    this.includeExceptionDetails = includeExceptionDetails;
-    this.applicationContext = applicationContext;
-  }
+    private final ObjectWriter objectWriter;
 
-  @Override
-  public boolean supportsReturnType(MethodParameter returnType) {
-    return FreePath.class.isAssignableFrom(returnType.getParameterType());
-  }
+    private final int failureStatus;
 
-  @Override
-  @SuppressWarnings({"unchecked", "rawtypes"})
-  public void handleReturnValue(
-      @Nullable Object returnValue,
-      MethodParameter returnType,
-      ModelAndViewContainer mavContainer,
-      NativeWebRequest webRequest) {
+    private final boolean includeExceptionDetails;
 
-    mavContainer.setRequestHandled(true);
-    HttpServletResponse response = webRequest.getNativeResponse(HttpServletResponse.class);
+    private final ApplicationContext applicationContext;
 
-    if (response == null || !(returnValue instanceof FreePath<?, ?> freePath)) {
-      return;
+    private volatile EffectBoundary<?> cachedBoundary;
+
+    /**
+     * Creates a new FreePathReturnValueHandler.
+     *
+     * @param jsonMapper the Jackson 3.x JsonMapper for JSON serialisation
+     * @param failureStatus the HTTP status code for interpretation failures (default 500)
+     * @param includeExceptionDetails whether to include exception details in error responses
+     * @param applicationContext the Spring application context for looking up EffectBoundary beans
+     */
+    public FreePathReturnValueHandler(JsonMapper jsonMapper, int failureStatus, boolean includeExceptionDetails, ApplicationContext applicationContext) {
+        this.jsonMapper = jsonMapper;
+        this.objectWriter = jsonMapper.writer();
+        this.failureStatus = failureStatus;
+        this.includeExceptionDetails = includeExceptionDetails;
+        this.applicationContext = applicationContext;
     }
 
-    // Look up the EffectBoundary bean (cached after first resolution)
-    EffectBoundary boundary = cachedBoundary;
-    if (boundary == null) {
-      try {
-        boundary = applicationContext.getBean(EffectBoundary.class);
-        cachedBoundary = boundary;
-      } catch (Exception e) {
-        log.error(
-            "No EffectBoundary bean found in ApplicationContext. "
-                + "Register an EffectBoundary bean or use @EnableEffectBoundary.",
-            e);
-        writeFailureResponse(e, response);
-        return;
-      }
+    @Override
+    public boolean supportsReturnType(MethodParameter returnType) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    int successStatus =
-        SuccessStatusResolver.resolveSuccessStatus(returnType, HttpStatus.OK.value());
-
-    // Interpret the program via the boundary
-    Try<?> result = boundary.runSafe(freePath.toFree());
-    result.fold(
-        value -> {
-          writeSuccessResponse(value, response, successStatus);
-          return null;
-        },
-        throwable -> {
-          log.error("FreePath interpretation failed in controller method", throwable);
-          writeFailureResponse(throwable, response);
-          return null;
-        });
-  }
-
-  private void writeFailureResponse(Throwable throwable, HttpServletResponse response) {
-    try {
-      response.setStatus(failureStatus);
-      ErrorResponseHeaders.applyTo(throwable, response);
-      response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-
-      Map<String, Object> errorBody;
-      if (includeExceptionDetails) {
-        errorBody =
-            Map.of(
-                "success",
-                false,
-                "error",
-                Map.of(
-                    "type",
-                    throwable.getClass().getSimpleName(),
-                    "message",
-                    throwable.getMessage() != null ? throwable.getMessage() : "No message"));
-      } else {
-        errorBody = Map.of("success", false, "error", "An error occurred during execution");
-      }
-
-      objectWriter.writeValue(response.getWriter(), errorBody);
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to write failure response", e);
+    @Override
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public void handleReturnValue(@Nullable Object returnValue, MethodParameter returnType, ModelAndViewContainer mavContainer, NativeWebRequest webRequest) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-  }
 
-  private void writeSuccessResponse(Object value, HttpServletResponse response, int status) {
-    try {
-      response.setStatus(status);
-      if (status != HttpStatus.NO_CONTENT.value()) {
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        objectWriter.writeValue(response.getWriter(), value);
-      }
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to write success response", e);
+    private void writeFailureResponse(Throwable throwable, HttpServletResponse response) {
+        try {
+            response.setStatus(failureStatus);
+            ErrorResponseHeaders.applyTo(throwable, response);
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            Map<String, Object> errorBody;
+            if (includeExceptionDetails) {
+                errorBody = Map.of("success", false, "error", Map.of("type", throwable.getClass().getSimpleName(), "message", throwable.getMessage() != null ? throwable.getMessage() : "No message"));
+            } else {
+                errorBody = Map.of("success", false, "error", "An error occurred during execution");
+            }
+            objectWriter.writeValue(response.getWriter(), errorBody);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to write failure response", e);
+        }
     }
-  }
+
+    private void writeSuccessResponse(Object value, HttpServletResponse response, int status) {
+        try {
+            response.setStatus(status);
+            if (status != HttpStatus.NO_CONTENT.value()) {
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                objectWriter.writeValue(response.getWriter(), value);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to write success response", e);
+        }
+    }
 }

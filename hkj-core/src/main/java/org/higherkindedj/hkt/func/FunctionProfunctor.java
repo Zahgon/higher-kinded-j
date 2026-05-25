@@ -3,7 +3,6 @@
 package org.higherkindedj.hkt.func;
 
 import static org.higherkindedj.hkt.func.FunctionKindHelper.FUNCTION;
-
 import java.util.function.Function;
 import org.higherkindedj.hkt.Kind2;
 import org.higherkindedj.hkt.Profunctor;
@@ -18,29 +17,16 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public class FunctionProfunctor implements Profunctor<FunctionKind.Witness> {
 
-  /** Singleton instance of the FunctionProfunctor. */
-  public static final FunctionProfunctor INSTANCE = new FunctionProfunctor();
+    /**
+     * Singleton instance of the FunctionProfunctor.
+     */
+    public static final FunctionProfunctor INSTANCE = new FunctionProfunctor();
 
-  private FunctionProfunctor() {}
+    private FunctionProfunctor() {
+    }
 
-  @Override
-  public <A, B, C, D> Kind2<FunctionKind.Witness, C, D> dimap(
-      Function<? super C, ? extends A> f,
-      Function<? super B, ? extends D> g,
-      Kind2<FunctionKind.Witness, A, B> pab) {
-
-    Function<A, B> originalFunction = FUNCTION.getFunction(pab);
-
-    // dimap for functions: (c -> a) -> (b -> d) -> (a -> b) -> (c -> d)
-    // This is function composition: g ∘ originalFunction ∘ f
-    // We need to handle the wildcard types carefully
-    Function<C, D> newFunction =
-        (C c) -> {
-          A a = f.apply(c);
-          B b = originalFunction.apply(a);
-          return g.apply(b);
-        };
-
-    return FUNCTION.widen(newFunction);
-  }
+    @Override
+    public <A, B, C, D> Kind2<FunctionKind.Witness, C, D> dimap(Function<? super C, ? extends A> f, Function<? super B, ? extends D> g, Kind2<FunctionKind.Witness, A, B> pab) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

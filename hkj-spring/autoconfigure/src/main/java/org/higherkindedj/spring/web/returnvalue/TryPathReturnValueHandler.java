@@ -48,114 +48,79 @@ import tools.jackson.databind.json.JsonMapper;
  */
 public class TryPathReturnValueHandler implements HandlerMethodReturnValueHandler {
 
-  private static final Logger log = LoggerFactory.getLogger(TryPathReturnValueHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(TryPathReturnValueHandler.class);
 
-  private final JsonMapper jsonMapper;
-  private final ObjectWriter objectWriter;
-  private final int failureStatus;
-  private final boolean includeExceptionDetails;
+    private final JsonMapper jsonMapper;
 
-  /**
-   * Creates a new TryPathReturnValueHandler with the specified settings.
-   *
-   * @param jsonMapper the Jackson 3.x JsonMapper for JSON serialization
-   * @param failureStatus the HTTP status code for failures (default 500)
-   * @param includeExceptionDetails whether to include exception details in the response
-   */
-  public TryPathReturnValueHandler(
-      JsonMapper jsonMapper, int failureStatus, boolean includeExceptionDetails) {
-    this.jsonMapper = jsonMapper;
-    this.objectWriter = jsonMapper.writer();
-    this.failureStatus = failureStatus;
-    this.includeExceptionDetails = includeExceptionDetails;
-  }
+    private final ObjectWriter objectWriter;
 
-  @Override
-  public boolean supportsReturnType(MethodParameter returnType) {
-    return TryPath.class.isAssignableFrom(returnType.getParameterType());
-  }
+    private final int failureStatus;
 
-  @Override
-  public void handleReturnValue(
-      @Nullable Object returnValue,
-      MethodParameter returnType,
-      ModelAndViewContainer mavContainer,
-      NativeWebRequest webRequest) {
+    private final boolean includeExceptionDetails;
 
-    mavContainer.setRequestHandled(true);
-    HttpServletResponse response = webRequest.getNativeResponse(HttpServletResponse.class);
-
-    if (response == null || !(returnValue instanceof TryPath<?> path)) {
-      return;
+    /**
+     * Creates a new TryPathReturnValueHandler with the specified settings.
+     *
+     * @param jsonMapper the Jackson 3.x JsonMapper for JSON serialization
+     * @param failureStatus the HTTP status code for failures (default 500)
+     * @param includeExceptionDetails whether to include exception details in the response
+     */
+    public TryPathReturnValueHandler(JsonMapper jsonMapper, int failureStatus, boolean includeExceptionDetails) {
+        this.jsonMapper = jsonMapper;
+        this.objectWriter = jsonMapper.writer();
+        this.failureStatus = failureStatus;
+        this.includeExceptionDetails = includeExceptionDetails;
     }
 
-    int successStatus =
-        SuccessStatusResolver.resolveSuccessStatus(returnType, HttpStatus.OK.value());
-
-    // Extract underlying Try and convert to HTTP response
-    path.run()
-        .fold(
-            value -> {
-              writeSuccessResponse(value, response, successStatus);
-              return null;
-            },
-            throwable -> {
-              log.error("TryPath failure in controller method", throwable);
-              writeFailureResponse(throwable, response);
-              return null;
-            });
-  }
-
-  /**
-   * Writes a failure (exception) response to the HTTP response.
-   *
-   * @param throwable the exception that occurred
-   * @param response the HTTP response
-   */
-  private void writeFailureResponse(Throwable throwable, HttpServletResponse response) {
-    try {
-      response.setStatus(failureStatus);
-      ErrorResponseHeaders.applyTo(throwable, response);
-      response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-
-      Map<String, Object> errorBody;
-      if (includeExceptionDetails) {
-        errorBody =
-            Map.of(
-                "success",
-                false,
-                "error",
-                Map.of(
-                    "type",
-                    throwable.getClass().getSimpleName(),
-                    "message",
-                    throwable.getMessage() != null ? throwable.getMessage() : "No message"));
-      } else {
-        errorBody = Map.of("success", false, "error", "An internal error occurred");
-      }
-
-      objectWriter.writeValue(response.getWriter(), errorBody);
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to write failure response", e);
+    @Override
+    public boolean supportsReturnType(MethodParameter returnType) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-  }
 
-  /**
-   * Writes a success value to the HTTP response.
-   *
-   * @param value the success value
-   * @param response the HTTP response
-   * @param status the HTTP status code to set
-   */
-  private void writeSuccessResponse(Object value, HttpServletResponse response, int status) {
-    try {
-      response.setStatus(status);
-      if (status != HttpStatus.NO_CONTENT.value()) {
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        objectWriter.writeValue(response.getWriter(), value);
-      }
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to write success response", e);
+    @Override
+    public void handleReturnValue(@Nullable Object returnValue, MethodParameter returnType, ModelAndViewContainer mavContainer, NativeWebRequest webRequest) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-  }
+
+    /**
+     * Writes a failure (exception) response to the HTTP response.
+     *
+     * @param throwable the exception that occurred
+     * @param response the HTTP response
+     */
+    private void writeFailureResponse(Throwable throwable, HttpServletResponse response) {
+        try {
+            response.setStatus(failureStatus);
+            ErrorResponseHeaders.applyTo(throwable, response);
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            Map<String, Object> errorBody;
+            if (includeExceptionDetails) {
+                errorBody = Map.of("success", false, "error", Map.of("type", throwable.getClass().getSimpleName(), "message", throwable.getMessage() != null ? throwable.getMessage() : "No message"));
+            } else {
+                errorBody = Map.of("success", false, "error", "An internal error occurred");
+            }
+            objectWriter.writeValue(response.getWriter(), errorBody);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to write failure response", e);
+        }
+    }
+
+    /**
+     * Writes a success value to the HTTP response.
+     *
+     * @param value the success value
+     * @param response the HTTP response
+     * @param status the HTTP status code to set
+     */
+    private void writeSuccessResponse(Object value, HttpServletResponse response, int status) {
+        try {
+            response.setStatus(status);
+            if (status != HttpStatus.NO_CONTENT.value()) {
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                objectWriter.writeValue(response.getWriter(), value);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to write success response", e);
+        }
+    }
 }

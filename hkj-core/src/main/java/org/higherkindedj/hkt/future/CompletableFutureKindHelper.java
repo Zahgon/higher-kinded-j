@@ -16,94 +16,77 @@ import org.jspecify.annotations.Nullable;
  * CompletableFutureKindHelper.FUTURE.widen(myFuture);}
  */
 public enum CompletableFutureKindHelper implements CompletableFutureConverterOps {
-  FUTURE;
 
-  private static final Class<CompletableFuture> COMPLETABLE_FUTURE_CLASS = CompletableFuture.class;
+    FUTURE;
 
-  /**
-   * Internal record implementing {@link CompletableFutureKind} to hold the concrete {@link
-   * CompletableFuture} instance. Made package-private for potential test access.
-   *
-   * @param <A> The result type of the CompletableFuture.
-   * @param future The actual {@link CompletableFuture} instance. Must not be null.
-   */
-  record CompletableFutureHolder<A>(CompletableFuture<A> future)
-      implements CompletableFutureKind<A> {
-    CompletableFutureHolder {
-      Validation.kind().requireForWiden(future, COMPLETABLE_FUTURE_CLASS);
+    private static final Class<CompletableFuture> COMPLETABLE_FUTURE_CLASS = CompletableFuture.class;
+
+    /**
+     * Internal record implementing {@link CompletableFutureKind} to hold the concrete {@link
+     * CompletableFuture} instance. Made package-private for potential test access.
+     *
+     * @param <A> The result type of the CompletableFuture.
+     * @param future The actual {@link CompletableFuture} instance. Must not be null.
+     */
+    record CompletableFutureHolder<A>(CompletableFuture<A> future) implements CompletableFutureKind<A> {
+
+        CompletableFutureHolder {
+            Validation.kind().requireForWiden(future, COMPLETABLE_FUTURE_CLASS);
+        }
     }
-  }
 
-  /**
-   * Widens a concrete {@link CompletableFuture<A>} instance into its higher-kinded representation,
-   * {@code Kind<CompletableFutureKind.Witness, A>}. Implements {@link
-   * CompletableFutureConverterOps#widen}.
-   *
-   * @param <A> The result type of the {@code CompletableFuture}.
-   * @param future The concrete {@link CompletableFuture<A>} instance to widen. Must not be null.
-   * @return A {@link Kind<CompletableFutureKind.Witness, A>} representing the wrapped future. Never
-   *     null.
-   * @throws NullPointerException if {@code future} is {@code null}.
-   */
-  @Override
-  public <A> Kind<CompletableFutureKind.Witness, A> widen(CompletableFuture<A> future) {
-    return new CompletableFutureHolder<>(future);
-  }
-
-  /**
-   * Narrows a {@code Kind<CompletableFutureKind.Witness, A>} back to its concrete {@link
-   * CompletableFuture<A>} type. Implements {@link CompletableFutureConverterOps#narrow}.
-   *
-   * <p>This implementation uses a holder-based approach with modern switch expressions for
-   * consistent pattern matching.
-   *
-   * @param <A> The result type of the {@code CompletableFuture}.
-   * @param kind The {@code Kind<CompletableFutureKind.Witness, A>} instance to narrow. May be
-   *     {@code null}.
-   * @return The underlying {@link CompletableFuture<A>}. Never null.
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if the input {@code kind} is {@code
-   *     null}, not an instance of {@code CompletableFutureHolder}, or if the holder internally
-   *     contains a {@code null} future.
-   */
-  @Override
-  @SuppressWarnings("unchecked")
-  public <A> CompletableFuture<A> narrow(@Nullable Kind<CompletableFutureKind.Witness, A> kind) {
-    return Validation.kind()
-        .narrowHolder(
-            kind,
-            COMPLETABLE_FUTURE_CLASS,
-            CompletableFutureHolder.class,
-            CompletableFutureHolder::future);
-  }
-
-  /**
-   * Retrieves the result of the {@link CompletableFuture} wrapped within the {@link Kind}, blocking
-   * the current thread if necessary until the future completes.
-   *
-   * @param <A> The result type of the {@code CompletableFuture}.
-   * @param kind The {@code Kind<CompletableFutureKind.Witness, A>} holding the {@code
-   *     CompletableFuture} computation. Must not be null.
-   * @return The result of the {@code CompletableFuture} computation. Can be {@code null} if the
-   *     future completes with a {@code null} value.
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if the input {@code kind} is
-   *     invalid (e.g., null or wrong type).
-   * @throws CompletionException if the future completed exceptionally.
-   * @throws java.util.concurrent.CancellationException if the future was cancelled.
-   */
-  public <A> A join(Kind<CompletableFutureKind.Witness, A> kind) {
-    CompletableFuture<A> future = this.narrow(kind);
-    try {
-      return future.join();
-    } catch (CompletionException e) {
-      // Preserve original exception throwing behaviour if cause is RuntimeException or Error
-      Throwable cause = e.getCause();
-      if (cause instanceof RuntimeException re) {
-        throw re;
-      }
-      if (cause instanceof Error err) {
-        throw err;
-      }
-      throw e; // otherwise, throw the original CompletionException
+    /**
+     * Widens a concrete {@link CompletableFuture<A>} instance into its higher-kinded representation,
+     * {@code Kind<CompletableFutureKind.Witness, A>}. Implements {@link
+     * CompletableFutureConverterOps#widen}.
+     *
+     * @param <A> The result type of the {@code CompletableFuture}.
+     * @param future The concrete {@link CompletableFuture<A>} instance to widen. Must not be null.
+     * @return A {@link Kind<CompletableFutureKind.Witness, A>} representing the wrapped future. Never
+     *     null.
+     * @throws NullPointerException if {@code future} is {@code null}.
+     */
+    @Override
+    public <A> Kind<CompletableFutureKind.Witness, A> widen(CompletableFuture<A> future) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-  }
+
+    /**
+     * Narrows a {@code Kind<CompletableFutureKind.Witness, A>} back to its concrete {@link
+     * CompletableFuture<A>} type. Implements {@link CompletableFutureConverterOps#narrow}.
+     *
+     * <p>This implementation uses a holder-based approach with modern switch expressions for
+     * consistent pattern matching.
+     *
+     * @param <A> The result type of the {@code CompletableFuture}.
+     * @param kind The {@code Kind<CompletableFutureKind.Witness, A>} instance to narrow. May be
+     *     {@code null}.
+     * @return The underlying {@link CompletableFuture<A>}. Never null.
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if the input {@code kind} is {@code
+     *     null}, not an instance of {@code CompletableFutureHolder}, or if the holder internally
+     *     contains a {@code null} future.
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public <A> CompletableFuture<A> narrow(@Nullable Kind<CompletableFutureKind.Witness, A> kind) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Retrieves the result of the {@link CompletableFuture} wrapped within the {@link Kind}, blocking
+     * the current thread if necessary until the future completes.
+     *
+     * @param <A> The result type of the {@code CompletableFuture}.
+     * @param kind The {@code Kind<CompletableFutureKind.Witness, A>} holding the {@code
+     *     CompletableFuture} computation. Must not be null.
+     * @return The result of the {@code CompletableFuture} computation. Can be {@code null} if the
+     *     future completes with a {@code null} value.
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if the input {@code kind} is
+     *     invalid (e.g., null or wrong type).
+     * @throws CompletionException if the future completed exceptionally.
+     * @throws java.util.concurrent.CancellationException if the future was cancelled.
+     */
+    public <A> A join(Kind<CompletableFutureKind.Witness, A> kind) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

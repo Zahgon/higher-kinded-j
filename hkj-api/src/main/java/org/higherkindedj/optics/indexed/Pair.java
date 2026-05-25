@@ -39,47 +39,47 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public record Pair<A, B>(A first, B second) {
 
-  /**
-   * Creates a new pair with the first element transformed.
-   *
-   * @param newFirst The new first element
-   * @param <C> The type of the new first element
-   * @return A new pair with the transformed first element
-   */
-  public <C> Pair<C, B> withFirst(C newFirst) {
-    return new Pair<>(newFirst, second);
-  }
+    /**
+     * Creates a new pair with the first element transformed.
+     *
+     * @param newFirst The new first element
+     * @param <C> The type of the new first element
+     * @return A new pair with the transformed first element
+     */
+    public <C> Pair<C, B> withFirst(C newFirst) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a new pair with the second element transformed.
-   *
-   * @param newSecond The new second element
-   * @param <C> The type of the new second element
-   * @return A new pair with the transformed second element
-   */
-  public <C> Pair<A, C> withSecond(C newSecond) {
-    return new Pair<>(first, newSecond);
-  }
+    /**
+     * Creates a new pair with the second element transformed.
+     *
+     * @param newSecond The new second element
+     * @param <C> The type of the new second element
+     * @return A new pair with the transformed second element
+     */
+    public <C> Pair<A, C> withSecond(C newSecond) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Swaps the elements of this pair.
-   *
-   * @return A new pair with elements swapped
-   */
-  public Pair<B, A> swap() {
-    return new Pair<>(second, first);
-  }
+    /**
+     * Swaps the elements of this pair.
+     *
+     * @return A new pair with elements swapped
+     */
+    public Pair<B, A> swap() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a pair from two values.
-   *
-   * @param first The first element
-   * @param second The second element
-   * @param <A> The type of the first element
-   * @param <B> The type of the second element
-   * @return A new pair
-   */
-  public static <A, B> Pair<A, B> of(A first, B second) {
-    return new Pair<>(first, second);
-  }
+    /**
+     * Creates a pair from two values.
+     *
+     * @param first The first element
+     * @param second The second element
+     * @param <A> The type of the first element
+     * @param <B> The type of the second element
+     * @return A new pair
+     */
+    public static <A, B> Pair<A, B> of(A first, B second) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

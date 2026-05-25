@@ -3,7 +3,6 @@
 package org.higherkindedj.hkt;
 
 import static java.util.Objects.requireNonNull;
-
 import org.jspecify.annotations.NullMarked;
 
 /**
@@ -152,152 +151,147 @@ import org.jspecify.annotations.NullMarked;
 @FunctionalInterface
 public interface Natural<F extends WitnessArity<?>, G extends WitnessArity<?>> {
 
-  /**
-   * Applies this natural transformation to convert a value in context F to context G.
-   *
-   * <p>This method must be implemented to work uniformly for all types A, transforming the
-   * structure F into structure G without inspecting or depending on the specific type A.
-   *
-   * <p><b>Implementation Requirements:</b>
-   *
-   * <ul>
-   *   <li>Must work for any type A (cannot pattern match on A or use instanceof)
-   *   <li>Must satisfy the naturality law (see class documentation)
-   *   <li>Should be pure (no side effects)
-   *   <li>Should be total (defined for all inputs)
-   * </ul>
-   *
-   * <p><b>Example Implementation:</b>
-   *
-   * <pre>{@code
-   * // Natural transformation from Maybe to List
-   * Natural<Maybe.Witness, List.Witness> maybeToList = new Natural<>() {
-   *   @Override
-   *   public <A> Kind<List.Witness, A> apply(Kind<Maybe.Witness, A> fa) {
-   *     Maybe<A> maybe = MaybeKindHelper.MAYBE.narrow(fa);
-   *     return maybe.fold(
-   *         () -> ListKindHelper.LIST.widen(List.empty()),
-   *         value -> ListKindHelper.LIST.widen(List.of(value))
-   *     );
-   *   }
-   * };
-   * }</pre>
-   *
-   * @param fa The value in context F to transform. Must not be null.
-   * @param <A> The type of the value inside the context (polymorphic)
-   * @return The transformed value in context G. Must not be null.
-   * @throws NullPointerException if fa is null (implementation-dependent)
-   */
-  <A> Kind<G, A> apply(Kind<F, A> fa);
+    /**
+     * Applies this natural transformation to convert a value in context F to context G.
+     *
+     * <p>This method must be implemented to work uniformly for all types A, transforming the
+     * structure F into structure G without inspecting or depending on the specific type A.
+     *
+     * <p><b>Implementation Requirements:</b>
+     *
+     * <ul>
+     *   <li>Must work for any type A (cannot pattern match on A or use instanceof)
+     *   <li>Must satisfy the naturality law (see class documentation)
+     *   <li>Should be pure (no side effects)
+     *   <li>Should be total (defined for all inputs)
+     * </ul>
+     *
+     * <p><b>Example Implementation:</b>
+     *
+     * <pre>{@code
+     * // Natural transformation from Maybe to List
+     * Natural<Maybe.Witness, List.Witness> maybeToList = new Natural<>() {
+     *   @Override
+     *   public <A> Kind<List.Witness, A> apply(Kind<Maybe.Witness, A> fa) {
+     *     Maybe<A> maybe = MaybeKindHelper.MAYBE.narrow(fa);
+     *     return maybe.fold(
+     *         () -> ListKindHelper.LIST.widen(List.empty()),
+     *         value -> ListKindHelper.LIST.widen(List.of(value))
+     *     );
+     *   }
+     * };
+     * }</pre>
+     *
+     * @param fa The value in context F to transform. Must not be null.
+     * @param <A> The type of the value inside the context (polymorphic)
+     * @return The transformed value in context G. Must not be null.
+     * @throws NullPointerException if fa is null (implementation-dependent)
+     */
+    <A> Kind<G, A> apply(Kind<F, A> fa);
 
-  /**
-   * Composes this natural transformation with another, creating a transformation from F to H.
-   *
-   * <p>Given {@code this: F ~> G} and {@code after: G ~> H}, produces {@code F ~> H}.
-   *
-   * <pre>
-   *     this        after
-   * F ──────→ G ──────→ H
-   *
-   *    this.andThen(after)
-   * F ─────────────────→ H
-   * </pre>
-   *
-   * <p><b>Associativity:</b> Composition is associative:
-   *
-   * <pre>{@code
-   * (f.andThen(g)).andThen(h) == f.andThen(g.andThen(h))
-   * }</pre>
-   *
-   * <p><b>Example:</b>
-   *
-   * <pre>{@code
-   * Natural<Maybe.Witness, Either.Witness<String>> maybeToEither = ...;
-   * Natural<Either.Witness<String>, IO.Witness> eitherToIO = ...;
-   *
-   * // Compose to get Maybe ~> IO directly
-   * Natural<Maybe.Witness, IO.Witness> maybeToIO = maybeToEither.andThen(eitherToIO);
-   * }</pre>
-   *
-   * @param after The natural transformation to apply after this one. Must not be null.
-   * @param <H> The final target type constructor
-   * @return A composed natural transformation from F to H
-   * @throws NullPointerException if after is null
-   */
-  default <H extends WitnessArity<?>> Natural<F, H> andThen(Natural<G, H> after) {
-    requireNonNull(after, "after natural transformation cannot be null");
-    return new Natural<>() {
-      @Override
-      public <A> Kind<H, A> apply(Kind<F, A> fa) {
-        return after.apply(Natural.this.apply(fa));
-      }
-    };
-  }
+    /**
+     * Composes this natural transformation with another, creating a transformation from F to H.
+     *
+     * <p>Given {@code this: F ~> G} and {@code after: G ~> H}, produces {@code F ~> H}.
+     *
+     * <pre>
+     *     this        after
+     * F ──────→ G ──────→ H
+     *
+     *    this.andThen(after)
+     * F ─────────────────→ H
+     * </pre>
+     *
+     * <p><b>Associativity:</b> Composition is associative:
+     *
+     * <pre>{@code
+     * (f.andThen(g)).andThen(h) == f.andThen(g.andThen(h))
+     * }</pre>
+     *
+     * <p><b>Example:</b>
+     *
+     * <pre>{@code
+     * Natural<Maybe.Witness, Either.Witness<String>> maybeToEither = ...;
+     * Natural<Either.Witness<String>, IO.Witness> eitherToIO = ...;
+     *
+     * // Compose to get Maybe ~> IO directly
+     * Natural<Maybe.Witness, IO.Witness> maybeToIO = maybeToEither.andThen(eitherToIO);
+     * }</pre>
+     *
+     * @param after The natural transformation to apply after this one. Must not be null.
+     * @param <H> The final target type constructor
+     * @return A composed natural transformation from F to H
+     * @throws NullPointerException if after is null
+     */
+    default <H extends WitnessArity<?>> Natural<F, H> andThen(Natural<G, H> after) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Composes another natural transformation with this one, creating a transformation from E to G.
-   *
-   * <p>Given {@code before: E ~> F} and {@code this: F ~> G}, produces {@code E ~> G}.
-   *
-   * <p>This is the reverse of {@link #andThen(Natural)}:
-   *
-   * <pre>{@code
-   * before.andThen(this) == this.compose(before)
-   * }</pre>
-   *
-   * @param before The natural transformation to apply before this one. Must not be null.
-   * @param <E> The initial source type constructor
-   * @return A composed natural transformation from E to G
-   * @throws NullPointerException if before is null
-   */
-  default <E extends WitnessArity<?>> Natural<E, G> compose(Natural<E, F> before) {
-    requireNonNull(before, "before natural transformation cannot be null");
-    return before.andThen(this);
-  }
+    /**
+     * Composes another natural transformation with this one, creating a transformation from E to G.
+     *
+     * <p>Given {@code before: E ~> F} and {@code this: F ~> G}, produces {@code E ~> G}.
+     *
+     * <p>This is the reverse of {@link #andThen(Natural)}:
+     *
+     * <pre>{@code
+     * before.andThen(this) == this.compose(before)
+     * }</pre>
+     *
+     * @param before The natural transformation to apply before this one. Must not be null.
+     * @param <E> The initial source type constructor
+     * @return A composed natural transformation from E to G
+     * @throws NullPointerException if before is null
+     */
+    default <E extends WitnessArity<?>> Natural<E, G> compose(Natural<E, F> before) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Returns the identity natural transformation for type constructor F.
-   *
-   * <p>The identity transformation returns its input unchanged:
-   *
-   * <pre>{@code
-   * Natural<F, F> id = Natural.identity();
-   * id.apply(fa) == fa  // for all fa
-   * }</pre>
-   *
-   * <p><b>Identity Laws:</b>
-   *
-   * <pre>{@code
-   * // Left identity
-   * Natural.identity().andThen(nat) == nat
-   *
-   * // Right identity
-   * nat.andThen(Natural.identity()) == nat
-   * }</pre>
-   *
-   * <p><b>Use Cases:</b>
-   *
-   * <ul>
-   *   <li>Default/no-op transformation
-   *   <li>Base case in recursive transformations
-   *   <li>Testing and verification
-   * </ul>
-   *
-   * @param <F> The type constructor
-   * @return The identity natural transformation
-   */
-  @SuppressWarnings("unchecked")
-  static <F extends WitnessArity<?>> Natural<F, F> identity() {
-    return (Natural<F, F>) IDENTITY;
-  }
+    /**
+     * Returns the identity natural transformation for type constructor F.
+     *
+     * <p>The identity transformation returns its input unchanged:
+     *
+     * <pre>{@code
+     * Natural<F, F> id = Natural.identity();
+     * id.apply(fa) == fa  // for all fa
+     * }</pre>
+     *
+     * <p><b>Identity Laws:</b>
+     *
+     * <pre>{@code
+     * // Left identity
+     * Natural.identity().andThen(nat) == nat
+     *
+     * // Right identity
+     * nat.andThen(Natural.identity()) == nat
+     * }</pre>
+     *
+     * <p><b>Use Cases:</b>
+     *
+     * <ul>
+     *   <li>Default/no-op transformation
+     *   <li>Base case in recursive transformations
+     *   <li>Testing and verification
+     * </ul>
+     *
+     * @param <F> The type constructor
+     * @return The identity natural transformation
+     */
+    @SuppressWarnings("unchecked")
+    static <F extends WitnessArity<?>> Natural<F, F> identity() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /** Cached identity instance to avoid allocations on each call. */
-  @SuppressWarnings("rawtypes")
-  Natural IDENTITY =
-      new Natural() {
+    /**
+     * Cached identity instance to avoid allocations on each call.
+     */
+    @SuppressWarnings("rawtypes")
+    Natural IDENTITY = new Natural() {
+
         @Override
         public Kind apply(Kind fa) {
-          return fa;
+            throw new UnsupportedOperationException("STUB: not implemented");
         }
-      };
+    };
 }

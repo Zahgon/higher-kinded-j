@@ -40,36 +40,35 @@ import org.jspecify.annotations.Nullable;
 @GenerateLenses
 public record StateTuple<S, A>(@Nullable A value, S state) {
 
-  /**
-   * Compact constructor for {@link StateTuple}. Ensures that the {@code state} component is never
-   * {@code null}. The {@code value} component can be {@code null} if type {@code A} allows it.
-   *
-   * @param value The computed value, may be {@code null} (if {@code A} is a nullable type like
-   *     {@code String}). If {@code A} is {@link Unit}, this must be {@link Unit#INSTANCE}.
-   * @param state The final state, must not be {@code null}.
-   * @throws NullPointerException if {@code state} is {@code null}.
-   */
-  public StateTuple {
-    Validation.coreType().requireValue(state, StateTuple.class, Operation.CONSTRUCTION);
-  }
+    /**
+     * Compact constructor for {@link StateTuple}. Ensures that the {@code state} component is never
+     * {@code null}. The {@code value} component can be {@code null} if type {@code A} allows it.
+     *
+     * @param value The computed value, may be {@code null} (if {@code A} is a nullable type like
+     *     {@code String}). If {@code A} is {@link Unit}, this must be {@link Unit#INSTANCE}.
+     * @param state The final state, must not be {@code null}.
+     * @throws NullPointerException if {@code state} is {@code null}.
+     */
+    public StateTuple {
+        Validation.coreType().requireValue(state, StateTuple.class, Operation.CONSTRUCTION);
+    }
 
-  /**
-   * Static factory method to create a {@code StateTuple} instance.
-   *
-   * <p>This provides an alternative way to construct a {@code StateTuple}, potentially offering
-   * better type inference in some contexts or a more fluent API style. The order of parameters is
-   * (state, value) which might differ from the record's canonical constructor (value, state).
-   *
-   * @param state The final state. Must not be {@code null}.
-   * @param value The final computed value. May be {@code null} (if {@code A} is a nullable type
-   *     like {@code String}). If {@code A} is {@link Unit}, this should be {@link Unit#INSTANCE}.
-   * @param <S> The type of the state.
-   * @param <A> The type of the value.
-   * @return A new, non-null {@link StateTuple} instance.
-   * @throws NullPointerException if {@code state} is {@code null}.
-   */
-  public static <S, A> StateTuple<S, A> of(S state, @Nullable A value) {
-    Validation.coreType().requireValue(state, StateTuple.class, Operation.OF);
-    return new StateTuple<>(value, state);
-  }
+    /**
+     * Static factory method to create a {@code StateTuple} instance.
+     *
+     * <p>This provides an alternative way to construct a {@code StateTuple}, potentially offering
+     * better type inference in some contexts or a more fluent API style. The order of parameters is
+     * (state, value) which might differ from the record's canonical constructor (value, state).
+     *
+     * @param state The final state. Must not be {@code null}.
+     * @param value The final computed value. May be {@code null} (if {@code A} is a nullable type
+     *     like {@code String}). If {@code A} is {@link Unit}, this should be {@link Unit#INSTANCE}.
+     * @param <S> The type of the state.
+     * @param <A> The type of the value.
+     * @return A new, non-null {@link StateTuple} instance.
+     * @throws NullPointerException if {@code state} is {@code null}.
+     */
+    public static <S, A> StateTuple<S, A> of(S state, @Nullable A value) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

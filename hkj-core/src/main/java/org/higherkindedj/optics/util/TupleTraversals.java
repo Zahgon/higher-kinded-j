@@ -35,61 +35,56 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public final class TupleTraversals {
 
-  /** Private constructor to prevent instantiation. */
-  private TupleTraversals() {}
+    /**
+     * Private constructor to prevent instantiation.
+     */
+    private TupleTraversals() {
+    }
 
-  /**
-   * Creates a {@code Traversal} that focuses on both elements of a {@link Tuple2} when they share
-   * the same type.
-   *
-   * <p>This traversal has cardinality 2, focusing on both the first and second elements of the
-   * tuple. Effectful functions are applied to both positions, and the results are sequenced using
-   * the applicative's {@code map2} operation.
-   *
-   * <p>This is particularly useful for:
-   *
-   * <ul>
-   *   <li>Applying the same transformation to both tuple elements
-   *   <li>Collecting both values from a tuple
-   *   <li>Composing with other traversals for nested structures
-   * </ul>
-   *
-   * <p>Example:
-   *
-   * <pre>{@code
-   * Traversal<Tuple2<String, String>, String> bothStrings = TupleTraversals.both();
-   *
-   * // Modify both elements
-   * Tuple2<String, String> names = new Tuple2<>("alice", "bob");
-   * Tuple2<String, String> capitalized = Traversals.modify(
-   *     bothStrings,
-   *     s -> s.substring(0, 1).toUpperCase() + s.substring(1),
-   *     names
-   * );
-   * // Result: Tuple2("Alice", "Bob")
-   *
-   * // Extract both elements
-   * List<String> allNames = Traversals.getAll(bothStrings, names);
-   * // Result: ["alice", "bob"]
-   *
-   * // Compose with other traversals
-   * Traversal<List<Tuple2<Integer, Integer>>, Integer> allInts =
-   *     Traversals.<Tuple2<Integer, Integer>>forList()
-   *         .andThen(TupleTraversals.both());
-   * }</pre>
-   *
-   * @param <A> The type of both elements in the tuple.
-   * @return A {@code Traversal} focusing on both elements of the tuple.
-   */
-  public static <A> Traversal<Tuple2<A, A>, A> both() {
-    return new Traversal<>() {
-      @Override
-      public <F extends WitnessArity<TypeArity.Unary>> Kind<F, Tuple2<A, A>> modifyF(
-          final Function<A, Kind<F, A>> f,
-          final Tuple2<A, A> source,
-          final Applicative<F> applicative) {
-        return Traversals.traverseTuple2Both(source, f, applicative);
-      }
-    };
-  }
+    /**
+     * Creates a {@code Traversal} that focuses on both elements of a {@link Tuple2} when they share
+     * the same type.
+     *
+     * <p>This traversal has cardinality 2, focusing on both the first and second elements of the
+     * tuple. Effectful functions are applied to both positions, and the results are sequenced using
+     * the applicative's {@code map2} operation.
+     *
+     * <p>This is particularly useful for:
+     *
+     * <ul>
+     *   <li>Applying the same transformation to both tuple elements
+     *   <li>Collecting both values from a tuple
+     *   <li>Composing with other traversals for nested structures
+     * </ul>
+     *
+     * <p>Example:
+     *
+     * <pre>{@code
+     * Traversal<Tuple2<String, String>, String> bothStrings = TupleTraversals.both();
+     *
+     * // Modify both elements
+     * Tuple2<String, String> names = new Tuple2<>("alice", "bob");
+     * Tuple2<String, String> capitalized = Traversals.modify(
+     *     bothStrings,
+     *     s -> s.substring(0, 1).toUpperCase() + s.substring(1),
+     *     names
+     * );
+     * // Result: Tuple2("Alice", "Bob")
+     *
+     * // Extract both elements
+     * List<String> allNames = Traversals.getAll(bothStrings, names);
+     * // Result: ["alice", "bob"]
+     *
+     * // Compose with other traversals
+     * Traversal<List<Tuple2<Integer, Integer>>, Integer> allInts =
+     *     Traversals.<Tuple2<Integer, Integer>>forList()
+     *         .andThen(TupleTraversals.both());
+     * }</pre>
+     *
+     * @param <A> The type of both elements in the tuple.
+     * @return A {@code Traversal} focusing on both elements of the tuple.
+     */
+    public static <A> Traversal<Tuple2<A, A>, A> both() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

@@ -54,80 +54,80 @@ import org.jspecify.annotations.Nullable;
  */
 public interface StateTKind<S, F, A> extends Kind<StateTKind.Witness<S, F>, A> {
 
-  /**
-   * The primary witness type for {@code StateT<S, F, A>}, representing the type constructor {@code
-   * StateT<S, F, _>} (where {@code _} is the placeholder for the value type {@code A}).
-   *
-   * <p>This witness is used to parameterize {@link Kind} as {@code Kind<StateTKind.Witness<S, F>,
-   * A>}, allowing {@code StateT} to be used as a higher-kinded type in generic abstractions like
-   * {@link org.higherkindedj.hkt.Monad}, {@link org.higherkindedj.hkt.Applicative}, etc. It "fixes"
-   * the state type {@code S} and the underlying monad witness {@code F}.
-   *
-   * @param <S> The state type.
-   * @param <F> The higher-kinded type witness for the underlying monad.
-   */
-  final class Witness<S, F> implements WitnessArity<TypeArity.Unary> {
-    // Private constructor to prevent instantiation of the witness type itself.
-    // Its purpose is purely for type-level representation.
-    private Witness() {}
-  }
+    /**
+     * The primary witness type for {@code StateT<S, F, A>}, representing the type constructor {@code
+     * StateT<S, F, _>} (where {@code _} is the placeholder for the value type {@code A}).
+     *
+     * <p>This witness is used to parameterize {@link Kind} as {@code Kind<StateTKind.Witness<S, F>,
+     * A>}, allowing {@code StateT} to be used as a higher-kinded type in generic abstractions like
+     * {@link org.higherkindedj.hkt.Monad}, {@link org.higherkindedj.hkt.Applicative}, etc. It "fixes"
+     * the state type {@code S} and the underlying monad witness {@code F}.
+     *
+     * @param <S> The state type.
+     * @param <F> The higher-kinded type witness for the underlying monad.
+     */
+    final class Witness<S, F> implements WitnessArity<TypeArity.Unary> {
 
-  /**
-   * Safely converts (narrows) a {@link Kind} representation of a {@code StateT} back to its
-   * concrete {@link StateT} type using standardised error handling.
-   *
-   * <p>This method provides a safe, validated approach to narrowing Kind representations to
-   * concrete StateT instances. It uses the standardised error handling utilities to ensure
-   * consistent error messages and behaviour across the library.
-   *
-   * @param kind The higher-kinded {@code StateT} representation. Must not be null.
-   * @param <S> The state type of the target {@code StateT}.
-   * @param <F> The higher-kinded type witness for the underlying monad of the target {@code
-   *     StateT}.
-   * @param <A> The value type of the target {@code StateT}.
-   * @return The concrete {@link StateT} instance, guaranteed to be non-null if the input `kind` was
-   *     a valid, non-null {@code StateT} representation.
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code kind} is {@code null} or
-   *     not actually an instance of {@link StateT} (or a compatible subtype).
-   */
-  static <S, F extends WitnessArity<TypeArity.Unary>, A> StateT<S, F, A> narrow(
-      @Nullable Kind<StateTKind.Witness<S, F>, A> kind) {
-    return Validation.kind().narrowWithTypeCheck(kind, StateT.class);
-  }
+        // Private constructor to prevent instantiation of the witness type itself.
+        // Its purpose is purely for type-level representation.
+        private Witness() {
+        }
+    }
 
-  /**
-   * Unwraps (narrows) a {@link Kind} to a concrete {@link StateT} instance with less type safety
-   * regarding the witness type.
-   *
-   * <p><b>Use with extreme caution.</b> This method performs an unchecked cast and relies on the
-   * caller to ensure that the provided {@code Kind<?, A>} is indeed a {@code StateT} that can be
-   * meaningfully cast to {@code StateT<S, F, A>}. The witness part of the {@code Kind} (the first
-   * type parameter, {@code ?}) is effectively ignored by the cast, and the {@code S} and {@code F}
-   * types are determined by the call site's context.
-   *
-   * <p>This might be used in highly generic HKT code where the exact witness structure is
-   * abstracted away, but it sacrifices compile-time safety for flexibility. Prefer {@link
-   * #narrow(Kind)} whenever possible.
-   *
-   * @param kind The higher-kinded representation, typed broadly as {@code Kind<?, A>}. It is
-   *     assumed to be a {@code StateT} instance. Must not be null.
-   * @param <S> The target state type for the resulting {@code StateT}.
-   * @param <F> The target higher-kinded type witness for the underlying monad of the resulting
-   *     {@code StateT}.
-   * @param <A> The target value type for the resulting {@code StateT}.
-   * @return The concrete {@link StateT} instance, guaranteed to be non-null if the input `kind` was
-   *     a valid, non-null {@code StateT} representation.
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code kind} is {@code null} or
-   *     not actually an instance of {@link StateT}.
-   * @deprecated since 0.4.5, scheduled for removal in 0.5.0. The wildcard {@code Kind<?, A>}
-   *     parameter bypasses the HKT witness type safety enforced everywhere else in the library, and
-   *     this method has no callers. Use {@link #narrow(Kind)} instead, which enforces the witness
-   *     type at compile time.
-   */
-  @Deprecated(since = "0.4.5", forRemoval = true)
-  @SuppressWarnings("unchecked")
-  static <S, F extends WitnessArity<TypeArity.Unary>, A> StateT<S, F, A> narrowK(
-      @Nullable Kind<?, A> kind) {
-    return Validation.kind().narrowWithTypeCheck(kind, StateT.class);
-  }
+    /**
+     * Safely converts (narrows) a {@link Kind} representation of a {@code StateT} back to its
+     * concrete {@link StateT} type using standardised error handling.
+     *
+     * <p>This method provides a safe, validated approach to narrowing Kind representations to
+     * concrete StateT instances. It uses the standardised error handling utilities to ensure
+     * consistent error messages and behaviour across the library.
+     *
+     * @param kind The higher-kinded {@code StateT} representation. Must not be null.
+     * @param <S> The state type of the target {@code StateT}.
+     * @param <F> The higher-kinded type witness for the underlying monad of the target {@code
+     *     StateT}.
+     * @param <A> The value type of the target {@code StateT}.
+     * @return The concrete {@link StateT} instance, guaranteed to be non-null if the input `kind` was
+     *     a valid, non-null {@code StateT} representation.
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code kind} is {@code null} or
+     *     not actually an instance of {@link StateT} (or a compatible subtype).
+     */
+    static <S, F extends WitnessArity<TypeArity.Unary>, A> StateT<S, F, A> narrow(@Nullable Kind<StateTKind.Witness<S, F>, A> kind) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Unwraps (narrows) a {@link Kind} to a concrete {@link StateT} instance with less type safety
+     * regarding the witness type.
+     *
+     * <p><b>Use with extreme caution.</b> This method performs an unchecked cast and relies on the
+     * caller to ensure that the provided {@code Kind<?, A>} is indeed a {@code StateT} that can be
+     * meaningfully cast to {@code StateT<S, F, A>}. The witness part of the {@code Kind} (the first
+     * type parameter, {@code ?}) is effectively ignored by the cast, and the {@code S} and {@code F}
+     * types are determined by the call site's context.
+     *
+     * <p>This might be used in highly generic HKT code where the exact witness structure is
+     * abstracted away, but it sacrifices compile-time safety for flexibility. Prefer {@link
+     * #narrow(Kind)} whenever possible.
+     *
+     * @param kind The higher-kinded representation, typed broadly as {@code Kind<?, A>}. It is
+     *     assumed to be a {@code StateT} instance. Must not be null.
+     * @param <S> The target state type for the resulting {@code StateT}.
+     * @param <F> The target higher-kinded type witness for the underlying monad of the resulting
+     *     {@code StateT}.
+     * @param <A> The target value type for the resulting {@code StateT}.
+     * @return The concrete {@link StateT} instance, guaranteed to be non-null if the input `kind` was
+     *     a valid, non-null {@code StateT} representation.
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code kind} is {@code null} or
+     *     not actually an instance of {@link StateT}.
+     * @deprecated since 0.4.5, scheduled for removal in 0.5.0. The wildcard {@code Kind<?, A>}
+     *     parameter bypasses the HKT witness type safety enforced everywhere else in the library, and
+     *     this method has no callers. Use {@link #narrow(Kind)} instead, which enforces the witness
+     *     type at compile time.
+     */
+    @Deprecated(since = "0.4.5", forRemoval = true)
+    @SuppressWarnings("unchecked")
+    static <S, F extends WitnessArity<TypeArity.Unary>, A> StateT<S, F, A> narrowK(@Nullable Kind<?, A> kind) {
+        return Validation.kind().narrowWithTypeCheck(kind, StateT.class);
+    }
 }

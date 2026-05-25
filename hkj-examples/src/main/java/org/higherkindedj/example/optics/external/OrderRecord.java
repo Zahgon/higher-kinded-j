@@ -53,124 +53,138 @@ import org.jspecify.annotations.Nullable;
  */
 public final class OrderRecord {
 
-  private final String orderId;
-  private final Long customerId;
-  private final LocalDate orderDate;
-  private final List<LineItemRecord> items;
+    private final String orderId;
 
-  private OrderRecord(Builder builder) {
-    this.orderId = builder.orderId;
-    this.customerId = builder.customerId;
-    this.orderDate = builder.orderDate;
-    this.items = builder.items != null ? List.copyOf(builder.items) : List.of();
-  }
+    private final Long customerId;
 
-  /** Returns a new builder for creating OrderRecord instances. */
-  public static Builder builder() {
-    return new Builder();
-  }
+    private final LocalDate orderDate;
 
-  /** Returns a builder pre-populated with this record's values for creating modified copies. */
-  public Builder toBuilder() {
-    return new Builder()
-        .orderId(orderId)
-        .customerId(customerId)
-        .orderDate(orderDate)
-        .items(new ArrayList<>(items));
-  }
+    private final List<LineItemRecord> items;
 
-  /** Returns the order ID. */
-  public String orderId() {
-    return orderId;
-  }
-
-  /** Returns the customer ID. */
-  public Long customerId() {
-    return customerId;
-  }
-
-  /** Returns the order date. */
-  public LocalDate orderDate() {
-    return orderDate;
-  }
-
-  /** Returns an unmodifiable view of the line items. */
-  public List<LineItemRecord> items() {
-    return items;
-  }
-
-  /** Calculates the order total from all line items. */
-  public BigDecimal orderTotal() {
-    return items.stream().map(LineItemRecord::lineTotal).reduce(BigDecimal.ZERO, BigDecimal::add);
-  }
-
-  @Override
-  public boolean equals(@Nullable Object o) {
-    if (this == o) return true;
-    if (!(o instanceof OrderRecord that)) return false;
-    return Objects.equals(orderId, that.orderId)
-        && Objects.equals(customerId, that.customerId)
-        && Objects.equals(orderDate, that.orderDate)
-        && Objects.equals(items, that.items);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(orderId, customerId, orderDate, items);
-  }
-
-  @Override
-  public String toString() {
-    return "OrderRecord{"
-        + "orderId='"
-        + orderId
-        + '\''
-        + ", customerId="
-        + customerId
-        + ", orderDate="
-        + orderDate
-        + ", items="
-        + items
-        + '}';
-  }
-
-  /** Builder for creating OrderRecord instances. */
-  public static final class Builder {
-
-    private @Nullable String orderId;
-    private @Nullable Long customerId;
-    private @Nullable LocalDate orderDate;
-    private @Nullable List<LineItemRecord> items;
-
-    private Builder() {}
-
-    /** Sets the order ID. */
-    public Builder orderId(String orderId) {
-      this.orderId = orderId;
-      return this;
+    private OrderRecord(Builder builder) {
+        this.orderId = builder.orderId;
+        this.customerId = builder.customerId;
+        this.orderDate = builder.orderDate;
+        this.items = builder.items != null ? List.copyOf(builder.items) : List.of();
     }
 
-    /** Sets the customer ID. */
-    public Builder customerId(Long customerId) {
-      this.customerId = customerId;
-      return this;
+    /**
+     * Returns a new builder for creating OrderRecord instances.
+     */
+    public static Builder builder() {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    /** Sets the order date. */
-    public Builder orderDate(LocalDate orderDate) {
-      this.orderDate = orderDate;
-      return this;
+    /**
+     * Returns a builder pre-populated with this record's values for creating modified copies.
+     */
+    public Builder toBuilder() {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    /** Sets the line items. */
-    public Builder items(List<LineItemRecord> items) {
-      this.items = items;
-      return this;
+    /**
+     * Returns the order ID.
+     */
+    public String orderId() {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    /** Builds the OrderRecord instance. */
-    public OrderRecord build() {
-      return new OrderRecord(this);
+    /**
+     * Returns the customer ID.
+     */
+    public Long customerId() {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-  }
+
+    /**
+     * Returns the order date.
+     */
+    public LocalDate orderDate() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Returns an unmodifiable view of the line items.
+     */
+    public List<LineItemRecord> items() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Calculates the order total from all line items.
+     */
+    public BigDecimal orderTotal() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public boolean equals(@Nullable Object o) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public int hashCode() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public String toString() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Builder for creating OrderRecord instances.
+     */
+    public static final class Builder {
+
+        @Nullable
+        private String orderId;
+
+        @Nullable
+        private Long customerId;
+
+        @Nullable
+        private LocalDate orderDate;
+
+        @Nullable
+        private List<LineItemRecord> items;
+
+        private Builder() {
+        }
+
+        /**
+         * Sets the order ID.
+         */
+        public Builder orderId(String orderId) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Sets the customer ID.
+         */
+        public Builder customerId(Long customerId) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Sets the order date.
+         */
+        public Builder orderDate(LocalDate orderDate) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Sets the line items.
+         */
+        public Builder items(List<LineItemRecord> items) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Builds the OrderRecord instance.
+         */
+        public OrderRecord build() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+    }
 }

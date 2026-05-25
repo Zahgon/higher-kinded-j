@@ -31,39 +31,36 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public final class InMemoryLedgerInterpreter extends LedgerOpInterpreter<IdKind.Witness> {
 
-  private final List<LedgerEntry> entries = new ArrayList<>();
-  private final Map<CustomerId, Money> balances = new HashMap<>();
+    private final List<LedgerEntry> entries = new ArrayList<>();
 
-  /**
-   * Sets the initial balance for an account.
-   *
-   * @param accountId the account identifier
-   * @param balance the initial balance
-   */
-  public void setBalance(CustomerId accountId, Money balance) {
-    balances.put(accountId, balance);
-  }
+    private final Map<CustomerId, Money> balances = new HashMap<>();
 
-  /**
-   * Returns an unmodifiable view of all recorded entries.
-   *
-   * @return the list of ledger entries
-   */
-  public List<LedgerEntry> entries() {
-    return Collections.unmodifiableList(entries);
-  }
+    /**
+     * Sets the initial balance for an account.
+     *
+     * @param accountId the account identifier
+     * @param balance the initial balance
+     */
+    public void setBalance(CustomerId accountId, Money balance) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  protected <A> Kind<IdKind.Witness, A> handleRecordEntry(LedgerOp.RecordEntry<A> op) {
-    Objects.requireNonNull(op, "op cannot be null");
-    entries.add(op.entry());
-    return new Id<>(op.k().apply(op.entry()));
-  }
+    /**
+     * Returns an unmodifiable view of all recorded entries.
+     *
+     * @return the list of ledger entries
+     */
+    public List<LedgerEntry> entries() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  protected <A> Kind<IdKind.Witness, A> handleGetBalance(LedgerOp.GetBalance<A> op) {
-    Objects.requireNonNull(op, "op cannot be null");
-    Money balance = balances.getOrDefault(op.accountId(), Money.gbp(BigDecimal.ZERO));
-    return new Id<>(op.k().apply(balance));
-  }
+    @Override
+    protected <A> Kind<IdKind.Witness, A> handleRecordEntry(LedgerOp.RecordEntry<A> op) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    protected <A> Kind<IdKind.Witness, A> handleGetBalance(LedgerOp.GetBalance<A> op) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

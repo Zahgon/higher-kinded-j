@@ -19,44 +19,46 @@ import org.jspecify.annotations.Nullable;
  * @see VStreamConverterOps
  */
 public enum VStreamKindHelper implements VStreamConverterOps {
-  /** The singleton instance for VStream operations. */
-  VSTREAM;
 
-  private static final Class<VStream> VSTREAM_CLASS = VStream.class;
+    /**
+     * The singleton instance for VStream operations.
+     */
+    VSTREAM;
 
-  /**
-   * Widens a concrete {@link VStream} instance into its higher-kinded representation, {@code
-   * Kind<VStreamKind.Witness, A>}. Implements {@link VStreamConverterOps#widen}.
-   *
-   * <p>Since {@code VStream} extends {@code VStreamKind}, this method performs a simple type-safe
-   * cast without requiring a wrapper object.
-   *
-   * @param <A> The element type of the {@code VStream}.
-   * @param vstream The non-null, concrete {@link VStream} instance to widen.
-   * @return A non-null {@link Kind} representing the {@code VStream}.
-   * @throws NullPointerException if {@code vstream} is {@code null}.
-   */
-  @Override
-  public <A> Kind<VStreamKind.Witness, A> widen(VStream<A> vstream) {
-    Validation.kind().requireForWiden(vstream, VSTREAM_CLASS);
-    return vstream;
-  }
+    private static final Class<VStream> VSTREAM_CLASS = VStream.class;
 
-  /**
-   * Narrows a {@code Kind<VStreamKind.Witness, A>} back to its concrete {@link VStream} type.
-   * Implements {@link VStreamConverterOps#narrow}.
-   *
-   * <p>Since {@code VStream} extends {@code VStreamKind}, this method performs a direct type check
-   * and cast without needing to unwrap from a holder.
-   *
-   * @param <A> The element type of the {@code VStream}.
-   * @param kind The {@code Kind<VStreamKind.Witness, A>} instance to narrow. May be {@code null}.
-   * @return The underlying, non-null {@link VStream} instance.
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if the input {@code kind} is {@code
-   *     null}, or not an instance of {@code VStream}.
-   */
-  @Override
-  public <A> VStream<A> narrow(@Nullable Kind<VStreamKind.Witness, A> kind) {
-    return Validation.kind().narrowWithTypeCheck(kind, VSTREAM_CLASS);
-  }
+    /**
+     * Widens a concrete {@link VStream} instance into its higher-kinded representation, {@code
+     * Kind<VStreamKind.Witness, A>}. Implements {@link VStreamConverterOps#widen}.
+     *
+     * <p>Since {@code VStream} extends {@code VStreamKind}, this method performs a simple type-safe
+     * cast without requiring a wrapper object.
+     *
+     * @param <A> The element type of the {@code VStream}.
+     * @param vstream The non-null, concrete {@link VStream} instance to widen.
+     * @return A non-null {@link Kind} representing the {@code VStream}.
+     * @throws NullPointerException if {@code vstream} is {@code null}.
+     */
+    @Override
+    public <A> Kind<VStreamKind.Witness, A> widen(VStream<A> vstream) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Narrows a {@code Kind<VStreamKind.Witness, A>} back to its concrete {@link VStream} type.
+     * Implements {@link VStreamConverterOps#narrow}.
+     *
+     * <p>Since {@code VStream} extends {@code VStreamKind}, this method performs a direct type check
+     * and cast without needing to unwrap from a holder.
+     *
+     * @param <A> The element type of the {@code VStream}.
+     * @param kind The {@code Kind<VStreamKind.Witness, A>} instance to narrow. May be {@code null}.
+     * @return The underlying, non-null {@link VStream} instance.
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if the input {@code kind} is {@code
+     *     null}, or not an instance of {@code VStream}.
+     */
+    @Override
+    public <A> VStream<A> narrow(@Nullable Kind<VStreamKind.Witness, A> kind) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

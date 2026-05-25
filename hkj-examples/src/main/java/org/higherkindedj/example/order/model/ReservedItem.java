@@ -15,27 +15,24 @@ import org.higherkindedj.example.order.model.value.ProductId;
  * @param unitPrice the price per unit
  */
 public record ReservedItem(ProductId productId, int quantity, String warehouseId, Money unitPrice) {
-  /**
-   * Creates a reserved item from availability information.
-   *
-   * @param availability the product availability
-   * @param unitPrice the unit price
-   * @return a ReservedItem for the available quantity
-   */
-  public static ReservedItem fromAvailability(ProductAvailability availability, Money unitPrice) {
-    return new ReservedItem(
-        availability.productId(),
-        Math.min(availability.requestedQty(), availability.availableQty()),
-        availability.warehouseId(),
-        unitPrice);
-  }
 
-  /**
-   * Calculates the total value of this reserved item.
-   *
-   * @return quantity multiplied by unit price
-   */
-  public Money totalValue() {
-    return unitPrice.multiply(quantity);
-  }
+    /**
+     * Creates a reserved item from availability information.
+     *
+     * @param availability the product availability
+     * @param unitPrice the unit price
+     * @return a ReservedItem for the available quantity
+     */
+    public static ReservedItem fromAvailability(ProductAvailability availability, Money unitPrice) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Calculates the total value of this reserved item.
+     *
+     * @return quantity multiplied by unit price
+     */
+    public Money totalValue() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

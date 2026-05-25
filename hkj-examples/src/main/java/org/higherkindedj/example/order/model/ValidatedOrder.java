@@ -30,23 +30,15 @@ import org.higherkindedj.optics.annotations.GenerateLenses;
  */
 @GenerateLenses
 @GenerateFocus
-public record ValidatedOrder(
-    OrderId orderId,
-    CustomerId customerId,
-    Customer customer,
-    List<ValidatedOrderLine> lines,
-    Optional<PromoCode> promoCode,
-    ValidatedShippingAddress shippingAddress,
-    PaymentMethod paymentMethod,
-    Money subtotal,
-    Instant createdAt) {
-  /**
-   * Calculates the subtotal from the order lines.
-   *
-   * @param lines the order lines
-   * @return the sum of all line totals
-   */
-  public static Money calculateSubtotal(List<ValidatedOrderLine> lines) {
-    return lines.stream().map(ValidatedOrderLine::lineTotal).reduce(Money.ZERO_GBP, Money::add);
-  }
+public record ValidatedOrder(OrderId orderId, CustomerId customerId, Customer customer, List<ValidatedOrderLine> lines, Optional<PromoCode> promoCode, ValidatedShippingAddress shippingAddress, PaymentMethod paymentMethod, Money subtotal, Instant createdAt) {
+
+    /**
+     * Calculates the subtotal from the order lines.
+     *
+     * @param lines the order lines
+     * @return the sum of all line totals
+     */
+    public static Money calculateSubtotal(List<ValidatedOrderLine> lines) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

@@ -33,42 +33,43 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/orders")
 public class OrderController {
 
-  private final EffectBoundary<OrderOpKind.Witness> boundary;
-  private final OrderService service;
+    private final EffectBoundary<OrderOpKind.Witness> boundary;
 
-  /**
-   * Creates the controller with injected boundary and service.
-   *
-   * @param boundary the effect boundary for interpreting programs
-   * @param service the order service that builds Free programs
-   */
-  public OrderController(EffectBoundary<OrderOpKind.Witness> boundary, OrderService service) {
-    this.boundary = boundary;
-    this.service = service;
-  }
+    private final OrderService service;
 
-  /**
-   * Place a new order.
-   *
-   * <p>Demonstrates Level 1: boundary.runIO() returns IOPath, handled by existing
-   * IOPathReturnValueHandler.
-   *
-   * @param request the order request
-   * @return an IOPath that will execute the order program when consumed
-   */
-  @PostMapping
-  public IOPath<OrderResult> placeOrder(@RequestBody OrderRequest request) {
-    return boundary.runIO(service.placeOrder(request));
-  }
+    /**
+     * Creates the controller with injected boundary and service.
+     *
+     * @param boundary the effect boundary for interpreting programs
+     * @param service the order service that builds Free programs
+     */
+    public OrderController(EffectBoundary<OrderOpKind.Witness> boundary, OrderService service) {
+        this.boundary = boundary;
+        this.service = service;
+    }
 
-  /**
-   * Get order status.
-   *
-   * @param id the order ID
-   * @return an IOPath that will look up the status when consumed
-   */
-  @GetMapping("/{id}/status")
-  public IOPath<OrderStatus> getStatus(@PathVariable String id) {
-    return boundary.runIO(service.getOrderStatus(id));
-  }
+    /**
+     * Place a new order.
+     *
+     * <p>Demonstrates Level 1: boundary.runIO() returns IOPath, handled by existing
+     * IOPathReturnValueHandler.
+     *
+     * @param request the order request
+     * @return an IOPath that will execute the order program when consumed
+     */
+    @PostMapping
+    public IOPath<OrderResult> placeOrder(@RequestBody OrderRequest request) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Get order status.
+     *
+     * @param id the order ID
+     * @return an IOPath that will look up the status when consumed
+     */
+    @GetMapping("/{id}/status")
+    public IOPath<OrderStatus> getStatus(@PathVariable String id) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

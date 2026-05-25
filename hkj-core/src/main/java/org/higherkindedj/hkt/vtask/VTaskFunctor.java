@@ -3,7 +3,6 @@
 package org.higherkindedj.hkt.vtask;
 
 import static org.higherkindedj.hkt.vtask.VTaskKindHelper.VTASK;
-
 import java.util.function.Function;
 import org.higherkindedj.hkt.Functor;
 import org.higherkindedj.hkt.Kind;
@@ -25,37 +24,36 @@ import org.higherkindedj.hkt.util.validation.Validation;
  */
 public class VTaskFunctor implements Functor<VTaskKind.Witness> {
 
-  /** Singleton instance of {@code VTaskFunctor}. */
-  public static final VTaskFunctor INSTANCE = new VTaskFunctor();
+    /**
+     * Singleton instance of {@code VTaskFunctor}.
+     */
+    public static final VTaskFunctor INSTANCE = new VTaskFunctor();
 
-  /** Protected constructor to enforce the singleton pattern while allowing subclassing. */
-  protected VTaskFunctor() {}
+    /**
+     * Protected constructor to enforce the singleton pattern while allowing subclassing.
+     */
+    protected VTaskFunctor() {
+    }
 
-  /**
-   * Applies a function to the result of a VTask computation, creating a new VTask computation that
-   * will apply the function when executed.
-   *
-   * <p>This operation maintains the lazy evaluation semantics of VTask - the function is not
-   * applied until the resulting VTask is executed with {@code run()}.
-   *
-   * @param <A> The type of the result of the input VTask computation.
-   * @param <B> The type of the result after applying the function.
-   * @param f The function to apply to the VTask result. Must not be null.
-   * @param fa The {@code Kind<VTaskKind.Witness, A>} representing the VTask computation to
-   *     transform. Must not be null.
-   * @return A {@code Kind<VTaskKind.Witness, B>} representing the transformed VTask computation.
-   *     Never null.
-   * @throws NullPointerException if {@code f} or {@code fa} is null.
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code fa} cannot be unwrapped.
-   */
-  @Override
-  public <A, B> Kind<VTaskKind.Witness, B> map(
-      Function<? super A, ? extends B> f, Kind<VTaskKind.Witness, A> fa) {
-
-    Validation.function().validateMap(f, fa);
-
-    VTask<A> vtaskA = VTASK.narrow(fa);
-    VTask<B> vtaskB = vtaskA.map(f);
-    return VTASK.widen(vtaskB);
-  }
+    /**
+     * Applies a function to the result of a VTask computation, creating a new VTask computation that
+     * will apply the function when executed.
+     *
+     * <p>This operation maintains the lazy evaluation semantics of VTask - the function is not
+     * applied until the resulting VTask is executed with {@code run()}.
+     *
+     * @param <A> The type of the result of the input VTask computation.
+     * @param <B> The type of the result after applying the function.
+     * @param f The function to apply to the VTask result. Must not be null.
+     * @param fa The {@code Kind<VTaskKind.Witness, A>} representing the VTask computation to
+     *     transform. Must not be null.
+     * @return A {@code Kind<VTaskKind.Witness, B>} representing the transformed VTask computation.
+     *     Never null.
+     * @throws NullPointerException if {@code f} or {@code fa} is null.
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code fa} cannot be unwrapped.
+     */
+    @Override
+    public <A, B> Kind<VTaskKind.Witness, B> map(Function<? super A, ? extends B> f, Kind<VTaskKind.Witness, A> fa) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

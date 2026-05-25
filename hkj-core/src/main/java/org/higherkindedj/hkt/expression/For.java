@@ -80,897 +80,696 @@ import org.higherkindedj.optics.Prism;
  */
 public final class For {
 
-  private For() {} // Static access only
-
-  /**
-   * Initiates a for-comprehension for any {@link Monad}. The resulting builder chain will not
-   * support filtering with {@code .when(...)}.
-   *
-   * @param monad The Monad instance that defines the behaviour of {@code flatMap} and {@code map}.
-   * @param source The initial monadic source, the first generator in the comprehension.
-   * @param <M> The witness type of the Monad.
-   * @param <A> The value type of the source.
-   * @return The first step of the builder, ready for the next operation.
-   */
-  public static <M extends WitnessArity<TypeArity.Unary>, A> MonadicSteps1<M, A> from(
-      Monad<M> monad, Kind<M, A> source) {
-    return new MonadicSteps1<>(monad, source);
-  }
-
-  /**
-   * Initiates a for-comprehension for a {@link MonadZero}. The resulting builder chain supports
-   * filtering with {@code .when(...)}.
-   *
-   * @param monad The MonadZero instance, providing {@code zero()} for filtering.
-   * @param source The initial monadic source, the first generator in the comprehension.
-   * @param <M> The witness type of the Monad.
-   * @param <A> The value type of the source.
-   * @return The first step of the filterable builder, ready for the next operation.
-   */
-  public static <M extends WitnessArity<TypeArity.Unary>, A> FilterableSteps1<M, A> from(
-      MonadZero<M> monad, Kind<M, A> source) {
-    return new FilterableSteps1<>(monad, source);
-  }
-
-  // --- Parallel (Applicative) Entry Points ---
-
-  /**
-   * Initiates a for-comprehension by combining two independent computations in parallel using
-   * applicative semantics ({@code map2}).
-   *
-   * <p>Unlike {@link #from(Monad, Kind)}, which chains sequentially via {@code flatMap}, this
-   * method declares that the two computations are independent and can potentially execute
-   * concurrently. The actual parallelism depends on the underlying monad; for example, {@code
-   * VTaskMonad} can execute on separate virtual threads, whilst {@code MaybeMonad} will evaluate
-   * sequentially.
-   *
-   * @param monad The Monad instance (used as an Applicative).
-   * @param a The first independent computation.
-   * @param b The second independent computation.
-   * @param <M> The witness type of the Monad.
-   * @param <A> The value type of the first computation.
-   * @param <B> The value type of the second computation.
-   * @return Step 2 of the builder, tracking both values.
-   */
-  public static <M extends WitnessArity<TypeArity.Unary>, A, B> MonadicSteps2<M, A, B> par(
-      Monad<M> monad, Kind<M, A> a, Kind<M, B> b) {
-    Kind<M, Tuple2<A, B>> combined = monad.map2(a, b, Tuple::of);
-    return new MonadicSteps2<>(monad, combined);
-  }
-
-  /**
-   * Initiates a for-comprehension by combining three independent computations in parallel.
-   *
-   * @param monad The Monad instance (used as an Applicative).
-   * @param a The first independent computation.
-   * @param b The second independent computation.
-   * @param c The third independent computation.
-   * @param <M> The witness type of the Monad.
-   * @param <A> The value type of the first computation.
-   * @param <B> The value type of the second computation.
-   * @param <C> The value type of the third computation.
-   * @return Step 3 of the builder, tracking all three values.
-   */
-  public static <M extends WitnessArity<TypeArity.Unary>, A, B, C> MonadicSteps3<M, A, B, C> par(
-      Monad<M> monad, Kind<M, A> a, Kind<M, B> b, Kind<M, C> c) {
-    Kind<M, Tuple3<A, B, C>> combined = monad.map3(a, b, c, Tuple::of);
-    return new MonadicSteps3<>(monad, combined);
-  }
-
-  /**
-   * Initiates a for-comprehension by combining four independent computations in parallel.
-   *
-   * @param monad The Monad instance (used as an Applicative).
-   * @param a The first independent computation.
-   * @param b The second independent computation.
-   * @param c The third independent computation.
-   * @param d The fourth independent computation.
-   * @param <M> The witness type of the Monad.
-   * @param <A> The value type of the first computation.
-   * @param <B> The value type of the second computation.
-   * @param <C> The value type of the third computation.
-   * @param <D> The value type of the fourth computation.
-   * @return Step 4 of the builder, tracking all four values.
-   */
-  public static <M extends WitnessArity<TypeArity.Unary>, A, B, C, D>
-      MonadicSteps4<M, A, B, C, D> par(
-          Monad<M> monad, Kind<M, A> a, Kind<M, B> b, Kind<M, C> c, Kind<M, D> d) {
-    Kind<M, Tuple4<A, B, C, D>> combined = monad.map4(a, b, c, d, Tuple::of);
-    return new MonadicSteps4<>(monad, combined);
-  }
-
-  /**
-   * Initiates a for-comprehension by combining five independent computations in parallel.
-   *
-   * @param monad The Monad instance (used as an Applicative).
-   * @param a The first independent computation.
-   * @param b The second independent computation.
-   * @param c The third independent computation.
-   * @param d The fourth independent computation.
-   * @param e The fifth independent computation.
-   * @param <M> The witness type of the Monad.
-   * @param <A> The value type of the first computation.
-   * @param <B> The value type of the second computation.
-   * @param <C> The value type of the third computation.
-   * @param <D> The value type of the fourth computation.
-   * @param <E> The value type of the fifth computation.
-   * @return Step 5 of the builder, tracking all five values.
-   */
-  public static <M extends WitnessArity<TypeArity.Unary>, A, B, C, D, E>
-      MonadicSteps5<M, A, B, C, D, E> par(
-          Monad<M> monad, Kind<M, A> a, Kind<M, B> b, Kind<M, C> c, Kind<M, D> d, Kind<M, E> e) {
-    Kind<M, Tuple5<A, B, C, D, E>> combined = monad.map5(a, b, c, d, e, Tuple::of);
-    return new MonadicSteps5<>(monad, combined);
-  }
-
-  /**
-   * Initiates a filterable for-comprehension by combining two independent computations in parallel.
-   *
-   * @param monad The MonadZero instance (used as an Applicative).
-   * @param a The first independent computation.
-   * @param b The second independent computation.
-   * @param <M> The witness type of the Monad.
-   * @param <A> The value type of the first computation.
-   * @param <B> The value type of the second computation.
-   * @return Step 2 of the filterable builder, tracking both values.
-   */
-  public static <M extends WitnessArity<TypeArity.Unary>, A, B> FilterableSteps2<M, A, B> par(
-      MonadZero<M> monad, Kind<M, A> a, Kind<M, B> b) {
-    Kind<M, Tuple2<A, B>> combined = monad.map2(a, b, Tuple::of);
-    return new FilterableSteps2<>(monad, combined);
-  }
-
-  /**
-   * Initiates a filterable for-comprehension by combining three independent computations in
-   * parallel.
-   *
-   * @param monad The MonadZero instance (used as an Applicative).
-   * @param a The first independent computation.
-   * @param b The second independent computation.
-   * @param c The third independent computation.
-   * @param <M> The witness type of the Monad.
-   * @param <A> The value type of the first computation.
-   * @param <B> The value type of the second computation.
-   * @param <C> The value type of the third computation.
-   * @return Step 3 of the filterable builder, tracking all three values.
-   */
-  public static <M extends WitnessArity<TypeArity.Unary>, A, B, C> FilterableSteps3<M, A, B, C> par(
-      MonadZero<M> monad, Kind<M, A> a, Kind<M, B> b, Kind<M, C> c) {
-    Kind<M, Tuple3<A, B, C>> combined = monad.map3(a, b, c, Tuple::of);
-    return new FilterableSteps3<>(monad, combined);
-  }
-
-  /**
-   * Initiates a filterable for-comprehension by combining four independent computations in
-   * parallel.
-   *
-   * @param monad The MonadZero instance (used as an Applicative).
-   * @param a The first independent computation.
-   * @param b The second independent computation.
-   * @param c The third independent computation.
-   * @param d The fourth independent computation.
-   * @param <M> The witness type of the Monad.
-   * @param <A> The value type of the first computation.
-   * @param <B> The value type of the second computation.
-   * @param <C> The value type of the third computation.
-   * @param <D> The value type of the fourth computation.
-   * @return Step 4 of the filterable builder, tracking all four values.
-   */
-  public static <M extends WitnessArity<TypeArity.Unary>, A, B, C, D>
-      FilterableSteps4<M, A, B, C, D> par(
-          MonadZero<M> monad, Kind<M, A> a, Kind<M, B> b, Kind<M, C> c, Kind<M, D> d) {
-    Kind<M, Tuple4<A, B, C, D>> combined = monad.map4(a, b, c, d, Tuple::of);
-    return new FilterableSteps4<>(monad, combined);
-  }
-
-  /**
-   * Initiates a filterable for-comprehension by combining five independent computations in
-   * parallel.
-   *
-   * @param monad The MonadZero instance (used as an Applicative).
-   * @param a The first independent computation.
-   * @param b The second independent computation.
-   * @param c The third independent computation.
-   * @param d The fourth independent computation.
-   * @param e The fifth independent computation.
-   * @param <M> The witness type of the Monad.
-   * @param <A> The value type of the first computation.
-   * @param <B> The value type of the second computation.
-   * @param <C> The value type of the third computation.
-   * @param <D> The value type of the fourth computation.
-   * @param <E> The value type of the fifth computation.
-   * @return Step 5 of the filterable builder, tracking all five values.
-   */
-  public static <M extends WitnessArity<TypeArity.Unary>, A, B, C, D, E>
-      FilterableSteps5<M, A, B, C, D, E> par(
-          MonadZero<M> monad,
-          Kind<M, A> a,
-          Kind<M, B> b,
-          Kind<M, C> c,
-          Kind<M, D> d,
-          Kind<M, E> e) {
-    Kind<M, Tuple5<A, B, C, D, E>> combined = monad.map5(a, b, c, d, e, Tuple::of);
-    return new FilterableSteps5<>(monad, combined);
-  }
-
-  /**
-   * A marker interface for all builder steps, ensuring they can be permitted by a sealed interface.
-   * This is an internal detail to organise the different step types.
-   *
-   * @param <M> The witness type of the Monad.
-   */
-  public sealed interface Steps<M extends WitnessArity<TypeArity.Unary>>
-      permits MonadicSteps1,
-          MonadicSteps2,
-          MonadicSteps3,
-          MonadicSteps4,
-          MonadicSteps5,
-          MonadicSteps6,
-          MonadicSteps7,
-          MonadicSteps8,
-          MonadicSteps9,
-          MonadicSteps10,
-          MonadicSteps11,
-          MonadicSteps12,
-          FilterableSteps1,
-          FilterableSteps2,
-          FilterableSteps3,
-          FilterableSteps4,
-          FilterableSteps5,
-          FilterableSteps6,
-          FilterableSteps7,
-          FilterableSteps8,
-          FilterableSteps9,
-          FilterableSteps10,
-          FilterableSteps11,
-          FilterableSteps12 {}
-
-  // --- Monadic (Non-Filterable) Steps ---
-
-  /**
-   * Represents the first step in a non-filterable for-comprehension, holding a single monadic
-   * value.
-   *
-   * @param <M> The witness type of the Monad.
-   * @param <A> The value type of the initial computation.
-   */
-  public static final class MonadicSteps1<M extends WitnessArity<TypeArity.Unary>, A>
-      implements Steps<M> {
-    private final Monad<M> monad;
-    private final Kind<M, A> computation;
-
-    private MonadicSteps1(Monad<M> monad, Kind<M, A> computation) {
-      this.monad = monad;
-      this.computation = computation;
+    // Static access only
+    private For() {
     }
 
     /**
-     * Binds the result of another monadic computation (a generator).
+     * Initiates a for-comprehension for any {@link Monad}. The resulting builder chain will not
+     * support filtering with {@code .when(...)}.
      *
-     * <p>This corresponds to a {@code flatMap} operation. The function {@code next} is applied to
-     * the result of the first step, and the resulting monadic value is flattened into the
-     * comprehension.
-     *
-     * @param next A function that takes the result of the first step (type {@code A}) and returns a
-     *     new monadic computation {@code Kind<M, B>}.
-     * @param <B> The value type of the new monadic computation.
-     * @return The next step in the builder, now tracking types {@code A} and {@code B} as a {@code
-     *     Tuple2<A, B>}.
+     * @param monad The Monad instance that defines the behaviour of {@code flatMap} and {@code map}.
+     * @param source The initial monadic source, the first generator in the comprehension.
+     * @param <M> The witness type of the Monad.
+     * @param <A> The value type of the source.
+     * @return The first step of the builder, ready for the next operation.
      */
-    public <B> MonadicSteps2<M, A, B> from(Function<A, Kind<M, B>> next) {
-      Kind<M, Tuple2<A, B>> newComputation =
-          monad.flatMap(a -> monad.map(b -> Tuple.of(a, b), next.apply(a)), this.computation);
-      return new MonadicSteps2<>(monad, newComputation);
+    public static <M extends WitnessArity<TypeArity.Unary>, A> MonadicSteps1<M, A> from(Monad<M> monad, Kind<M, A> source) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
     /**
-     * Binds the result of a pure computation.
+     * Initiates a for-comprehension for a {@link MonadZero}. The resulting builder chain supports
+     * filtering with {@code .when(...)}.
      *
-     * <p>This corresponds to a {@code map} operation. The function {@code f} is applied to the
-     * result of the first step to produce a new value, which is then carried along in the
-     * comprehension.
-     *
-     * @param f A function that takes the result of the first step (type {@code A}) and returns a
-     *     pure value of type {@code B}.
-     * @param <B> The type of the computed value.
-     * @return The next step in the builder, now tracking types {@code A} and {@code B} as a {@code
-     *     Tuple2<A, B>}.
+     * @param monad The MonadZero instance, providing {@code zero()} for filtering.
+     * @param source The initial monadic source, the first generator in the comprehension.
+     * @param <M> The witness type of the Monad.
+     * @param <A> The value type of the source.
+     * @return The first step of the filterable builder, ready for the next operation.
      */
-    public <B> MonadicSteps2<M, A, B> let(Function<A, B> f) {
-      Kind<M, Tuple2<A, B>> newComputation =
-          monad.map(a -> Tuple.of(a, f.apply(a)), this.computation);
-      return new MonadicSteps2<>(monad, newComputation);
+    public static <M extends WitnessArity<TypeArity.Unary>, A> FilterableSteps1<M, A> from(MonadZero<M> monad, Kind<M, A> source) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // --- Parallel (Applicative) Entry Points ---
+    /**
+     * Initiates a for-comprehension by combining two independent computations in parallel using
+     * applicative semantics ({@code map2}).
+     *
+     * <p>Unlike {@link #from(Monad, Kind)}, which chains sequentially via {@code flatMap}, this
+     * method declares that the two computations are independent and can potentially execute
+     * concurrently. The actual parallelism depends on the underlying monad; for example, {@code
+     * VTaskMonad} can execute on separate virtual threads, whilst {@code MaybeMonad} will evaluate
+     * sequentially.
+     *
+     * @param monad The Monad instance (used as an Applicative).
+     * @param a The first independent computation.
+     * @param b The second independent computation.
+     * @param <M> The witness type of the Monad.
+     * @param <A> The value type of the first computation.
+     * @param <B> The value type of the second computation.
+     * @return Step 2 of the builder, tracking both values.
+     */
+    public static <M extends WitnessArity<TypeArity.Unary>, A, B> MonadicSteps2<M, A, B> par(Monad<M> monad, Kind<M, A> a, Kind<M, B> b) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
     /**
-     * Extracts a value from the current computation result using the provided {@link Lens} and adds
-     * it to the accumulated tuple.
+     * Initiates a for-comprehension by combining three independent computations in parallel.
      *
-     * <p>This operation is equivalent to a pure computation that doesn't introduce new effects—it
-     * simply extracts a focused part of the current value. The extracted value is accumulated
-     * alongside the original value.
-     *
-     * <h3>Example</h3>
-     *
-     * <pre>{@code
-     * record User(String name, Address address) {}
-     * record Address(String city) {}
-     *
-     * Lens<User, Address> addressLens = Lens.of(User::address, User::withAddress);
-     *
-     * Kind<IdKind.Witness, String> result =
-     *     For.from(idMonad, Id.of(new User("Alice", new Address("NYC"))))
-     *         .focus(addressLens)
-     *         .yield((user, address) -> user.name() + " lives in " + address.city());
-     * // Result: "Alice lives in NYC"
-     * }</pre>
-     *
-     * @param lens The {@link Lens} to use for extracting the focused value.
-     * @param <B> The type of the extracted value.
-     * @return The next step in the builder, now tracking the original value and the extracted
-     *     value.
-     * @throws NullPointerException if {@code lens} is null.
-     * @see Lens
+     * @param monad The Monad instance (used as an Applicative).
+     * @param a The first independent computation.
+     * @param b The second independent computation.
+     * @param c The third independent computation.
+     * @param <M> The witness type of the Monad.
+     * @param <A> The value type of the first computation.
+     * @param <B> The value type of the second computation.
+     * @param <C> The value type of the third computation.
+     * @return Step 3 of the builder, tracking all three values.
      */
-    public <B> MonadicSteps2<M, A, B> focus(Lens<A, B> lens) {
-      Objects.requireNonNull(lens, "lens must not be null");
-      Kind<M, Tuple2<A, B>> newComputation =
-          monad.map(a -> Tuple.of(a, lens.get(a)), this.computation);
-      return new MonadicSteps2<>(monad, newComputation);
+    public static <M extends WitnessArity<TypeArity.Unary>, A, B, C> MonadicSteps3<M, A, B, C> par(Monad<M> monad, Kind<M, A> a, Kind<M, B> b, Kind<M, C> c) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
     /**
-     * Transforms the current value through an {@link Iso} and adds the converted value to the
-     * accumulated tuple.
+     * Initiates a for-comprehension by combining four independent computations in parallel.
      *
-     * <p>This is similar to {@link #focus(Lens)} but uses an {@link Iso} for the extraction, making
-     * the reversible nature of the transformation explicit. The original value and the converted
-     * value are both available in subsequent steps.
-     *
-     * <h3>Example</h3>
-     *
-     * <pre>{@code
-     * Iso<Celsius, Fahrenheit> tempIso = Iso.of(
-     *     c -> new Fahrenheit(c.value() * 9.0 / 5.0 + 32),
-     *     f -> new Celsius((f.value() - 32) * 5.0 / 9.0));
-     *
-     * Kind<IdKind.Witness, String> result =
-     *     For.from(idMonad, Id.of(new Celsius(100.0)))
-     *         .through(tempIso)
-     *         .yield((celsius, fahrenheit) -> celsius + " = " + fahrenheit);
-     * // Result: "Celsius(100.0) = Fahrenheit(212.0)"
-     * }</pre>
-     *
-     * @param iso The {@link Iso} to use for the conversion.
-     * @param <B> The type of the converted value.
-     * @return The next step in the builder, tracking both the original and converted values.
-     * @throws NullPointerException if {@code iso} is null.
-     * @see Iso
+     * @param monad The Monad instance (used as an Applicative).
+     * @param a The first independent computation.
+     * @param b The second independent computation.
+     * @param c The third independent computation.
+     * @param d The fourth independent computation.
+     * @param <M> The witness type of the Monad.
+     * @param <A> The value type of the first computation.
+     * @param <B> The value type of the second computation.
+     * @param <C> The value type of the third computation.
+     * @param <D> The value type of the fourth computation.
+     * @return Step 4 of the builder, tracking all four values.
      */
-    public <B> MonadicSteps2<M, A, B> through(Iso<A, B> iso) {
-      Objects.requireNonNull(iso, "iso must not be null");
-      Kind<M, Tuple2<A, B>> newComputation =
-          monad.map(a -> Tuple.of(a, iso.get(a)), this.computation);
-      return new MonadicSteps2<>(monad, newComputation);
+    public static <M extends WitnessArity<TypeArity.Unary>, A, B, C, D> MonadicSteps4<M, A, B, C, D> par(Monad<M> monad, Kind<M, A> a, Kind<M, B> b, Kind<M, C> c, Kind<M, D> d) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
     /**
-     * Combines two independent computations in parallel, both depending on the current value.
+     * Initiates a for-comprehension by combining five independent computations in parallel.
      *
-     * <p>This uses applicative semantics ({@code map2}) to express that the two sub-computations
-     * are independent of each other, even though they both depend on the value from this step.
-     *
-     * @param f1 First computation depending on the current value.
-     * @param f2 Second computation depending on the current value.
-     * @param <B> The value type of the first sub-computation.
-     * @param <C> The value type of the second sub-computation.
-     * @return Step 3, tracking the original value and both sub-computation results.
+     * @param monad The Monad instance (used as an Applicative).
+     * @param a The first independent computation.
+     * @param b The second independent computation.
+     * @param c The third independent computation.
+     * @param d The fourth independent computation.
+     * @param e The fifth independent computation.
+     * @param <M> The witness type of the Monad.
+     * @param <A> The value type of the first computation.
+     * @param <B> The value type of the second computation.
+     * @param <C> The value type of the third computation.
+     * @param <D> The value type of the fourth computation.
+     * @param <E> The value type of the fifth computation.
+     * @return Step 5 of the builder, tracking all five values.
      */
-    public <B, C> MonadicSteps3<M, A, B, C> par(
-        Function<A, Kind<M, B>> f1, Function<A, Kind<M, C>> f2) {
-      Kind<M, Tuple3<A, B, C>> next =
-          monad.flatMap(
-              a -> monad.map2(f1.apply(a), f2.apply(a), (b, c) -> Tuple.of(a, b, c)), computation);
-      return new MonadicSteps3<>(monad, next);
+    public static <M extends WitnessArity<TypeArity.Unary>, A, B, C, D, E> MonadicSteps5<M, A, B, C, D, E> par(Monad<M> monad, Kind<M, A> a, Kind<M, B> b, Kind<M, C> c, Kind<M, D> d, Kind<M, E> e) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
     /**
-     * Combines three independent computations in parallel, all depending on the current value.
+     * Initiates a filterable for-comprehension by combining two independent computations in parallel.
      *
-     * @param f1 First computation depending on the current value.
-     * @param f2 Second computation depending on the current value.
-     * @param f3 Third computation depending on the current value.
-     * @param <B> The value type of the first sub-computation.
-     * @param <C> The value type of the second sub-computation.
-     * @param <D> The value type of the third sub-computation.
-     * @return Step 4, tracking the original value and all three sub-computation results.
+     * @param monad The MonadZero instance (used as an Applicative).
+     * @param a The first independent computation.
+     * @param b The second independent computation.
+     * @param <M> The witness type of the Monad.
+     * @param <A> The value type of the first computation.
+     * @param <B> The value type of the second computation.
+     * @return Step 2 of the filterable builder, tracking both values.
      */
-    public <B, C, D> MonadicSteps4<M, A, B, C, D> par(
-        Function<A, Kind<M, B>> f1, Function<A, Kind<M, C>> f2, Function<A, Kind<M, D>> f3) {
-      Kind<M, Tuple4<A, B, C, D>> next =
-          monad.flatMap(
-              a ->
-                  monad.map3(
-                      f1.apply(a), f2.apply(a), f3.apply(a), (b, c, d) -> Tuple.of(a, b, c, d)),
-              computation);
-      return new MonadicSteps4<>(monad, next);
+    public static <M extends WitnessArity<TypeArity.Unary>, A, B> FilterableSteps2<M, A, B> par(MonadZero<M> monad, Kind<M, A> a, Kind<M, B> b) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
     /**
-     * Combines four independent computations in parallel, all depending on the current value.
+     * Initiates a filterable for-comprehension by combining three independent computations in
+     * parallel.
      *
-     * @param f1 First computation depending on the current value.
-     * @param f2 Second computation depending on the current value.
-     * @param f3 Third computation depending on the current value.
-     * @param f4 Fourth computation depending on the current value.
-     * @param <B> The value type of the first sub-computation.
-     * @param <C> The value type of the second sub-computation.
-     * @param <D> The value type of the third sub-computation.
-     * @param <E> The value type of the fourth sub-computation.
-     * @return Step 5, tracking the original value and all four sub-computation results.
+     * @param monad The MonadZero instance (used as an Applicative).
+     * @param a The first independent computation.
+     * @param b The second independent computation.
+     * @param c The third independent computation.
+     * @param <M> The witness type of the Monad.
+     * @param <A> The value type of the first computation.
+     * @param <B> The value type of the second computation.
+     * @param <C> The value type of the third computation.
+     * @return Step 3 of the filterable builder, tracking all three values.
      */
-    public <B, C, D, E> MonadicSteps5<M, A, B, C, D, E> par(
-        Function<A, Kind<M, B>> f1,
-        Function<A, Kind<M, C>> f2,
-        Function<A, Kind<M, D>> f3,
-        Function<A, Kind<M, E>> f4) {
-      Kind<M, Tuple5<A, B, C, D, E>> next =
-          monad.flatMap(
-              a ->
-                  monad.map4(
-                      f1.apply(a),
-                      f2.apply(a),
-                      f3.apply(a),
-                      f4.apply(a),
-                      (b, c, d, e) -> Tuple.of(a, b, c, d, e)),
-              computation);
-      return new MonadicSteps5<>(monad, next);
+    public static <M extends WitnessArity<TypeArity.Unary>, A, B, C> FilterableSteps3<M, A, B, C> par(MonadZero<M> monad, Kind<M, A> a, Kind<M, B> b, Kind<M, C> c) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
     /**
-     * Traverses a structure extracted from the current value, applying an effectful function to
-     * each element and collecting the results.
+     * Initiates a filterable for-comprehension by combining four independent computations in
+     * parallel.
      *
-     * <p>This integrates the {@link Traverse} type class into the for-comprehension, enabling bulk
-     * operations over traversable structures (such as lists, trees, or optional values) directly
-     * within the comprehension chain.
-     *
-     * @param traversable The {@link Traverse} instance for the structure type {@code T}.
-     * @param extractor A function that extracts the traversable structure from the current value.
-     * @param f An effectful function applied to each element of the structure.
-     * @param <T> The witness type of the traversable structure.
-     * @param <C> The element type of the extracted structure.
-     * @param <B> The result element type after applying the function.
-     * @return The next step, with the traversed result {@code Kind<T, B>} added to the tuple.
-     * @throws NullPointerException if any argument is null.
+     * @param monad The MonadZero instance (used as an Applicative).
+     * @param a The first independent computation.
+     * @param b The second independent computation.
+     * @param c The third independent computation.
+     * @param d The fourth independent computation.
+     * @param <M> The witness type of the Monad.
+     * @param <A> The value type of the first computation.
+     * @param <B> The value type of the second computation.
+     * @param <C> The value type of the third computation.
+     * @param <D> The value type of the fourth computation.
+     * @return Step 4 of the filterable builder, tracking all four values.
      */
-    public <T extends WitnessArity<TypeArity.Unary>, C, B> MonadicSteps2<M, A, Kind<T, B>> traverse(
-        Traverse<T> traversable, Function<A, Kind<T, C>> extractor, Function<C, Kind<M, B>> f) {
-      Objects.requireNonNull(traversable, "traversable must not be null");
-      Objects.requireNonNull(extractor, "extractor must not be null");
-      Objects.requireNonNull(f, "function must not be null");
-      Kind<M, Tuple2<A, Kind<T, B>>> newComputation =
-          monad.flatMap(
-              a ->
-                  monad.map(
-                      tb -> Tuple.of(a, tb), traversable.traverse(monad, f, extractor.apply(a))),
-              this.computation);
-      return new MonadicSteps2<>(monad, newComputation);
+    public static <M extends WitnessArity<TypeArity.Unary>, A, B, C, D> FilterableSteps4<M, A, B, C, D> par(MonadZero<M> monad, Kind<M, A> a, Kind<M, B> b, Kind<M, C> c, Kind<M, D> d) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
     /**
-     * Sequences a structure of monadic values extracted from the current value, flipping the
-     * nesting from {@code Kind<T, Kind<M, B>>} to {@code Kind<M, Kind<T, B>>}.
+     * Initiates a filterable for-comprehension by combining five independent computations in
+     * parallel.
      *
-     * @param traversable The {@link Traverse} instance for the structure type {@code T}.
-     * @param extractor A function that extracts the structure of monadic values.
-     * @param <T> The witness type of the traversable structure.
-     * @param <B> The element type inside both the structure and the monad.
-     * @return The next step, with the sequenced result {@code Kind<T, B>} added to the tuple.
-     * @throws NullPointerException if any argument is null.
+     * @param monad The MonadZero instance (used as an Applicative).
+     * @param a The first independent computation.
+     * @param b The second independent computation.
+     * @param c The third independent computation.
+     * @param d The fourth independent computation.
+     * @param e The fifth independent computation.
+     * @param <M> The witness type of the Monad.
+     * @param <A> The value type of the first computation.
+     * @param <B> The value type of the second computation.
+     * @param <C> The value type of the third computation.
+     * @param <D> The value type of the fourth computation.
+     * @param <E> The value type of the fifth computation.
+     * @return Step 5 of the filterable builder, tracking all five values.
      */
-    public <T extends WitnessArity<TypeArity.Unary>, B> MonadicSteps2<M, A, Kind<T, B>> sequence(
-        Traverse<T> traversable, Function<A, Kind<T, Kind<M, B>>> extractor) {
-      Objects.requireNonNull(traversable, "traversable must not be null");
-      Objects.requireNonNull(extractor, "extractor must not be null");
-      Kind<M, Tuple2<A, Kind<T, B>>> newComputation =
-          monad.flatMap(
-              a ->
-                  monad.map(
-                      tb -> Tuple.of(a, tb), traversable.sequenceA(monad, extractor.apply(a))),
-              this.computation);
-      return new MonadicSteps2<>(monad, newComputation);
+    public static <M extends WitnessArity<TypeArity.Unary>, A, B, C, D, E> FilterableSteps5<M, A, B, C, D, E> par(MonadZero<M> monad, Kind<M, A> a, Kind<M, B> b, Kind<M, C> c, Kind<M, D> d, Kind<M, E> e) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
     /**
-     * Traverses a structure with a function that returns nested structures, then flattens the
-     * result using the inner monad.
+     * A marker interface for all builder steps, ensuring they can be permitted by a sealed interface.
+     * This is an internal detail to organise the different step types.
      *
-     * <p>This is equivalent to {@code traverse} followed by a {@code flatMap} on the inner
-     * structure, useful when each element maps to a nested {@code Kind<T, Kind<T, B>>} that needs
-     * to be flattened to {@code Kind<T, B>}.
-     *
-     * @param traversable The {@link Traverse} instance for the structure type {@code T}.
-     * @param innerMonad The {@link Monad} instance for the inner structure type {@code T}.
-     * @param extractor A function that extracts the traversable structure from the current value.
-     * @param f An effectful function that returns nested structures.
-     * @param <T> The witness type of the traversable structure.
-     * @param <C> The element type of the extracted structure.
-     * @param <B> The result element type after flattening.
-     * @return The next step, with the flat-traversed result {@code Kind<T, B>} added to the tuple.
-     * @throws NullPointerException if any argument is null.
+     * @param <M> The witness type of the Monad.
      */
-    public <T extends WitnessArity<TypeArity.Unary>, C, B>
-        MonadicSteps2<M, A, Kind<T, B>> flatTraverse(
-            Traverse<T> traversable,
-            Monad<T> innerMonad,
-            Function<A, Kind<T, C>> extractor,
-            Function<C, Kind<M, Kind<T, B>>> f) {
-      Objects.requireNonNull(traversable, "traversable must not be null");
-      Objects.requireNonNull(innerMonad, "innerMonad must not be null");
-      Objects.requireNonNull(extractor, "extractor must not be null");
-      Objects.requireNonNull(f, "function must not be null");
-      Kind<M, Tuple2<A, Kind<T, B>>> newComputation =
-          monad.flatMap(
-              a -> {
-                Kind<M, Kind<T, Kind<T, B>>> traversed =
-                    traversable.traverse(monad, f, extractor.apply(a));
-                return monad.map(
-                    ttb -> Tuple.of(a, innerMonad.flatMap(Function.identity(), ttb)), traversed);
-              },
-              this.computation);
-      return new MonadicSteps2<>(monad, newComputation);
+    public sealed interface Steps<M extends WitnessArity<TypeArity.Unary>> permits MonadicSteps1, MonadicSteps2, MonadicSteps3, MonadicSteps4, MonadicSteps5, MonadicSteps6, MonadicSteps7, MonadicSteps8, MonadicSteps9, MonadicSteps10, MonadicSteps11, MonadicSteps12, FilterableSteps1, FilterableSteps2, FilterableSteps3, FilterableSteps4, FilterableSteps5, FilterableSteps6, FilterableSteps7, FilterableSteps8, FilterableSteps9, FilterableSteps10, FilterableSteps11, FilterableSteps12 {
     }
 
+    // --- Monadic (Non-Filterable) Steps ---
     /**
-     * Transitions from this for-comprehension step into a {@link ForState} builder by constructing
-     * a state object from the current computation result.
+     * Represents the first step in a non-filterable for-comprehension, holding a single monadic
+     * value.
      *
-     * @param constructor A function that constructs the state object from the current value.
-     * @param <S> The type of the state object.
-     * @return A {@link ForState.Steps} builder for chaining lens-based state operations.
-     * @throws NullPointerException if {@code constructor} is null.
+     * @param <M> The witness type of the Monad.
+     * @param <A> The value type of the initial computation.
      */
-    public <S> ForState.Steps<M, S> toState(Function<A, S> constructor) {
-      Objects.requireNonNull(constructor, "constructor must not be null");
-      return ForState.withState(monad, monad.map(constructor, computation));
+    public static final class MonadicSteps1<M extends WitnessArity<TypeArity.Unary>, A> implements Steps<M> {
+
+        private final Monad<M> monad;
+
+        private final Kind<M, A> computation;
+
+        private MonadicSteps1(Monad<M> monad, Kind<M, A> computation) {
+            this.monad = monad;
+            this.computation = computation;
+        }
+
+        /**
+         * Binds the result of another monadic computation (a generator).
+         *
+         * <p>This corresponds to a {@code flatMap} operation. The function {@code next} is applied to
+         * the result of the first step, and the resulting monadic value is flattened into the
+         * comprehension.
+         *
+         * @param next A function that takes the result of the first step (type {@code A}) and returns a
+         *     new monadic computation {@code Kind<M, B>}.
+         * @param <B> The value type of the new monadic computation.
+         * @return The next step in the builder, now tracking types {@code A} and {@code B} as a {@code
+         *     Tuple2<A, B>}.
+         */
+        public <B> MonadicSteps2<M, A, B> from(Function<A, Kind<M, B>> next) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Binds the result of a pure computation.
+         *
+         * <p>This corresponds to a {@code map} operation. The function {@code f} is applied to the
+         * result of the first step to produce a new value, which is then carried along in the
+         * comprehension.
+         *
+         * @param f A function that takes the result of the first step (type {@code A}) and returns a
+         *     pure value of type {@code B}.
+         * @param <B> The type of the computed value.
+         * @return The next step in the builder, now tracking types {@code A} and {@code B} as a {@code
+         *     Tuple2<A, B>}.
+         */
+        public <B> MonadicSteps2<M, A, B> let(Function<A, B> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Extracts a value from the current computation result using the provided {@link Lens} and adds
+         * it to the accumulated tuple.
+         *
+         * <p>This operation is equivalent to a pure computation that doesn't introduce new effects—it
+         * simply extracts a focused part of the current value. The extracted value is accumulated
+         * alongside the original value.
+         *
+         * <h3>Example</h3>
+         *
+         * <pre>{@code
+         * record User(String name, Address address) {}
+         * record Address(String city) {}
+         *
+         * Lens<User, Address> addressLens = Lens.of(User::address, User::withAddress);
+         *
+         * Kind<IdKind.Witness, String> result =
+         *     For.from(idMonad, Id.of(new User("Alice", new Address("NYC"))))
+         *         .focus(addressLens)
+         *         .yield((user, address) -> user.name() + " lives in " + address.city());
+         * // Result: "Alice lives in NYC"
+         * }</pre>
+         *
+         * @param lens The {@link Lens} to use for extracting the focused value.
+         * @param <B> The type of the extracted value.
+         * @return The next step in the builder, now tracking the original value and the extracted
+         *     value.
+         * @throws NullPointerException if {@code lens} is null.
+         * @see Lens
+         */
+        public <B> MonadicSteps2<M, A, B> focus(Lens<A, B> lens) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Transforms the current value through an {@link Iso} and adds the converted value to the
+         * accumulated tuple.
+         *
+         * <p>This is similar to {@link #focus(Lens)} but uses an {@link Iso} for the extraction, making
+         * the reversible nature of the transformation explicit. The original value and the converted
+         * value are both available in subsequent steps.
+         *
+         * <h3>Example</h3>
+         *
+         * <pre>{@code
+         * Iso<Celsius, Fahrenheit> tempIso = Iso.of(
+         *     c -> new Fahrenheit(c.value() * 9.0 / 5.0 + 32),
+         *     f -> new Celsius((f.value() - 32) * 5.0 / 9.0));
+         *
+         * Kind<IdKind.Witness, String> result =
+         *     For.from(idMonad, Id.of(new Celsius(100.0)))
+         *         .through(tempIso)
+         *         .yield((celsius, fahrenheit) -> celsius + " = " + fahrenheit);
+         * // Result: "Celsius(100.0) = Fahrenheit(212.0)"
+         * }</pre>
+         *
+         * @param iso The {@link Iso} to use for the conversion.
+         * @param <B> The type of the converted value.
+         * @return The next step in the builder, tracking both the original and converted values.
+         * @throws NullPointerException if {@code iso} is null.
+         * @see Iso
+         */
+        public <B> MonadicSteps2<M, A, B> through(Iso<A, B> iso) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Combines two independent computations in parallel, both depending on the current value.
+         *
+         * <p>This uses applicative semantics ({@code map2}) to express that the two sub-computations
+         * are independent of each other, even though they both depend on the value from this step.
+         *
+         * @param f1 First computation depending on the current value.
+         * @param f2 Second computation depending on the current value.
+         * @param <B> The value type of the first sub-computation.
+         * @param <C> The value type of the second sub-computation.
+         * @return Step 3, tracking the original value and both sub-computation results.
+         */
+        public <B, C> MonadicSteps3<M, A, B, C> par(Function<A, Kind<M, B>> f1, Function<A, Kind<M, C>> f2) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Combines three independent computations in parallel, all depending on the current value.
+         *
+         * @param f1 First computation depending on the current value.
+         * @param f2 Second computation depending on the current value.
+         * @param f3 Third computation depending on the current value.
+         * @param <B> The value type of the first sub-computation.
+         * @param <C> The value type of the second sub-computation.
+         * @param <D> The value type of the third sub-computation.
+         * @return Step 4, tracking the original value and all three sub-computation results.
+         */
+        public <B, C, D> MonadicSteps4<M, A, B, C, D> par(Function<A, Kind<M, B>> f1, Function<A, Kind<M, C>> f2, Function<A, Kind<M, D>> f3) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Combines four independent computations in parallel, all depending on the current value.
+         *
+         * @param f1 First computation depending on the current value.
+         * @param f2 Second computation depending on the current value.
+         * @param f3 Third computation depending on the current value.
+         * @param f4 Fourth computation depending on the current value.
+         * @param <B> The value type of the first sub-computation.
+         * @param <C> The value type of the second sub-computation.
+         * @param <D> The value type of the third sub-computation.
+         * @param <E> The value type of the fourth sub-computation.
+         * @return Step 5, tracking the original value and all four sub-computation results.
+         */
+        public <B, C, D, E> MonadicSteps5<M, A, B, C, D, E> par(Function<A, Kind<M, B>> f1, Function<A, Kind<M, C>> f2, Function<A, Kind<M, D>> f3, Function<A, Kind<M, E>> f4) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Traverses a structure extracted from the current value, applying an effectful function to
+         * each element and collecting the results.
+         *
+         * <p>This integrates the {@link Traverse} type class into the for-comprehension, enabling bulk
+         * operations over traversable structures (such as lists, trees, or optional values) directly
+         * within the comprehension chain.
+         *
+         * @param traversable The {@link Traverse} instance for the structure type {@code T}.
+         * @param extractor A function that extracts the traversable structure from the current value.
+         * @param f An effectful function applied to each element of the structure.
+         * @param <T> The witness type of the traversable structure.
+         * @param <C> The element type of the extracted structure.
+         * @param <B> The result element type after applying the function.
+         * @return The next step, with the traversed result {@code Kind<T, B>} added to the tuple.
+         * @throws NullPointerException if any argument is null.
+         */
+        public <T extends WitnessArity<TypeArity.Unary>, C, B> MonadicSteps2<M, A, Kind<T, B>> traverse(Traverse<T> traversable, Function<A, Kind<T, C>> extractor, Function<C, Kind<M, B>> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Sequences a structure of monadic values extracted from the current value, flipping the
+         * nesting from {@code Kind<T, Kind<M, B>>} to {@code Kind<M, Kind<T, B>>}.
+         *
+         * @param traversable The {@link Traverse} instance for the structure type {@code T}.
+         * @param extractor A function that extracts the structure of monadic values.
+         * @param <T> The witness type of the traversable structure.
+         * @param <B> The element type inside both the structure and the monad.
+         * @return The next step, with the sequenced result {@code Kind<T, B>} added to the tuple.
+         * @throws NullPointerException if any argument is null.
+         */
+        public <T extends WitnessArity<TypeArity.Unary>, B> MonadicSteps2<M, A, Kind<T, B>> sequence(Traverse<T> traversable, Function<A, Kind<T, Kind<M, B>>> extractor) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Traverses a structure with a function that returns nested structures, then flattens the
+         * result using the inner monad.
+         *
+         * <p>This is equivalent to {@code traverse} followed by a {@code flatMap} on the inner
+         * structure, useful when each element maps to a nested {@code Kind<T, Kind<T, B>>} that needs
+         * to be flattened to {@code Kind<T, B>}.
+         *
+         * @param traversable The {@link Traverse} instance for the structure type {@code T}.
+         * @param innerMonad The {@link Monad} instance for the inner structure type {@code T}.
+         * @param extractor A function that extracts the traversable structure from the current value.
+         * @param f An effectful function that returns nested structures.
+         * @param <T> The witness type of the traversable structure.
+         * @param <C> The element type of the extracted structure.
+         * @param <B> The result element type after flattening.
+         * @return The next step, with the flat-traversed result {@code Kind<T, B>} added to the tuple.
+         * @throws NullPointerException if any argument is null.
+         */
+        public <T extends WitnessArity<TypeArity.Unary>, C, B> MonadicSteps2<M, A, Kind<T, B>> flatTraverse(Traverse<T> traversable, Monad<T> innerMonad, Function<A, Kind<T, C>> extractor, Function<C, Kind<M, Kind<T, B>>> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Transitions from this for-comprehension step into a {@link ForState} builder by constructing
+         * a state object from the current computation result.
+         *
+         * @param constructor A function that constructs the state object from the current value.
+         * @param <S> The type of the state object.
+         * @return A {@link ForState.Steps} builder for chaining lens-based state operations.
+         * @throws NullPointerException if {@code constructor} is null.
+         */
+        public <S> ForState.Steps<M, S> toState(Function<A, S> constructor) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Completes the for-comprehension by applying a function to the final result.
+         *
+         * @param f A function to transform the final value of type {@code A} into the result type
+         *     {@code R}.
+         * @param <R> The final result type.
+         * @return A monadic value of type {@code R}.
+         */
+        public <R> Kind<M, R> yield(Function<A, R> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
     }
 
+    // --- Filterable Steps (for MonadZero) ---
     /**
-     * Completes the for-comprehension by applying a function to the final result.
+     * Represents the first step in a filterable for-comprehension, holding a single monadic value.
      *
-     * @param f A function to transform the final value of type {@code A} into the result type
-     *     {@code R}.
-     * @param <R> The final result type.
-     * @return A monadic value of type {@code R}.
+     * @param <M> The witness type of the Monad.
+     * @param <A> The value type of the initial computation.
      */
-    public <R> Kind<M, R> yield(Function<A, R> f) {
-      return monad.map(f, computation);
+    public static final class FilterableSteps1<M extends WitnessArity<TypeArity.Unary>, A> implements Steps<M> {
+
+        private final MonadZero<M> monad;
+
+        private final Kind<M, A> computation;
+
+        private FilterableSteps1(MonadZero<M> monad, Kind<M, A> computation) {
+            this.monad = monad;
+            this.computation = computation;
+        }
+
+        /**
+         * Adds a new monadic generator to the comprehension.
+         *
+         * @param next A function producing the next monadic computation.
+         * @param <B> The value type of the new computation.
+         * @return The next step in the builder, now tracking two results.
+         */
+        public <B> FilterableSteps2<M, A, B> from(Function<A, Kind<M, B>> next) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Adds a pure computation to the comprehension.
+         *
+         * @param f A function producing a new pure value.
+         * @param <B> The type of the new computed value.
+         * @return The next step in the builder, now tracking two results.
+         */
+        public <B> FilterableSteps2<M, A, B> let(Function<A, B> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Filters the results of the comprehension based on a predicate. If the predicate returns
+         * {@code false}, the comprehension short-circuits for that path by using the monad's {@link
+         * MonadZero#zero()} element (e.g., an empty list).
+         *
+         * @param filter The predicate to apply to the current value {@code A}.
+         * @return The current builder step, with the filter applied.
+         */
+        public FilterableSteps1<M, A> when(Predicate<A> filter) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Extracts a value from the current computation result using the provided {@link Lens} and adds
+         * it to the accumulated tuple.
+         *
+         * <p>This operation is equivalent to a pure computation that doesn't introduce new effects—it
+         * simply extracts a focused part of the current value.
+         *
+         * @param lens The {@link Lens} to use for extracting the focused value.
+         * @param <B> The type of the extracted value.
+         * @return The next step in the builder, now tracking the original value and the extracted
+         *     value.
+         * @throws NullPointerException if {@code lens} is null.
+         * @see Lens
+         */
+        public <B> FilterableSteps2<M, A, B> focus(Lens<A, B> lens) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Transforms the current value through an {@link Iso} and adds the converted value to the
+         * accumulated tuple.
+         *
+         * <p>This is similar to {@link #focus(Lens)} but uses an {@link Iso} for the extraction, making
+         * the reversible nature of the transformation explicit.
+         *
+         * @param iso The {@link Iso} to use for the conversion.
+         * @param <B> The type of the converted value.
+         * @return The next step in the builder, tracking both the original and converted values.
+         * @throws NullPointerException if {@code iso} is null.
+         * @see Iso
+         */
+        public <B> FilterableSteps2<M, A, B> through(Iso<A, B> iso) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Attempts to extract a value using the provided {@link Prism}. If the prism matches, the
+         * extracted value is added to the accumulated tuple. If it doesn't match, the computation
+         * short-circuits using the monad's {@link MonadZero#zero()} element.
+         *
+         * <p>This provides type-safe pattern matching within for-comprehensions, eliminating the need
+         * for {@code instanceof} checks and casts.
+         *
+         * <h3>Example</h3>
+         *
+         * <pre>{@code
+         * sealed interface Result permits Success, Failure {}
+         * record Success(String value) implements Result {}
+         * record Failure(String error) implements Result {}
+         *
+         * Prism<Result, Success> successPrism = Prism.of(
+         *     r -> r instanceof Success s ? Optional.of(s) : Optional.empty(),
+         *     s -> s
+         * );
+         *
+         * Kind<MaybeKind.Witness, String> result =
+         *     For.from(maybeMonad, MAYBE.just(someResult))
+         *         .match(successPrism)
+         *         .yield((original, success) -> success.value());
+         * // Returns Just(value) if someResult is Success, Nothing otherwise
+         * }</pre>
+         *
+         * @param prism The {@link Prism} to use for pattern matching.
+         * @param <B> The type of the extracted value when the prism matches.
+         * @return The next step in the builder if the prism matches, or short-circuits to zero.
+         * @throws NullPointerException if {@code prism} is null.
+         * @see Prism
+         */
+        public <B> FilterableSteps2<M, A, B> match(Prism<A, B> prism) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Combines two independent computations in parallel, both depending on the current value.
+         *
+         * <p>This uses applicative semantics ({@code map2}) to express that the two sub-computations
+         * are independent of each other, even though they both depend on the value from this step.
+         *
+         * @param f1 First computation depending on the current value.
+         * @param f2 Second computation depending on the current value.
+         * @param <B> The value type of the first sub-computation.
+         * @param <C> The value type of the second sub-computation.
+         * @return Step 3, tracking the original value and both sub-computation results.
+         */
+        public <B, C> FilterableSteps3<M, A, B, C> par(Function<A, Kind<M, B>> f1, Function<A, Kind<M, C>> f2) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Combines three independent computations in parallel, all depending on the current value.
+         *
+         * @param f1 First computation depending on the current value.
+         * @param f2 Second computation depending on the current value.
+         * @param f3 Third computation depending on the current value.
+         * @param <B> The value type of the first sub-computation.
+         * @param <C> The value type of the second sub-computation.
+         * @param <D> The value type of the third sub-computation.
+         * @return Step 4, tracking the original value and all three sub-computation results.
+         */
+        public <B, C, D> FilterableSteps4<M, A, B, C, D> par(Function<A, Kind<M, B>> f1, Function<A, Kind<M, C>> f2, Function<A, Kind<M, D>> f3) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Combines four independent computations in parallel, all depending on the current value.
+         *
+         * @param f1 First computation depending on the current value.
+         * @param f2 Second computation depending on the current value.
+         * @param f3 Third computation depending on the current value.
+         * @param f4 Fourth computation depending on the current value.
+         * @param <B> The value type of the first sub-computation.
+         * @param <C> The value type of the second sub-computation.
+         * @param <D> The value type of the third sub-computation.
+         * @param <E> The value type of the fourth sub-computation.
+         * @return Step 5, tracking the original value and all four sub-computation results.
+         */
+        public <B, C, D, E> FilterableSteps5<M, A, B, C, D, E> par(Function<A, Kind<M, B>> f1, Function<A, Kind<M, C>> f2, Function<A, Kind<M, D>> f3, Function<A, Kind<M, E>> f4) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Traverses a structure extracted from the current value, applying an effectful function to
+         * each element and collecting the results.
+         *
+         * @param traversable The {@link Traverse} instance for the structure type {@code T}.
+         * @param extractor A function that extracts the traversable structure from the current value.
+         * @param f An effectful function applied to each element of the structure.
+         * @param <T> The witness type of the traversable structure.
+         * @param <C> The element type of the extracted structure.
+         * @param <B> The result element type after applying the function.
+         * @return The next step, with the traversed result {@code Kind<T, B>} added to the tuple.
+         * @throws NullPointerException if any argument is null.
+         */
+        public <T extends WitnessArity<TypeArity.Unary>, C, B> FilterableSteps2<M, A, Kind<T, B>> traverse(Traverse<T> traversable, Function<A, Kind<T, C>> extractor, Function<C, Kind<M, B>> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Sequences a structure of monadic values extracted from the current value, flipping the
+         * nesting from {@code Kind<T, Kind<M, B>>} to {@code Kind<M, Kind<T, B>>}.
+         *
+         * @param traversable The {@link Traverse} instance for the structure type {@code T}.
+         * @param extractor A function that extracts the structure of monadic values.
+         * @param <T> The witness type of the traversable structure.
+         * @param <B> The element type inside both the structure and the monad.
+         * @return The next step, with the sequenced result {@code Kind<T, B>} added to the tuple.
+         * @throws NullPointerException if any argument is null.
+         */
+        public <T extends WitnessArity<TypeArity.Unary>, B> FilterableSteps2<M, A, Kind<T, B>> sequence(Traverse<T> traversable, Function<A, Kind<T, Kind<M, B>>> extractor) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Traverses a structure with a function that returns nested structures, then flattens the
+         * result using the inner monad.
+         *
+         * @param traversable The {@link Traverse} instance for the structure type {@code T}.
+         * @param innerMonad The {@link Monad} instance for the inner structure type {@code T}.
+         * @param extractor A function that extracts the traversable structure from the current value.
+         * @param f An effectful function that returns nested structures.
+         * @param <T> The witness type of the traversable structure.
+         * @param <C> The element type of the extracted structure.
+         * @param <B> The result element type after flattening.
+         * @return The next step, with the flat-traversed result {@code Kind<T, B>} added to the tuple.
+         * @throws NullPointerException if any argument is null.
+         */
+        public <T extends WitnessArity<TypeArity.Unary>, C, B> FilterableSteps2<M, A, Kind<T, B>> flatTraverse(Traverse<T> traversable, Monad<T> innerMonad, Function<A, Kind<T, C>> extractor, Function<C, Kind<M, Kind<T, B>>> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Transitions from this for-comprehension step into a {@link ForState} builder.
+         *
+         * @param constructor A function that constructs the state object from the current value.
+         * @param <S> The type of the state object.
+         * @return A {@link ForState.FilterableSteps} builder for chaining lens-based state operations.
+         * @throws NullPointerException if {@code constructor} is null.
+         */
+        public <S> ForState.FilterableSteps<M, S> toState(Function<A, S> constructor) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Completes the for-comprehension by applying a function to the final result.
+         *
+         * @param f A function to transform the final value.
+         * @param <R> The final result type.
+         * @return A monadic value of type {@code R}.
+         */
+        public <R> Kind<M, R> yield(Function<A, R> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
     }
-  }
-
-  // --- Filterable Steps (for MonadZero) ---
-
-  /**
-   * Represents the first step in a filterable for-comprehension, holding a single monadic value.
-   *
-   * @param <M> The witness type of the Monad.
-   * @param <A> The value type of the initial computation.
-   */
-  public static final class FilterableSteps1<M extends WitnessArity<TypeArity.Unary>, A>
-      implements Steps<M> {
-    private final MonadZero<M> monad;
-    private final Kind<M, A> computation;
-
-    private FilterableSteps1(MonadZero<M> monad, Kind<M, A> computation) {
-      this.monad = monad;
-      this.computation = computation;
-    }
-
-    /**
-     * Adds a new monadic generator to the comprehension.
-     *
-     * @param next A function producing the next monadic computation.
-     * @param <B> The value type of the new computation.
-     * @return The next step in the builder, now tracking two results.
-     */
-    public <B> FilterableSteps2<M, A, B> from(Function<A, Kind<M, B>> next) {
-      Kind<M, Tuple2<A, B>> newComputation =
-          monad.flatMap(a -> monad.map(b -> Tuple.of(a, b), next.apply(a)), this.computation);
-      return new FilterableSteps2<>(monad, newComputation);
-    }
-
-    /**
-     * Adds a pure computation to the comprehension.
-     *
-     * @param f A function producing a new pure value.
-     * @param <B> The type of the new computed value.
-     * @return The next step in the builder, now tracking two results.
-     */
-    public <B> FilterableSteps2<M, A, B> let(Function<A, B> f) {
-      Kind<M, Tuple2<A, B>> newComputation =
-          monad.map(a -> Tuple.of(a, f.apply(a)), this.computation);
-      return new FilterableSteps2<>(monad, newComputation);
-    }
-
-    /**
-     * Filters the results of the comprehension based on a predicate. If the predicate returns
-     * {@code false}, the comprehension short-circuits for that path by using the monad's {@link
-     * MonadZero#zero()} element (e.g., an empty list).
-     *
-     * @param filter The predicate to apply to the current value {@code A}.
-     * @return The current builder step, with the filter applied.
-     */
-    public FilterableSteps1<M, A> when(Predicate<A> filter) {
-      return new FilterableSteps1<>(monad, monad.filter(filter, this.computation));
-    }
-
-    /**
-     * Extracts a value from the current computation result using the provided {@link Lens} and adds
-     * it to the accumulated tuple.
-     *
-     * <p>This operation is equivalent to a pure computation that doesn't introduce new effects—it
-     * simply extracts a focused part of the current value.
-     *
-     * @param lens The {@link Lens} to use for extracting the focused value.
-     * @param <B> The type of the extracted value.
-     * @return The next step in the builder, now tracking the original value and the extracted
-     *     value.
-     * @throws NullPointerException if {@code lens} is null.
-     * @see Lens
-     */
-    public <B> FilterableSteps2<M, A, B> focus(Lens<A, B> lens) {
-      Objects.requireNonNull(lens, "lens must not be null");
-      Kind<M, Tuple2<A, B>> newComputation =
-          monad.map(a -> Tuple.of(a, lens.get(a)), this.computation);
-      return new FilterableSteps2<>(monad, newComputation);
-    }
-
-    /**
-     * Transforms the current value through an {@link Iso} and adds the converted value to the
-     * accumulated tuple.
-     *
-     * <p>This is similar to {@link #focus(Lens)} but uses an {@link Iso} for the extraction, making
-     * the reversible nature of the transformation explicit.
-     *
-     * @param iso The {@link Iso} to use for the conversion.
-     * @param <B> The type of the converted value.
-     * @return The next step in the builder, tracking both the original and converted values.
-     * @throws NullPointerException if {@code iso} is null.
-     * @see Iso
-     */
-    public <B> FilterableSteps2<M, A, B> through(Iso<A, B> iso) {
-      Objects.requireNonNull(iso, "iso must not be null");
-      Kind<M, Tuple2<A, B>> newComputation =
-          monad.map(a -> Tuple.of(a, iso.get(a)), this.computation);
-      return new FilterableSteps2<>(monad, newComputation);
-    }
-
-    /**
-     * Attempts to extract a value using the provided {@link Prism}. If the prism matches, the
-     * extracted value is added to the accumulated tuple. If it doesn't match, the computation
-     * short-circuits using the monad's {@link MonadZero#zero()} element.
-     *
-     * <p>This provides type-safe pattern matching within for-comprehensions, eliminating the need
-     * for {@code instanceof} checks and casts.
-     *
-     * <h3>Example</h3>
-     *
-     * <pre>{@code
-     * sealed interface Result permits Success, Failure {}
-     * record Success(String value) implements Result {}
-     * record Failure(String error) implements Result {}
-     *
-     * Prism<Result, Success> successPrism = Prism.of(
-     *     r -> r instanceof Success s ? Optional.of(s) : Optional.empty(),
-     *     s -> s
-     * );
-     *
-     * Kind<MaybeKind.Witness, String> result =
-     *     For.from(maybeMonad, MAYBE.just(someResult))
-     *         .match(successPrism)
-     *         .yield((original, success) -> success.value());
-     * // Returns Just(value) if someResult is Success, Nothing otherwise
-     * }</pre>
-     *
-     * @param prism The {@link Prism} to use for pattern matching.
-     * @param <B> The type of the extracted value when the prism matches.
-     * @return The next step in the builder if the prism matches, or short-circuits to zero.
-     * @throws NullPointerException if {@code prism} is null.
-     * @see Prism
-     */
-    public <B> FilterableSteps2<M, A, B> match(Prism<A, B> prism) {
-      Objects.requireNonNull(prism, "prism must not be null");
-      Kind<M, Tuple2<A, B>> newComputation =
-          monad.flatMap(
-              a -> prism.getOptional(a).map(b -> monad.of(Tuple.of(a, b))).orElseGet(monad::zero),
-              this.computation);
-      return new FilterableSteps2<>(monad, newComputation);
-    }
-
-    /**
-     * Combines two independent computations in parallel, both depending on the current value.
-     *
-     * <p>This uses applicative semantics ({@code map2}) to express that the two sub-computations
-     * are independent of each other, even though they both depend on the value from this step.
-     *
-     * @param f1 First computation depending on the current value.
-     * @param f2 Second computation depending on the current value.
-     * @param <B> The value type of the first sub-computation.
-     * @param <C> The value type of the second sub-computation.
-     * @return Step 3, tracking the original value and both sub-computation results.
-     */
-    public <B, C> FilterableSteps3<M, A, B, C> par(
-        Function<A, Kind<M, B>> f1, Function<A, Kind<M, C>> f2) {
-      Kind<M, Tuple3<A, B, C>> next =
-          monad.flatMap(
-              a -> monad.map2(f1.apply(a), f2.apply(a), (b, c) -> Tuple.of(a, b, c)), computation);
-      return new FilterableSteps3<>(monad, next);
-    }
-
-    /**
-     * Combines three independent computations in parallel, all depending on the current value.
-     *
-     * @param f1 First computation depending on the current value.
-     * @param f2 Second computation depending on the current value.
-     * @param f3 Third computation depending on the current value.
-     * @param <B> The value type of the first sub-computation.
-     * @param <C> The value type of the second sub-computation.
-     * @param <D> The value type of the third sub-computation.
-     * @return Step 4, tracking the original value and all three sub-computation results.
-     */
-    public <B, C, D> FilterableSteps4<M, A, B, C, D> par(
-        Function<A, Kind<M, B>> f1, Function<A, Kind<M, C>> f2, Function<A, Kind<M, D>> f3) {
-      Kind<M, Tuple4<A, B, C, D>> next =
-          monad.flatMap(
-              a ->
-                  monad.map3(
-                      f1.apply(a), f2.apply(a), f3.apply(a), (b, c, d) -> Tuple.of(a, b, c, d)),
-              computation);
-      return new FilterableSteps4<>(monad, next);
-    }
-
-    /**
-     * Combines four independent computations in parallel, all depending on the current value.
-     *
-     * @param f1 First computation depending on the current value.
-     * @param f2 Second computation depending on the current value.
-     * @param f3 Third computation depending on the current value.
-     * @param f4 Fourth computation depending on the current value.
-     * @param <B> The value type of the first sub-computation.
-     * @param <C> The value type of the second sub-computation.
-     * @param <D> The value type of the third sub-computation.
-     * @param <E> The value type of the fourth sub-computation.
-     * @return Step 5, tracking the original value and all four sub-computation results.
-     */
-    public <B, C, D, E> FilterableSteps5<M, A, B, C, D, E> par(
-        Function<A, Kind<M, B>> f1,
-        Function<A, Kind<M, C>> f2,
-        Function<A, Kind<M, D>> f3,
-        Function<A, Kind<M, E>> f4) {
-      Kind<M, Tuple5<A, B, C, D, E>> next =
-          monad.flatMap(
-              a ->
-                  monad.map4(
-                      f1.apply(a),
-                      f2.apply(a),
-                      f3.apply(a),
-                      f4.apply(a),
-                      (b, c, d, e) -> Tuple.of(a, b, c, d, e)),
-              computation);
-      return new FilterableSteps5<>(monad, next);
-    }
-
-    /**
-     * Traverses a structure extracted from the current value, applying an effectful function to
-     * each element and collecting the results.
-     *
-     * @param traversable The {@link Traverse} instance for the structure type {@code T}.
-     * @param extractor A function that extracts the traversable structure from the current value.
-     * @param f An effectful function applied to each element of the structure.
-     * @param <T> The witness type of the traversable structure.
-     * @param <C> The element type of the extracted structure.
-     * @param <B> The result element type after applying the function.
-     * @return The next step, with the traversed result {@code Kind<T, B>} added to the tuple.
-     * @throws NullPointerException if any argument is null.
-     */
-    public <T extends WitnessArity<TypeArity.Unary>, C, B>
-        FilterableSteps2<M, A, Kind<T, B>> traverse(
-            Traverse<T> traversable, Function<A, Kind<T, C>> extractor, Function<C, Kind<M, B>> f) {
-      Objects.requireNonNull(traversable, "traversable must not be null");
-      Objects.requireNonNull(extractor, "extractor must not be null");
-      Objects.requireNonNull(f, "function must not be null");
-      Kind<M, Tuple2<A, Kind<T, B>>> newComputation =
-          monad.flatMap(
-              a ->
-                  monad.map(
-                      tb -> Tuple.of(a, tb), traversable.traverse(monad, f, extractor.apply(a))),
-              this.computation);
-      return new FilterableSteps2<>(monad, newComputation);
-    }
-
-    /**
-     * Sequences a structure of monadic values extracted from the current value, flipping the
-     * nesting from {@code Kind<T, Kind<M, B>>} to {@code Kind<M, Kind<T, B>>}.
-     *
-     * @param traversable The {@link Traverse} instance for the structure type {@code T}.
-     * @param extractor A function that extracts the structure of monadic values.
-     * @param <T> The witness type of the traversable structure.
-     * @param <B> The element type inside both the structure and the monad.
-     * @return The next step, with the sequenced result {@code Kind<T, B>} added to the tuple.
-     * @throws NullPointerException if any argument is null.
-     */
-    public <T extends WitnessArity<TypeArity.Unary>, B> FilterableSteps2<M, A, Kind<T, B>> sequence(
-        Traverse<T> traversable, Function<A, Kind<T, Kind<M, B>>> extractor) {
-      Objects.requireNonNull(traversable, "traversable must not be null");
-      Objects.requireNonNull(extractor, "extractor must not be null");
-      Kind<M, Tuple2<A, Kind<T, B>>> newComputation =
-          monad.flatMap(
-              a ->
-                  monad.map(
-                      tb -> Tuple.of(a, tb), traversable.sequenceA(monad, extractor.apply(a))),
-              this.computation);
-      return new FilterableSteps2<>(monad, newComputation);
-    }
-
-    /**
-     * Traverses a structure with a function that returns nested structures, then flattens the
-     * result using the inner monad.
-     *
-     * @param traversable The {@link Traverse} instance for the structure type {@code T}.
-     * @param innerMonad The {@link Monad} instance for the inner structure type {@code T}.
-     * @param extractor A function that extracts the traversable structure from the current value.
-     * @param f An effectful function that returns nested structures.
-     * @param <T> The witness type of the traversable structure.
-     * @param <C> The element type of the extracted structure.
-     * @param <B> The result element type after flattening.
-     * @return The next step, with the flat-traversed result {@code Kind<T, B>} added to the tuple.
-     * @throws NullPointerException if any argument is null.
-     */
-    public <T extends WitnessArity<TypeArity.Unary>, C, B>
-        FilterableSteps2<M, A, Kind<T, B>> flatTraverse(
-            Traverse<T> traversable,
-            Monad<T> innerMonad,
-            Function<A, Kind<T, C>> extractor,
-            Function<C, Kind<M, Kind<T, B>>> f) {
-      Objects.requireNonNull(traversable, "traversable must not be null");
-      Objects.requireNonNull(innerMonad, "innerMonad must not be null");
-      Objects.requireNonNull(extractor, "extractor must not be null");
-      Objects.requireNonNull(f, "function must not be null");
-      Kind<M, Tuple2<A, Kind<T, B>>> newComputation =
-          monad.flatMap(
-              a -> {
-                Kind<M, Kind<T, Kind<T, B>>> traversed =
-                    traversable.traverse(monad, f, extractor.apply(a));
-                return monad.map(
-                    ttb -> Tuple.of(a, innerMonad.flatMap(Function.identity(), ttb)), traversed);
-              },
-              this.computation);
-      return new FilterableSteps2<>(monad, newComputation);
-    }
-
-    /**
-     * Transitions from this for-comprehension step into a {@link ForState} builder.
-     *
-     * @param constructor A function that constructs the state object from the current value.
-     * @param <S> The type of the state object.
-     * @return A {@link ForState.FilterableSteps} builder for chaining lens-based state operations.
-     * @throws NullPointerException if {@code constructor} is null.
-     */
-    public <S> ForState.FilterableSteps<M, S> toState(Function<A, S> constructor) {
-      Objects.requireNonNull(constructor, "constructor must not be null");
-      return ForState.withState(monad, monad.map(constructor, computation));
-    }
-
-    /**
-     * Completes the for-comprehension by applying a function to the final result.
-     *
-     * @param f A function to transform the final value.
-     * @param <R> The final result type.
-     * @return A monadic value of type {@code R}.
-     */
-    public <R> Kind<M, R> yield(Function<A, R> f) {
-      return monad.map(f, computation);
-    }
-  }
 }

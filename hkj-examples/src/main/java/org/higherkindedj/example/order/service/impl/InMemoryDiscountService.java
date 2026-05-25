@@ -13,67 +13,41 @@ import org.higherkindedj.example.order.model.value.PromoCode;
 import org.higherkindedj.example.order.service.DiscountService;
 import org.higherkindedj.hkt.either.Either;
 
-/** In-memory implementation of DiscountService for testing and examples. */
+/**
+ * In-memory implementation of DiscountService for testing and examples.
+ */
 public class InMemoryDiscountService implements DiscountService {
 
-  private final Map<String, PromoCode> validCodes = new ConcurrentHashMap<>();
+    private final Map<String, PromoCode> validCodes = new ConcurrentHashMap<>();
 
-  public InMemoryDiscountService() {
-    // Pre-populate with sample promo codes
-    validCodes.put("SAVE10", new PromoCode("SAVE10", Percentage.of(10)));
-    validCodes.put("SAVE20", new PromoCode("SAVE20", Percentage.of(20)));
-    validCodes.put("HALFPRICE", new PromoCode("HALFPRICE", Percentage.of(50)));
-  }
-
-  public void addPromoCode(PromoCode code) {
-    validCodes.put(code.code(), code);
-  }
-
-  @Override
-  public Either<OrderError, PromoCode> validatePromoCode(String code) {
-    var promoCode = validCodes.get(code.toUpperCase());
-    if (promoCode == null) {
-      return Either.left(OrderError.DiscountError.invalidCode(code));
-    }
-    return Either.right(promoCode);
-  }
-
-  @Override
-  public Either<OrderError, DiscountResult> calculateLoyaltyDiscount(
-      Customer customer, Money subtotal) {
-    var percentage =
-        switch (customer.loyaltyTier()) {
-          case PLATINUM -> Percentage.of(15);
-          case GOLD -> Percentage.of(10);
-          case SILVER -> Percentage.of(5);
-          case BRONZE -> Percentage.ZERO;
-        };
-
-    if (percentage.equals(Percentage.ZERO)) {
-      return Either.right(DiscountResult.noDiscount(subtotal));
+    public InMemoryDiscountService() {
+        // Pre-populate with sample promo codes
+        validCodes.put("SAVE10", new PromoCode("SAVE10", Percentage.of(10)));
+        validCodes.put("SAVE20", new PromoCode("SAVE20", Percentage.of(20)));
+        validCodes.put("HALFPRICE", new PromoCode("HALFPRICE", Percentage.of(50)));
     }
 
-    var loyaltyCode = new PromoCode("LOYALTY_" + customer.loyaltyTier(), percentage);
-    return Either.right(DiscountResult.withPromoCode(loyaltyCode, subtotal));
-  }
-
-  @Override
-  public Either<OrderError, DiscountResult> applyPromoCode(PromoCode promoCode, Money subtotal) {
-    return Either.right(DiscountResult.withPromoCode(promoCode, subtotal));
-  }
-
-  @Override
-  public Either<OrderError, DiscountResult> selectBestDiscount(DiscountResult... discounts) {
-    if (discounts.length == 0) {
-      return Either.left(OrderError.DiscountError.invalidCode("No discounts provided"));
+    public void addPromoCode(PromoCode code) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    var best = discounts[0];
-    for (var discount : discounts) {
-      if (discount.discountAmount().amount().compareTo(best.discountAmount().amount()) > 0) {
-        best = discount;
-      }
+    @Override
+    public Either<OrderError, PromoCode> validatePromoCode(String code) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-    return Either.right(best);
-  }
+
+    @Override
+    public Either<OrderError, DiscountResult> calculateLoyaltyDiscount(Customer customer, Money subtotal) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public Either<OrderError, DiscountResult> applyPromoCode(PromoCode promoCode, Money subtotal) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public Either<OrderError, DiscountResult> selectBestDiscount(DiscountResult... discounts) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

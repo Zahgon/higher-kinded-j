@@ -20,37 +20,40 @@ import org.jspecify.annotations.NullMarked;
 @EffectAlgebra
 public sealed interface OrderOp<A> permits OrderOp.PlaceOrder, OrderOp.GetStatus {
 
-  /** Maps a function over the result type. */
-  <B> OrderOp<B> mapK(Function<? super A, ? extends B> f);
+    /**
+     * Maps a function over the result type.
+     */
+    <B> OrderOp<B> mapK(Function<? super A, ? extends B> f);
 
-  /**
-   * Place an order for a customer.
-   *
-   * @param customerId the customer
-   * @param itemId the item to order
-   * @param quantity number of units
-   * @param k continuation from OrderResult to A
-   * @param <A> the result type
-   */
-  record PlaceOrder<A>(String customerId, String itemId, int quantity, Function<OrderResult, A> k)
-      implements OrderOp<A> {
-    @Override
-    public <B> OrderOp<B> mapK(Function<? super A, ? extends B> f) {
-      return new PlaceOrder<>(customerId, itemId, quantity, k.andThen(f));
-    }
-  }
+    /**
+     * Place an order for a customer.
+     *
+     * @param customerId the customer
+     * @param itemId the item to order
+     * @param quantity number of units
+     * @param k continuation from OrderResult to A
+     * @param <A> the result type
+     */
+    record PlaceOrder<A>(String customerId, String itemId, int quantity, Function<OrderResult, A> k) implements OrderOp<A> {
 
-  /**
-   * Get the status of an existing order.
-   *
-   * @param orderId the order ID
-   * @param k continuation from OrderStatus to A
-   * @param <A> the result type
-   */
-  record GetStatus<A>(String orderId, Function<OrderStatus, A> k) implements OrderOp<A> {
-    @Override
-    public <B> OrderOp<B> mapK(Function<? super A, ? extends B> f) {
-      return new GetStatus<>(orderId, k.andThen(f));
+        @Override
+        public <B> OrderOp<B> mapK(Function<? super A, ? extends B> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
     }
-  }
+
+    /**
+     * Get the status of an existing order.
+     *
+     * @param orderId the order ID
+     * @param k continuation from OrderStatus to A
+     * @param <A> the result type
+     */
+    record GetStatus<A>(String orderId, Function<OrderStatus, A> k) implements OrderOp<A> {
+
+        @Override
+        public <B> OrderOp<B> mapK(Function<? super A, ? extends B> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+    }
 }

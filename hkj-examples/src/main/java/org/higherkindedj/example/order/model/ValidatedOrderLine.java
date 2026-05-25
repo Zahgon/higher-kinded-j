@@ -18,19 +18,17 @@ import org.higherkindedj.optics.annotations.GenerateLenses;
  */
 @GenerateLenses
 @GenerateFocus
-public record ValidatedOrderLine(
-    ProductId productId, Product product, int quantity, Money unitPrice, Money lineTotal) {
-  /**
-   * Creates a validated order line, calculating the line total.
-   *
-   * @param productId the product identifier
-   * @param product the product details
-   * @param quantity the quantity
-   * @return a new ValidatedOrderLine with calculated total
-   */
-  public static ValidatedOrderLine of(ProductId productId, Product product, int quantity) {
-    var unitPrice = product.price();
-    var lineTotal = unitPrice.multiply(quantity);
-    return new ValidatedOrderLine(productId, product, quantity, unitPrice, lineTotal);
-  }
+public record ValidatedOrderLine(ProductId productId, Product product, int quantity, Money unitPrice, Money lineTotal) {
+
+    /**
+     * Creates a validated order line, calculating the line total.
+     *
+     * @param productId the product identifier
+     * @param product the product details
+     * @param quantity the quantity
+     * @return a new ValidatedOrderLine with calculated total
+     */
+    public static ValidatedOrderLine of(ProductId productId, Product product, int quantity) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

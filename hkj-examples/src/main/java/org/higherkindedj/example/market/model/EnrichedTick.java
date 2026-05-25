@@ -14,14 +14,17 @@ import org.higherkindedj.example.market.model.value.Price;
  * @param fxRate the conversion rate to USD (1.0 if already USD)
  */
 public record EnrichedTick(PriceTick tick, Instrument instrument, BigDecimal fxRate) {
-  public EnrichedTick {
-    Objects.requireNonNull(tick, "tick must not be null");
-    Objects.requireNonNull(instrument, "instrument must not be null");
-    Objects.requireNonNull(fxRate, "fxRate must not be null");
-  }
 
-  /** The mid-price converted to USD. */
-  public Price midInUsd() {
-    return tick.mid().multiply(fxRate);
-  }
+    public EnrichedTick {
+        Objects.requireNonNull(tick, "tick must not be null");
+        Objects.requireNonNull(instrument, "instrument must not be null");
+        Objects.requireNonNull(fxRate, "fxRate must not be null");
+    }
+
+    /**
+     * The mid-price converted to USD.
+     */
+    public Price midInUsd() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

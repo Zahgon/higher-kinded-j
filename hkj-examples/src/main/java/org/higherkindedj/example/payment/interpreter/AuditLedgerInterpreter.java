@@ -3,7 +3,6 @@
 package org.higherkindedj.example.payment.interpreter;
 
 import static org.higherkindedj.hkt.instances.Witnesses.*;
-
 import java.util.Objects;
 import org.higherkindedj.example.payment.effect.LedgerOp;
 import org.higherkindedj.example.payment.effect.LedgerOpInterpreter;
@@ -24,33 +23,17 @@ import org.jspecify.annotations.NullMarked;
  * results.
  */
 @NullMarked
-public final class AuditLedgerInterpreter
-    extends LedgerOpInterpreter<WriterTKind.Witness<IdKind.Witness, AuditLog>> {
+public final class AuditLedgerInterpreter extends LedgerOpInterpreter<WriterTKind.Witness<IdKind.Witness, AuditLog>> {
 
-  private static final Monad<IdKind.Witness> ID = Instances.monad(id());
+    private static final Monad<IdKind.Witness> ID = Instances.monad(id());
 
-  @Override
-  protected <A> Kind<WriterTKind.Witness<IdKind.Witness, AuditLog>, A> handleRecordEntry(
-      LedgerOp.RecordEntry<A> op) {
-    Objects.requireNonNull(op, "op cannot be null");
-    A result = op.k().apply(op.entry());
-    AuditLog log =
-        AuditLog.of(
-            "LEDGER_RECORD",
-            op.entry().accountId()
-                + " "
-                + op.entry().amount()
-                + " txn="
-                + op.entry().transactionId());
-    return WriterT.writer(ID, result, log);
-  }
+    @Override
+    protected <A> Kind<WriterTKind.Witness<IdKind.Witness, AuditLog>, A> handleRecordEntry(LedgerOp.RecordEntry<A> op) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  protected <A> Kind<WriterTKind.Witness<IdKind.Witness, AuditLog>, A> handleGetBalance(
-      LedgerOp.GetBalance<A> op) {
-    Objects.requireNonNull(op, "op cannot be null");
-    A result = op.k().apply(Money.gbp("5000.00"));
-    AuditLog log = AuditLog.of("LEDGER_BALANCE", "account=" + op.accountId());
-    return WriterT.writer(ID, result, log);
-  }
+    @Override
+    protected <A> Kind<WriterTKind.Witness<IdKind.Witness, AuditLog>, A> handleGetBalance(LedgerOp.GetBalance<A> op) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

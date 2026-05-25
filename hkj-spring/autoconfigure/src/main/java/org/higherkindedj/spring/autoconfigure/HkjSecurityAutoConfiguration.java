@@ -77,134 +77,105 @@ import org.springframework.security.oauth2.jwt.Jwt;
  */
 @AutoConfiguration
 @ConditionalOnClass(HttpSecurity.class)
-@ConditionalOnProperty(
-    prefix = "hkj.security",
-    name = "enabled",
-    havingValue = "true",
-    matchIfMissing = false)
+@ConditionalOnProperty(prefix = "hkj.security", name = "enabled", havingValue = "true", matchIfMissing = false)
 @EnableConfigurationProperties(HkjProperties.class)
 public class HkjSecurityAutoConfiguration {
 
-  private final HkjProperties properties;
+    private final HkjProperties properties;
 
-  /**
-   * Creates a new security auto-configuration with the given properties.
-   *
-   * @param properties the HKJ configuration properties
-   */
-  public HkjSecurityAutoConfiguration(HkjProperties properties) {
-    this.properties = properties;
-  }
+    /**
+     * Creates a new security auto-configuration with the given properties.
+     *
+     * @param properties the HKJ configuration properties
+     */
+    public HkjSecurityAutoConfiguration(HkjProperties properties) {
+        this.properties = properties;
+    }
 
-  /**
-   * Provides a ValidatedUserDetailsService bean if none exists.
-   *
-   * <p>This service uses Validated for comprehensive user validation with error accumulation.
-   *
-   * <p>Configure via:
-   *
-   * <pre>
-   * hkj:
-   *   security:
-   *     validated-user-details: true  # default: true
-   * </pre>
-   *
-   * @return validated user details service
-   */
-  @Bean
-  @ConditionalOnMissingBean(ValidatedUserDetailsService.class)
-  @ConditionalOnProperty(
-      prefix = "hkj.security",
-      name = "validated-user-details",
-      havingValue = "true",
-      matchIfMissing = true)
-  public ValidatedUserDetailsService validatedUserDetailsService() {
-    return new ValidatedUserDetailsService();
-  }
+    /**
+     * Provides a ValidatedUserDetailsService bean if none exists.
+     *
+     * <p>This service uses Validated for comprehensive user validation with error accumulation.
+     *
+     * <p>Configure via:
+     *
+     * <pre>
+     * hkj:
+     *   security:
+     *     validated-user-details: true  # default: true
+     * </pre>
+     *
+     * @return validated user details service
+     */
+    @Bean
+    @ConditionalOnMissingBean(ValidatedUserDetailsService.class)
+    @ConditionalOnProperty(prefix = "hkj.security", name = "validated-user-details", havingValue = "true", matchIfMissing = true)
+    public ValidatedUserDetailsService validatedUserDetailsService() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Provides a UserDetailsService bean that delegates to ValidatedUserDetailsService.
-   *
-   * <p>This allows Spring Security to use the Validated-based user details service without
-   * requiring changes to existing security configurations.
-   *
-   * @param validatedService the validated user details service
-   * @return user details service
-   */
-  @Bean
-  @ConditionalOnMissingBean(UserDetailsService.class)
-  @ConditionalOnProperty(
-      prefix = "hkj.security",
-      name = "validated-user-details",
-      havingValue = "true",
-      matchIfMissing = true)
-  public UserDetailsService userDetailsService(ValidatedUserDetailsService validatedService) {
-    return validatedService;
-  }
+    /**
+     * Provides a UserDetailsService bean that delegates to ValidatedUserDetailsService.
+     *
+     * <p>This allows Spring Security to use the Validated-based user details service without
+     * requiring changes to existing security configurations.
+     *
+     * @param validatedService the validated user details service
+     * @return user details service
+     */
+    @Bean
+    @ConditionalOnMissingBean(UserDetailsService.class)
+    @ConditionalOnProperty(prefix = "hkj.security", name = "validated-user-details", havingValue = "true", matchIfMissing = true)
+    public UserDetailsService userDetailsService(ValidatedUserDetailsService validatedService) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Provides an EitherAuthenticationConverter for JWT processing.
-   *
-   * <p>This converter uses Either for functional error handling during JWT to Authentication
-   * conversion.
-   *
-   * <p>Configure via:
-   *
-   * <pre>
-   * hkj:
-   *   security:
-   *     either-authentication: true  # default: true
-   *     jwt-authorities-claim: "roles"  # default
-   *     jwt-authority-prefix: "ROLE_"   # default
-   * </pre>
-   *
-   * @return either authentication converter
-   */
-  @Bean
-  @ConditionalOnMissingBean(EitherAuthenticationConverter.class)
-  @ConditionalOnClass(Jwt.class)
-  @ConditionalOnProperty(
-      prefix = "hkj.security",
-      name = "either-authentication",
-      havingValue = "true",
-      matchIfMissing = true)
-  public EitherAuthenticationConverter eitherAuthenticationConverter() {
-    String authoritiesClaim =
-        properties.getSecurity() != null
-            ? properties.getSecurity().getJwtAuthoritiesClaim()
-            : "roles";
-    String authorityPrefix =
-        properties.getSecurity() != null
-            ? properties.getSecurity().getJwtAuthorityPrefix()
-            : "ROLE_";
+    /**
+     * Provides an EitherAuthenticationConverter for JWT processing.
+     *
+     * <p>This converter uses Either for functional error handling during JWT to Authentication
+     * conversion.
+     *
+     * <p>Configure via:
+     *
+     * <pre>
+     * hkj:
+     *   security:
+     *     either-authentication: true  # default: true
+     *     jwt-authorities-claim: "roles"  # default
+     *     jwt-authority-prefix: "ROLE_"   # default
+     * </pre>
+     *
+     * @return either authentication converter
+     */
+    @Bean
+    @ConditionalOnMissingBean(EitherAuthenticationConverter.class)
+    @ConditionalOnClass(Jwt.class)
+    @ConditionalOnProperty(prefix = "hkj.security", name = "either-authentication", havingValue = "true", matchIfMissing = true)
+    public EitherAuthenticationConverter eitherAuthenticationConverter() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    return new EitherAuthenticationConverter(authoritiesClaim, authorityPrefix);
-  }
-
-  /**
-   * Provides an EitherAuthorizationManager for functional authorization decisions.
-   *
-   * <p>This manager uses Either to represent authorization success/failure in a functional way,
-   * enabling composition and better error tracking.
-   *
-   * <p>Configure via:
-   *
-   * <pre>
-   * hkj:
-   *   security:
-   *     either-authorization: true  # default: true
-   * </pre>
-   *
-   * @return either authorization manager
-   */
-  @Bean
-  @ConditionalOnMissingBean(EitherAuthorizationManager.class)
-  @ConditionalOnProperty(
-      prefix = "hkj.security",
-      name = "either-authorization",
-      havingValue = "true",
-      matchIfMissing = true)
-  public EitherAuthorizationManager eitherAuthorizationManager() {
-    return new EitherAuthorizationManager();
-  }
+    /**
+     * Provides an EitherAuthorizationManager for functional authorization decisions.
+     *
+     * <p>This manager uses Either to represent authorization success/failure in a functional way,
+     * enabling composition and better error tracking.
+     *
+     * <p>Configure via:
+     *
+     * <pre>
+     * hkj:
+     *   security:
+     *     either-authorization: true  # default: true
+     * </pre>
+     *
+     * @return either authorization manager
+     */
+    @Bean
+    @ConditionalOnMissingBean(EitherAuthorizationManager.class)
+    @ConditionalOnProperty(prefix = "hkj.security", name = "either-authorization", havingValue = "true", matchIfMissing = true)
+    public EitherAuthorizationManager eitherAuthorizationManager() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

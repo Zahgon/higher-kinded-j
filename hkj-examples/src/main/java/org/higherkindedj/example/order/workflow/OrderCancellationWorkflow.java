@@ -56,194 +56,112 @@ import org.higherkindedj.hkt.expression.ForPath;
  */
 public class OrderCancellationWorkflow {
 
-  private final InventoryService inventoryService;
-  private final PaymentService paymentService;
-  private final ShippingService shippingService;
-  private final NotificationService notificationService;
-  private final WorkflowConfig config;
+    private final InventoryService inventoryService;
 
-  /** Creates a new order cancellation workflow. */
-  public OrderCancellationWorkflow(
-      InventoryService inventoryService,
-      PaymentService paymentService,
-      ShippingService shippingService,
-      NotificationService notificationService,
-      WorkflowConfig config) {
-    this.inventoryService = inventoryService;
-    this.paymentService = paymentService;
-    this.shippingService = shippingService;
-    this.notificationService = notificationService;
-    this.config = config;
-  }
+    private final PaymentService paymentService;
 
-  /**
-   * Cancels an order, performing compensating transactions as needed.
-   *
-   * <p>Uses ForPath comprehension for composing the cancellation steps. Each step checks whether
-   * the previous action occurred and performs the appropriate compensation.
-   *
-   * @param order the order to cancel
-   * @param reason the cancellation reason
-   * @return either an error or the cancellation result
-   */
-  public EitherPath<OrderError, CancellationResult> cancel(
-      ProcessedOrder order, CancellationReason reason) {
-    return ForPath.from(validateCancellable(order))
-        .from(validOrder -> releaseInventory(validOrder))
-        .from(t -> refundPayment(t._1()))
-        .from(t -> cancelShipment(t._1()))
-        .from(t -> sendCancellationNotification(t._1(), reason))
-        .yield(
-            (validOrder, inventoryReleased, refundResult, shipmentCancelled, notified) ->
-                buildResult(
-                    validOrder,
-                    reason,
-                    inventoryReleased,
-                    refundResult,
-                    shipmentCancelled,
-                    notified));
-  }
+    private final ShippingService shippingService;
 
-  // -------------------------------------------------------------------------
-  // Cancellation Steps
-  // -------------------------------------------------------------------------
+    private final NotificationService notificationService;
 
-  private EitherPath<OrderError, ProcessedOrder> validateCancellable(ProcessedOrder order) {
-    if (order.isCancellable()) {
-      return Path.right(order);
-    }
-    return Path.left(
-        new OrderError.ValidationError(
-            "Order cannot be cancelled in status: " + order.status(),
-            List.of(
-                new OrderError.FieldError("status", "Order is not cancellable", order.status()))));
-  }
+    private final WorkflowConfig config;
 
-  private EitherPath<OrderError, Boolean> releaseInventory(ProcessedOrder order) {
-    if (!order.hasInventoryToRelease()) {
-      // No inventory to release, just succeed with false
-      return Path.right(false);
+    /**
+     * Creates a new order cancellation workflow.
+     */
+    public OrderCancellationWorkflow(InventoryService inventoryService, PaymentService paymentService, ShippingService shippingService, NotificationService notificationService, WorkflowConfig config) {
+        this.inventoryService = inventoryService;
+        this.paymentService = paymentService;
+        this.shippingService = shippingService;
+        this.notificationService = notificationService;
+        this.config = config;
     }
 
-    return order
-        .inventoryReservation()
-        .map(
-            reservation ->
-                Path.either(inventoryService.releaseReservation(reservation.reservationId()))
-                    .map(v -> true)
-                    .recoverWith(
-                        error -> {
-                          // Log error but continue - inventory will expire anyway
-                          return Path.right(false);
-                        }))
-        .orElse(Path.right(false));
-  }
-
-  private EitherPath<OrderError, Optional<CancellationResult.RefundResult>> refundPayment(
-      ProcessedOrder order) {
-    if (!order.requiresRefund()) {
-      // No payment to refund
-      return Path.right(Optional.empty());
+    /**
+     * Cancels an order, performing compensating transactions as needed.
+     *
+     * <p>Uses ForPath comprehension for composing the cancellation steps. Each step checks whether
+     * the previous action occurred and performs the appropriate compensation.
+     *
+     * @param order the order to cancel
+     * @param reason the cancellation reason
+     * @return either an error or the cancellation result
+     */
+    public EitherPath<OrderError, CancellationResult> cancel(ProcessedOrder order, CancellationReason reason) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    return order
-        .paymentConfirmation()
-        .map(
-            payment ->
-                Path.either(
-                        paymentService.refundPayment(
-                            payment.transactionId(), payment.chargedAmount()))
-                    .map(
-                        refundConfirmation ->
-                            Optional.of(
-                                new CancellationResult.RefundResult(
-                                    payment.transactionId(),
-                                    refundConfirmation.transactionId(),
-                                    refundConfirmation.chargedAmount(),
-                                    Instant.now()))))
-        .orElse(Path.right(Optional.empty()));
-  }
-
-  private EitherPath<OrderError, Boolean> cancelShipment(ProcessedOrder order) {
-    if (!order.hasShipmentToCancel()) {
-      return Path.right(false);
+    // -------------------------------------------------------------------------
+    // Cancellation Steps
+    // -------------------------------------------------------------------------
+    private EitherPath<OrderError, ProcessedOrder> validateCancellable(ProcessedOrder order) {
+        if (order.isCancellable()) {
+            return Path.right(order);
+        }
+        return Path.left(new OrderError.ValidationError("Order cannot be cancelled in status: " + order.status(), List.of(new OrderError.FieldError("status", "Order is not cancellable", order.status()))));
     }
 
-    return order
-        .shipmentInfo()
-        .map(
-            shipment ->
-                Path.either(shippingService.cancelShipment(shipment.shipmentId()))
-                    .map(v -> true)
-                    .recoverWith(
-                        error -> {
-                          // Shipment might already be dispatched
-                          return Path.right(false);
-                        }))
-        .orElse(Path.right(false));
-  }
-
-  private EitherPath<OrderError, Boolean> sendCancellationNotification(
-      ProcessedOrder order, CancellationReason reason) {
-    return Path.either(
-            notificationService.sendCancellationNotification(
-                order.orderId(), order.customer(), reason.description()))
-        .map(NotificationResult::emailSent)
-        .recoverWith(
-            error -> {
-              // Notification failures are non-critical
-              return Path.right(false);
-            });
-  }
-
-  private CancellationResult buildResult(
-      ProcessedOrder order,
-      CancellationReason reason,
-      boolean inventoryReleased,
-      Optional<CancellationResult.RefundResult> refundResult,
-      boolean shipmentCancelled,
-      boolean notificationSent) {
-    var auditLog =
-        AuditLog.EMPTY.append(
-            AuditLog.of(
-                "CANCELLATION_STARTED",
-                "Order " + order.orderId() + " cancellation initiated: " + reason.code()));
-
-    if (inventoryReleased) {
-      auditLog =
-          auditLog.append(AuditLog.of("INVENTORY_RELEASED", "Inventory reservation released"));
+    private EitherPath<OrderError, Boolean> releaseInventory(ProcessedOrder order) {
+        if (!order.hasInventoryToRelease()) {
+            // No inventory to release, just succeed with false
+            return Path.right(false);
+        }
+        return order.inventoryReservation().map(reservation -> Path.either(inventoryService.releaseReservation(reservation.reservationId())).map(v -> true).recoverWith(error -> {
+            // Log error but continue - inventory will expire anyway
+            return Path.right(false);
+        })).orElse(Path.right(false));
     }
 
-    if (refundResult.isPresent()) {
-      var refund = refundResult.get();
-      auditLog =
-          auditLog.append(
-              AuditLog.of(
-                  "PAYMENT_REFUNDED",
-                  "Refund " + refund.refundTransactionId() + " for " + refund.refundedAmount()));
+    private EitherPath<OrderError, Optional<CancellationResult.RefundResult>> refundPayment(ProcessedOrder order) {
+        if (!order.requiresRefund()) {
+            // No payment to refund
+            return Path.right(Optional.empty());
+        }
+        return order.paymentConfirmation().map(payment -> Path.either(paymentService.refundPayment(payment.transactionId(), payment.chargedAmount())).map(refundConfirmation -> Optional.of(new CancellationResult.RefundResult(payment.transactionId(), refundConfirmation.transactionId(), refundConfirmation.chargedAmount(), Instant.now())))).orElse(Path.right(Optional.empty()));
     }
 
-    if (shipmentCancelled) {
-      auditLog = auditLog.append(AuditLog.of("SHIPMENT_CANCELLED", "Shipment cancelled"));
+    private EitherPath<OrderError, Boolean> cancelShipment(ProcessedOrder order) {
+        if (!order.hasShipmentToCancel()) {
+            return Path.right(false);
+        }
+        return order.shipmentInfo().map(shipment -> Path.either(shippingService.cancelShipment(shipment.shipmentId())).map(v -> true).recoverWith(error -> {
+            // Shipment might already be dispatched
+            return Path.right(false);
+        })).orElse(Path.right(false));
     }
 
-    auditLog =
-        auditLog.append(
-            AuditLog.of("CANCELLATION_COMPLETE", "Order " + order.orderId() + " cancelled"));
+    private EitherPath<OrderError, Boolean> sendCancellationNotification(ProcessedOrder order, CancellationReason reason) {
+        return Path.either(notificationService.sendCancellationNotification(order.orderId(), order.customer(), reason.description())).map(NotificationResult::emailSent).recoverWith(error -> {
+            // Notification failures are non-critical
+            return Path.right(false);
+        });
+    }
 
-    var builder = CancellationResult.builder(order.orderId(), reason);
-    if (inventoryReleased) {
-      builder.inventoryReleased();
+    private CancellationResult buildResult(ProcessedOrder order, CancellationReason reason, boolean inventoryReleased, Optional<CancellationResult.RefundResult> refundResult, boolean shipmentCancelled, boolean notificationSent) {
+        var auditLog = AuditLog.EMPTY.append(AuditLog.of("CANCELLATION_STARTED", "Order " + order.orderId() + " cancellation initiated: " + reason.code()));
+        if (inventoryReleased) {
+            auditLog = auditLog.append(AuditLog.of("INVENTORY_RELEASED", "Inventory reservation released"));
+        }
+        if (refundResult.isPresent()) {
+            var refund = refundResult.get();
+            auditLog = auditLog.append(AuditLog.of("PAYMENT_REFUNDED", "Refund " + refund.refundTransactionId() + " for " + refund.refundedAmount()));
+        }
+        if (shipmentCancelled) {
+            auditLog = auditLog.append(AuditLog.of("SHIPMENT_CANCELLED", "Shipment cancelled"));
+        }
+        auditLog = auditLog.append(AuditLog.of("CANCELLATION_COMPLETE", "Order " + order.orderId() + " cancelled"));
+        var builder = CancellationResult.builder(order.orderId(), reason);
+        if (inventoryReleased) {
+            builder.inventoryReleased();
+        }
+        if (shipmentCancelled) {
+            builder.shipmentCancelled();
+        }
+        if (notificationSent) {
+            builder.notificationSent();
+        }
+        refundResult.ifPresent(builder::withRefund);
+        builder.withAuditLog(auditLog);
+        return builder.build();
     }
-    if (shipmentCancelled) {
-      builder.shipmentCancelled();
-    }
-    if (notificationSent) {
-      builder.notificationSent();
-    }
-    refundResult.ifPresent(builder::withRefund);
-    builder.withAuditLog(auditLog);
-
-    return builder.build();
-  }
 }

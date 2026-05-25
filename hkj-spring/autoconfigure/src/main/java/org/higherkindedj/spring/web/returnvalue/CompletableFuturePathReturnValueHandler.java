@@ -54,183 +54,113 @@ import tools.jackson.databind.json.JsonMapper;
  * @see CompletableFuturePath
  * @see DeferredResult
  */
-public class CompletableFuturePathReturnValueHandler
-    implements AsyncHandlerMethodReturnValueHandler {
+public class CompletableFuturePathReturnValueHandler implements AsyncHandlerMethodReturnValueHandler {
 
-  private static final Logger log =
-      LoggerFactory.getLogger(CompletableFuturePathReturnValueHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(CompletableFuturePathReturnValueHandler.class);
 
-  private final JsonMapper jsonMapper;
-  private final ObjectWriter objectWriter;
-  private final int failureStatus;
-  private final boolean includeExceptionDetails;
-  private final long timeoutMillis;
+    private final JsonMapper jsonMapper;
 
-  /**
-   * Creates a new CompletableFuturePathReturnValueHandler with the specified settings.
-   *
-   * @param jsonMapper the Jackson 3.x JsonMapper for JSON serialization
-   * @param failureStatus the HTTP status code for failures (default 500)
-   * @param includeExceptionDetails whether to include exception details in error responses
-   * @param timeoutMillis timeout for async operations in milliseconds (0 = no timeout)
-   */
-  public CompletableFuturePathReturnValueHandler(
-      JsonMapper jsonMapper,
-      int failureStatus,
-      boolean includeExceptionDetails,
-      long timeoutMillis) {
-    this.jsonMapper = jsonMapper;
-    this.objectWriter = jsonMapper.writer();
-    this.failureStatus = failureStatus;
-    this.includeExceptionDetails = includeExceptionDetails;
-    this.timeoutMillis = timeoutMillis;
-  }
+    private final ObjectWriter objectWriter;
 
-  @Override
-  public boolean supportsReturnType(MethodParameter returnType) {
-    return CompletableFuturePath.class.isAssignableFrom(returnType.getParameterType());
-  }
+    private final int failureStatus;
 
-  @Override
-  public boolean isAsyncReturnValue(@Nullable Object returnValue, MethodParameter returnType) {
-    return returnValue instanceof CompletableFuturePath;
-  }
+    private final boolean includeExceptionDetails;
 
-  @Override
-  public void handleReturnValue(
-      @Nullable Object returnValue,
-      MethodParameter returnType,
-      ModelAndViewContainer mavContainer,
-      NativeWebRequest webRequest)
-      throws Exception {
+    private final long timeoutMillis;
 
-    if (!(returnValue instanceof CompletableFuturePath<?> path)) {
-      mavContainer.setRequestHandled(true);
-      return;
+    /**
+     * Creates a new CompletableFuturePathReturnValueHandler with the specified settings.
+     *
+     * @param jsonMapper the Jackson 3.x JsonMapper for JSON serialization
+     * @param failureStatus the HTTP status code for failures (default 500)
+     * @param includeExceptionDetails whether to include exception details in error responses
+     * @param timeoutMillis timeout for async operations in milliseconds (0 = no timeout)
+     */
+    public CompletableFuturePathReturnValueHandler(JsonMapper jsonMapper, int failureStatus, boolean includeExceptionDetails, long timeoutMillis) {
+        this.jsonMapper = jsonMapper;
+        this.objectWriter = jsonMapper.writer();
+        this.failureStatus = failureStatus;
+        this.includeExceptionDetails = includeExceptionDetails;
+        this.timeoutMillis = timeoutMillis;
     }
 
-    HttpServletResponse response = webRequest.getNativeResponse(HttpServletResponse.class);
-    if (response == null) {
-      mavContainer.setRequestHandled(true);
-      return;
+    @Override
+    public boolean supportsReturnType(MethodParameter returnType) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    // Create a DeferredResult for async processing
-    DeferredResult<Void> deferredResult =
-        timeoutMillis > 0 ? new DeferredResult<>(timeoutMillis) : new DeferredResult<>();
-
-    // Handle timeout
-    deferredResult.onTimeout(
-        () -> {
-          try {
-            writeTimeoutResponse(response);
-          } catch (Exception e) {
-            log.error("Failed to write timeout response", e);
-          }
-        });
-
-    int successStatus =
-        SuccessStatusResolver.resolveSuccessStatus(returnType, HttpStatus.OK.value());
-
-    // Execute the CompletableFuture asynchronously
-    path.run()
-        .whenComplete(
-            (result, throwable) -> {
-              try {
-                if (throwable != null) {
-                  log.error("CompletableFuturePath failed", throwable);
-                  writeFailureResponse(throwable, response);
-                } else {
-                  writeSuccessResponse(result, response, successStatus);
-                }
-                deferredResult.setResult(null);
-              } catch (Exception e) {
-                log.error("Failed to write async response", e);
-                deferredResult.setErrorResult(e);
-              }
-            });
-
-    // Start async processing
-    WebAsyncUtils.getAsyncManager(webRequest)
-        .startDeferredResultProcessing(deferredResult, mavContainer);
-  }
-
-  /**
-   * Writes a failure response to the HTTP response.
-   *
-   * <p>When {@code includeExceptionDetails} is true, a structured error object is created with
-   * {@code type} (exception class name) and {@code message} fields. This provides a consistent API
-   * for clients while allowing identification of the error type.
-   *
-   * @param throwable the exception that occurred
-   * @param response the HTTP response
-   */
-  private void writeFailureResponse(Throwable throwable, HttpServletResponse response) {
-    try {
-      response.setStatus(failureStatus);
-      response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-
-      // Unwrap CompletionException if present
-      Throwable cause = throwable.getCause() != null ? throwable.getCause() : throwable;
-
-      ErrorResponseHeaders.applyTo(cause, response);
-
-      Map<String, Object> errorBody;
-      if (includeExceptionDetails) {
-        // Include structured error with type and message for client identification
-        errorBody =
-            Map.of(
-                "success",
-                false,
-                "error",
-                Map.of(
-                    "type",
-                    cause.getClass().getSimpleName(),
-                    "message",
-                    cause.getMessage() != null ? cause.getMessage() : "No message"));
-      } else {
-        errorBody = Map.of("success", false, "error", "An error occurred during async execution");
-      }
-
-      objectWriter.writeValue(response.getWriter(), errorBody);
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to write failure response", e);
+    @Override
+    public boolean isAsyncReturnValue(@Nullable Object returnValue, MethodParameter returnType) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-  }
 
-  /**
-   * Writes a timeout response to the HTTP response.
-   *
-   * @param response the HTTP response
-   */
-  private void writeTimeoutResponse(HttpServletResponse response) {
-    try {
-      response.setStatus(HttpStatus.GATEWAY_TIMEOUT.value());
-      response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-
-      Map<String, Object> body = Map.of("success", false, "error", "Request timed out");
-      objectWriter.writeValue(response.getWriter(), body);
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to write timeout response", e);
+    @Override
+    public void handleReturnValue(@Nullable Object returnValue, MethodParameter returnType, ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-  }
 
-  /**
-   * Writes a success response to the HTTP response.
-   *
-   * @param value the result value
-   * @param response the HTTP response
-   * @param status the HTTP status code to set
-   */
-  private void writeSuccessResponse(Object value, HttpServletResponse response, int status) {
-    try {
-      response.setStatus(status);
-      if (status != HttpStatus.NO_CONTENT.value()) {
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        objectWriter.writeValue(response.getWriter(), value);
-      }
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to write success response", e);
+    /**
+     * Writes a failure response to the HTTP response.
+     *
+     * <p>When {@code includeExceptionDetails} is true, a structured error object is created with
+     * {@code type} (exception class name) and {@code message} fields. This provides a consistent API
+     * for clients while allowing identification of the error type.
+     *
+     * @param throwable the exception that occurred
+     * @param response the HTTP response
+     */
+    private void writeFailureResponse(Throwable throwable, HttpServletResponse response) {
+        try {
+            response.setStatus(failureStatus);
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            // Unwrap CompletionException if present
+            Throwable cause = throwable.getCause() != null ? throwable.getCause() : throwable;
+            ErrorResponseHeaders.applyTo(cause, response);
+            Map<String, Object> errorBody;
+            if (includeExceptionDetails) {
+                // Include structured error with type and message for client identification
+                errorBody = Map.of("success", false, "error", Map.of("type", cause.getClass().getSimpleName(), "message", cause.getMessage() != null ? cause.getMessage() : "No message"));
+            } else {
+                errorBody = Map.of("success", false, "error", "An error occurred during async execution");
+            }
+            objectWriter.writeValue(response.getWriter(), errorBody);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to write failure response", e);
+        }
     }
-  }
+
+    /**
+     * Writes a timeout response to the HTTP response.
+     *
+     * @param response the HTTP response
+     */
+    private void writeTimeoutResponse(HttpServletResponse response) {
+        try {
+            response.setStatus(HttpStatus.GATEWAY_TIMEOUT.value());
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            Map<String, Object> body = Map.of("success", false, "error", "Request timed out");
+            objectWriter.writeValue(response.getWriter(), body);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to write timeout response", e);
+        }
+    }
+
+    /**
+     * Writes a success response to the HTTP response.
+     *
+     * @param value the result value
+     * @param response the HTTP response
+     * @param status the HTTP status code to set
+     */
+    private void writeSuccessResponse(Object value, HttpServletResponse response, int status) {
+        try {
+            response.setStatus(status);
+            if (status != HttpStatus.NO_CONTENT.value()) {
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                objectWriter.writeValue(response.getWriter(), value);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to write success response", e);
+        }
+    }
 }

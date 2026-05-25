@@ -29,70 +29,33 @@ import org.higherkindedj.hkt.vstream.VStream;
  */
 public class AnomalyDetector {
 
-  private final double riskThreshold;
-  private final double spreadThresholdPct;
-  private final long volumeThreshold;
+    private final double riskThreshold;
 
-  public AnomalyDetector(double riskThreshold, double spreadThresholdPct, long volumeThreshold) {
-    this.riskThreshold = riskThreshold;
-    this.spreadThresholdPct = spreadThresholdPct;
-    this.volumeThreshold = volumeThreshold;
-  }
+    private final double spreadThresholdPct;
 
-  public AnomalyDetector() {
-    this(0.5, 0.01, 20000);
-  }
+    private final long volumeThreshold;
 
-  /**
-   * Detects anomalies in a stream of aggregated views.
-   *
-   * @param views the input stream
-   * @return a stream of alerts for detected anomalies
-   */
-  public VStream<Alert> detect(VStream<AggregatedView> views) {
-    return views.flatMap(
-        view -> {
-          List<Alert> alerts = checkView(view);
-          return alerts.isEmpty() ? VStream.empty() : VStream.fromList(alerts);
-        });
-  }
-
-  List<Alert> checkView(AggregatedView view) {
-    List<Alert> alerts = new ArrayList<>();
-    Instant now = Instant.now();
-
-    if (view.maxRiskScore() > riskThreshold) {
-      alerts.add(
-          new Alert(
-              view.symbol(),
-              view.maxRiskScore() > 0.8 ? Alert.Severity.CRITICAL : Alert.Severity.WARNING,
-              String.format(
-                  "High risk score %.2f in window of %d ticks",
-                  view.maxRiskScore(), view.tickCount()),
-              now));
+    public AnomalyDetector(double riskThreshold, double spreadThresholdPct, long volumeThreshold) {
+        this.riskThreshold = riskThreshold;
+        this.spreadThresholdPct = spreadThresholdPct;
+        this.volumeThreshold = volumeThreshold;
     }
 
-    double spreadPct =
-        view.bestAsk().toDouble() > 0 ? view.spread().toDouble() / view.bestAsk().toDouble() : 0.0;
-    if (spreadPct > spreadThresholdPct) {
-      alerts.add(
-          new Alert(
-              view.symbol(),
-              Alert.Severity.WARNING,
-              String.format("Wide spread %.2f%% across window", spreadPct * 100),
-              now));
+    public AnomalyDetector() {
+        this(0.5, 0.01, 20000);
     }
 
-    if (view.totalVolume().value() > volumeThreshold) {
-      alerts.add(
-          new Alert(
-              view.symbol(),
-              Alert.Severity.INFO,
-              String.format(
-                  "High volume %d across %d ticks", view.totalVolume().value(), view.tickCount()),
-              now));
+    /**
+     * Detects anomalies in a stream of aggregated views.
+     *
+     * @param views the input stream
+     * @return a stream of alerts for detected anomalies
+     */
+    public VStream<Alert> detect(VStream<AggregatedView> views) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    return alerts;
-  }
+    List<Alert> checkView(AggregatedView view) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

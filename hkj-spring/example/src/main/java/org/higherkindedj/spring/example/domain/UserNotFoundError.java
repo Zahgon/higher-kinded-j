@@ -9,8 +9,9 @@ package org.higherkindedj.spring.example.domain;
  * @param userId the ID of the user that was not found
  */
 public record UserNotFoundError(String userId) implements DomainError {
-  @Override
-  public String message() {
-    return "User not found: " + userId;
-  }
+
+    @Override
+    public String message() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

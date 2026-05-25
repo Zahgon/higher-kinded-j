@@ -72,459 +72,380 @@ import org.higherkindedj.hkt.maybe.Maybe;
  */
 public final class StreamPath<A> implements Chainable<A> {
 
-  private final Supplier<Stream<A>> streamSupplier;
+    private final Supplier<Stream<A>> streamSupplier;
 
-  /**
-   * Creates a new StreamPath with the given stream supplier.
-   *
-   * @param streamSupplier the supplier for streams; must not be null
-   */
-  StreamPath(Supplier<Stream<A>> streamSupplier) {
-    this.streamSupplier = Objects.requireNonNull(streamSupplier, "streamSupplier must not be null");
-  }
-
-  // ===== Factory Methods =====
-
-  /**
-   * Creates a StreamPath from a stream.
-   *
-   * <p>Note: The stream is materialized to a list to allow multiple terminal operations.
-   *
-   * @param stream the stream to wrap; must not be null
-   * @param <A> the element type
-   * @return a StreamPath wrapping the stream
-   * @throws NullPointerException if stream is null
-   */
-  public static <A> StreamPath<A> of(Stream<A> stream) {
-    Objects.requireNonNull(stream, "stream must not be null");
-    // Materialize to allow multiple uses
-    List<A> materialized = stream.collect(Collectors.toList());
-    return new StreamPath<>(materialized::stream);
-  }
-
-  /**
-   * Creates a StreamPath from a supplier that produces streams.
-   *
-   * <p>The supplier is called fresh each time a terminal operation is performed.
-   *
-   * @param supplier the stream supplier; must not be null
-   * @param <A> the element type
-   * @return a StreamPath using the supplier
-   * @throws NullPointerException if supplier is null
-   */
-  public static <A> StreamPath<A> fromSupplier(Supplier<Stream<A>> supplier) {
-    Objects.requireNonNull(supplier, "supplier must not be null");
-    return new StreamPath<>(supplier);
-  }
-
-  /**
-   * Creates a StreamPath from a list.
-   *
-   * @param list the list to wrap; must not be null
-   * @param <A> the element type
-   * @return a StreamPath streaming the list
-   * @throws NullPointerException if list is null
-   */
-  public static <A> StreamPath<A> fromList(List<A> list) {
-    Objects.requireNonNull(list, "list must not be null");
-    return new StreamPath<>(list::stream);
-  }
-
-  /**
-   * Creates a StreamPath from varargs.
-   *
-   * @param elements the elements
-   * @param <A> the element type
-   * @return a StreamPath containing the elements
-   */
-  @SafeVarargs
-  public static <A> StreamPath<A> of(A... elements) {
-    List<A> list = Arrays.asList(elements);
-    return new StreamPath<>(list::stream);
-  }
-
-  /**
-   * Creates a StreamPath with a single element.
-   *
-   * @param value the single element
-   * @param <A> the element type
-   * @return a StreamPath containing one element
-   */
-  public static <A> StreamPath<A> pure(A value) {
-    return new StreamPath<>(() -> Stream.of(value));
-  }
-
-  /**
-   * Creates an empty StreamPath.
-   *
-   * @param <A> the element type
-   * @return an empty StreamPath
-   */
-  public static <A> StreamPath<A> empty() {
-    return new StreamPath<>(Stream::empty);
-  }
-
-  /**
-   * Creates an infinite StreamPath by iterating a function.
-   *
-   * <p><b>Warning:</b> This creates an infinite stream. Use {@link #take(long)} to limit.
-   *
-   * @param seed the initial value
-   * @param f the function to generate next values; must not be null
-   * @param <A> the element type
-   * @return an infinite StreamPath
-   * @throws NullPointerException if f is null
-   */
-  public static <A> StreamPath<A> iterate(A seed, UnaryOperator<A> f) {
-    Objects.requireNonNull(f, "f must not be null");
-    return new StreamPath<>(() -> Stream.iterate(seed, f));
-  }
-
-  /**
-   * Creates an infinite StreamPath from a supplier.
-   *
-   * <p><b>Warning:</b> This creates an infinite stream. Use {@link #take(long)} to limit.
-   *
-   * @param supplier the element supplier; must not be null
-   * @param <A> the element type
-   * @return an infinite StreamPath
-   * @throws NullPointerException if supplier is null
-   */
-  public static <A> StreamPath<A> generate(Supplier<A> supplier) {
-    Objects.requireNonNull(supplier, "supplier must not be null");
-    return new StreamPath<>(() -> Stream.generate(supplier));
-  }
-
-  // ===== Terminal Operations =====
-
-  /**
-   * Returns a fresh stream for consumption.
-   *
-   * @return a new stream from the supplier
-   */
-  public Stream<A> run() {
-    return streamSupplier.get();
-  }
-
-  /**
-   * Collects to a list.
-   *
-   * @return a list containing all elements
-   */
-  public List<A> toList() {
-    return run().collect(Collectors.toList());
-  }
-
-  /**
-   * Returns the first element, or empty if the stream is empty.
-   *
-   * @return an Optional containing the first element if present
-   */
-  public Optional<A> headOption() {
-    return run().findFirst();
-  }
-
-  /**
-   * Counts elements.
-   *
-   * @return the number of elements
-   */
-  public long count() {
-    return run().count();
-  }
-
-  // ===== Composable implementation =====
-
-  @Override
-  public <B> StreamPath<B> map(Function<? super A, ? extends B> mapper) {
-    Objects.requireNonNull(mapper, "mapper must not be null");
-    return new StreamPath<>(() -> streamSupplier.get().map(mapper));
-  }
-
-  @Override
-  public StreamPath<A> peek(Consumer<? super A> consumer) {
-    Objects.requireNonNull(consumer, "consumer must not be null");
-    return new StreamPath<>(() -> streamSupplier.get().peek(consumer));
-  }
-
-  // ===== Combinable implementation =====
-
-  @Override
-  public <B, C> StreamPath<C> zipWith(
-      Combinable<B> other, BiFunction<? super A, ? super B, ? extends C> combiner) {
-    Objects.requireNonNull(other, "other must not be null");
-    Objects.requireNonNull(combiner, "combiner must not be null");
-
-    if (!(other instanceof StreamPath<?> otherStream)) {
-      throw new IllegalArgumentException("Cannot zipWith non-StreamPath: " + other.getClass());
+    /**
+     * Creates a new StreamPath with the given stream supplier.
+     *
+     * @param streamSupplier the supplier for streams; must not be null
+     */
+    StreamPath(Supplier<Stream<A>> streamSupplier) {
+        this.streamSupplier = Objects.requireNonNull(streamSupplier, "streamSupplier must not be null");
     }
 
-    @SuppressWarnings("unchecked")
-    StreamPath<B> typedOther = (StreamPath<B>) otherStream;
-
-    // Cartesian product - all combinations (materializes streams)
-    return new StreamPath<>(
-        () -> {
-          List<A> thisElements = this.toList();
-          List<B> otherElements = typedOther.toList();
-          return thisElements.stream()
-              .flatMap(a -> otherElements.stream().map(b -> combiner.apply(a, b)));
-        });
-  }
-
-  // ===== Chainable implementation =====
-
-  @Override
-  public <B> StreamPath<B> via(Function<? super A, ? extends Chainable<B>> mapper) {
-    Objects.requireNonNull(mapper, "mapper must not be null");
-
-    return new StreamPath<>(
-        () ->
-            streamSupplier
-                .get()
-                .flatMap(
-                    a -> {
-                      Chainable<B> result = mapper.apply(a);
-                      Objects.requireNonNull(result, "mapper must not return null");
-
-                      if (!(result instanceof StreamPath<?> streamPath)) {
-                        throw new IllegalArgumentException(
-                            "via mapper must return StreamPath, got: " + result.getClass());
-                      }
-
-                      @SuppressWarnings("unchecked")
-                      StreamPath<B> typedResult = (StreamPath<B>) streamPath;
-                      return typedResult.run();
-                    }));
-  }
-
-  @Override
-  public <B> StreamPath<B> then(Supplier<? extends Chainable<B>> supplier) {
-    Objects.requireNonNull(supplier, "supplier must not be null");
-    return via(ignored -> supplier.get());
-  }
-
-  // ===== Stream-Specific Operations =====
-
-  /**
-   * Filters elements based on a predicate.
-   *
-   * @param predicate the condition to test; must not be null
-   * @return a new StreamPath with only matching elements
-   * @throws NullPointerException if predicate is null
-   */
-  public StreamPath<A> filter(Predicate<? super A> predicate) {
-    Objects.requireNonNull(predicate, "predicate must not be null");
-    return new StreamPath<>(() -> streamSupplier.get().filter(predicate));
-  }
-
-  /**
-   * Takes the first n elements.
-   *
-   * @param n the number of elements to take
-   * @return a new StreamPath with at most n elements
-   */
-  public StreamPath<A> take(long n) {
-    return new StreamPath<>(() -> streamSupplier.get().limit(n));
-  }
-
-  /**
-   * Drops the first n elements.
-   *
-   * @param n the number of elements to skip
-   * @return a new StreamPath without the first n elements
-   */
-  public StreamPath<A> drop(long n) {
-    return new StreamPath<>(() -> streamSupplier.get().skip(n));
-  }
-
-  /**
-   * Takes elements while predicate is true.
-   *
-   * @param predicate the condition; must not be null
-   * @return a new StreamPath with elements taken while predicate holds
-   * @throws NullPointerException if predicate is null
-   */
-  public StreamPath<A> takeWhile(Predicate<? super A> predicate) {
-    Objects.requireNonNull(predicate, "predicate must not be null");
-    return new StreamPath<>(() -> streamSupplier.get().takeWhile(predicate));
-  }
-
-  /**
-   * Drops elements while predicate is true.
-   *
-   * @param predicate the condition; must not be null
-   * @return a new StreamPath with elements after predicate stops holding
-   * @throws NullPointerException if predicate is null
-   */
-  public StreamPath<A> dropWhile(Predicate<? super A> predicate) {
-    Objects.requireNonNull(predicate, "predicate must not be null");
-    return new StreamPath<>(() -> streamSupplier.get().dropWhile(predicate));
-  }
-
-  /**
-   * Returns distinct elements.
-   *
-   * @return a new StreamPath with duplicates removed
-   */
-  public StreamPath<A> distinct() {
-    return new StreamPath<>(() -> streamSupplier.get().distinct());
-  }
-
-  /**
-   * Sorts elements (natural ordering).
-   *
-   * @return a new StreamPath with sorted elements
-   */
-  public StreamPath<A> sorted() {
-    return new StreamPath<>(() -> streamSupplier.get().sorted());
-  }
-
-  /**
-   * Sorts elements using a comparator.
-   *
-   * @param comparator the comparator to use; must not be null
-   * @return a new StreamPath with sorted elements
-   * @throws NullPointerException if comparator is null
-   */
-  public StreamPath<A> sorted(Comparator<? super A> comparator) {
-    Objects.requireNonNull(comparator, "comparator must not be null");
-    return new StreamPath<>(() -> streamSupplier.get().sorted(comparator));
-  }
-
-  /**
-   * Concatenates with another StreamPath.
-   *
-   * @param other the other StreamPath; must not be null
-   * @return a new StreamPath containing elements from both
-   * @throws NullPointerException if other is null
-   */
-  public StreamPath<A> concat(StreamPath<A> other) {
-    Objects.requireNonNull(other, "other must not be null");
-    return new StreamPath<>(() -> Stream.concat(streamSupplier.get(), other.run()));
-  }
-
-  /**
-   * Folds the stream from the left.
-   *
-   * @param initial the initial accumulator value
-   * @param f the folding function; must not be null
-   * @param <B> the accumulator and result type
-   * @return the folded result
-   * @throws NullPointerException if f is null
-   */
-  public <B> B foldLeft(B initial, BiFunction<B, A, B> f) {
-    Objects.requireNonNull(f, "f must not be null");
-    B result = initial;
-    Iterator<A> iter = run().iterator();
-    while (iter.hasNext()) {
-      result = f.apply(result, iter.next());
+    // ===== Factory Methods =====
+    /**
+     * Creates a StreamPath from a stream.
+     *
+     * <p>Note: The stream is materialized to a list to allow multiple terminal operations.
+     *
+     * @param stream the stream to wrap; must not be null
+     * @param <A> the element type
+     * @return a StreamPath wrapping the stream
+     * @throws NullPointerException if stream is null
+     */
+    public static <A> StreamPath<A> of(Stream<A> stream) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-    return result;
-  }
 
-  /**
-   * Folds the stream from the right.
-   *
-   * <p>This materializes the stream into a list, then folds from the last element towards the
-   * first. Provided for parity with {@code ListPath.foldRight}.
-   *
-   * @param initial the initial accumulator value
-   * @param f the folding function; must not be null
-   * @param <B> the accumulator and result type
-   * @return the folded result
-   * @throws NullPointerException if f is null
-   */
-  public <B> B foldRight(B initial, BiFunction<A, B, B> f) {
-    Objects.requireNonNull(f, "f must not be null");
-    List<A> materialized = toList();
-    B result = initial;
-    for (int i = materialized.size() - 1; i >= 0; i--) {
-      result = f.apply(materialized.get(i), result);
+    /**
+     * Creates a StreamPath from a supplier that produces streams.
+     *
+     * <p>The supplier is called fresh each time a terminal operation is performed.
+     *
+     * @param supplier the stream supplier; must not be null
+     * @param <A> the element type
+     * @return a StreamPath using the supplier
+     * @throws NullPointerException if supplier is null
+     */
+    public static <A> StreamPath<A> fromSupplier(Supplier<Stream<A>> supplier) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-    return result;
-  }
 
-  /**
-   * Reduces the stream to a single value of the same type using an identity element and an
-   * associative combining operator.
-   *
-   * <p>This is the monoid-style fold. It mirrors {@code VStreamPath.fold} and {@code
-   * ListPath.fold}, so the same reduction reads identically across sequence-like paths.
-   *
-   * <pre>{@code
-   * int sum = StreamPath.of(1, 2, 3).map(x -> x * 2).fold(0, Integer::sum); // 12
-   * }</pre>
-   *
-   * @param identity the identity element returned for an empty stream
-   * @param op the associative combining operator; must not be null
-   * @return the reduced value
-   * @throws NullPointerException if op is null
-   */
-  public A fold(A identity, BinaryOperator<A> op) {
-    Objects.requireNonNull(op, "op must not be null");
-    return run().reduce(identity, op);
-  }
+    /**
+     * Creates a StreamPath from a list.
+     *
+     * @param list the list to wrap; must not be null
+     * @param <A> the element type
+     * @return a StreamPath streaming the list
+     * @throws NullPointerException if list is null
+     */
+    public static <A> StreamPath<A> fromList(List<A> list) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Maps each element to a monoidal value and combines them using the supplied {@link Monoid}.
-   *
-   * <p>Returns {@code monoid.empty()} for an empty stream. This is the {@link
-   * org.higherkindedj.hkt.Foldable Foldable}-style fold and matches {@code VStreamPath.foldMap}.
-   *
-   * <pre>{@code
-   * String csv = StreamPath.of(1, 2, 3).foldMap(Monoids.string(), i -> i + ",");
-   * }</pre>
-   *
-   * @param monoid the monoid used to combine mapped values; must not be null
-   * @param f the mapping function; must not be null
-   * @param <M> the monoidal result type
-   * @return the combined result
-   * @throws NullPointerException if monoid or f is null
-   */
-  public <M> M foldMap(Monoid<M> monoid, Function<? super A, ? extends M> f) {
-    Objects.requireNonNull(monoid, "monoid must not be null");
-    Objects.requireNonNull(f, "f must not be null");
-    return run().<M>map(f).reduce(monoid.empty(), monoid::combine);
-  }
+    /**
+     * Creates a StreamPath from varargs.
+     *
+     * @param elements the elements
+     * @param <A> the element type
+     * @return a StreamPath containing the elements
+     */
+    @SafeVarargs
+    public static <A> StreamPath<A> of(A... elements) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  // ===== Conversions =====
+    /**
+     * Creates a StreamPath with a single element.
+     *
+     * @param value the single element
+     * @param <A> the element type
+     * @return a StreamPath containing one element
+     */
+    public static <A> StreamPath<A> pure(A value) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Converts to NonDetPath (materializes the stream).
-   *
-   * @return a NonDetPath containing the same elements
-   */
-  public NonDetPath<A> toNonDetPath() {
-    return NonDetPath.of(toList());
-  }
+    /**
+     * Creates an empty StreamPath.
+     *
+     * @param <A> the element type
+     * @return an empty StreamPath
+     */
+    public static <A> StreamPath<A> empty() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Converts to MaybePath with the first element.
-   *
-   * @return a MaybePath containing the first element if present
-   */
-  public MaybePath<A> toMaybePath() {
-    return headOption()
-        .map(a -> new MaybePath<>(Maybe.just(a)))
-        .orElse(new MaybePath<>(Maybe.nothing()));
-  }
+    /**
+     * Creates an infinite StreamPath by iterating a function.
+     *
+     * <p><b>Warning:</b> This creates an infinite stream. Use {@link #take(long)} to limit.
+     *
+     * @param seed the initial value
+     * @param f the function to generate next values; must not be null
+     * @param <A> the element type
+     * @return an infinite StreamPath
+     * @throws NullPointerException if f is null
+     */
+    public static <A> StreamPath<A> iterate(A seed, UnaryOperator<A> f) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Converts to an IOPath that returns this stream's list.
-   *
-   * @return an IOPath that produces this stream as a list
-   */
-  public IOPath<List<A>> toIOPath() {
-    return new IOPath<>(this::toList);
-  }
+    /**
+     * Creates an infinite StreamPath from a supplier.
+     *
+     * <p><b>Warning:</b> This creates an infinite stream. Use {@link #take(long)} to limit.
+     *
+     * @param supplier the element supplier; must not be null
+     * @param <A> the element type
+     * @return an infinite StreamPath
+     * @throws NullPointerException if supplier is null
+     */
+    public static <A> StreamPath<A> generate(Supplier<A> supplier) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  // ===== Object methods =====
+    // ===== Terminal Operations =====
+    /**
+     * Returns a fresh stream for consumption.
+     *
+     * @return a new stream from the supplier
+     */
+    public Stream<A> run() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public String toString() {
-    return "StreamPath(" + PathToString.STREAM + ")";
-  }
+    /**
+     * Collects to a list.
+     *
+     * @return a list containing all elements
+     */
+    public List<A> toList() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  // Note: equals and hashCode not implemented because streams are not comparable
+    /**
+     * Returns the first element, or empty if the stream is empty.
+     *
+     * @return an Optional containing the first element if present
+     */
+    public Optional<A> headOption() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Counts elements.
+     *
+     * @return the number of elements
+     */
+    public long count() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== Composable implementation =====
+    @Override
+    public <B> StreamPath<B> map(Function<? super A, ? extends B> mapper) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public StreamPath<A> peek(Consumer<? super A> consumer) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== Combinable implementation =====
+    @Override
+    public <B, C> StreamPath<C> zipWith(Combinable<B> other, BiFunction<? super A, ? super B, ? extends C> combiner) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== Chainable implementation =====
+    @Override
+    public <B> StreamPath<B> via(Function<? super A, ? extends Chainable<B>> mapper) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public <B> StreamPath<B> then(Supplier<? extends Chainable<B>> supplier) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== Stream-Specific Operations =====
+    /**
+     * Filters elements based on a predicate.
+     *
+     * @param predicate the condition to test; must not be null
+     * @return a new StreamPath with only matching elements
+     * @throws NullPointerException if predicate is null
+     */
+    public StreamPath<A> filter(Predicate<? super A> predicate) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Takes the first n elements.
+     *
+     * @param n the number of elements to take
+     * @return a new StreamPath with at most n elements
+     */
+    public StreamPath<A> take(long n) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Drops the first n elements.
+     *
+     * @param n the number of elements to skip
+     * @return a new StreamPath without the first n elements
+     */
+    public StreamPath<A> drop(long n) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Takes elements while predicate is true.
+     *
+     * @param predicate the condition; must not be null
+     * @return a new StreamPath with elements taken while predicate holds
+     * @throws NullPointerException if predicate is null
+     */
+    public StreamPath<A> takeWhile(Predicate<? super A> predicate) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Drops elements while predicate is true.
+     *
+     * @param predicate the condition; must not be null
+     * @return a new StreamPath with elements after predicate stops holding
+     * @throws NullPointerException if predicate is null
+     */
+    public StreamPath<A> dropWhile(Predicate<? super A> predicate) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Returns distinct elements.
+     *
+     * @return a new StreamPath with duplicates removed
+     */
+    public StreamPath<A> distinct() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Sorts elements (natural ordering).
+     *
+     * @return a new StreamPath with sorted elements
+     */
+    public StreamPath<A> sorted() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Sorts elements using a comparator.
+     *
+     * @param comparator the comparator to use; must not be null
+     * @return a new StreamPath with sorted elements
+     * @throws NullPointerException if comparator is null
+     */
+    public StreamPath<A> sorted(Comparator<? super A> comparator) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Concatenates with another StreamPath.
+     *
+     * @param other the other StreamPath; must not be null
+     * @return a new StreamPath containing elements from both
+     * @throws NullPointerException if other is null
+     */
+    public StreamPath<A> concat(StreamPath<A> other) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Folds the stream from the left.
+     *
+     * @param initial the initial accumulator value
+     * @param f the folding function; must not be null
+     * @param <B> the accumulator and result type
+     * @return the folded result
+     * @throws NullPointerException if f is null
+     */
+    public <B> B foldLeft(B initial, BiFunction<B, A, B> f) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Folds the stream from the right.
+     *
+     * <p>This materializes the stream into a list, then folds from the last element towards the
+     * first. Provided for parity with {@code ListPath.foldRight}.
+     *
+     * @param initial the initial accumulator value
+     * @param f the folding function; must not be null
+     * @param <B> the accumulator and result type
+     * @return the folded result
+     * @throws NullPointerException if f is null
+     */
+    public <B> B foldRight(B initial, BiFunction<A, B, B> f) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Reduces the stream to a single value of the same type using an identity element and an
+     * associative combining operator.
+     *
+     * <p>This is the monoid-style fold. It mirrors {@code VStreamPath.fold} and {@code
+     * ListPath.fold}, so the same reduction reads identically across sequence-like paths.
+     *
+     * <pre>{@code
+     * int sum = StreamPath.of(1, 2, 3).map(x -> x * 2).fold(0, Integer::sum); // 12
+     * }</pre>
+     *
+     * @param identity the identity element returned for an empty stream
+     * @param op the associative combining operator; must not be null
+     * @return the reduced value
+     * @throws NullPointerException if op is null
+     */
+    public A fold(A identity, BinaryOperator<A> op) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Maps each element to a monoidal value and combines them using the supplied {@link Monoid}.
+     *
+     * <p>Returns {@code monoid.empty()} for an empty stream. This is the {@link
+     * org.higherkindedj.hkt.Foldable Foldable}-style fold and matches {@code VStreamPath.foldMap}.
+     *
+     * <pre>{@code
+     * String csv = StreamPath.of(1, 2, 3).foldMap(Monoids.string(), i -> i + ",");
+     * }</pre>
+     *
+     * @param monoid the monoid used to combine mapped values; must not be null
+     * @param f the mapping function; must not be null
+     * @param <M> the monoidal result type
+     * @return the combined result
+     * @throws NullPointerException if monoid or f is null
+     */
+    public <M> M foldMap(Monoid<M> monoid, Function<? super A, ? extends M> f) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== Conversions =====
+    /**
+     * Converts to NonDetPath (materializes the stream).
+     *
+     * @return a NonDetPath containing the same elements
+     */
+    public NonDetPath<A> toNonDetPath() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Converts to MaybePath with the first element.
+     *
+     * @return a MaybePath containing the first element if present
+     */
+    public MaybePath<A> toMaybePath() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Converts to an IOPath that returns this stream's list.
+     *
+     * @return an IOPath that produces this stream as a list
+     */
+    public IOPath<List<A>> toIOPath() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== Object methods =====
+    @Override
+    public String toString() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+    // Note: equals and hashCode not implemented because streams are not comparable
 }

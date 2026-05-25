@@ -27,76 +27,36 @@ import org.higherkindedj.optics.processing.spi.TraversableGenerator;
 @ServiceProvider(TraversableGenerator.class)
 public class TryGenerator extends BaseTraversableGenerator {
 
-  /** Creates a new generator for {@link Try} fields. */
-  public TryGenerator() {}
-
-  private static final String FQN_TRY = "org.higherkindedj.hkt.trymonad.Try";
-
-  @Override
-  public boolean supports(final TypeMirror type) {
-    if (!(type instanceof DeclaredType declaredType)) {
-      return false;
+    /**
+     * Creates a new generator for {@link Try} fields.
+     */
+    public TryGenerator() {
     }
-    final Element element = declaredType.asElement();
-    return element.toString().equals(FQN_TRY);
-  }
 
-  @Override
-  public Cardinality getCardinality() {
-    return Cardinality.ZERO_OR_ONE;
-  }
+    private static final String FQN_TRY = "org.higherkindedj.hkt.trymonad.Try";
 
-  @Override
-  public String generateOpticExpression() {
-    return "Affines.trySuccess()";
-  }
+    @Override
+    public boolean supports(final TypeMirror type) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public Set<String> getRequiredImports() {
-    return Set.of("org.higherkindedj.optics.util.Affines");
-  }
+    @Override
+    public Cardinality getCardinality() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public CodeBlock generateModifyF(
-      final RecordComponentElement component,
-      final ClassName recordClassName,
-      final List<? extends RecordComponentElement> allComponents) {
+    @Override
+    public String generateOpticExpression() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    final String componentName = component.getSimpleName().toString();
-    final TypeName genericTypeName = getGenericTypeName(component);
+    @Override
+    public Set<String> getRequiredImports() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    // Use the inherited helper to generate the constructor arguments.
-    // The new value is wrapped in Try.success().
-    final String constructorArgs =
-        generateConstructorArgs(componentName, "Try.success(newValue)", allComponents);
-
-    return CodeBlock.builder()
-        .addStatement("final $T<$T> tryA = source.$L()", Try.class, genericTypeName, componentName)
-        // Use the safe `fold` method to handle both cases without throwing exceptions.
-        .addStatement(
-            "return tryA.fold(\n"
-                + "    successValue -> {$>\n"
-                + "        // Case 1: The Try is a Success. Apply the effectful function.\n"
-                + "        final var g_of_b = f.apply(successValue);\n"
-                + "        @SuppressWarnings(\"unchecked\") final var g_of_b_casted = ($T)"
-                + " g_of_b;\n"
-                + "        // Map over the effect to reconstruct the record with the new value.\n"
-                + "        return applicative.map(newValue -> new $T($L), g_of_b_casted);$<\n"
-                + "}, \n"
-                + "    cause -> {$>\n"
-                + "        // Case 2: The Try is a Failure. The traversal has no effect.\n"
-                + "        // Return the original, unchanged source record lifted into the"
-                + " applicative.\n"
-                + "        return applicative.of(source);\n"
-                + "    }\n"
-                + ")",
-            // Type for the g_of_b_casted variable
-            ParameterizedTypeName.get(
-                ClassName.get(Kind.class), TypeVariableName.get("F"), genericTypeName.box()),
-            // The record's class name for reconstruction
-            recordClassName,
-            // The argument list for the record's constructor
-            constructorArgs)
-        .build();
-  }
+    @Override
+    public CodeBlock generateModifyF(final RecordComponentElement component, final ClassName recordClassName, final List<? extends RecordComponentElement> allComponents) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

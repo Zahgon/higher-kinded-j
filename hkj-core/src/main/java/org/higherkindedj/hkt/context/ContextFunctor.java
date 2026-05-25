@@ -3,7 +3,6 @@
 package org.higherkindedj.hkt.context;
 
 import static org.higherkindedj.hkt.context.ContextKindHelper.CONTEXT;
-
 import java.util.function.Function;
 import org.higherkindedj.hkt.Functor;
 import org.higherkindedj.hkt.Kind;
@@ -27,49 +26,46 @@ import org.higherkindedj.hkt.util.validation.Validation;
  */
 public class ContextFunctor<R> implements Functor<ContextKind.Witness<R>> {
 
-  private static final ContextFunctor<?> INSTANCE = new ContextFunctor<>();
+    private static final ContextFunctor<?> INSTANCE = new ContextFunctor<>();
 
-  /** Protected constructor to allow subclassing while enforcing singleton-per-type pattern. */
-  protected ContextFunctor() {}
+    /**
+     * Protected constructor to allow subclassing while enforcing singleton-per-type pattern.
+     */
+    protected ContextFunctor() {
+    }
 
-  /**
-   * Returns the singleton instance of {@code ContextFunctor} for a given scoped value type {@code
-   * R}.
-   *
-   * @param <R> The scoped value type.
-   * @return The singleton {@code ContextFunctor<R>} instance.
-   */
-  @SuppressWarnings("unchecked")
-  public static <R> ContextFunctor<R> instance() {
-    return (ContextFunctor<R>) INSTANCE;
-  }
+    /**
+     * Returns the singleton instance of {@code ContextFunctor} for a given scoped value type {@code
+     * R}.
+     *
+     * @param <R> The scoped value type.
+     * @return The singleton {@code ContextFunctor<R>} instance.
+     */
+    @SuppressWarnings("unchecked")
+    public static <R> ContextFunctor<R> instance() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Maps a function {@code f} over the value {@code A} contained within a {@code
-   * Kind<ContextKind.Witness<R>, A>}.
-   *
-   * <p>This operation transforms a {@code Context<R, A>} into a {@code Context<R, B>} by applying
-   * the function {@code f} to the result of the original context, without altering the required
-   * scoped value type {@code R}.
-   *
-   * @param f The function to map over the context's result. Must not be null.
-   * @param fa The higher-kinded representation of a {@code Context<R, A>}. Must not be null.
-   * @param <A> The original result type of the Context.
-   * @param <B> The new result type after applying the function {@code f}.
-   * @return A new {@code Kind<ContextKind.Witness<R>, B>} representing the transformed {@code
-   *     Context<R, B>}. Never null.
-   * @throws NullPointerException if {@code f} or {@code fa} is null.
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code fa} cannot be unwrapped
-   *     to a valid Context representation.
-   */
-  @Override
-  public <A, B> Kind<ContextKind.Witness<R>, B> map(
-      Function<? super A, ? extends B> f, Kind<ContextKind.Witness<R>, A> fa) {
-
-    Validation.function().validateMap(f, fa);
-
-    Context<R, A> contextA = CONTEXT.narrow(fa);
-    Context<R, B> contextB = contextA.map(f);
-    return CONTEXT.widen(contextB);
-  }
+    /**
+     * Maps a function {@code f} over the value {@code A} contained within a {@code
+     * Kind<ContextKind.Witness<R>, A>}.
+     *
+     * <p>This operation transforms a {@code Context<R, A>} into a {@code Context<R, B>} by applying
+     * the function {@code f} to the result of the original context, without altering the required
+     * scoped value type {@code R}.
+     *
+     * @param f The function to map over the context's result. Must not be null.
+     * @param fa The higher-kinded representation of a {@code Context<R, A>}. Must not be null.
+     * @param <A> The original result type of the Context.
+     * @param <B> The new result type after applying the function {@code f}.
+     * @return A new {@code Kind<ContextKind.Witness<R>, B>} representing the transformed {@code
+     *     Context<R, B>}. Never null.
+     * @throws NullPointerException if {@code f} or {@code fa} is null.
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code fa} cannot be unwrapped
+     *     to a valid Context representation.
+     */
+    @Override
+    public <A, B> Kind<ContextKind.Witness<R>, B> map(Function<? super A, ? extends B> f, Kind<ContextKind.Witness<R>, A> fa) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

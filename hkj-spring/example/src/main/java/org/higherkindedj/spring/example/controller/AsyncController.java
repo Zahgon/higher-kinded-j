@@ -47,90 +47,89 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/async")
 public class AsyncController {
 
-  private final AsyncUserService asyncUserService;
+    private final AsyncUserService asyncUserService;
 
-  /**
-   * Constructs an AsyncController.
-   *
-   * @param asyncUserService the async user service
-   */
-  public AsyncController(AsyncUserService asyncUserService) {
-    this.asyncUserService = asyncUserService;
-  }
+    /**
+     * Constructs an AsyncController.
+     *
+     * @param asyncUserService the async user service
+     */
+    public AsyncController(AsyncUserService asyncUserService) {
+        this.asyncUserService = asyncUserService;
+    }
 
-  /**
-   * Get user by ID asynchronously.
-   *
-   * <p>Demonstrates basic async operation with CompletableFuturePath. The operation runs on the
-   * async thread pool and returns immediately, freeing the request thread.
-   *
-   * @param id the user ID to find
-   * @return CompletableFuturePath wrapping async User
-   */
-  @GetMapping("/users/{id}")
-  public CompletableFuturePath<User> getUserAsync(@PathVariable String id) {
-    return asyncUserService.findByIdAsync(id);
-  }
+    /**
+     * Get user by ID asynchronously.
+     *
+     * <p>Demonstrates basic async operation with CompletableFuturePath. The operation runs on the
+     * async thread pool and returns immediately, freeing the request thread.
+     *
+     * @param id the user ID to find
+     * @return CompletableFuturePath wrapping async User
+     */
+    @GetMapping("/users/{id}")
+    public CompletableFuturePath<User> getUserAsync(@PathVariable String id) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Find user by email asynchronously.
-   *
-   * @param email the email to search for
-   * @return CompletableFuturePath wrapping async result
-   */
-  @GetMapping("/users/by-email")
-  public CompletableFuturePath<User> getUserByEmailAsync(@RequestParam String email) {
-    return asyncUserService.findByEmailAsync(email);
-  }
+    /**
+     * Find user by email asynchronously.
+     *
+     * @param email the email to search for
+     * @return CompletableFuturePath wrapping async result
+     */
+    @GetMapping("/users/by-email")
+    public CompletableFuturePath<User> getUserByEmailAsync(@RequestParam String email) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Get enriched user data with composed async operations.
-   *
-   * <p>Demonstrates CompletableFuturePath composition:
-   *
-   * <ol>
-   *   <li>Async find user by ID
-   *   <li>Async load profile data
-   *   <li>Combine into enriched result
-   * </ol>
-   *
-   * @param id the user ID
-   * @return CompletableFuturePath with enriched user data
-   */
-  @GetMapping("/users/{id}/enriched")
-  public CompletableFuturePath<AsyncUserService.EnrichedUser> getEnrichedUserAsync(
-      @PathVariable String id) {
-    return asyncUserService.getEnrichedUserAsync(id);
-  }
+    /**
+     * Get enriched user data with composed async operations.
+     *
+     * <p>Demonstrates CompletableFuturePath composition:
+     *
+     * <ol>
+     *   <li>Async find user by ID
+     *   <li>Async load profile data
+     *   <li>Combine into enriched result
+     * </ol>
+     *
+     * @param id the user ID
+     * @return CompletableFuturePath with enriched user data
+     */
+    @GetMapping("/users/{id}/enriched")
+    public CompletableFuturePath<AsyncUserService.EnrichedUser> getEnrichedUserAsync(@PathVariable String id) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Update user email asynchronously with validation.
-   *
-   * @param id the user ID to update
-   * @param newEmail the new email address
-   * @return CompletableFuturePath with updated user
-   */
-  @PutMapping("/users/{id}/email")
-  public CompletableFuturePath<User> updateEmailAsync(
-      @PathVariable String id, @RequestParam String newEmail) {
-    return asyncUserService.updateEmailAsync(id, newEmail);
-  }
+    /**
+     * Update user email asynchronously with validation.
+     *
+     * @param id the user ID to update
+     * @param newEmail the new email address
+     * @return CompletableFuturePath with updated user
+     */
+    @PutMapping("/users/{id}/email")
+    public CompletableFuturePath<User> updateEmailAsync(@PathVariable String id, @RequestParam String newEmail) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Health check endpoint (async).
-   *
-   * @return CompletableFuturePath with health status
-   */
-  @GetMapping("/health")
-  public CompletableFuturePath<HealthStatus> getAsyncHealth() {
-    return asyncUserService.getHealthAsync();
-  }
+    /**
+     * Health check endpoint (async).
+     *
+     * @return CompletableFuturePath with health status
+     */
+    @GetMapping("/health")
+    public CompletableFuturePath<HealthStatus> getAsyncHealth() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Health status response.
-   *
-   * @param status the health status
-   * @param message a descriptive message
-   */
-  public record HealthStatus(String status, String message) {}
+    /**
+     * Health status response.
+     *
+     * @param status the health status
+     * @param message a descriptive message
+     */
+    public record HealthStatus(String status, String message) {
+    }
 }

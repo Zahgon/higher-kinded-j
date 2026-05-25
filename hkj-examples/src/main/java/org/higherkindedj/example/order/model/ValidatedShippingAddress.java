@@ -17,34 +17,24 @@ import org.higherkindedj.optics.annotations.GenerateLenses;
  */
 @GenerateLenses
 @GenerateFocus
-public record ValidatedShippingAddress(
-    String name,
-    String street,
-    String city,
-    String postcode,
-    String country,
-    ShippingZone shippingZone) {
-  /** Shipping zones for carrier and rate selection. */
-  public enum ShippingZone {
-    DOMESTIC,
-    EUROPE,
-    INTERNATIONAL
-  }
+public record ValidatedShippingAddress(String name, String street, String city, String postcode, String country, ShippingZone shippingZone) {
 
-  /**
-   * Creates a validated address from a raw shipping address.
-   *
-   * @param address the original address
-   * @param zone the determined shipping zone
-   * @return a validated shipping address
-   */
-  public static ValidatedShippingAddress from(ShippingAddress address, ShippingZone zone) {
-    return new ValidatedShippingAddress(
-        address.name(),
-        address.street(),
-        address.city(),
-        address.postcode().toUpperCase().replaceAll("\\s+", " "),
-        address.country().toUpperCase(),
-        zone);
-  }
+    /**
+     * Shipping zones for carrier and rate selection.
+     */
+    public enum ShippingZone {
+
+        DOMESTIC, EUROPE, INTERNATIONAL
+    }
+
+    /**
+     * Creates a validated address from a raw shipping address.
+     *
+     * @param address the original address
+     * @param zone the determined shipping zone
+     * @return a validated shipping address
+     */
+    public static ValidatedShippingAddress from(ShippingAddress address, ShippingZone zone) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

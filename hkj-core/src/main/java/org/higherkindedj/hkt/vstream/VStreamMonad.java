@@ -4,7 +4,6 @@ package org.higherkindedj.hkt.vstream;
 
 import static org.higherkindedj.hkt.util.validation.Operation.FLAT_MAP;
 import static org.higherkindedj.hkt.vstream.VStreamKindHelper.VSTREAM;
-
 import java.util.function.Function;
 import org.higherkindedj.hkt.Kind;
 import org.higherkindedj.hkt.Monad;
@@ -38,50 +37,41 @@ import org.higherkindedj.hkt.util.validation.Validation;
  */
 public class VStreamMonad extends VStreamApplicative implements Monad<VStreamKind.Witness> {
 
-  /** Singleton instance of {@code VStreamMonad}. */
-  public static final VStreamMonad INSTANCE = new VStreamMonad();
+    /**
+     * Singleton instance of {@code VStreamMonad}.
+     */
+    public static final VStreamMonad INSTANCE = new VStreamMonad();
 
-  /** Protected constructor to enforce the singleton pattern while allowing subclassing. */
-  protected VStreamMonad() {
-    super();
-  }
+    /**
+     * Protected constructor to enforce the singleton pattern while allowing subclassing.
+     */
+    protected VStreamMonad() {
+        super();
+    }
 
-  /**
-   * Sequentially composes VStream computations. Each element from the input stream is passed to
-   * function {@code f}, which produces a sub-stream. All sub-streams are flattened into the result
-   * stream.
-   *
-   * <p>This operation maintains lazy evaluation. No elements are produced until a terminal
-   * operation is invoked on the resulting stream. The flatMap implementation is stack-safe for deep
-   * chains.
-   *
-   * @param <A> The type of elements in the input stream {@code ma}.
-   * @param <B> The type of elements in the sub-streams produced by {@code f}.
-   * @param f A function that takes an element and returns a {@code Kind<VStreamKind.Witness, B>}
-   *     representing the sub-stream. Must not be null.
-   * @param ma A {@code Kind<VStreamKind.Witness, A>} representing the input stream. Must not be
-   *     null.
-   * @return A {@code Kind<VStreamKind.Witness, B>} representing the flattened result stream. Never
-   *     null.
-   * @throws NullPointerException if {@code f} or {@code ma} is null.
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code ma} or the {@code Kind}
-   *     returned by {@code f} cannot be unwrapped.
-   */
-  @Override
-  public <A, B> Kind<VStreamKind.Witness, B> flatMap(
-      Function<? super A, ? extends Kind<VStreamKind.Witness, B>> f,
-      Kind<VStreamKind.Witness, A> ma) {
-
-    Validation.function().validateFlatMap(f, ma);
-
-    VStream<A> stream = VSTREAM.narrow(ma);
-    VStream<B> result =
-        stream.flatMap(
-            a -> {
-              var kindB = f.apply(a);
-              Validation.function().requireNonNullResult(kindB, "f", FLAT_MAP);
-              return VSTREAM.narrow(kindB);
-            });
-    return VSTREAM.widen(result);
-  }
+    /**
+     * Sequentially composes VStream computations. Each element from the input stream is passed to
+     * function {@code f}, which produces a sub-stream. All sub-streams are flattened into the result
+     * stream.
+     *
+     * <p>This operation maintains lazy evaluation. No elements are produced until a terminal
+     * operation is invoked on the resulting stream. The flatMap implementation is stack-safe for deep
+     * chains.
+     *
+     * @param <A> The type of elements in the input stream {@code ma}.
+     * @param <B> The type of elements in the sub-streams produced by {@code f}.
+     * @param f A function that takes an element and returns a {@code Kind<VStreamKind.Witness, B>}
+     *     representing the sub-stream. Must not be null.
+     * @param ma A {@code Kind<VStreamKind.Witness, A>} representing the input stream. Must not be
+     *     null.
+     * @return A {@code Kind<VStreamKind.Witness, B>} representing the flattened result stream. Never
+     *     null.
+     * @throws NullPointerException if {@code f} or {@code ma} is null.
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code ma} or the {@code Kind}
+     *     returned by {@code f} cannot be unwrapped.
+     */
+    @Override
+    public <A, B> Kind<VStreamKind.Witness, B> flatMap(Function<? super A, ? extends Kind<VStreamKind.Witness, B>> f, Kind<VStreamKind.Witness, A> ma) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

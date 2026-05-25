@@ -18,63 +18,44 @@ import org.jspecify.annotations.Nullable;
  * @param warehouseId the warehouse this shipment originates from (for split shipments)
  */
 @GenerateLenses
-public record ShipmentInfo(
-    String shipmentId,
-    String trackingNumber,
-    String carrier,
-    Instant estimatedDelivery,
-    Money shippingCost,
-    @Nullable String warehouseId) {
-  /**
-   * Creates a ShipmentInfo without warehouse information.
-   *
-   * @param shipmentId the shipment ID
-   * @param trackingNumber the tracking number
-   * @param carrier the carrier
-   * @param estimatedDelivery the estimated delivery
-   * @param shippingCost the shipping cost
-   * @return a ShipmentInfo
-   */
-  public static ShipmentInfo create(
-      String shipmentId,
-      String trackingNumber,
-      String carrier,
-      Instant estimatedDelivery,
-      Money shippingCost) {
-    return new ShipmentInfo(
-        shipmentId, trackingNumber, carrier, estimatedDelivery, shippingCost, null);
-  }
+public record ShipmentInfo(String shipmentId, String trackingNumber, String carrier, Instant estimatedDelivery, Money shippingCost, @Nullable String warehouseId) {
 
-  /**
-   * Creates a ShipmentInfo from a specific warehouse.
-   *
-   * @param shipmentId the shipment ID
-   * @param trackingNumber the tracking number
-   * @param carrier the carrier
-   * @param estimatedDelivery the estimated delivery
-   * @param shippingCost the shipping cost
-   * @param warehouseId the warehouse ID
-   * @return a ShipmentInfo
-   */
-  public static ShipmentInfo fromWarehouse(
-      String shipmentId,
-      String trackingNumber,
-      String carrier,
-      Instant estimatedDelivery,
-      Money shippingCost,
-      String warehouseId) {
-    return new ShipmentInfo(
-        shipmentId, trackingNumber, carrier, estimatedDelivery, shippingCost, warehouseId);
-  }
+    /**
+     * Creates a ShipmentInfo without warehouse information.
+     *
+     * @param shipmentId the shipment ID
+     * @param trackingNumber the tracking number
+     * @param carrier the carrier
+     * @param estimatedDelivery the estimated delivery
+     * @param shippingCost the shipping cost
+     * @return a ShipmentInfo
+     */
+    public static ShipmentInfo create(String shipmentId, String trackingNumber, String carrier, Instant estimatedDelivery, Money shippingCost) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Returns a copy with updated shipping cost.
-   *
-   * @param cost the new shipping cost
-   * @return a new ShipmentInfo with the updated cost
-   */
-  public ShipmentInfo withShippingCost(Money cost) {
-    return new ShipmentInfo(
-        shipmentId, trackingNumber, carrier, estimatedDelivery, cost, warehouseId);
-  }
+    /**
+     * Creates a ShipmentInfo from a specific warehouse.
+     *
+     * @param shipmentId the shipment ID
+     * @param trackingNumber the tracking number
+     * @param carrier the carrier
+     * @param estimatedDelivery the estimated delivery
+     * @param shippingCost the shipping cost
+     * @param warehouseId the warehouse ID
+     * @return a ShipmentInfo
+     */
+    public static ShipmentInfo fromWarehouse(String shipmentId, String trackingNumber, String carrier, Instant estimatedDelivery, Money shippingCost, String warehouseId) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Returns a copy with updated shipping cost.
+     *
+     * @param cost the new shipping cost
+     * @return a new ShipmentInfo with the updated cost
+     */
+    public ShipmentInfo withShippingCost(Money cost) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

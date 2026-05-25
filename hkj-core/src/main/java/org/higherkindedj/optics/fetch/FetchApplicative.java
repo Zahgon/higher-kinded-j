@@ -3,7 +3,6 @@
 package org.higherkindedj.optics.fetch;
 
 import static org.higherkindedj.optics.fetch.FetchKindHelper.FETCH;
-
 import java.util.Objects;
 import java.util.function.Function;
 import org.higherkindedj.hkt.Applicative;
@@ -24,36 +23,28 @@ import org.jspecify.annotations.Nullable;
  */
 public final class FetchApplicative<K, V> implements Applicative<FetchKind.Witness<K, V>> {
 
-  private static final FetchApplicative<?, ?> INSTANCE = new FetchApplicative<>();
+    private static final FetchApplicative<?, ?> INSTANCE = new FetchApplicative<>();
 
-  private FetchApplicative() {}
+    private FetchApplicative() {
+    }
 
-  @SuppressWarnings("unchecked")
-  public static <K, V> FetchApplicative<K, V> instance() {
-    return (FetchApplicative<K, V>) INSTANCE;
-  }
+    @SuppressWarnings("unchecked")
+    public static <K, V> FetchApplicative<K, V> instance() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public <A> Kind<FetchKind.Witness<K, V>, A> of(@Nullable A value) {
-    return FETCH.widen(Fetch.done(value));
-  }
+    @Override
+    public <A> Kind<FetchKind.Witness<K, V>, A> of(@Nullable A value) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public <A, B> Kind<FetchKind.Witness<K, V>, B> map(
-      Function<? super A, ? extends B> f, Kind<FetchKind.Witness<K, V>, A> fa) {
-    Objects.requireNonNull(f, "f");
-    Objects.requireNonNull(fa, "fa");
-    return FETCH.widen(FETCH.narrow(fa).map(f));
-  }
+    @Override
+    public <A, B> Kind<FetchKind.Witness<K, V>, B> map(Function<? super A, ? extends B> f, Kind<FetchKind.Witness<K, V>, A> fa) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public <A, B> Kind<FetchKind.Witness<K, V>, B> ap(
-      Kind<FetchKind.Witness<K, V>, ? extends Function<A, B>> ff,
-      Kind<FetchKind.Witness<K, V>, A> fa) {
-    Objects.requireNonNull(ff, "ff");
-    Objects.requireNonNull(fa, "fa");
-    Fetch<K, V, ? extends Function<A, B>> fnf = FETCH.narrow(ff);
-    Fetch<K, V, A> fva = FETCH.narrow(fa);
-    return FETCH.widen(Fetch.ap(fnf, fva));
-  }
+    @Override
+    public <A, B> Kind<FetchKind.Witness<K, V>, B> ap(Kind<FetchKind.Witness<K, V>, ? extends Function<A, B>> ff, Kind<FetchKind.Witness<K, V>, A> fa) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

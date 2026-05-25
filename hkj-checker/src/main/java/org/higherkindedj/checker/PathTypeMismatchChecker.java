@@ -38,244 +38,243 @@ import javax.tools.Diagnostic;
  */
 public class PathTypeMismatchChecker implements CheckVisitor {
 
-  private static final Set<String> CHECKED_METHODS =
-      Set.of("via", "flatMap", "then", "zipWith", "zipWith3", "recoverWith", "orElse");
+    private static final Set<String> CHECKED_METHODS = Set.of("via", "flatMap", "then", "zipWith", "zipWith3", "recoverWith", "orElse");
 
-  /** Methods where the first argument is the "other" Path to check. */
-  private static final Set<String> ARGUMENT_TYPE_METHODS = Set.of("zipWith", "zipWith3");
+    /**
+     * Methods where the first argument is the "other" Path to check.
+     */
+    private static final Set<String> ARGUMENT_TYPE_METHODS = Set.of("zipWith", "zipWith3");
 
-  /** Methods where we check the return type of the lambda/supplier argument. */
-  private static final Set<String> LAMBDA_RETURN_METHODS =
-      Set.of("via", "flatMap", "then", "recoverWith", "orElse");
+    /**
+     * Methods where we check the return type of the lambda/supplier argument.
+     */
+    private static final Set<String> LAMBDA_RETURN_METHODS = Set.of("via", "flatMap", "then", "recoverWith", "orElse");
 
-  private final Trees trees;
-  private final Diagnostic.Kind severity;
+    private final Trees trees;
 
-  /**
-   * Creates a new checker that reports at {@link Diagnostic.Kind#ERROR}.
-   *
-   * @param trees the Trees utility from the javac task; must not be null
-   */
-  public PathTypeMismatchChecker(Trees trees) {
-    this(trees, Diagnostic.Kind.ERROR);
-  }
+    private final Diagnostic.Kind severity;
 
-  /**
-   * Creates a new checker reporting at the given severity.
-   *
-   * @param trees the Trees utility from the javac task; must not be null
-   * @param severity the severity at which mismatches are reported
-   */
-  public PathTypeMismatchChecker(Trees trees, Diagnostic.Kind severity) {
-    this.trees = trees;
-    this.severity = severity;
-  }
-
-  @Override
-  public void onMethodInvocation(MethodInvocationTree node, TreePath path) {
-    String methodName = extractMethodName(node);
-    if (methodName != null && CHECKED_METHODS.contains(methodName)) {
-      checkPathTypeMismatch(node, methodName);
-    }
-  }
-
-  private void checkPathTypeMismatch(MethodInvocationTree node, String methodName) {
-    // Resolve the receiver type
-    Optional<String> receiverType = resolveReceiverPathType(node);
-    if (receiverType.isEmpty()) {
-      return; // Cannot resolve receiver; skip silently (no false positives)
+    /**
+     * Creates a new checker that reports at {@link Diagnostic.Kind#ERROR}.
+     *
+     * @param trees the Trees utility from the javac task; must not be null
+     */
+    public PathTypeMismatchChecker(Trees trees) {
+        this(trees, Diagnostic.Kind.ERROR);
     }
 
-    if (ARGUMENT_TYPE_METHODS.contains(methodName)) {
-      checkArgumentTypes(node, methodName, receiverType.get());
-    } else if (LAMBDA_RETURN_METHODS.contains(methodName)) {
-      checkLambdaReturnType(node, methodName, receiverType.get());
+    /**
+     * Creates a new checker reporting at the given severity.
+     *
+     * @param trees the Trees utility from the javac task; must not be null
+     * @param severity the severity at which mismatches are reported
+     */
+    public PathTypeMismatchChecker(Trees trees, Diagnostic.Kind severity) {
+        this.trees = trees;
+        this.severity = severity;
     }
-  }
-
-  /**
-   * For zipWith/zipWith3, check the concrete type of the first argument (and second for zipWith3).
-   */
-  private void checkArgumentTypes(
-      MethodInvocationTree node, String methodName, String receiverCategory) {
-    List<? extends ExpressionTree> args = node.getArguments();
-    if (args.isEmpty()) {
-      return;
-    }
-
-    // Check the first argument (the "other" Combinable)
-    checkArgumentType(node, args.getFirst(), methodName, receiverCategory);
-
-    // For zipWith3, also check the second argument
-    if ("zipWith3".equals(methodName) && args.size() >= 2) {
-      checkArgumentType(node, args.get(1), methodName, receiverCategory);
-    }
-  }
-
-  private void checkArgumentType(
-      MethodInvocationTree node, ExpressionTree arg, String methodName, String receiverCategory) {
-    Optional<String> argType = resolveExpressionPathType(arg);
-    if (argType.isEmpty()) {
-      return;
-    }
-
-    if (!argType.get().equals(receiverCategory)) {
-      reportMismatch(node, methodName, receiverCategory, argType.get());
-    }
-  }
-
-  /** For via/flatMap/then/recoverWith/orElse, check the return type of the lambda/supplier. */
-  private void checkLambdaReturnType(
-      MethodInvocationTree node, String methodName, String receiverCategory) {
-    List<? extends ExpressionTree> args = node.getArguments();
-    if (args.isEmpty()) {
-      return;
-    }
-
-    ExpressionTree lambdaArg = args.getFirst();
-
-    // Try to resolve the lambda's return type from its body
-    Optional<String> returnType = resolveLambdaReturnPathType(lambdaArg);
-    if (returnType.isEmpty()) {
-      return; // Cannot resolve; skip silently
-    }
-
-    if (!returnType.get().equals(receiverCategory)) {
-      reportMismatch(node, methodName, receiverCategory, returnType.get());
-    }
-  }
-
-  /**
-   * Resolves the concrete Path type of the receiver expression.
-   *
-   * @return the Path category simple name, or empty if not a known Path type
-   */
-  private Optional<String> resolveReceiverPathType(MethodInvocationTree node) {
-    ExpressionTree methodSelect = node.getMethodSelect();
-    ExpressionTree receiver = null;
-
-    if (methodSelect instanceof MemberSelectTree memberSelect) {
-      receiver = memberSelect.getExpression();
-    }
-
-    if (receiver == null) {
-      return Optional.empty();
-    }
-
-    return resolveExpressionPathType(receiver);
-  }
-
-  /**
-   * Resolves the concrete Path type of an expression by examining its attributed type from javac.
-   */
-  private Optional<String> resolveExpressionPathType(ExpressionTree expr) {
-    try {
-      Type type = getAttributedType(expr);
-      if (type == null) {
-        return Optional.empty();
-      }
-      return resolvePathTypeFromType(type);
-    } catch (Exception e) {
-      // If type resolution fails for any reason, skip silently (no false positives)
-      return Optional.empty();
-    }
-  }
-
-  /** Attempts to resolve the return type of a lambda expression or supplier. */
-  private Optional<String> resolveLambdaReturnPathType(ExpressionTree lambdaArg) {
-    if (lambdaArg instanceof LambdaExpressionTree lambda) {
-      return resolveLambdaBodyReturnType(lambda);
-    }
-    // For method references or other expressions, we cannot easily determine
-    // the return type without deep type analysis, so skip
-    return Optional.empty();
-  }
-
-  /** Resolves the return type from a lambda body. */
-  private Optional<String> resolveLambdaBodyReturnType(LambdaExpressionTree lambda) {
-    // For expression lambdas (e.g., x -> Path.just(x)), the body is the expression
-    if (lambda.getBodyKind() == LambdaExpressionTree.BodyKind.EXPRESSION) {
-      return resolveExpressionPathType((ExpressionTree) lambda.getBody());
-    }
-
-    // For statement lambdas, scan for return statements
-    ReturnTypeFinder finder = new ReturnTypeFinder();
-    finder.scan(lambda.getBody(), null);
-    return finder.getReturnPathType();
-  }
-
-  /**
-   * Gets the attributed type from a javac expression tree node.
-   *
-   * <p>After the ANALYZE phase, javac attaches resolved types to expression nodes via the internal
-   * {@code JCTree.JCExpression.type} field. This method accesses that field through the internal
-   * javac API (accessible via {@code --add-exports}).
-   */
-  private Type getAttributedType(ExpressionTree expr) {
-    if (expr instanceof JCTree.JCExpression jcExpr) {
-      return jcExpr.type;
-    }
-    return null;
-  }
-
-  /** Resolves a javac Type to a Path type category if it is a known Path type. */
-  private Optional<String> resolvePathTypeFromType(Type type) {
-    String qualifiedName = extractQualifiedName(type);
-    if (qualifiedName == null) {
-      return Optional.empty();
-    }
-    return PathTypeRegistry.getPathCategory(qualifiedName);
-  }
-
-  /** Extracts the fully qualified name from a javac Type, stripping generic type parameters. */
-  private String extractQualifiedName(Type type) {
-    if (type.tsym != null) {
-      return type.tsym.getQualifiedName().toString();
-    }
-    // Fallback: parse from toString, stripping generics
-    String str = type.toString();
-    int angleBracket = str.indexOf('<');
-    if (angleBracket >= 0) {
-      str = str.substring(0, angleBracket);
-    }
-    return str;
-  }
-
-  /** Extracts the method name from a method invocation. */
-  private String extractMethodName(MethodInvocationTree node) {
-    ExpressionTree methodSelect = node.getMethodSelect();
-    if (methodSelect instanceof MemberSelectTree memberSelect) {
-      return memberSelect.getIdentifier().toString();
-    }
-    return null;
-  }
-
-  /** Reports a Path type mismatch diagnostic at the given node's source location. */
-  private void reportMismatch(
-      MethodInvocationTree node, String methodName, String expectedType, String actualType) {
-    String message = DiagnosticMessages.pathTypeMismatch(methodName, expectedType, actualType);
-    trees.printMessage(severity, message, node, null);
-  }
-
-  /**
-   * Inner scanner that finds return statements in a lambda body and resolves their Path types.
-   *
-   * <p>Collects the first resolvable return type found. If multiple return statements return
-   * different types, only the first is used.
-   */
-  private class ReturnTypeFinder extends TreeScanner<Void, Void> {
-    private String returnPathType;
 
     @Override
-    public Void visitReturn(ReturnTree node, Void unused) {
-      if (returnPathType == null && node.getExpression() != null) {
-        resolveExpressionPathType(node.getExpression()).ifPresent(type -> returnPathType = type);
-      }
-      return super.visitReturn(node, unused);
+    public void onMethodInvocation(MethodInvocationTree node, TreePath path) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    Optional<String> getReturnPathType() {
-      return Optional.ofNullable(returnPathType);
+    private void checkPathTypeMismatch(MethodInvocationTree node, String methodName) {
+        // Resolve the receiver type
+        Optional<String> receiverType = resolveReceiverPathType(node);
+        if (receiverType.isEmpty()) {
+            // Cannot resolve receiver; skip silently (no false positives)
+            return;
+        }
+        if (ARGUMENT_TYPE_METHODS.contains(methodName)) {
+            checkArgumentTypes(node, methodName, receiverType.get());
+        } else if (LAMBDA_RETURN_METHODS.contains(methodName)) {
+            checkLambdaReturnType(node, methodName, receiverType.get());
+        }
     }
-  }
+
+    /**
+     * For zipWith/zipWith3, check the concrete type of the first argument (and second for zipWith3).
+     */
+    private void checkArgumentTypes(MethodInvocationTree node, String methodName, String receiverCategory) {
+        List<? extends ExpressionTree> args = node.getArguments();
+        if (args.isEmpty()) {
+            return;
+        }
+        // Check the first argument (the "other" Combinable)
+        checkArgumentType(node, args.getFirst(), methodName, receiverCategory);
+        // For zipWith3, also check the second argument
+        if ("zipWith3".equals(methodName) && args.size() >= 2) {
+            checkArgumentType(node, args.get(1), methodName, receiverCategory);
+        }
+    }
+
+    private void checkArgumentType(MethodInvocationTree node, ExpressionTree arg, String methodName, String receiverCategory) {
+        Optional<String> argType = resolveExpressionPathType(arg);
+        if (argType.isEmpty()) {
+            return;
+        }
+        if (!argType.get().equals(receiverCategory)) {
+            reportMismatch(node, methodName, receiverCategory, argType.get());
+        }
+    }
+
+    /**
+     * For via/flatMap/then/recoverWith/orElse, check the return type of the lambda/supplier.
+     */
+    private void checkLambdaReturnType(MethodInvocationTree node, String methodName, String receiverCategory) {
+        List<? extends ExpressionTree> args = node.getArguments();
+        if (args.isEmpty()) {
+            return;
+        }
+        ExpressionTree lambdaArg = args.getFirst();
+        // Try to resolve the lambda's return type from its body
+        Optional<String> returnType = resolveLambdaReturnPathType(lambdaArg);
+        if (returnType.isEmpty()) {
+            // Cannot resolve; skip silently
+            return;
+        }
+        if (!returnType.get().equals(receiverCategory)) {
+            reportMismatch(node, methodName, receiverCategory, returnType.get());
+        }
+    }
+
+    /**
+     * Resolves the concrete Path type of the receiver expression.
+     *
+     * @return the Path category simple name, or empty if not a known Path type
+     */
+    private Optional<String> resolveReceiverPathType(MethodInvocationTree node) {
+        ExpressionTree methodSelect = node.getMethodSelect();
+        ExpressionTree receiver = null;
+        if (methodSelect instanceof MemberSelectTree memberSelect) {
+            receiver = memberSelect.getExpression();
+        }
+        if (receiver == null) {
+            return Optional.empty();
+        }
+        return resolveExpressionPathType(receiver);
+    }
+
+    /**
+     * Resolves the concrete Path type of an expression by examining its attributed type from javac.
+     */
+    private Optional<String> resolveExpressionPathType(ExpressionTree expr) {
+        try {
+            Type type = getAttributedType(expr);
+            if (type == null) {
+                return Optional.empty();
+            }
+            return resolvePathTypeFromType(type);
+        } catch (Exception e) {
+            // If type resolution fails for any reason, skip silently (no false positives)
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * Attempts to resolve the return type of a lambda expression or supplier.
+     */
+    private Optional<String> resolveLambdaReturnPathType(ExpressionTree lambdaArg) {
+        if (lambdaArg instanceof LambdaExpressionTree lambda) {
+            return resolveLambdaBodyReturnType(lambda);
+        }
+        // For method references or other expressions, we cannot easily determine
+        // the return type without deep type analysis, so skip
+        return Optional.empty();
+    }
+
+    /**
+     * Resolves the return type from a lambda body.
+     */
+    private Optional<String> resolveLambdaBodyReturnType(LambdaExpressionTree lambda) {
+        // For expression lambdas (e.g., x -> Path.just(x)), the body is the expression
+        if (lambda.getBodyKind() == LambdaExpressionTree.BodyKind.EXPRESSION) {
+            return resolveExpressionPathType((ExpressionTree) lambda.getBody());
+        }
+        // For statement lambdas, scan for return statements
+        ReturnTypeFinder finder = new ReturnTypeFinder();
+        finder.scan(lambda.getBody(), null);
+        return finder.getReturnPathType();
+    }
+
+    /**
+     * Gets the attributed type from a javac expression tree node.
+     *
+     * <p>After the ANALYZE phase, javac attaches resolved types to expression nodes via the internal
+     * {@code JCTree.JCExpression.type} field. This method accesses that field through the internal
+     * javac API (accessible via {@code --add-exports}).
+     */
+    private Type getAttributedType(ExpressionTree expr) {
+        if (expr instanceof JCTree.JCExpression jcExpr) {
+            return jcExpr.type;
+        }
+        return null;
+    }
+
+    /**
+     * Resolves a javac Type to a Path type category if it is a known Path type.
+     */
+    private Optional<String> resolvePathTypeFromType(Type type) {
+        String qualifiedName = extractQualifiedName(type);
+        if (qualifiedName == null) {
+            return Optional.empty();
+        }
+        return PathTypeRegistry.getPathCategory(qualifiedName);
+    }
+
+    /**
+     * Extracts the fully qualified name from a javac Type, stripping generic type parameters.
+     */
+    private String extractQualifiedName(Type type) {
+        if (type.tsym != null) {
+            return type.tsym.getQualifiedName().toString();
+        }
+        // Fallback: parse from toString, stripping generics
+        String str = type.toString();
+        int angleBracket = str.indexOf('<');
+        if (angleBracket >= 0) {
+            str = str.substring(0, angleBracket);
+        }
+        return str;
+    }
+
+    /**
+     * Extracts the method name from a method invocation.
+     */
+    private String extractMethodName(MethodInvocationTree node) {
+        ExpressionTree methodSelect = node.getMethodSelect();
+        if (methodSelect instanceof MemberSelectTree memberSelect) {
+            return memberSelect.getIdentifier().toString();
+        }
+        return null;
+    }
+
+    /**
+     * Reports a Path type mismatch diagnostic at the given node's source location.
+     */
+    private void reportMismatch(MethodInvocationTree node, String methodName, String expectedType, String actualType) {
+        String message = DiagnosticMessages.pathTypeMismatch(methodName, expectedType, actualType);
+        trees.printMessage(severity, message, node, null);
+    }
+
+    /**
+     * Inner scanner that finds return statements in a lambda body and resolves their Path types.
+     *
+     * <p>Collects the first resolvable return type found. If multiple return statements return
+     * different types, only the first is used.
+     */
+    private class ReturnTypeFinder extends TreeScanner<Void, Void> {
+
+        private String returnPathType;
+
+        @Override
+        public Void visitReturn(ReturnTree node, Void unused) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        Optional<String> getReturnPathType() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+    }
 }

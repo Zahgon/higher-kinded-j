@@ -16,30 +16,30 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public record RiskScore(int score, String reason) {
 
-  public RiskScore {
-    if (score < 0 || score > 100) {
-      throw new IllegalArgumentException("Risk score must be between 0 and 100, got: " + score);
+    public RiskScore {
+        if (score < 0 || score > 100) {
+            throw new IllegalArgumentException("Risk score must be between 0 and 100, got: " + score);
+        }
+        Objects.requireNonNull(reason, "reason cannot be null");
     }
-    Objects.requireNonNull(reason, "reason cannot be null");
-  }
 
-  /**
-   * Creates a risk score with a default reason.
-   *
-   * @param score the risk score
-   * @return a new RiskScore
-   */
-  public static RiskScore of(int score) {
-    return new RiskScore(score, score > 70 ? "High risk detected" : "Within acceptable range");
-  }
+    /**
+     * Creates a risk score with a default reason.
+     *
+     * @param score the risk score
+     * @return a new RiskScore
+     */
+    public static RiskScore of(int score) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Whether this score exceeds the given threshold.
-   *
-   * @param threshold the threshold to compare against
-   * @return true if the score exceeds the threshold
-   */
-  public boolean exceeds(int threshold) {
-    return score > threshold;
-  }
+    /**
+     * Whether this score exceeds the given threshold.
+     *
+     * @param threshold the threshold to compare against
+     * @return true if the score exceeds the threshold
+     */
+    public boolean exceeds(int threshold) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

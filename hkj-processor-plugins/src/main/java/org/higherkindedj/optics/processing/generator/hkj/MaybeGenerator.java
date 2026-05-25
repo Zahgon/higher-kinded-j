@@ -29,67 +29,36 @@ import org.higherkindedj.optics.processing.spi.TraversableGenerator;
 @ServiceProvider(TraversableGenerator.class)
 public class MaybeGenerator extends BaseTraversableGenerator {
 
-  /** Creates a new generator for {@link Maybe} fields. */
-  public MaybeGenerator() {}
-
-  private static final String FQN_MAYBE = "org.higherkindedj.hkt.maybe.Maybe";
-
-  @Override
-  public boolean supports(final TypeMirror type) {
-    if (!(type instanceof DeclaredType declaredType)) {
-      return false;
+    /**
+     * Creates a new generator for {@link Maybe} fields.
+     */
+    public MaybeGenerator() {
     }
-    final Element element = declaredType.asElement();
-    return element.toString().equals(FQN_MAYBE);
-  }
 
-  @Override
-  public Cardinality getCardinality() {
-    return Cardinality.ZERO_OR_ONE;
-  }
+    private static final String FQN_MAYBE = "org.higherkindedj.hkt.maybe.Maybe";
 
-  @Override
-  public String generateOpticExpression() {
-    return "Affines.just()";
-  }
+    @Override
+    public boolean supports(final TypeMirror type) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public Set<String> getRequiredImports() {
-    return Set.of("org.higherkindedj.optics.util.Affines");
-  }
+    @Override
+    public Cardinality getCardinality() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public CodeBlock generateModifyF(
-      final RecordComponentElement component,
-      final ClassName recordClassName,
-      final List<? extends RecordComponentElement> allComponents) {
+    @Override
+    public String generateOpticExpression() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    final String componentName = component.getSimpleName().toString();
-    final TypeName genericTypeName = getGenericTypeName(component);
+    @Override
+    public Set<String> getRequiredImports() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    // Use the inherited helper to generate the constructor arguments.
-    // The new value is wrapped in Maybe.just().
-    final String constructorArgs =
-        generateConstructorArgs(componentName, "Maybe.just(newValue)", allComponents);
-
-    return CodeBlock.builder()
-        // Directly use the concrete Maybe from the source record.
-        .addStatement(
-            "final $T<$T> maybe = source.$L()", Maybe.class, genericTypeName, componentName)
-        .beginControlFlow("if (maybe.isJust())")
-        // If Just, apply the effectful function.
-        .addStatement("final var g_of_b = f.apply(maybe.get())")
-        .addStatement(
-            "@SuppressWarnings(\"unchecked\") final var g_of_b_casted = ($T) g_of_b",
-            ParameterizedTypeName.get(
-                ClassName.get(Kind.class), TypeVariableName.get("F"), genericTypeName.box()))
-        .addStatement(
-            "return applicative.map(newValue -> new $T($L), g_of_b_casted)",
-            recordClassName,
-            constructorArgs)
-        .nextControlFlow("else")
-        .addStatement("return applicative.of(source)")
-        .endControlFlow()
-        .build();
-  }
+    @Override
+    public CodeBlock generateModifyF(final RecordComponentElement component, final ClassName recordClassName, final List<? extends RecordComponentElement> allComponents) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

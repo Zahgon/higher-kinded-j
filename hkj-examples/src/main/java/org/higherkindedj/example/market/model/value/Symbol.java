@@ -10,12 +10,13 @@ import java.util.Objects;
  * @param value the ticker string (e.g. "AAPL", "GBPUSD")
  */
 public record Symbol(String value) {
-  public Symbol {
-    Objects.requireNonNull(value, "symbol value must not be null");
-  }
 
-  @Override
-  public String toString() {
-    return value;
-  }
+    public Symbol {
+        Objects.requireNonNull(value, "symbol value must not be null");
+    }
+
+    @Override
+    public String toString() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

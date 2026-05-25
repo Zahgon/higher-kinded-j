@@ -32,86 +32,76 @@ import org.jspecify.annotations.Nullable;
  * }</pre>
  */
 public enum FreeApKindHelper {
-  /** Singleton instance of the FreeApKindHelper. */
-  FREE_AP;
 
-  /**
-   * Holder record that wraps a FreeAp instance and implements FreeApKind.
-   *
-   * <p>This enables the concrete FreeAp type to be represented as a Kind.
-   *
-   * @param <F> The instruction set type
-   * @param <A> The result type
-   */
-  record FreeApHolder<F extends WitnessArity<TypeArity.Unary>, A>(FreeAp<F, A> freeAp)
-      implements FreeApKind<F, A> {}
+    /**
+     * Singleton instance of the FreeApKindHelper.
+     */
+    FREE_AP;
 
-  /**
-   * Widens a concrete FreeAp type to its Kind representation.
-   *
-   * <p>This allows FreeAp to be used with type classes that operate on Kind types.
-   *
-   * @param freeAp The FreeAp instance to widen. Must not be null.
-   * @param <F> The instruction set type
-   * @param <A> The result type
-   * @return The Kind representation of the FreeAp instance
-   * @throws NullPointerException if freeAp is null
-   */
-  public <F extends WitnessArity<TypeArity.Unary>, A> Kind<FreeApKind.Witness<F>, A> widen(
-      FreeAp<F, A> freeAp) {
-    if (freeAp == null) {
-      throw new NullPointerException("FreeAp to widen cannot be null");
+    /**
+     * Holder record that wraps a FreeAp instance and implements FreeApKind.
+     *
+     * <p>This enables the concrete FreeAp type to be represented as a Kind.
+     *
+     * @param <F> The instruction set type
+     * @param <A> The result type
+     */
+    record FreeApHolder<F extends WitnessArity<TypeArity.Unary>, A>(FreeAp<F, A> freeAp) implements FreeApKind<F, A> {
     }
-    return new FreeApHolder<>(freeAp);
-  }
 
-  /**
-   * Narrows a Kind representation back to a concrete FreeAp type.
-   *
-   * <p>This is the inverse of {@link #widen(FreeAp)}.
-   *
-   * @param kind The Kind representation to narrow. May be null.
-   * @param <F> The instruction set type
-   * @param <A> The result type
-   * @return The concrete FreeAp instance
-   * @throws KindUnwrapException if kind is null or not a valid FreeApKind representation
-   */
-  @SuppressWarnings("unchecked")
-  public <F extends WitnessArity<TypeArity.Unary>, A> FreeAp<F, A> narrow(
-      @Nullable Kind<FreeApKind.Witness<F>, A> kind) {
-    if (kind == null) {
-      throw new KindUnwrapException("Cannot narrow null Kind to FreeAp");
+    /**
+     * Widens a concrete FreeAp type to its Kind representation.
+     *
+     * <p>This allows FreeAp to be used with type classes that operate on Kind types.
+     *
+     * @param freeAp The FreeAp instance to widen. Must not be null.
+     * @param <F> The instruction set type
+     * @param <A> The result type
+     * @return The Kind representation of the FreeAp instance
+     * @throws NullPointerException if freeAp is null
+     */
+    public <F extends WitnessArity<TypeArity.Unary>, A> Kind<FreeApKind.Witness<F>, A> widen(FreeAp<F, A> freeAp) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-    if (kind instanceof FreeApHolder<?, ?> holder) {
-      return (FreeAp<F, A>) holder.freeAp();
+
+    /**
+     * Narrows a Kind representation back to a concrete FreeAp type.
+     *
+     * <p>This is the inverse of {@link #widen(FreeAp)}.
+     *
+     * @param kind The Kind representation to narrow. May be null.
+     * @param <F> The instruction set type
+     * @param <A> The result type
+     * @return The concrete FreeAp instance
+     * @throws KindUnwrapException if kind is null or not a valid FreeApKind representation
+     */
+    @SuppressWarnings("unchecked")
+    public <F extends WitnessArity<TypeArity.Unary>, A> FreeAp<F, A> narrow(@Nullable Kind<FreeApKind.Witness<F>, A> kind) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-    throw new KindUnwrapException(
-        "Cannot narrow Kind to FreeAp: expected FreeApHolder but got " + kind.getClass());
-  }
 
-  /**
-   * Convenience factory that creates a pure FreeAp and wraps it as a Kind.
-   *
-   * @param value The value to lift
-   * @param <F> The instruction set type
-   * @param <A> The value type
-   * @return A Kind representing FreeAp containing the pure value
-   */
-  public <F extends WitnessArity<TypeArity.Unary>, A> Kind<FreeApKind.Witness<F>, A> pure(A value) {
-    return widen(FreeAp.pure(value));
-  }
+    /**
+     * Convenience factory that creates a pure FreeAp and wraps it as a Kind.
+     *
+     * @param value The value to lift
+     * @param <F> The instruction set type
+     * @param <A> The value type
+     * @return A Kind representing FreeAp containing the pure value
+     */
+    public <F extends WitnessArity<TypeArity.Unary>, A> Kind<FreeApKind.Witness<F>, A> pure(A value) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Convenience factory that lifts a Kind into FreeAp and wraps it as a Kind.
-   *
-   * @param fa The Kind to lift. Must not be null.
-   * @param <F> The instruction set type
-   * @param <A> The result type
-   * @return A Kind representing FreeAp containing the lifted instruction
-   * @throws NullPointerException if fa is null
-   */
-  public <F extends WitnessArity<TypeArity.Unary>, A> Kind<FreeApKind.Witness<F>, A> lift(
-      Kind<F, A> fa) {
-    return widen(FreeAp.lift(fa));
-  }
+    /**
+     * Convenience factory that lifts a Kind into FreeAp and wraps it as a Kind.
+     *
+     * @param fa The Kind to lift. Must not be null.
+     * @param <F> The instruction set type
+     * @param <A> The result type
+     * @return A Kind representing FreeAp containing the lifted instruction
+     * @throws NullPointerException if fa is null
+     */
+    public <F extends WitnessArity<TypeArity.Unary>, A> Kind<FreeApKind.Witness<F>, A> lift(Kind<F, A> fa) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

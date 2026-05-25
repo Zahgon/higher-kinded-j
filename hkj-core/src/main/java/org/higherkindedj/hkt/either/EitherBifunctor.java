@@ -4,7 +4,6 @@ package org.higherkindedj.hkt.either;
 
 import static org.higherkindedj.hkt.either.EitherKindHelper.EITHER;
 import static org.higherkindedj.hkt.util.validation.Operation.*;
-
 import java.util.Objects;
 import java.util.function.Function;
 import org.higherkindedj.hkt.Bifunctor;
@@ -32,47 +31,26 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public class EitherBifunctor implements Bifunctor<EitherKind2.Witness> {
 
-  /** Singleton instance of the EitherBifunctor. */
-  public static final EitherBifunctor INSTANCE = new EitherBifunctor();
+    /**
+     * Singleton instance of the EitherBifunctor.
+     */
+    public static final EitherBifunctor INSTANCE = new EitherBifunctor();
 
-  private EitherBifunctor() {}
+    private EitherBifunctor() {
+    }
 
-  @Override
-  public <A, B, C, D> Kind2<EitherKind2.Witness, C, D> bimap(
-      Function<? super A, ? extends C> f,
-      Function<? super B, ? extends D> g,
-      Kind2<EitherKind2.Witness, A, B> fab) {
+    @Override
+    public <A, B, C, D> Kind2<EitherKind2.Witness, C, D> bimap(Function<? super A, ? extends C> f, Function<? super B, ? extends D> g, Kind2<EitherKind2.Witness, A, B> fab) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    Validation.function().require(f, "f", BIMAP);
-    Validation.function().require(g, "g", BIMAP);
-    Objects.requireNonNull(fab, "Kind for bimap cannot be null");
+    @Override
+    public <A, B, C> Kind2<EitherKind2.Witness, C, B> first(Function<? super A, ? extends C> f, Kind2<EitherKind2.Witness, A, B> fab) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    Either<A, B> either = EITHER.narrow2(fab);
-    Either<C, D> result = either.bimap(f, g);
-    return EITHER.widen2(result);
-  }
-
-  @Override
-  public <A, B, C> Kind2<EitherKind2.Witness, C, B> first(
-      Function<? super A, ? extends C> f, Kind2<EitherKind2.Witness, A, B> fab) {
-
-    Validation.function().require(f, "f", FIRST);
-    Objects.requireNonNull(fab, "Kind for first cannot be null");
-
-    Either<A, B> either = EITHER.narrow2(fab);
-    Either<C, B> result = either.mapLeft(f);
-    return EITHER.widen2(result);
-  }
-
-  @Override
-  public <A, B, D> Kind2<EitherKind2.Witness, A, D> second(
-      Function<? super B, ? extends D> g, Kind2<EitherKind2.Witness, A, B> fab) {
-
-    Validation.function().require(g, "g", SECOND);
-    Objects.requireNonNull(fab, "Kind for second cannot be null");
-
-    Either<A, B> either = EITHER.narrow2(fab);
-    Either<A, D> result = either.mapRight(g);
-    return EITHER.widen2(result);
-  }
+    @Override
+    public <A, B, D> Kind2<EitherKind2.Witness, A, D> second(Function<? super B, ? extends D> g, Kind2<EitherKind2.Witness, A, B> fab) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

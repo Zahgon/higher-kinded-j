@@ -11,15 +11,15 @@ import java.util.Objects;
  */
 public record ProductId(String value) {
 
-  public ProductId {
-    Objects.requireNonNull(value, "ProductId value cannot be null");
-    if (value.isBlank()) {
-      throw new IllegalArgumentException("ProductId cannot be blank");
+    public ProductId {
+        Objects.requireNonNull(value, "ProductId value cannot be null");
+        if (value.isBlank()) {
+            throw new IllegalArgumentException("ProductId cannot be blank");
+        }
     }
-  }
 
-  @Override
-  public String toString() {
-    return value;
-  }
+    @Override
+    public String toString() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

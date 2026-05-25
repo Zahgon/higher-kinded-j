@@ -16,47 +16,45 @@ import org.jspecify.annotations.Nullable;
  * EitherTKindHelper.EITHER_T.widen(myEitherTInstance);}
  */
 public enum EitherTKindHelper implements EitherTConverterOps {
-  EITHER_T;
 
-  private static final Class<EitherT> EITHER_T_CLASS = EitherT.class;
+    EITHER_T;
 
-  /**
-   * Widens a concrete {@link EitherT EitherT&lt;F, L, R&gt;} instance into its {@link Kind}
-   * representation, {@code Kind<EitherTKind.Witness<F, L>, R>}. Implements {@link
-   * EitherTConverterOps#widen}.
-   *
-   * <p>This is a direct cast as {@code EitherT} implements {@code EitherTKind}.
-   *
-   * @param <F> The witness type of the outer monad in {@code EitherT}.
-   * @param <L> The type of the 'left' value.
-   * @param <R> The type of the 'right' value.
-   * @param eitherT The concrete {@link EitherT} instance to widen. Must not be null.
-   * @return The {@code Kind} representation. Never null.
-   * @throws NullPointerException if {@code eitherT} is null.
-   */
-  @Override
-  public <F extends WitnessArity<TypeArity.Unary>, L, R> Kind<EitherTKind.Witness<F, L>, R> widen(
-      EitherT<F, L, R> eitherT) {
-    Validation.kind().requireForWiden(eitherT, EITHER_T_CLASS);
-    return eitherT;
-  }
+    private static final Class<EitherT> EITHER_T_CLASS = EitherT.class;
 
-  /**
-   * Narrows a {@code Kind<EitherTKind.Witness<F, L>, R>} back to its concrete {@link EitherT
-   * EitherT&lt;F, L, R&gt;} type. Implements {@link EitherTConverterOps#narrow}.
-   *
-   * @param <F> The witness type of the outer monad.
-   * @param <L> The type of the 'left' value.
-   * @param <R> The type of the 'right' value.
-   * @param kind The {@code Kind<EitherTKind.Witness<F, L>, R>} to narrow. Can be null.
-   * @return The unwrapped {@link EitherT EitherT&lt;F, L, R&gt;} instance. Never null.
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code kind} is null or not an
-   *     {@link EitherT} instance.
-   */
-  @Override
-  @SuppressWarnings("unchecked")
-  public <F extends WitnessArity<TypeArity.Unary>, L, R> EitherT<F, L, R> narrow(
-      @Nullable Kind<EitherTKind.Witness<F, L>, R> kind) {
-    return Validation.kind().narrowWithTypeCheck(kind, EITHER_T_CLASS);
-  }
+    /**
+     * Widens a concrete {@link EitherT EitherT&lt;F, L, R&gt;} instance into its {@link Kind}
+     * representation, {@code Kind<EitherTKind.Witness<F, L>, R>}. Implements {@link
+     * EitherTConverterOps#widen}.
+     *
+     * <p>This is a direct cast as {@code EitherT} implements {@code EitherTKind}.
+     *
+     * @param <F> The witness type of the outer monad in {@code EitherT}.
+     * @param <L> The type of the 'left' value.
+     * @param <R> The type of the 'right' value.
+     * @param eitherT The concrete {@link EitherT} instance to widen. Must not be null.
+     * @return The {@code Kind} representation. Never null.
+     * @throws NullPointerException if {@code eitherT} is null.
+     */
+    @Override
+    public <F extends WitnessArity<TypeArity.Unary>, L, R> Kind<EitherTKind.Witness<F, L>, R> widen(EitherT<F, L, R> eitherT) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Narrows a {@code Kind<EitherTKind.Witness<F, L>, R>} back to its concrete {@link EitherT
+     * EitherT&lt;F, L, R&gt;} type. Implements {@link EitherTConverterOps#narrow}.
+     *
+     * @param <F> The witness type of the outer monad.
+     * @param <L> The type of the 'left' value.
+     * @param <R> The type of the 'right' value.
+     * @param kind The {@code Kind<EitherTKind.Witness<F, L>, R>} to narrow. Can be null.
+     * @return The unwrapped {@link EitherT EitherT&lt;F, L, R&gt;} instance. Never null.
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code kind} is null or not an
+     *     {@link EitherT} instance.
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public <F extends WitnessArity<TypeArity.Unary>, L, R> EitherT<F, L, R> narrow(@Nullable Kind<EitherTKind.Witness<F, L>, R> kind) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

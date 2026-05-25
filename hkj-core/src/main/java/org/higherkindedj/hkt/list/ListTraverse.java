@@ -4,7 +4,6 @@ package org.higherkindedj.hkt.list;
 
 import static org.higherkindedj.hkt.list.ListKindHelper.LIST;
 import static org.higherkindedj.hkt.util.validation.Operation.*;
-
 import java.util.List;
 import java.util.function.Function;
 import org.higherkindedj.hkt.Applicative;
@@ -25,120 +24,91 @@ import org.jspecify.annotations.NullMarked;
  */
 @NullMarked
 public enum ListTraverse implements Traverse<ListKind.Witness> {
-  /**
-   * Singleton instance of {@code ListTraverse}. This instance can be used to access {@code
-   * Traverse} and {@code Foldable} operations for lists.
-   */
-  INSTANCE;
 
-  /**
-   * Maps a function over a list in a higher-kinded context. This operation is inherited from {@link
-   * Functor} via {@link Traverse}.
-   *
-   * @param <A> The type of elements in the input list.
-   * @param <B> The type of elements in the output list after applying the function.
-   * @param f The non-null function to apply to each element of the list.
-   * @param fa The non-null {@code Kind<ListKind.Witness, A>} representing the input list.
-   * @return A new non-null {@code Kind<ListKind.Witness, B>} containing a list with the results of
-   *     applying the function {@code f}.
-   * @throws NullPointerException if f or fa is null.
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if fa cannot be unwrapped.
-   */
-  @Override
-  public <A, B> Kind<ListKind.Witness, B> map(
-      Function<? super A, ? extends B> f, Kind<ListKind.Witness, A> fa) {
+    /**
+     * Singleton instance of {@code ListTraverse}. This instance can be used to access {@code
+     * Traverse} and {@code Foldable} operations for lists.
+     */
+    INSTANCE;
 
-    Validation.function().validateMap(f, fa);
-
-    return ListFunctor.INSTANCE.map(f, fa);
-  }
-
-  /**
-   * Traverses a list from left to right, applying an effectful function {@code f} to each element
-   * and collecting the results within the context of the {@link Applicative} {@code G}.
-   *
-   * <p><b>Stack Safety Considerations:</b>
-   *
-   * <p>This implementation uses an iterative loop with {@code applicative.map2()}, which is
-   * generally stack-safe for most standard {@code Applicative} instances (e.g., {@code Optional},
-   * {@code Either}, {@code Validated}, {@code List}, {@code Id}). However, stack safety ultimately
-   * depends on the {@code Applicative} instance provided:
-   *
-   * <ul>
-   *   <li><b>Stack-Safe Applicatives:</b> If {@code map2} is implemented iteratively or uses
-   *       trampolining internally (as in {@code Id}, {@code Optional}, {@code Either}), this
-   *       traversal is stack-safe for arbitrarily large lists.
-   *   <li><b>Potentially Unsafe Applicatives:</b> If {@code map2} is implemented in terms of {@code
-   *       flatMap} without stack-safety measures, traversing very large lists (>10,000 elements)
-   *       may cause {@code StackOverflowError}. In such cases, use {@link
-   *       org.higherkindedj.hkt.trampoline.TrampolineUtils#traverseListStackSafe} instead.
-   * </ul>
-   *
-   * <p><b>Performance Note:</b> This implementation creates a new {@code LinkedList} on each
-   * iteration to ensure correct behavior for all {@code Applicative} types, including those that
-   * create multiple branches (like {@code List}). For large lists, consider using more efficient
-   * data structures or the stack-safe alternative in {@code TrampolineUtils}.
-   *
-   * @param <G> The higher-kinded type witness for the {@link Applicative} context.
-   * @param <A> The type of elements in the input list {@code ta}.
-   * @param <B> The type of elements in the resulting list, wrapped within the context {@code G}.
-   * @param applicative The non-null {@link Applicative} instance for the context {@code G}.
-   * @param f A non-null function from {@code A} to {@code Kind<G, ? extends B>}, producing an
-   *     effectful value for each element.
-   * @param ta The non-null {@code Kind<ListKind.Witness, A>} (a list of {@code A}s) to traverse.
-   * @return A {@code Kind<G, Kind<ListKind.Witness, B>>}. This represents the list of results (each
-   *     of type {@code B}), with the entire resulting list structure itself wrapped in the
-   *     applicative context {@code G}. Never null.
-   * @throws NullPointerException if applicative, f, or ta is null.
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if ta cannot be unwrapped.
-   */
-  @Override
-  public <G extends WitnessArity<TypeArity.Unary>, A, B>
-      Kind<G, Kind<ListKind.Witness, B>> traverse(
-          Applicative<G> applicative,
-          Function<? super A, ? extends Kind<G, ? extends B>> f,
-          Kind<ListKind.Witness, A> ta) {
-
-    Validation.function().validateTraverse(applicative, f, ta);
-
-    List<A> listA = LIST.narrow(ta);
-    // Use an immutable cons-list for O(1) prepend per step.
-    // This is safe with multi-branch applicatives (e.g., List) since FList is immutable.
-    Kind<G, FList<B>> result = applicative.of(new FList.Nil<>());
-
-    for (A a : listA) {
-      Kind<G, ? extends B> effectOfB = f.apply(a);
-      result = applicative.map2(result, effectOfB, (flist, b) -> flist.cons((B) b)); // O(1) prepend
+    /**
+     * Maps a function over a list in a higher-kinded context. This operation is inherited from {@link
+     * Functor} via {@link Traverse}.
+     *
+     * @param <A> The type of elements in the input list.
+     * @param <B> The type of elements in the output list after applying the function.
+     * @param f The non-null function to apply to each element of the list.
+     * @param fa The non-null {@code Kind<ListKind.Witness, A>} representing the input list.
+     * @return A new non-null {@code Kind<ListKind.Witness, B>} containing a list with the results of
+     *     applying the function {@code f}.
+     * @throws NullPointerException if f or fa is null.
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if fa cannot be unwrapped.
+     */
+    @Override
+    public <A, B> Kind<ListKind.Witness, B> map(Function<? super A, ? extends B> f, Kind<ListKind.Witness, A> fa) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    // Reverse the cons-list to restore original order, then widen to ListKind
-    return applicative.map(flist -> LIST.widen(flist.toList()), result);
-  }
-
-  /**
-   * Maps each element of the list to a {@link Monoid} {@code M} and combines the results.
-   *
-   * @param <A> The type of elements in the list.
-   * @param <M> The Monoidal type to which elements are mapped and combined.
-   * @param monoid The {@code Monoid} used to combine the results. Must not be null.
-   * @param f A function to map each element of type {@code A} to the Monoidal type {@code M}. Must
-   *     not be null.
-   * @param fa The {@code Kind<ListKind.Witness, A>} representing the list to fold. Must not be
-   *     null.
-   * @return The aggregated result of type {@code M}. Never null.
-   * @throws NullPointerException if monoid, f, or fa is null.
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if fa cannot be unwrapped.
-   */
-  @Override
-  public <A, M> M foldMap(
-      Monoid<M> monoid, Function<? super A, ? extends M> f, Kind<ListKind.Witness, A> fa) {
-
-    Validation.function().validateFoldMap(monoid, f, fa);
-
-    M accumulator = monoid.empty();
-    for (A a : LIST.narrow(fa)) {
-      accumulator = monoid.combine(accumulator, f.apply(a));
+    /**
+     * Traverses a list from left to right, applying an effectful function {@code f} to each element
+     * and collecting the results within the context of the {@link Applicative} {@code G}.
+     *
+     * <p><b>Stack Safety Considerations:</b>
+     *
+     * <p>This implementation uses an iterative loop with {@code applicative.map2()}, which is
+     * generally stack-safe for most standard {@code Applicative} instances (e.g., {@code Optional},
+     * {@code Either}, {@code Validated}, {@code List}, {@code Id}). However, stack safety ultimately
+     * depends on the {@code Applicative} instance provided:
+     *
+     * <ul>
+     *   <li><b>Stack-Safe Applicatives:</b> If {@code map2} is implemented iteratively or uses
+     *       trampolining internally (as in {@code Id}, {@code Optional}, {@code Either}), this
+     *       traversal is stack-safe for arbitrarily large lists.
+     *   <li><b>Potentially Unsafe Applicatives:</b> If {@code map2} is implemented in terms of {@code
+     *       flatMap} without stack-safety measures, traversing very large lists (>10,000 elements)
+     *       may cause {@code StackOverflowError}. In such cases, use {@link
+     *       org.higherkindedj.hkt.trampoline.TrampolineUtils#traverseListStackSafe} instead.
+     * </ul>
+     *
+     * <p><b>Performance Note:</b> This implementation creates a new {@code LinkedList} on each
+     * iteration to ensure correct behavior for all {@code Applicative} types, including those that
+     * create multiple branches (like {@code List}). For large lists, consider using more efficient
+     * data structures or the stack-safe alternative in {@code TrampolineUtils}.
+     *
+     * @param <G> The higher-kinded type witness for the {@link Applicative} context.
+     * @param <A> The type of elements in the input list {@code ta}.
+     * @param <B> The type of elements in the resulting list, wrapped within the context {@code G}.
+     * @param applicative The non-null {@link Applicative} instance for the context {@code G}.
+     * @param f A non-null function from {@code A} to {@code Kind<G, ? extends B>}, producing an
+     *     effectful value for each element.
+     * @param ta The non-null {@code Kind<ListKind.Witness, A>} (a list of {@code A}s) to traverse.
+     * @return A {@code Kind<G, Kind<ListKind.Witness, B>>}. This represents the list of results (each
+     *     of type {@code B}), with the entire resulting list structure itself wrapped in the
+     *     applicative context {@code G}. Never null.
+     * @throws NullPointerException if applicative, f, or ta is null.
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if ta cannot be unwrapped.
+     */
+    @Override
+    public <G extends WitnessArity<TypeArity.Unary>, A, B> Kind<G, Kind<ListKind.Witness, B>> traverse(Applicative<G> applicative, Function<? super A, ? extends Kind<G, ? extends B>> f, Kind<ListKind.Witness, A> ta) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-    return accumulator;
-  }
+
+    /**
+     * Maps each element of the list to a {@link Monoid} {@code M} and combines the results.
+     *
+     * @param <A> The type of elements in the list.
+     * @param <M> The Monoidal type to which elements are mapped and combined.
+     * @param monoid The {@code Monoid} used to combine the results. Must not be null.
+     * @param f A function to map each element of type {@code A} to the Monoidal type {@code M}. Must
+     *     not be null.
+     * @param fa The {@code Kind<ListKind.Witness, A>} representing the list to fold. Must not be
+     *     null.
+     * @return The aggregated result of type {@code M}. Never null.
+     * @throws NullPointerException if monoid, f, or fa is null.
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if fa cannot be unwrapped.
+     */
+    @Override
+    public <A, M> M foldMap(Monoid<M> monoid, Function<? super A, ? extends M> f, Kind<ListKind.Witness, A> fa) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

@@ -9,19 +9,12 @@ import org.higherkindedj.optics.Iso;
  * "gcp|live", and we provide an Iso to perform this conversion.
  */
 public record DeploymentTarget(String platform, String environment) {
-  /**
-   * Defines a lossless, two-way conversion between this structured record and a simple raw string
-   * representation. This is a classic use case for an Iso.
-   */
-  public static Iso<DeploymentTarget, String> toRawString() {
-    return Iso.of(
-        target -> target.platform() + "|" + target.environment(),
-        raw -> {
-          String[] parts = raw.split("\\|", 2);
-          if (parts.length != 2) {
-            throw new IllegalArgumentException("Invalid raw string for DeploymentTarget");
-          }
-          return new DeploymentTarget(parts[0], parts[1]);
-        });
-  }
+
+    /**
+     * Defines a lossless, two-way conversion between this structured record and a simple raw string
+     * representation. This is a classic use case for an Iso.
+     */
+    public static Iso<DeploymentTarget, String> toRawString() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

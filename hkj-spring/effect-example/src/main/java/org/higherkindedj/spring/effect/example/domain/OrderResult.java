@@ -11,13 +11,17 @@ package org.higherkindedj.spring.effect.example.domain;
  */
 public record OrderResult(String orderId, OrderStatus status, String message) {
 
-  /** Creates a confirmed order result. */
-  public static OrderResult confirmed(String orderId) {
-    return new OrderResult(orderId, OrderStatus.CONFIRMED, "Order confirmed");
-  }
+    /**
+     * Creates a confirmed order result.
+     */
+    public static OrderResult confirmed(String orderId) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /** Creates a rejected order result with a reason. */
-  public static OrderResult rejected(String reason) {
-    return new OrderResult("", OrderStatus.REJECTED, reason);
-  }
+    /**
+     * Creates a rejected order result with a reason.
+     */
+    public static OrderResult rejected(String reason) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

@@ -82,934 +82,754 @@ import org.higherkindedj.optics.focus.FocusPath;
  */
 public final class ForState {
 
-  private ForState() {} // Static access only
-
-  /**
-   * Starts a state-threaded comprehension with an initial state wrapped in a monad.
-   *
-   * @param monad The {@link Monad} instance for the effect context.
-   * @param initialState The initial state wrapped in the monad.
-   * @param <M> The witness type for the monad context.
-   * @param <S> The type of the state.
-   * @return A {@link Steps} builder for chaining operations.
-   * @throws NullPointerException if any argument is null.
-   */
-  public static <M extends WitnessArity<TypeArity.Unary>, S> Steps<M, S> withState(
-      Monad<M> monad, Kind<M, S> initialState) {
-    Objects.requireNonNull(monad, "monad must not be null");
-    Objects.requireNonNull(initialState, "initialState must not be null");
-    return new ForStateStepsImpl<>(monad, initialState);
-  }
-
-  /**
-   * Starts a state-threaded comprehension with filtering support via {@link MonadZero}.
-   *
-   * <p>When the monad supports a zero element (e.g., {@code Maybe}, {@code List}, {@code
-   * Optional}), this overload returns {@link FilterableSteps} which adds {@code when()} for guards
-   * and {@code matchThen()} for prism-based pattern matching that short-circuits on failure.
-   *
-   * @param monad The {@link MonadZero} instance for the effect context.
-   * @param initialState The initial state wrapped in the monad.
-   * @param <M> The witness type for the monad context.
-   * @param <S> The type of the state.
-   * @return A {@link FilterableSteps} builder for chaining operations with filtering support.
-   * @throws NullPointerException if any argument is null.
-   */
-  public static <M extends WitnessArity<TypeArity.Unary>, S> FilterableSteps<M, S> withState(
-      MonadZero<M> monad, Kind<M, S> initialState) {
-    Objects.requireNonNull(monad, "monad must not be null");
-    Objects.requireNonNull(initialState, "initialState must not be null");
-    return new ForStateFilterableStepsImpl<>(monad, initialState);
-  }
-
-  /**
-   * A builder interface for chaining state-threaded operations.
-   *
-   * @param <M> The witness type for the monad context.
-   * @param <S> The type of the state.
-   */
-  public interface Steps<M extends WitnessArity<TypeArity.Unary>, S> {
+    // Static access only
+    private ForState() {
+    }
 
     /**
-     * Performs a monadic operation using the current state, keeping the state unchanged.
+     * Starts a state-threaded comprehension with an initial state wrapped in a monad.
      *
-     * @param f A function that takes the current state and returns a monadic computation.
-     * @param <A> The type of the computation result.
-     * @return A new builder with the operation queued.
-     * @throws NullPointerException if {@code f} is null.
-     */
-    <A> Steps<M, S> from(Function<S, Kind<M, A>> f);
-
-    /**
-     * Performs a monadic operation and uses the result to update state via a lens.
-     *
-     * <p>This is the primary way to update state in a workflow: perform an operation that produces
-     * a value, then store that value in the state using a lens.
-     *
-     * @param f A function that takes the current state and returns a monadic computation.
-     * @param lens The lens to use for updating the state with the result.
-     * @param <A> The type of the computation result (must match the lens focus type).
-     * @return A new builder with the operation and update queued.
+     * @param monad The {@link Monad} instance for the effect context.
+     * @param initialState The initial state wrapped in the monad.
+     * @param <M> The witness type for the monad context.
+     * @param <S> The type of the state.
+     * @return A {@link Steps} builder for chaining operations.
      * @throws NullPointerException if any argument is null.
      */
-    <A> Steps<M, S> fromThen(Function<S, Kind<M, A>> f, Lens<S, A> lens);
+    public static <M extends WitnessArity<TypeArity.Unary>, S> Steps<M, S> withState(Monad<M> monad, Kind<M, S> initialState) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
     /**
-     * Updates a field in the state using a lens and a pure function.
+     * Starts a state-threaded comprehension with filtering support via {@link MonadZero}.
      *
-     * @param lens The lens focusing on the field to update.
-     * @param modifier A function to compute the new value from the current value.
-     * @param <A> The type of the field.
-     * @return A new builder with the update queued.
+     * <p>When the monad supports a zero element (e.g., {@code Maybe}, {@code List}, {@code
+     * Optional}), this overload returns {@link FilterableSteps} which adds {@code when()} for guards
+     * and {@code matchThen()} for prism-based pattern matching that short-circuits on failure.
+     *
+     * @param monad The {@link MonadZero} instance for the effect context.
+     * @param initialState The initial state wrapped in the monad.
+     * @param <M> The witness type for the monad context.
+     * @param <S> The type of the state.
+     * @return A {@link FilterableSteps} builder for chaining operations with filtering support.
      * @throws NullPointerException if any argument is null.
      */
-    <A> Steps<M, S> modify(Lens<S, A> lens, Function<A, A> modifier);
+    public static <M extends WitnessArity<TypeArity.Unary>, S> FilterableSteps<M, S> withState(MonadZero<M> monad, Kind<M, S> initialState) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
     /**
-     * Sets a field in the state using a lens.
+     * A builder interface for chaining state-threaded operations.
      *
-     * @param lens The lens focusing on the field to set.
-     * @param value The new value for the field.
-     * @param <A> The type of the field.
-     * @return A new builder with the update queued.
-     * @throws NullPointerException if {@code lens} is null.
+     * @param <M> The witness type for the monad context.
+     * @param <S> The type of the state.
      */
-    <A> Steps<M, S> update(Lens<S, A> lens, A value);
+    public interface Steps<M extends WitnessArity<TypeArity.Unary>, S> {
+
+        /**
+         * Performs a monadic operation using the current state, keeping the state unchanged.
+         *
+         * @param f A function that takes the current state and returns a monadic computation.
+         * @param <A> The type of the computation result.
+         * @return A new builder with the operation queued.
+         * @throws NullPointerException if {@code f} is null.
+         */
+        <A> Steps<M, S> from(Function<S, Kind<M, A>> f);
+
+        /**
+         * Performs a monadic operation and uses the result to update state via a lens.
+         *
+         * <p>This is the primary way to update state in a workflow: perform an operation that produces
+         * a value, then store that value in the state using a lens.
+         *
+         * @param f A function that takes the current state and returns a monadic computation.
+         * @param lens The lens to use for updating the state with the result.
+         * @param <A> The type of the computation result (must match the lens focus type).
+         * @return A new builder with the operation and update queued.
+         * @throws NullPointerException if any argument is null.
+         */
+        <A> Steps<M, S> fromThen(Function<S, Kind<M, A>> f, Lens<S, A> lens);
+
+        /**
+         * Updates a field in the state using a lens and a pure function.
+         *
+         * @param lens The lens focusing on the field to update.
+         * @param modifier A function to compute the new value from the current value.
+         * @param <A> The type of the field.
+         * @return A new builder with the update queued.
+         * @throws NullPointerException if any argument is null.
+         */
+        <A> Steps<M, S> modify(Lens<S, A> lens, Function<A, A> modifier);
+
+        /**
+         * Sets a field in the state using a lens.
+         *
+         * @param lens The lens focusing on the field to set.
+         * @param value The new value for the field.
+         * @param <A> The type of the field.
+         * @return A new builder with the update queued.
+         * @throws NullPointerException if {@code lens} is null.
+         */
+        <A> Steps<M, S> update(Lens<S, A> lens, A value);
+
+        /**
+         * Applies an effectful function to each element focused by a traversal within a state field,
+         * updating the field with the results.
+         *
+         * <p>This combines a {@link Lens} (to access a collection field in the state) with a {@link
+         * Traversal} (to iterate over elements) and an effectful function (to transform each element
+         * within the monad context).
+         *
+         * @param collectionLens The lens focusing on the collection field in the state.
+         * @param traversal The traversal over elements within the collection.
+         * @param f The effectful function to apply to each element.
+         * @param <C> The type of the collection field.
+         * @param <A> The type of elements within the collection.
+         * @return A new builder with the traversal operation queued.
+         * @throws NullPointerException if any argument is null.
+         */
+        <C, A> Steps<M, S> traverse(Lens<S, C> collectionLens, Traversal<C, A> traversal, Function<A, Kind<M, A>> f);
+
+        /**
+         * Applies an effectful function to every element focused by a traversal directly on the state.
+         *
+         * <p>Unlike {@link #traverse(Lens, Traversal, Function)} which requires a lens to locate a
+         * collection field first, this method treats the entire state as the traversal source. The
+         * traversal focuses on elements within the state structure and the effectful function
+         * transforms each one.
+         *
+         * @param traversal The traversal focusing on elements within the state.
+         * @param f The effectful function to apply to each focused element.
+         * @param <A> The type of the focused elements.
+         * @return A new builder with the traversal operation queued.
+         * @throws NullPointerException if any argument is null.
+         */
+        <A> Steps<M, S> traverseOver(Traversal<S, A> traversal, Function<A, Kind<M, A>> f);
+
+        /**
+         * Applies a pure function to every element focused by a traversal on the state.
+         *
+         * <p>This is the traversal equivalent of {@link #modify(Lens, Function)}: it modifies all
+         * focused elements using a pure function, without requiring monadic effects.
+         *
+         * @param traversal The traversal focusing on elements within the state.
+         * @param modifier A pure function to transform each focused element.
+         * @param <A> The type of the focused elements.
+         * @return A new builder with the modification queued.
+         * @throws NullPointerException if any argument is null.
+         */
+        <A> Steps<M, S> modifyThrough(Traversal<S, A> traversal, Function<A, A> modifier);
+
+        /**
+         * Applies a pure function to a nested field within every element focused by a traversal.
+         *
+         * <p>This composes a traversal with a lens to reach a nested field within each focused element,
+         * then applies the modifier to that field. Equivalent to modifying through {@code
+         * traversal.andThen(lens)}.
+         *
+         * @param traversal The traversal focusing on elements within the state.
+         * @param lens The lens focusing on a field within each element.
+         * @param modifier A pure function to transform the nested field.
+         * @param <A> The type of the focused elements.
+         * @param <B> The type of the nested field.
+         * @return A new builder with the modification queued.
+         * @throws NullPointerException if any argument is null.
+         */
+        <A, B> Steps<M, S> modifyThrough(Traversal<S, A> traversal, Lens<A, B> lens, Function<B, B> modifier);
+
+        /**
+         * Modifies a state field through an {@link Iso} conversion.
+         *
+         * <p>Extracts a field via a lens, converts it to the Iso's target type, applies the modifier in
+         * that type, converts back, and stores the result. This enables type-safe transformations
+         * through equivalent representations.
+         *
+         * @param lens The lens focusing on the field to modify.
+         * @param iso The isomorphism between the field type and the modification type.
+         * @param modifier A function to transform the value in the Iso's target type.
+         * @param <A> The type of the field (Iso source).
+         * @param <B> The type to modify in (Iso target).
+         * @return A new builder with the modification queued.
+         * @throws NullPointerException if any argument is null.
+         */
+        <A, B> Steps<M, S> modifyVia(Lens<S, A> lens, Iso<A, B> iso, Function<B, B> modifier);
+
+        /**
+         * Sets a state field through an {@link Iso} conversion.
+         *
+         * <p>Converts the provided value from the Iso's target type back to the field type using {@link
+         * Iso#reverseGet(Object)}, then stores it via the lens.
+         *
+         * @param lens The lens focusing on the field to set.
+         * @param iso The isomorphism between the field type and the value type.
+         * @param value The value in the Iso's target type.
+         * @param <A> The type of the field (Iso source).
+         * @param <B> The type of the provided value (Iso target).
+         * @return A new builder with the update queued.
+         * @throws NullPointerException if {@code lens} or {@code iso} is null.
+         */
+        <A, B> Steps<M, S> updateVia(Lens<S, A> lens, Iso<A, B> iso, B value);
+
+        /**
+         * Narrows the state scope to a sub-part of the state via a lens.
+         *
+         * <p>Operations on the returned {@link ZoomedSteps} operate on the sub-state type {@code T}
+         * whilst internally composing through the zoom lens. Call {@link ZoomedSteps#endZoom()} to
+         * return to the original state scope.
+         *
+         * @param zoomLens The lens focusing on the sub-state.
+         * @param <T> The type of the sub-state.
+         * @return A {@link ZoomedSteps} builder operating on the sub-state.
+         * @throws NullPointerException if {@code zoomLens} is null.
+         */
+        <T> ZoomedSteps<M, S, T> zoom(Lens<S, T> zoomLens);
+
+        /**
+         * Narrows the state scope to a sub-part of the state via a {@link FocusPath}.
+         *
+         * <p>Equivalent to calling {@link #zoom(Lens)} with {@code path.toLens()}. This overload lets
+         * users pass the {@code FocusPath} instances generated by {@code @GenerateFocus} directly,
+         * without manually unwrapping the underlying {@link Lens}.
+         *
+         * @param path The {@link FocusPath} focusing on the sub-state.
+         * @param <T> The type of the sub-state.
+         * @return A {@link ZoomedSteps} builder operating on the sub-state.
+         * @throws NullPointerException if {@code path} is null.
+         */
+        <T> ZoomedSteps<M, S, T> zoom(FocusPath<S, T> path);
+
+        /**
+         * Narrows the state scope through an {@link Iso} that converts the entire state to an
+         * isomorphic representation.
+         *
+         * <p>This is useful for representation-change zoom: the inner steps operate on an equivalent
+         * shape (for example a different unit, a tuple, or a wrapper type), and the outer state is
+         * reconstructed via {@link Iso#reverseGet(Object)} when the zoom ends.
+         *
+         * <p>Equivalent to calling {@link #zoom(Lens)} with {@code iso.asLens()}.
+         *
+         * @param iso The isomorphism between the outer state {@code S} and the inner state {@code T}.
+         * @param <T> The isomorphic representation type.
+         * @return A {@link ZoomedSteps} builder operating on the isomorphic representation.
+         * @throws NullPointerException if {@code iso} is null.
+         */
+        <T> ZoomedSteps<M, S, T> zoom(Iso<S, T> iso);
+
+        /**
+         * Completes the comprehension and returns the final state.
+         *
+         * @return The final state wrapped in the monad context.
+         */
+        Kind<M, S> yield();
+
+        /**
+         * Completes the comprehension by applying a projection to the final state.
+         *
+         * @param f A function to transform the final state into a result.
+         * @param <R> The type of the result.
+         * @return The projected result wrapped in the monad context.
+         * @throws NullPointerException if {@code f} is null.
+         */
+        <R> Kind<M, R> yield(Function<S, R> f);
+    }
 
     /**
-     * Applies an effectful function to each element focused by a traversal within a state field,
-     * updating the field with the results.
+     * An extended builder interface that adds filtering and pattern matching capabilities.
      *
-     * <p>This combines a {@link Lens} (to access a collection field in the state) with a {@link
-     * Traversal} (to iterate over elements) and an effectful function (to transform each element
-     * within the monad context).
+     * <p>This interface is returned when {@link ForState#withState(MonadZero, Kind)} is used with a
+     * {@link MonadZero} instance. It extends {@link Steps} with:
      *
-     * @param collectionLens The lens focusing on the collection field in the state.
-     * @param traversal The traversal over elements within the collection.
-     * @param f The effectful function to apply to each element.
-     * @param <C> The type of the collection field.
-     * @param <A> The type of elements within the collection.
-     * @return A new builder with the traversal operation queued.
-     * @throws NullPointerException if any argument is null.
+     * <ul>
+     *   <li>{@link #when(Predicate)} for predicate-based guards
+     *   <li>{@link #matchThen(Lens, Prism, Lens)} for prism-based pattern matching with state update
+     *   <li>{@link #matchThen(Function, Lens)} for function-based extraction with state update
+     * </ul>
+     *
+     * @param <M> The witness type for the monad context.
+     * @param <S> The type of the state.
      */
-    <C, A> Steps<M, S> traverse(
-        Lens<S, C> collectionLens, Traversal<C, A> traversal, Function<A, Kind<M, A>> f);
+    public interface FilterableSteps<M extends WitnessArity<TypeArity.Unary>, S> extends Steps<M, S> {
+
+        /**
+         * Filters the workflow based on a predicate applied to the current state.
+         *
+         * <p>If the predicate returns {@code false}, the computation short-circuits using the monad's
+         * {@link MonadZero#zero()} element (e.g., {@code Nothing} for Maybe, empty list for List).
+         *
+         * @param predicate The predicate to test against the current state.
+         * @return A new builder with the guard applied.
+         * @throws NullPointerException if {@code predicate} is null.
+         */
+        FilterableSteps<M, S> when(Predicate<S> predicate);
+
+        /**
+         * Extracts a field via a source lens, matches it with a prism, and stores the result via a
+         * target lens. Short-circuits via {@link MonadZero#zero()} when the prism does not match.
+         *
+         * <p>This is useful for conditional state transitions based on sum types:
+         *
+         * <pre>{@code
+         * ForState.withState(maybeMonad, MAYBE.just(state))
+         *     .matchThen(statusLens, confirmedPrism, confirmationIdLens)
+         *     .yield();
+         * }</pre>
+         *
+         * @param sourceLens The lens to extract the field to match against.
+         * @param prism The prism to match the extracted value.
+         * @param targetLens The lens to store the matched result in the state.
+         * @param <X> The type of the extracted field (prism source).
+         * @param <A> The type of the matched value (prism target), which must match the target lens
+         *     focus type.
+         * @return A new builder with the match-and-store operation queued.
+         * @throws NullPointerException if any argument is null.
+         */
+        <X, A> FilterableSteps<M, S> matchThen(Lens<S, X> sourceLens, Prism<X, A> prism, Lens<S, A> targetLens);
+
+        /**
+         * Extracts a value from the state using a function, and if present, stores it via a lens.
+         * Short-circuits via {@link MonadZero#zero()} when the function returns an empty {@link
+         * Optional}.
+         *
+         * <p>This is a simpler variant of {@link #matchThen(Lens, Prism, Lens)} for cases where a
+         * direct function extraction is more convenient than composing a lens and prism.
+         *
+         * @param extractor A function that extracts an optional value from the state.
+         * @param targetLens The lens to store the extracted value in the state.
+         * @param <A> The type of the extracted value.
+         * @return A new builder with the extraction operation queued.
+         * @throws NullPointerException if any argument is null.
+         */
+        <A> FilterableSteps<M, S> matchThen(Function<S, Optional<A>> extractor, Lens<S, A> targetLens);
+
+        // Override return types to preserve FilterableSteps in the chain
+        @Override
+        <A> FilterableSteps<M, S> from(Function<S, Kind<M, A>> f);
+
+        @Override
+        <A> FilterableSteps<M, S> fromThen(Function<S, Kind<M, A>> f, Lens<S, A> lens);
+
+        @Override
+        <A> FilterableSteps<M, S> modify(Lens<S, A> lens, Function<A, A> modifier);
+
+        @Override
+        <A> FilterableSteps<M, S> update(Lens<S, A> lens, A value);
+
+        @Override
+        <C, A> FilterableSteps<M, S> traverse(Lens<S, C> collectionLens, Traversal<C, A> traversal, Function<A, Kind<M, A>> f);
+
+        @Override
+        <A> FilterableSteps<M, S> traverseOver(Traversal<S, A> traversal, Function<A, Kind<M, A>> f);
+
+        @Override
+        <A> FilterableSteps<M, S> modifyThrough(Traversal<S, A> traversal, Function<A, A> modifier);
+
+        @Override
+        <A, B> FilterableSteps<M, S> modifyThrough(Traversal<S, A> traversal, Lens<A, B> lens, Function<B, B> modifier);
+
+        @Override
+        <A, B> FilterableSteps<M, S> modifyVia(Lens<S, A> lens, Iso<A, B> iso, Function<B, B> modifier);
+
+        @Override
+        <A, B> FilterableSteps<M, S> updateVia(Lens<S, A> lens, Iso<A, B> iso, B value);
+
+        @Override
+        <T> FilterableZoomedSteps<M, S, T> zoom(Lens<S, T> zoomLens);
+
+        @Override
+        <T> FilterableZoomedSteps<M, S, T> zoom(FocusPath<S, T> path);
+
+        @Override
+        <T> FilterableZoomedSteps<M, S, T> zoom(Iso<S, T> iso);
+
+        /**
+         * Narrows the state scope to a sub-part of the state via an {@link AffinePath}.
+         *
+         * <p>If the affine target is absent, the comprehension short-circuits via {@link
+         * MonadZero#zero()}. Operations inside the zoom block then act as no-ops, and {@link
+         * FilterableZoomedSteps#endZoom()} returns control to the surrounding {@link FilterableSteps}
+         * with the zero state.
+         *
+         * <p>This overload is intentionally only available on {@link FilterableSteps}: short-circuit
+         * semantics for an absent affine target requires {@link MonadZero}. Plain {@link Steps} (no
+         * zero element) cannot express "the focus does not exist; skip the rest" without a silent
+         * no-op, so the overload is declared here rather than on {@link Steps}.
+         *
+         * @param path The {@link AffinePath} focusing on the optional sub-state.
+         * @param <T> The type of the sub-state.
+         * @return A {@link FilterableZoomedSteps} builder operating on the sub-state.
+         * @throws NullPointerException if {@code path} is null.
+         */
+        <T> FilterableZoomedSteps<M, S, T> zoom(AffinePath<S, T> path);
+    }
 
     /**
-     * Applies an effectful function to every element focused by a traversal directly on the state.
+     * A builder interface for operations within a zoomed (narrowed) state scope.
      *
-     * <p>Unlike {@link #traverse(Lens, Traversal, Function)} which requires a lens to locate a
-     * collection field first, this method treats the entire state as the traversal source. The
-     * traversal focuses on elements within the state structure and the effectful function
-     * transforms each one.
+     * <p>Operations on this builder target the sub-state type {@code T} rather than the full state
+     * {@code S}. Internally, all operations compose through the zoom lens to update the full state.
      *
-     * @param traversal The traversal focusing on elements within the state.
-     * @param f The effectful function to apply to each focused element.
-     * @param <A> The type of the focused elements.
-     * @return A new builder with the traversal operation queued.
-     * @throws NullPointerException if any argument is null.
+     * @param <M> The witness type for the monad context.
+     * @param <S> The type of the outer (full) state.
+     * @param <T> The type of the inner (zoomed) state.
      */
-    <A> Steps<M, S> traverseOver(Traversal<S, A> traversal, Function<A, Kind<M, A>> f);
+    public interface ZoomedSteps<M extends WitnessArity<TypeArity.Unary>, S, T> {
+
+        /**
+         * Sets a field within the zoomed sub-state using a lens.
+         *
+         * @param lens The lens focusing on a field within the sub-state {@code T}.
+         * @param value The new value for the field.
+         * @param <A> The type of the field.
+         * @return A new zoomed builder with the update queued.
+         * @throws NullPointerException if {@code lens} is null.
+         */
+        <A> ZoomedSteps<M, S, T> update(Lens<T, A> lens, A value);
+
+        /**
+         * Transforms a field within the zoomed sub-state using a lens and a pure function.
+         *
+         * @param lens The lens focusing on a field within the sub-state {@code T}.
+         * @param modifier A function to compute the new value from the current value.
+         * @param <A> The type of the field.
+         * @return A new zoomed builder with the update queued.
+         * @throws NullPointerException if any argument is null.
+         */
+        <A> ZoomedSteps<M, S, T> modify(Lens<T, A> lens, Function<A, A> modifier);
+
+        /**
+         * Performs a monadic operation on the zoomed sub-state and stores the result via a lens.
+         *
+         * @param f A function that takes the sub-state and returns a monadic computation.
+         * @param lens The lens to use for updating the sub-state with the result.
+         * @param <A> The type of the computation result.
+         * @return A new zoomed builder with the operation queued.
+         * @throws NullPointerException if any argument is null.
+         */
+        <A> ZoomedSteps<M, S, T> fromThen(Function<T, Kind<M, A>> f, Lens<T, A> lens);
+
+        /**
+         * Returns to the outer state scope, ending the zoom.
+         *
+         * @return A {@link Steps} builder operating on the full state {@code S}.
+         */
+        Steps<M, S> endZoom();
+    }
 
     /**
-     * Applies a pure function to every element focused by a traversal on the state.
+     * An extended zoomed builder interface that preserves {@link FilterableSteps} capabilities.
      *
-     * <p>This is the traversal equivalent of {@link #modify(Lens, Function)}: it modifies all
-     * focused elements using a pure function, without requiring monadic effects.
+     * <p>This interface is returned by {@link FilterableSteps#zoom(Lens)} and ensures that {@link
+     * #endZoom()} returns a {@link FilterableSteps} instead of a base {@link Steps}, so that guards
+     * ({@code when()}) and pattern matching ({@code matchThen()}) remain available after a zoom
+     * block.
      *
-     * @param traversal The traversal focusing on elements within the state.
-     * @param modifier A pure function to transform each focused element.
-     * @param <A> The type of the focused elements.
-     * @return A new builder with the modification queued.
-     * @throws NullPointerException if any argument is null.
+     * @param <M> The witness type for the monad context.
+     * @param <S> The type of the outer (full) state.
+     * @param <T> The type of the inner (zoomed) state.
      */
-    <A> Steps<M, S> modifyThrough(Traversal<S, A> traversal, Function<A, A> modifier);
+    public interface FilterableZoomedSteps<M extends WitnessArity<TypeArity.Unary>, S, T> extends ZoomedSteps<M, S, T> {
+
+        @Override
+        <A> FilterableZoomedSteps<M, S, T> update(Lens<T, A> lens, A value);
+
+        @Override
+        <A> FilterableZoomedSteps<M, S, T> modify(Lens<T, A> lens, Function<A, A> modifier);
+
+        @Override
+        <A> FilterableZoomedSteps<M, S, T> fromThen(Function<T, Kind<M, A>> f, Lens<T, A> lens);
+
+        /**
+         * Returns to the outer state scope, ending the zoom and preserving filtering capabilities.
+         *
+         * @return A {@link FilterableSteps} builder operating on the full state {@code S}.
+         */
+        @Override
+        FilterableSteps<M, S> endZoom();
+    }
 
     /**
-     * Applies a pure function to a nested field within every element focused by a traversal.
-     *
-     * <p>This composes a traversal with a lens to reach a nested field within each focused element,
-     * then applies the modifier to that field. Equivalent to modifying through {@code
-     * traversal.andThen(lens)}.
-     *
-     * @param traversal The traversal focusing on elements within the state.
-     * @param lens The lens focusing on a field within each element.
-     * @param modifier A pure function to transform the nested field.
-     * @param <A> The type of the focused elements.
-     * @param <B> The type of the nested field.
-     * @return A new builder with the modification queued.
-     * @throws NullPointerException if any argument is null.
+     * Implementation of the state steps builder.
      */
-    <A, B> Steps<M, S> modifyThrough(
-        Traversal<S, A> traversal, Lens<A, B> lens, Function<B, B> modifier);
+    private static final class ForStateStepsImpl<M extends WitnessArity<TypeArity.Unary>, S> implements Steps<M, S> {
+
+        private final Monad<M> monad;
+
+        private final Kind<M, S> state;
+
+        ForStateStepsImpl(Monad<M> monad, Kind<M, S> state) {
+            this.monad = monad;
+            this.state = state;
+        }
+
+        @Override
+        public <A> Steps<M, S> from(Function<S, Kind<M, A>> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public <A> Steps<M, S> fromThen(Function<S, Kind<M, A>> f, Lens<S, A> lens) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public <A> Steps<M, S> modify(Lens<S, A> lens, Function<A, A> modifier) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public <A> Steps<M, S> update(Lens<S, A> lens, A value) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public <C, A> Steps<M, S> traverse(Lens<S, C> collectionLens, Traversal<C, A> traversal, Function<A, Kind<M, A>> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public <A> Steps<M, S> traverseOver(Traversal<S, A> traversal, Function<A, Kind<M, A>> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public <A> Steps<M, S> modifyThrough(Traversal<S, A> traversal, Function<A, A> modifier) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public <A, B> Steps<M, S> modifyThrough(Traversal<S, A> traversal, Lens<A, B> lens, Function<B, B> modifier) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public <A, B> Steps<M, S> modifyVia(Lens<S, A> lens, Iso<A, B> iso, Function<B, B> modifier) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public <A, B> Steps<M, S> updateVia(Lens<S, A> lens, Iso<A, B> iso, B value) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public <T> ZoomedSteps<M, S, T> zoom(Lens<S, T> zoomLens) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public <T> ZoomedSteps<M, S, T> zoom(FocusPath<S, T> path) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public <T> ZoomedSteps<M, S, T> zoom(Iso<S, T> iso) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public Kind<M, S> yield() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public <R> Kind<M, R> yield(Function<S, R> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+    }
 
     /**
-     * Modifies a state field through an {@link Iso} conversion.
-     *
-     * <p>Extracts a field via a lens, converts it to the Iso's target type, applies the modifier in
-     * that type, converts back, and stores the result. This enables type-safe transformations
-     * through equivalent representations.
-     *
-     * @param lens The lens focusing on the field to modify.
-     * @param iso The isomorphism between the field type and the modification type.
-     * @param modifier A function to transform the value in the Iso's target type.
-     * @param <A> The type of the field (Iso source).
-     * @param <B> The type to modify in (Iso target).
-     * @return A new builder with the modification queued.
-     * @throws NullPointerException if any argument is null.
+     * Implementation of the filterable state steps builder.
      */
-    <A, B> Steps<M, S> modifyVia(Lens<S, A> lens, Iso<A, B> iso, Function<B, B> modifier);
+    private static final class ForStateFilterableStepsImpl<M extends WitnessArity<TypeArity.Unary>, S> implements FilterableSteps<M, S> {
+
+        private final MonadZero<M> monad;
+
+        private final Kind<M, S> state;
+
+        ForStateFilterableStepsImpl(MonadZero<M> monad, Kind<M, S> state) {
+            this.monad = monad;
+            this.state = state;
+        }
+
+        @Override
+        public FilterableSteps<M, S> when(Predicate<S> predicate) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public <X, A> FilterableSteps<M, S> matchThen(Lens<S, X> sourceLens, Prism<X, A> prism, Lens<S, A> targetLens) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public <A> FilterableSteps<M, S> matchThen(Function<S, Optional<A>> extractor, Lens<S, A> targetLens) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public <A> FilterableSteps<M, S> from(Function<S, Kind<M, A>> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public <A> FilterableSteps<M, S> fromThen(Function<S, Kind<M, A>> f, Lens<S, A> lens) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public <A> FilterableSteps<M, S> modify(Lens<S, A> lens, Function<A, A> modifier) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public <A> FilterableSteps<M, S> update(Lens<S, A> lens, A value) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public <C, A> FilterableSteps<M, S> traverse(Lens<S, C> collectionLens, Traversal<C, A> traversal, Function<A, Kind<M, A>> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public <A> FilterableSteps<M, S> traverseOver(Traversal<S, A> traversal, Function<A, Kind<M, A>> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public <A> FilterableSteps<M, S> modifyThrough(Traversal<S, A> traversal, Function<A, A> modifier) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public <A, B> FilterableSteps<M, S> modifyThrough(Traversal<S, A> traversal, Lens<A, B> lens, Function<B, B> modifier) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public <A, B> FilterableSteps<M, S> modifyVia(Lens<S, A> lens, Iso<A, B> iso, Function<B, B> modifier) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public <A, B> FilterableSteps<M, S> updateVia(Lens<S, A> lens, Iso<A, B> iso, B value) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public <T> FilterableZoomedSteps<M, S, T> zoom(Lens<S, T> zoomLens) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public <T> FilterableZoomedSteps<M, S, T> zoom(FocusPath<S, T> path) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public <T> FilterableZoomedSteps<M, S, T> zoom(Iso<S, T> iso) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public <T> FilterableZoomedSteps<M, S, T> zoom(AffinePath<S, T> path) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public Kind<M, S> yield() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public <R> Kind<M, R> yield(Function<S, R> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+    }
 
     /**
-     * Sets a state field through an {@link Iso} conversion.
-     *
-     * <p>Converts the provided value from the Iso's target type back to the field type using {@link
-     * Iso#reverseGet(Object)}, then stores it via the lens.
-     *
-     * @param lens The lens focusing on the field to set.
-     * @param iso The isomorphism between the field type and the value type.
-     * @param value The value in the Iso's target type.
-     * @param <A> The type of the field (Iso source).
-     * @param <B> The type of the provided value (Iso target).
-     * @return A new builder with the update queued.
-     * @throws NullPointerException if {@code lens} or {@code iso} is null.
+     * Implementation of the zoomed state steps builder.
      */
-    <A, B> Steps<M, S> updateVia(Lens<S, A> lens, Iso<A, B> iso, B value);
+    private static final class ForStateZoomedStepsImpl<M extends WitnessArity<TypeArity.Unary>, S, T> implements ZoomedSteps<M, S, T> {
+
+        private final Monad<M> monad;
+
+        private final Kind<M, S> state;
+
+        private final Lens<S, T> zoomLens;
+
+        ForStateZoomedStepsImpl(Monad<M> monad, Kind<M, S> state, Lens<S, T> zoomLens) {
+            this.monad = monad;
+            this.state = state;
+            this.zoomLens = zoomLens;
+        }
+
+        @Override
+        public <A> ZoomedSteps<M, S, T> update(Lens<T, A> lens, A value) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public <A> ZoomedSteps<M, S, T> modify(Lens<T, A> lens, Function<A, A> modifier) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public <A> ZoomedSteps<M, S, T> fromThen(Function<T, Kind<M, A>> f, Lens<T, A> lens) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public Steps<M, S> endZoom() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+    }
 
     /**
-     * Narrows the state scope to a sub-part of the state via a lens.
-     *
-     * <p>Operations on the returned {@link ZoomedSteps} operate on the sub-state type {@code T}
-     * whilst internally composing through the zoom lens. Call {@link ZoomedSteps#endZoom()} to
-     * return to the original state scope.
-     *
-     * @param zoomLens The lens focusing on the sub-state.
-     * @param <T> The type of the sub-state.
-     * @return A {@link ZoomedSteps} builder operating on the sub-state.
-     * @throws NullPointerException if {@code zoomLens} is null.
+     * Implementation of the filterable zoomed state steps builder.
      */
-    <T> ZoomedSteps<M, S, T> zoom(Lens<S, T> zoomLens);
+    private static final class ForStateFilterableZoomedStepsImpl<M extends WitnessArity<TypeArity.Unary>, S, T> implements FilterableZoomedSteps<M, S, T> {
+
+        private final MonadZero<M> monad;
+
+        private final Kind<M, S> state;
+
+        private final Lens<S, T> zoomLens;
+
+        ForStateFilterableZoomedStepsImpl(MonadZero<M> monad, Kind<M, S> state, Lens<S, T> zoomLens) {
+            this.monad = monad;
+            this.state = state;
+            this.zoomLens = zoomLens;
+        }
+
+        @Override
+        public <A> FilterableZoomedSteps<M, S, T> update(Lens<T, A> lens, A value) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public <A> FilterableZoomedSteps<M, S, T> modify(Lens<T, A> lens, Function<A, A> modifier) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public <A> FilterableZoomedSteps<M, S, T> fromThen(Function<T, Kind<M, A>> f, Lens<T, A> lens) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public FilterableSteps<M, S> endZoom() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+    }
 
     /**
-     * Narrows the state scope to a sub-part of the state via a {@link FocusPath}.
-     *
-     * <p>Equivalent to calling {@link #zoom(Lens)} with {@code path.toLens()}. This overload lets
-     * users pass the {@code FocusPath} instances generated by {@code @GenerateFocus} directly,
-     * without manually unwrapping the underlying {@link Lens}.
-     *
-     * @param path The {@link FocusPath} focusing on the sub-state.
-     * @param <T> The type of the sub-state.
-     * @return A {@link ZoomedSteps} builder operating on the sub-state.
-     * @throws NullPointerException if {@code path} is null.
+     * Applies a pure modification to all elements focused by a traversal, using the Identity
+     * applicative to unwrap the result. This avoids exposing Identity details in the public API.
      */
-    <T> ZoomedSteps<M, S, T> zoom(FocusPath<S, T> path);
-
-    /**
-     * Narrows the state scope through an {@link Iso} that converts the entire state to an
-     * isomorphic representation.
-     *
-     * <p>This is useful for representation-change zoom: the inner steps operate on an equivalent
-     * shape (for example a different unit, a tuple, or a wrapper type), and the outer state is
-     * reconstructed via {@link Iso#reverseGet(Object)} when the zoom ends.
-     *
-     * <p>Equivalent to calling {@link #zoom(Lens)} with {@code iso.asLens()}.
-     *
-     * @param iso The isomorphism between the outer state {@code S} and the inner state {@code T}.
-     * @param <T> The isomorphic representation type.
-     * @return A {@link ZoomedSteps} builder operating on the isomorphic representation.
-     * @throws NullPointerException if {@code iso} is null.
-     */
-    <T> ZoomedSteps<M, S, T> zoom(Iso<S, T> iso);
-
-    /**
-     * Completes the comprehension and returns the final state.
-     *
-     * @return The final state wrapped in the monad context.
-     */
-    Kind<M, S> yield();
-
-    /**
-     * Completes the comprehension by applying a projection to the final state.
-     *
-     * @param f A function to transform the final state into a result.
-     * @param <R> The type of the result.
-     * @return The projected result wrapped in the monad context.
-     * @throws NullPointerException if {@code f} is null.
-     */
-    <R> Kind<M, R> yield(Function<S, R> f);
-  }
-
-  /**
-   * An extended builder interface that adds filtering and pattern matching capabilities.
-   *
-   * <p>This interface is returned when {@link ForState#withState(MonadZero, Kind)} is used with a
-   * {@link MonadZero} instance. It extends {@link Steps} with:
-   *
-   * <ul>
-   *   <li>{@link #when(Predicate)} for predicate-based guards
-   *   <li>{@link #matchThen(Lens, Prism, Lens)} for prism-based pattern matching with state update
-   *   <li>{@link #matchThen(Function, Lens)} for function-based extraction with state update
-   * </ul>
-   *
-   * @param <M> The witness type for the monad context.
-   * @param <S> The type of the state.
-   */
-  public interface FilterableSteps<M extends WitnessArity<TypeArity.Unary>, S> extends Steps<M, S> {
-
-    /**
-     * Filters the workflow based on a predicate applied to the current state.
-     *
-     * <p>If the predicate returns {@code false}, the computation short-circuits using the monad's
-     * {@link MonadZero#zero()} element (e.g., {@code Nothing} for Maybe, empty list for List).
-     *
-     * @param predicate The predicate to test against the current state.
-     * @return A new builder with the guard applied.
-     * @throws NullPointerException if {@code predicate} is null.
-     */
-    FilterableSteps<M, S> when(Predicate<S> predicate);
-
-    /**
-     * Extracts a field via a source lens, matches it with a prism, and stores the result via a
-     * target lens. Short-circuits via {@link MonadZero#zero()} when the prism does not match.
-     *
-     * <p>This is useful for conditional state transitions based on sum types:
-     *
-     * <pre>{@code
-     * ForState.withState(maybeMonad, MAYBE.just(state))
-     *     .matchThen(statusLens, confirmedPrism, confirmationIdLens)
-     *     .yield();
-     * }</pre>
-     *
-     * @param sourceLens The lens to extract the field to match against.
-     * @param prism The prism to match the extracted value.
-     * @param targetLens The lens to store the matched result in the state.
-     * @param <X> The type of the extracted field (prism source).
-     * @param <A> The type of the matched value (prism target), which must match the target lens
-     *     focus type.
-     * @return A new builder with the match-and-store operation queued.
-     * @throws NullPointerException if any argument is null.
-     */
-    <X, A> FilterableSteps<M, S> matchThen(
-        Lens<S, X> sourceLens, Prism<X, A> prism, Lens<S, A> targetLens);
-
-    /**
-     * Extracts a value from the state using a function, and if present, stores it via a lens.
-     * Short-circuits via {@link MonadZero#zero()} when the function returns an empty {@link
-     * Optional}.
-     *
-     * <p>This is a simpler variant of {@link #matchThen(Lens, Prism, Lens)} for cases where a
-     * direct function extraction is more convenient than composing a lens and prism.
-     *
-     * @param extractor A function that extracts an optional value from the state.
-     * @param targetLens The lens to store the extracted value in the state.
-     * @param <A> The type of the extracted value.
-     * @return A new builder with the extraction operation queued.
-     * @throws NullPointerException if any argument is null.
-     */
-    <A> FilterableSteps<M, S> matchThen(Function<S, Optional<A>> extractor, Lens<S, A> targetLens);
-
-    // Override return types to preserve FilterableSteps in the chain
-
-    @Override
-    <A> FilterableSteps<M, S> from(Function<S, Kind<M, A>> f);
-
-    @Override
-    <A> FilterableSteps<M, S> fromThen(Function<S, Kind<M, A>> f, Lens<S, A> lens);
-
-    @Override
-    <A> FilterableSteps<M, S> modify(Lens<S, A> lens, Function<A, A> modifier);
-
-    @Override
-    <A> FilterableSteps<M, S> update(Lens<S, A> lens, A value);
-
-    @Override
-    <C, A> FilterableSteps<M, S> traverse(
-        Lens<S, C> collectionLens, Traversal<C, A> traversal, Function<A, Kind<M, A>> f);
-
-    @Override
-    <A> FilterableSteps<M, S> traverseOver(Traversal<S, A> traversal, Function<A, Kind<M, A>> f);
-
-    @Override
-    <A> FilterableSteps<M, S> modifyThrough(Traversal<S, A> traversal, Function<A, A> modifier);
-
-    @Override
-    <A, B> FilterableSteps<M, S> modifyThrough(
-        Traversal<S, A> traversal, Lens<A, B> lens, Function<B, B> modifier);
-
-    @Override
-    <A, B> FilterableSteps<M, S> modifyVia(Lens<S, A> lens, Iso<A, B> iso, Function<B, B> modifier);
-
-    @Override
-    <A, B> FilterableSteps<M, S> updateVia(Lens<S, A> lens, Iso<A, B> iso, B value);
-
-    @Override
-    <T> FilterableZoomedSteps<M, S, T> zoom(Lens<S, T> zoomLens);
-
-    @Override
-    <T> FilterableZoomedSteps<M, S, T> zoom(FocusPath<S, T> path);
-
-    @Override
-    <T> FilterableZoomedSteps<M, S, T> zoom(Iso<S, T> iso);
-
-    /**
-     * Narrows the state scope to a sub-part of the state via an {@link AffinePath}.
-     *
-     * <p>If the affine target is absent, the comprehension short-circuits via {@link
-     * MonadZero#zero()}. Operations inside the zoom block then act as no-ops, and {@link
-     * FilterableZoomedSteps#endZoom()} returns control to the surrounding {@link FilterableSteps}
-     * with the zero state.
-     *
-     * <p>This overload is intentionally only available on {@link FilterableSteps}: short-circuit
-     * semantics for an absent affine target requires {@link MonadZero}. Plain {@link Steps} (no
-     * zero element) cannot express "the focus does not exist; skip the rest" without a silent
-     * no-op, so the overload is declared here rather than on {@link Steps}.
-     *
-     * @param path The {@link AffinePath} focusing on the optional sub-state.
-     * @param <T> The type of the sub-state.
-     * @return A {@link FilterableZoomedSteps} builder operating on the sub-state.
-     * @throws NullPointerException if {@code path} is null.
-     */
-    <T> FilterableZoomedSteps<M, S, T> zoom(AffinePath<S, T> path);
-  }
-
-  /**
-   * A builder interface for operations within a zoomed (narrowed) state scope.
-   *
-   * <p>Operations on this builder target the sub-state type {@code T} rather than the full state
-   * {@code S}. Internally, all operations compose through the zoom lens to update the full state.
-   *
-   * @param <M> The witness type for the monad context.
-   * @param <S> The type of the outer (full) state.
-   * @param <T> The type of the inner (zoomed) state.
-   */
-  public interface ZoomedSteps<M extends WitnessArity<TypeArity.Unary>, S, T> {
-
-    /**
-     * Sets a field within the zoomed sub-state using a lens.
-     *
-     * @param lens The lens focusing on a field within the sub-state {@code T}.
-     * @param value The new value for the field.
-     * @param <A> The type of the field.
-     * @return A new zoomed builder with the update queued.
-     * @throws NullPointerException if {@code lens} is null.
-     */
-    <A> ZoomedSteps<M, S, T> update(Lens<T, A> lens, A value);
-
-    /**
-     * Transforms a field within the zoomed sub-state using a lens and a pure function.
-     *
-     * @param lens The lens focusing on a field within the sub-state {@code T}.
-     * @param modifier A function to compute the new value from the current value.
-     * @param <A> The type of the field.
-     * @return A new zoomed builder with the update queued.
-     * @throws NullPointerException if any argument is null.
-     */
-    <A> ZoomedSteps<M, S, T> modify(Lens<T, A> lens, Function<A, A> modifier);
-
-    /**
-     * Performs a monadic operation on the zoomed sub-state and stores the result via a lens.
-     *
-     * @param f A function that takes the sub-state and returns a monadic computation.
-     * @param lens The lens to use for updating the sub-state with the result.
-     * @param <A> The type of the computation result.
-     * @return A new zoomed builder with the operation queued.
-     * @throws NullPointerException if any argument is null.
-     */
-    <A> ZoomedSteps<M, S, T> fromThen(Function<T, Kind<M, A>> f, Lens<T, A> lens);
-
-    /**
-     * Returns to the outer state scope, ending the zoom.
-     *
-     * @return A {@link Steps} builder operating on the full state {@code S}.
-     */
-    Steps<M, S> endZoom();
-  }
-
-  /**
-   * An extended zoomed builder interface that preserves {@link FilterableSteps} capabilities.
-   *
-   * <p>This interface is returned by {@link FilterableSteps#zoom(Lens)} and ensures that {@link
-   * #endZoom()} returns a {@link FilterableSteps} instead of a base {@link Steps}, so that guards
-   * ({@code when()}) and pattern matching ({@code matchThen()}) remain available after a zoom
-   * block.
-   *
-   * @param <M> The witness type for the monad context.
-   * @param <S> The type of the outer (full) state.
-   * @param <T> The type of the inner (zoomed) state.
-   */
-  public interface FilterableZoomedSteps<M extends WitnessArity<TypeArity.Unary>, S, T>
-      extends ZoomedSteps<M, S, T> {
-
-    @Override
-    <A> FilterableZoomedSteps<M, S, T> update(Lens<T, A> lens, A value);
-
-    @Override
-    <A> FilterableZoomedSteps<M, S, T> modify(Lens<T, A> lens, Function<A, A> modifier);
-
-    @Override
-    <A> FilterableZoomedSteps<M, S, T> fromThen(Function<T, Kind<M, A>> f, Lens<T, A> lens);
-
-    /**
-     * Returns to the outer state scope, ending the zoom and preserving filtering capabilities.
-     *
-     * @return A {@link FilterableSteps} builder operating on the full state {@code S}.
-     */
-    @Override
-    FilterableSteps<M, S> endZoom();
-  }
-
-  /** Implementation of the state steps builder. */
-  private static final class ForStateStepsImpl<M extends WitnessArity<TypeArity.Unary>, S>
-      implements Steps<M, S> {
-    private final Monad<M> monad;
-    private final Kind<M, S> state;
-
-    ForStateStepsImpl(Monad<M> monad, Kind<M, S> state) {
-      this.monad = monad;
-      this.state = state;
+    private static <S, A> S pureTraversalModify(Traversal<S, A> traversal, Function<A, A> modifier, S source) {
+        IdMonad idMonad = IdMonad.instance();
+        Kind<IdKind.Witness, S> result = traversal.modifyF(a -> Id.of(modifier.apply(a)), source, idMonad);
+        return IdKindHelper.ID.unwrap(result);
     }
-
-    @Override
-    public <A> Steps<M, S> from(Function<S, Kind<M, A>> f) {
-      Objects.requireNonNull(f, "function must not be null");
-      Kind<M, S> newState = monad.flatMap(s -> monad.map(ignored -> s, f.apply(s)), state);
-      return new ForStateStepsImpl<>(monad, newState);
-    }
-
-    @Override
-    public <A> Steps<M, S> fromThen(Function<S, Kind<M, A>> f, Lens<S, A> lens) {
-      Objects.requireNonNull(f, "function must not be null");
-      Objects.requireNonNull(lens, "lens must not be null");
-      Kind<M, S> newState =
-          monad.flatMap(s -> monad.map(result -> lens.set(result, s), f.apply(s)), state);
-      return new ForStateStepsImpl<>(monad, newState);
-    }
-
-    @Override
-    public <A> Steps<M, S> modify(Lens<S, A> lens, Function<A, A> modifier) {
-      Objects.requireNonNull(lens, "lens must not be null");
-      Objects.requireNonNull(modifier, "modifier must not be null");
-      Kind<M, S> newState = monad.map(s -> lens.modify(modifier, s), state);
-      return new ForStateStepsImpl<>(monad, newState);
-    }
-
-    @Override
-    public <A> Steps<M, S> update(Lens<S, A> lens, A value) {
-      Objects.requireNonNull(lens, "lens must not be null");
-      Kind<M, S> newState = monad.map(s -> lens.set(value, s), state);
-      return new ForStateStepsImpl<>(monad, newState);
-    }
-
-    @Override
-    public <C, A> Steps<M, S> traverse(
-        Lens<S, C> collectionLens, Traversal<C, A> traversal, Function<A, Kind<M, A>> f) {
-      Objects.requireNonNull(collectionLens, "collectionLens must not be null");
-      Objects.requireNonNull(traversal, "traversal must not be null");
-      Objects.requireNonNull(f, "function must not be null");
-      Kind<M, S> newState =
-          monad.flatMap(
-              s -> {
-                C collection = collectionLens.get(s);
-                Kind<M, C> updatedCollection = traversal.modifyF(f, collection, monad);
-                return monad.map(
-                    newCollection -> collectionLens.set(newCollection, s), updatedCollection);
-              },
-              state);
-      return new ForStateStepsImpl<>(monad, newState);
-    }
-
-    @Override
-    public <A> Steps<M, S> traverseOver(Traversal<S, A> traversal, Function<A, Kind<M, A>> f) {
-      Objects.requireNonNull(traversal, "traversal must not be null");
-      Objects.requireNonNull(f, "function must not be null");
-      Kind<M, S> newState = monad.flatMap(s -> traversal.modifyF(f, s, monad), state);
-      return new ForStateStepsImpl<>(monad, newState);
-    }
-
-    @Override
-    public <A> Steps<M, S> modifyThrough(Traversal<S, A> traversal, Function<A, A> modifier) {
-      Objects.requireNonNull(traversal, "traversal must not be null");
-      Objects.requireNonNull(modifier, "modifier must not be null");
-      Kind<M, S> newState = monad.map(s -> pureTraversalModify(traversal, modifier, s), state);
-      return new ForStateStepsImpl<>(monad, newState);
-    }
-
-    @Override
-    public <A, B> Steps<M, S> modifyThrough(
-        Traversal<S, A> traversal, Lens<A, B> lens, Function<B, B> modifier) {
-      Objects.requireNonNull(traversal, "traversal must not be null");
-      Objects.requireNonNull(lens, "lens must not be null");
-      Objects.requireNonNull(modifier, "modifier must not be null");
-      Traversal<S, B> composed = traversal.andThen(lens);
-      Kind<M, S> newState = monad.map(s -> pureTraversalModify(composed, modifier, s), state);
-      return new ForStateStepsImpl<>(monad, newState);
-    }
-
-    @Override
-    public <A, B> Steps<M, S> modifyVia(Lens<S, A> lens, Iso<A, B> iso, Function<B, B> modifier) {
-      Objects.requireNonNull(lens, "lens must not be null");
-      Objects.requireNonNull(iso, "iso must not be null");
-      Objects.requireNonNull(modifier, "modifier must not be null");
-      Kind<M, S> newState =
-          monad.map(s -> lens.modify(a -> iso.reverseGet(modifier.apply(iso.get(a))), s), state);
-      return new ForStateStepsImpl<>(monad, newState);
-    }
-
-    @Override
-    public <A, B> Steps<M, S> updateVia(Lens<S, A> lens, Iso<A, B> iso, B value) {
-      Objects.requireNonNull(lens, "lens must not be null");
-      Objects.requireNonNull(iso, "iso must not be null");
-      Kind<M, S> newState = monad.map(s -> lens.set(iso.reverseGet(value), s), state);
-      return new ForStateStepsImpl<>(monad, newState);
-    }
-
-    @Override
-    public <T> ZoomedSteps<M, S, T> zoom(Lens<S, T> zoomLens) {
-      Objects.requireNonNull(zoomLens, "zoomLens must not be null");
-      return new ForStateZoomedStepsImpl<>(monad, state, zoomLens);
-    }
-
-    @Override
-    public <T> ZoomedSteps<M, S, T> zoom(FocusPath<S, T> path) {
-      Objects.requireNonNull(path, "path must not be null");
-      return zoom(path.toLens());
-    }
-
-    @Override
-    public <T> ZoomedSteps<M, S, T> zoom(Iso<S, T> iso) {
-      Objects.requireNonNull(iso, "iso must not be null");
-      return zoom(iso.asLens());
-    }
-
-    @Override
-    public Kind<M, S> yield() {
-      return state;
-    }
-
-    @Override
-    public <R> Kind<M, R> yield(Function<S, R> f) {
-      Objects.requireNonNull(f, "projection function must not be null");
-      return monad.map(f, state);
-    }
-  }
-
-  /** Implementation of the filterable state steps builder. */
-  private static final class ForStateFilterableStepsImpl<M extends WitnessArity<TypeArity.Unary>, S>
-      implements FilterableSteps<M, S> {
-    private final MonadZero<M> monad;
-    private final Kind<M, S> state;
-
-    ForStateFilterableStepsImpl(MonadZero<M> monad, Kind<M, S> state) {
-      this.monad = monad;
-      this.state = state;
-    }
-
-    @Override
-    public FilterableSteps<M, S> when(Predicate<S> predicate) {
-      Objects.requireNonNull(predicate, "predicate must not be null");
-      return new ForStateFilterableStepsImpl<>(monad, monad.filter(predicate, state));
-    }
-
-    @Override
-    public <X, A> FilterableSteps<M, S> matchThen(
-        Lens<S, X> sourceLens, Prism<X, A> prism, Lens<S, A> targetLens) {
-      Objects.requireNonNull(sourceLens, "sourceLens must not be null");
-      Objects.requireNonNull(prism, "prism must not be null");
-      Objects.requireNonNull(targetLens, "targetLens must not be null");
-      Kind<M, S> newState =
-          monad.flatMap(
-              s -> {
-                X extracted = sourceLens.get(s);
-                return prism
-                    .getOptional(extracted)
-                    .map(a -> monad.of(targetLens.set(a, s)))
-                    .orElseGet(monad::zero);
-              },
-              state);
-      return new ForStateFilterableStepsImpl<>(monad, newState);
-    }
-
-    @Override
-    public <A> FilterableSteps<M, S> matchThen(
-        Function<S, Optional<A>> extractor, Lens<S, A> targetLens) {
-      Objects.requireNonNull(extractor, "extractor must not be null");
-      Objects.requireNonNull(targetLens, "targetLens must not be null");
-      Kind<M, S> newState =
-          monad.flatMap(
-              s ->
-                  extractor
-                      .apply(s)
-                      .map(a -> monad.of(targetLens.set(a, s)))
-                      .orElseGet(monad::zero),
-              state);
-      return new ForStateFilterableStepsImpl<>(monad, newState);
-    }
-
-    @Override
-    public <A> FilterableSteps<M, S> from(Function<S, Kind<M, A>> f) {
-      Objects.requireNonNull(f, "function must not be null");
-      Kind<M, S> newState = monad.flatMap(s -> monad.map(ignored -> s, f.apply(s)), state);
-      return new ForStateFilterableStepsImpl<>(monad, newState);
-    }
-
-    @Override
-    public <A> FilterableSteps<M, S> fromThen(Function<S, Kind<M, A>> f, Lens<S, A> lens) {
-      Objects.requireNonNull(f, "function must not be null");
-      Objects.requireNonNull(lens, "lens must not be null");
-      Kind<M, S> newState =
-          monad.flatMap(s -> monad.map(result -> lens.set(result, s), f.apply(s)), state);
-      return new ForStateFilterableStepsImpl<>(monad, newState);
-    }
-
-    @Override
-    public <A> FilterableSteps<M, S> modify(Lens<S, A> lens, Function<A, A> modifier) {
-      Objects.requireNonNull(lens, "lens must not be null");
-      Objects.requireNonNull(modifier, "modifier must not be null");
-      Kind<M, S> newState = monad.map(s -> lens.modify(modifier, s), state);
-      return new ForStateFilterableStepsImpl<>(monad, newState);
-    }
-
-    @Override
-    public <A> FilterableSteps<M, S> update(Lens<S, A> lens, A value) {
-      Objects.requireNonNull(lens, "lens must not be null");
-      Kind<M, S> newState = monad.map(s -> lens.set(value, s), state);
-      return new ForStateFilterableStepsImpl<>(monad, newState);
-    }
-
-    @Override
-    public <C, A> FilterableSteps<M, S> traverse(
-        Lens<S, C> collectionLens, Traversal<C, A> traversal, Function<A, Kind<M, A>> f) {
-      Objects.requireNonNull(collectionLens, "collectionLens must not be null");
-      Objects.requireNonNull(traversal, "traversal must not be null");
-      Objects.requireNonNull(f, "function must not be null");
-      Kind<M, S> newState =
-          monad.flatMap(
-              s -> {
-                C collection = collectionLens.get(s);
-                Kind<M, C> updatedCollection = traversal.modifyF(f, collection, monad);
-                return monad.map(
-                    newCollection -> collectionLens.set(newCollection, s), updatedCollection);
-              },
-              state);
-      return new ForStateFilterableStepsImpl<>(monad, newState);
-    }
-
-    @Override
-    public <A> FilterableSteps<M, S> traverseOver(
-        Traversal<S, A> traversal, Function<A, Kind<M, A>> f) {
-      Objects.requireNonNull(traversal, "traversal must not be null");
-      Objects.requireNonNull(f, "function must not be null");
-      Kind<M, S> newState = monad.flatMap(s -> traversal.modifyF(f, s, monad), state);
-      return new ForStateFilterableStepsImpl<>(monad, newState);
-    }
-
-    @Override
-    public <A> FilterableSteps<M, S> modifyThrough(
-        Traversal<S, A> traversal, Function<A, A> modifier) {
-      Objects.requireNonNull(traversal, "traversal must not be null");
-      Objects.requireNonNull(modifier, "modifier must not be null");
-      Kind<M, S> newState = monad.map(s -> pureTraversalModify(traversal, modifier, s), state);
-      return new ForStateFilterableStepsImpl<>(monad, newState);
-    }
-
-    @Override
-    public <A, B> FilterableSteps<M, S> modifyThrough(
-        Traversal<S, A> traversal, Lens<A, B> lens, Function<B, B> modifier) {
-      Objects.requireNonNull(traversal, "traversal must not be null");
-      Objects.requireNonNull(lens, "lens must not be null");
-      Objects.requireNonNull(modifier, "modifier must not be null");
-      Traversal<S, B> composed = traversal.andThen(lens);
-      Kind<M, S> newState = monad.map(s -> pureTraversalModify(composed, modifier, s), state);
-      return new ForStateFilterableStepsImpl<>(monad, newState);
-    }
-
-    @Override
-    public <A, B> FilterableSteps<M, S> modifyVia(
-        Lens<S, A> lens, Iso<A, B> iso, Function<B, B> modifier) {
-      Objects.requireNonNull(lens, "lens must not be null");
-      Objects.requireNonNull(iso, "iso must not be null");
-      Objects.requireNonNull(modifier, "modifier must not be null");
-      Kind<M, S> newState =
-          monad.map(s -> lens.modify(a -> iso.reverseGet(modifier.apply(iso.get(a))), s), state);
-      return new ForStateFilterableStepsImpl<>(monad, newState);
-    }
-
-    @Override
-    public <A, B> FilterableSteps<M, S> updateVia(Lens<S, A> lens, Iso<A, B> iso, B value) {
-      Objects.requireNonNull(lens, "lens must not be null");
-      Objects.requireNonNull(iso, "iso must not be null");
-      Kind<M, S> newState = monad.map(s -> lens.set(iso.reverseGet(value), s), state);
-      return new ForStateFilterableStepsImpl<>(monad, newState);
-    }
-
-    @Override
-    public <T> FilterableZoomedSteps<M, S, T> zoom(Lens<S, T> zoomLens) {
-      Objects.requireNonNull(zoomLens, "zoomLens must not be null");
-      return new ForStateFilterableZoomedStepsImpl<>(monad, state, zoomLens);
-    }
-
-    @Override
-    public <T> FilterableZoomedSteps<M, S, T> zoom(FocusPath<S, T> path) {
-      Objects.requireNonNull(path, "path must not be null");
-      return zoom(path.toLens());
-    }
-
-    @Override
-    public <T> FilterableZoomedSteps<M, S, T> zoom(Iso<S, T> iso) {
-      Objects.requireNonNull(iso, "iso must not be null");
-      return zoom(iso.asLens());
-    }
-
-    @Override
-    public <T> FilterableZoomedSteps<M, S, T> zoom(AffinePath<S, T> path) {
-      Objects.requireNonNull(path, "path must not be null");
-      Affine<S, T> affine = path.toAffine();
-      // Short-circuit to zero if the affine target is absent in the current state.
-      Kind<M, S> guarded = monad.filter(s -> affine.getOptional(s).isPresent(), state);
-      // Synthesise a Lens<S, T> backed by the affine. Pre-condition: getOptional(s) is non-empty
-      // because of the guard above; this is enforced by the short-circuit and by AffinePath
-      // semantics (set always produces a structure where getOptional returns the new value).
-      Lens<S, T> affineAsLens =
-          Lens.of(
-              s ->
-                  affine
-                      .getOptional(s)
-                      .orElseThrow(
-                          () ->
-                              new IllegalStateException(
-                                  "Affine target unexpectedly absent inside zoom block; the"
-                                      + " surrounding MonadZero should have short-circuited."
-                                      + " Likely cause: a non-deterministic Affine.getOptional"
-                                      + " or a MonadZero whose zero element does not"
-                                      + " short-circuit flatMap.")),
-              (s, t) -> affine.set(t, s));
-      return new ForStateFilterableZoomedStepsImpl<>(monad, guarded, affineAsLens);
-    }
-
-    @Override
-    public Kind<M, S> yield() {
-      return state;
-    }
-
-    @Override
-    public <R> Kind<M, R> yield(Function<S, R> f) {
-      Objects.requireNonNull(f, "projection function must not be null");
-      return monad.map(f, state);
-    }
-  }
-
-  /** Implementation of the zoomed state steps builder. */
-  private static final class ForStateZoomedStepsImpl<M extends WitnessArity<TypeArity.Unary>, S, T>
-      implements ZoomedSteps<M, S, T> {
-    private final Monad<M> monad;
-    private final Kind<M, S> state;
-    private final Lens<S, T> zoomLens;
-
-    ForStateZoomedStepsImpl(Monad<M> monad, Kind<M, S> state, Lens<S, T> zoomLens) {
-      this.monad = monad;
-      this.state = state;
-      this.zoomLens = zoomLens;
-    }
-
-    @Override
-    public <A> ZoomedSteps<M, S, T> update(Lens<T, A> lens, A value) {
-      Objects.requireNonNull(lens, "lens must not be null");
-      Lens<S, A> composed = zoomLens.andThen(lens);
-      Kind<M, S> newState = monad.map(s -> composed.set(value, s), state);
-      return new ForStateZoomedStepsImpl<>(monad, newState, zoomLens);
-    }
-
-    @Override
-    public <A> ZoomedSteps<M, S, T> modify(Lens<T, A> lens, Function<A, A> modifier) {
-      Objects.requireNonNull(lens, "lens must not be null");
-      Objects.requireNonNull(modifier, "modifier must not be null");
-      Lens<S, A> composed = zoomLens.andThen(lens);
-      Kind<M, S> newState = monad.map(s -> composed.modify(modifier, s), state);
-      return new ForStateZoomedStepsImpl<>(monad, newState, zoomLens);
-    }
-
-    @Override
-    public <A> ZoomedSteps<M, S, T> fromThen(Function<T, Kind<M, A>> f, Lens<T, A> lens) {
-      Objects.requireNonNull(f, "function must not be null");
-      Objects.requireNonNull(lens, "lens must not be null");
-      Lens<S, A> composedTarget = zoomLens.andThen(lens);
-      Kind<M, S> newState =
-          monad.flatMap(
-              s -> {
-                T subState = zoomLens.get(s);
-                return monad.map(result -> composedTarget.set(result, s), f.apply(subState));
-              },
-              state);
-      return new ForStateZoomedStepsImpl<>(monad, newState, zoomLens);
-    }
-
-    @Override
-    public Steps<M, S> endZoom() {
-      return new ForStateStepsImpl<>(monad, state);
-    }
-  }
-
-  /** Implementation of the filterable zoomed state steps builder. */
-  private static final class ForStateFilterableZoomedStepsImpl<
-          M extends WitnessArity<TypeArity.Unary>, S, T>
-      implements FilterableZoomedSteps<M, S, T> {
-    private final MonadZero<M> monad;
-    private final Kind<M, S> state;
-    private final Lens<S, T> zoomLens;
-
-    ForStateFilterableZoomedStepsImpl(MonadZero<M> monad, Kind<M, S> state, Lens<S, T> zoomLens) {
-      this.monad = monad;
-      this.state = state;
-      this.zoomLens = zoomLens;
-    }
-
-    @Override
-    public <A> FilterableZoomedSteps<M, S, T> update(Lens<T, A> lens, A value) {
-      Objects.requireNonNull(lens, "lens must not be null");
-      Lens<S, A> composed = zoomLens.andThen(lens);
-      Kind<M, S> newState = monad.map(s -> composed.set(value, s), state);
-      return new ForStateFilterableZoomedStepsImpl<>(monad, newState, zoomLens);
-    }
-
-    @Override
-    public <A> FilterableZoomedSteps<M, S, T> modify(Lens<T, A> lens, Function<A, A> modifier) {
-      Objects.requireNonNull(lens, "lens must not be null");
-      Objects.requireNonNull(modifier, "modifier must not be null");
-      Lens<S, A> composed = zoomLens.andThen(lens);
-      Kind<M, S> newState = monad.map(s -> composed.modify(modifier, s), state);
-      return new ForStateFilterableZoomedStepsImpl<>(monad, newState, zoomLens);
-    }
-
-    @Override
-    public <A> FilterableZoomedSteps<M, S, T> fromThen(Function<T, Kind<M, A>> f, Lens<T, A> lens) {
-      Objects.requireNonNull(f, "function must not be null");
-      Objects.requireNonNull(lens, "lens must not be null");
-      Lens<S, A> composedTarget = zoomLens.andThen(lens);
-      Kind<M, S> newState =
-          monad.flatMap(
-              s -> {
-                T subState = zoomLens.get(s);
-                return monad.map(result -> composedTarget.set(result, s), f.apply(subState));
-              },
-              state);
-      return new ForStateFilterableZoomedStepsImpl<>(monad, newState, zoomLens);
-    }
-
-    @Override
-    public FilterableSteps<M, S> endZoom() {
-      return new ForStateFilterableStepsImpl<>(monad, state);
-    }
-  }
-
-  /**
-   * Applies a pure modification to all elements focused by a traversal, using the Identity
-   * applicative to unwrap the result. This avoids exposing Identity details in the public API.
-   */
-  private static <S, A> S pureTraversalModify(
-      Traversal<S, A> traversal, Function<A, A> modifier, S source) {
-    IdMonad idMonad = IdMonad.instance();
-    Kind<IdKind.Witness, S> result =
-        traversal.modifyF(a -> Id.of(modifier.apply(a)), source, idMonad);
-    return IdKindHelper.ID.unwrap(result);
-  }
 }

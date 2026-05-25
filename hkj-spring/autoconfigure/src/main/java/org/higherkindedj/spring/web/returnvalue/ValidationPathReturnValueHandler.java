@@ -74,132 +74,101 @@ import tools.jackson.databind.json.JsonMapper;
  */
 public class ValidationPathReturnValueHandler implements HandlerMethodReturnValueHandler {
 
-  private final JsonMapper jsonMapper;
-  private final ObjectWriter objectWriter;
-  private final int invalidStatus;
+    private final JsonMapper jsonMapper;
 
-  /**
-   * Creates a new ValidationPathReturnValueHandler with the specified settings.
-   *
-   * @param jsonMapper the Jackson 3.x JsonMapper for JSON serialization
-   * @param invalidStatus the HTTP status code for invalid results (default 400)
-   */
-  public ValidationPathReturnValueHandler(JsonMapper jsonMapper, int invalidStatus) {
-    this.jsonMapper = jsonMapper;
-    this.objectWriter = jsonMapper.writer();
-    this.invalidStatus = invalidStatus;
-  }
+    private final ObjectWriter objectWriter;
 
-  @Override
-  public boolean supportsReturnType(MethodParameter returnType) {
-    Class<?> paramType = returnType.getParameterType();
-    return ValidationPath.class.isAssignableFrom(paramType)
-        || Validated.class.isAssignableFrom(paramType);
-  }
+    private final int invalidStatus;
 
-  @Override
-  public void handleReturnValue(
-      @Nullable Object returnValue,
-      MethodParameter returnType,
-      ModelAndViewContainer mavContainer,
-      NativeWebRequest webRequest) {
-
-    mavContainer.setRequestHandled(true);
-    HttpServletResponse response = webRequest.getNativeResponse(HttpServletResponse.class);
-
-    if (response == null) {
-      return;
+    /**
+     * Creates a new ValidationPathReturnValueHandler with the specified settings.
+     *
+     * @param jsonMapper the Jackson 3.x JsonMapper for JSON serialization
+     * @param invalidStatus the HTTP status code for invalid results (default 400)
+     */
+    public ValidationPathReturnValueHandler(JsonMapper jsonMapper, int invalidStatus) {
+        this.jsonMapper = jsonMapper;
+        this.objectWriter = jsonMapper.writer();
+        this.invalidStatus = invalidStatus;
     }
 
-    Validated<?, ?> validated = extractValidated(returnValue);
-    if (validated == null) {
-      return;
+    @Override
+    public boolean supportsReturnType(MethodParameter returnType) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    int successStatus =
-        SuccessStatusResolver.resolveSuccessStatus(returnType, HttpStatus.OK.value());
-
-    // Fold to HTTP response
-    validated.fold(
-        errors -> {
-          writeInvalidResponse(errors, response);
-          return null;
-        },
-        value -> {
-          writeValidResponse(value, response, successStatus);
-          return null;
-        });
-  }
-
-  /**
-   * Extracts the Validated from either a ValidationPath or raw Validated.
-   *
-   * @param returnValue the return value
-   * @return the Validated, or null if not supported
-   */
-  @Nullable
-  private Validated<?, ?> extractValidated(@Nullable Object returnValue) {
-    if (returnValue instanceof ValidationPath<?, ?> path) {
-      return path.run();
-    } else if (returnValue instanceof Validated<?, ?> validated) {
-      return validated;
+    @Override
+    public void handleReturnValue(@Nullable Object returnValue, MethodParameter returnType, ModelAndViewContainer mavContainer, NativeWebRequest webRequest) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-    return null;
-  }
 
-  /**
-   * Writes an invalid (errors) response to the HTTP response.
-   *
-   * @param errors the accumulated validation errors
-   * @param response the HTTP response
-   */
-  private void writeInvalidResponse(Object errors, HttpServletResponse response) {
-    try {
-      response.setStatus(invalidStatus);
-      ErrorResponseHeaders.applyTo(errors, response);
-      response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-
-      int errorCount = countErrors(errors);
-      Map<String, Object> body = Map.of("valid", false, "errors", errors, "errorCount", errorCount);
-
-      objectWriter.writeValue(response.getWriter(), body);
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to write validation error response", e);
+    /**
+     * Extracts the Validated from either a ValidationPath or raw Validated.
+     *
+     * @param returnValue the return value
+     * @return the Validated, or null if not supported
+     */
+    @Nullable
+    private Validated<?, ?> extractValidated(@Nullable Object returnValue) {
+        if (returnValue instanceof ValidationPath<?, ?> path) {
+            return path.run();
+        } else if (returnValue instanceof Validated<?, ?> validated) {
+            return validated;
+        }
+        return null;
     }
-  }
 
-  /**
-   * Writes a valid (success) response to the HTTP response.
-   *
-   * @param value the valid value
-   * @param response the HTTP response
-   * @param status the HTTP status code to set
-   */
-  private void writeValidResponse(Object value, HttpServletResponse response, int status) {
-    try {
-      response.setStatus(status);
-      if (status != HttpStatus.NO_CONTENT.value()) {
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        objectWriter.writeValue(response.getWriter(), value);
-      }
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to write success response", e);
+    /**
+     * Writes an invalid (errors) response to the HTTP response.
+     *
+     * @param errors the accumulated validation errors
+     * @param response the HTTP response
+     */
+    private void writeInvalidResponse(Object errors, HttpServletResponse response) {
+        try {
+            response.setStatus(invalidStatus);
+            ErrorResponseHeaders.applyTo(errors, response);
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            int errorCount = countErrors(errors);
+            Map<String, Object> body = Map.of("valid", false, "errors", errors, "errorCount", errorCount);
+            objectWriter.writeValue(response.getWriter(), body);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to write validation error response", e);
+        }
     }
-  }
 
-  /**
-   * Counts the number of errors for the error count field.
-   *
-   * @param errors the errors object (may be a collection or single error)
-   * @return the count of errors
-   */
-  private int countErrors(Object errors) {
-    if (errors instanceof Collection<?> collection) {
-      return collection.size();
-    } else if (errors instanceof Object[] array) {
-      return array.length;
-    } else {
-      return 1;
+    /**
+     * Writes a valid (success) response to the HTTP response.
+     *
+     * @param value the valid value
+     * @param response the HTTP response
+     * @param status the HTTP status code to set
+     */
+    private void writeValidResponse(Object value, HttpServletResponse response, int status) {
+        try {
+            response.setStatus(status);
+            if (status != HttpStatus.NO_CONTENT.value()) {
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                objectWriter.writeValue(response.getWriter(), value);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to write success response", e);
+        }
     }
-  }
+
+    /**
+     * Counts the number of errors for the error count field.
+     *
+     * @param errors the errors object (may be a collection or single error)
+     * @return the count of errors
+     */
+    private int countErrors(Object errors) {
+        if (errors instanceof Collection<?> collection) {
+            return collection.size();
+        } else if (errors instanceof Object[] array) {
+            return array.length;
+        } else {
+            return 1;
+        }
+    }
 }

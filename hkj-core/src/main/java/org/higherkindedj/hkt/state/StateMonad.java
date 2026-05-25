@@ -4,7 +4,6 @@ package org.higherkindedj.hkt.state;
 
 import static org.higherkindedj.hkt.state.StateKindHelper.STATE;
 import static org.higherkindedj.hkt.util.validation.Operation.FLAT_MAP;
-
 import java.util.function.Function;
 import org.higherkindedj.hkt.Kind;
 import org.higherkindedj.hkt.Monad;
@@ -27,55 +26,40 @@ import org.higherkindedj.hkt.util.validation.Validation;
  */
 public class StateMonad<S> extends StateApplicative<S> implements Monad<StateKind.Witness<S>> {
 
-  private static final StateMonad<?> INSTANCE = new StateMonad<>();
+    private static final StateMonad<?> INSTANCE = new StateMonad<>();
 
-  /**
-   * Returns the shared {@code StateMonad} instance for a given state type {@code S}. {@code
-   * StateMonad} carries no per-{@code S} state, so one instance is reused for all {@code S}.
-   *
-   * @param <S> The state type.
-   * @return The shared {@code StateMonad<S>} instance.
-   */
-  @SuppressWarnings("unchecked")
-  public static <S> StateMonad<S> instance() {
-    return (StateMonad<S>) INSTANCE;
-  }
+    /**
+     * Returns the shared {@code StateMonad} instance for a given state type {@code S}. {@code
+     * StateMonad} carries no per-{@code S} state, so one instance is reused for all {@code S}.
+     *
+     * @param <S> The state type.
+     * @return The shared {@code StateMonad<S>} instance.
+     */
+    @SuppressWarnings("unchecked")
+    public static <S> StateMonad<S> instance() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Sequentially composes two {@code State} actions, passing the result of the first into a
-   * function that produces the second {@code State} action (represented as a {@code Kind}), and
-   * flattening the result. The state is threaded through.
-   *
-   * @param <A> The input value type of the first {@code State} computation.
-   * @param <B> The output value type of the {@code State} computation produced by function {@code
-   *     f}.
-   * @param f The non-null function that takes the successful result of {@code ma} and returns a new
-   *     {@code Kind<StateKind.Witness<S>, B>}.
-   * @param ma The first {@code Kind<StateKind.Witness<S>, A>} representing a {@code State<S,A>}
-   *     computation.
-   * @return A new {@code Kind<StateKind.Witness<S>, B>} representing the composed and flattened
-   *     operation.
-   * @throws NullPointerException if {@code f} or {@code ma} is null.
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code ma} is not a valid {@code
-   *     State} representation.
-   */
-  @Override
-  public <A, B> Kind<StateKind.Witness<S>, B> flatMap(
-      Function<? super A, ? extends Kind<StateKind.Witness<S>, B>> f,
-      Kind<StateKind.Witness<S>, A> ma) {
-
-    Validation.function().validateFlatMap(f, ma);
-
-    State<S, A> stateA = STATE.narrow(ma);
-
-    State<S, B> stateB =
-        stateA.flatMap(
-            a -> {
-              Kind<StateKind.Witness<S>, B> kindB = f.apply(a);
-              Validation.function().requireNonNullResult(kindB, "f", FLAT_MAP);
-              return STATE.narrow(kindB);
-            });
-
-    return STATE.widen(stateB);
-  }
+    /**
+     * Sequentially composes two {@code State} actions, passing the result of the first into a
+     * function that produces the second {@code State} action (represented as a {@code Kind}), and
+     * flattening the result. The state is threaded through.
+     *
+     * @param <A> The input value type of the first {@code State} computation.
+     * @param <B> The output value type of the {@code State} computation produced by function {@code
+     *     f}.
+     * @param f The non-null function that takes the successful result of {@code ma} and returns a new
+     *     {@code Kind<StateKind.Witness<S>, B>}.
+     * @param ma The first {@code Kind<StateKind.Witness<S>, A>} representing a {@code State<S,A>}
+     *     computation.
+     * @return A new {@code Kind<StateKind.Witness<S>, B>} representing the composed and flattened
+     *     operation.
+     * @throws NullPointerException if {@code f} or {@code ma} is null.
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code ma} is not a valid {@code
+     *     State} representation.
+     */
+    @Override
+    public <A, B> Kind<StateKind.Witness<S>, B> flatMap(Function<? super A, ? extends Kind<StateKind.Witness<S>, B>> f, Kind<StateKind.Witness<S>, A> ma) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

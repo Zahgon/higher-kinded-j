@@ -56,166 +56,137 @@ import org.higherkindedj.optics.Traversal;
  */
 public final class ForTraversal {
 
-  private ForTraversal() {} // Static access only
-
-  /**
-   * Starts a traversal-based comprehension over elements of a structure.
-   *
-   * @param traversal The {@link Traversal} that focuses on the elements to operate on.
-   * @param source The source structure containing the elements.
-   * @param applicative The {@link Applicative} instance for the effect context.
-   * @param <F> The witness type for the applicative context.
-   * @param <S> The type of the source structure.
-   * @param <A> The type of the focused elements.
-   * @return A {@link TraversalSteps} builder for chaining operations.
-   * @throws NullPointerException if any argument is null.
-   */
-  public static <F extends WitnessArity<TypeArity.Unary>, S, A> TraversalSteps<F, S, A> over(
-      Traversal<S, A> traversal, S source, Applicative<F> applicative) {
-    Objects.requireNonNull(traversal, "traversal must not be null");
-    Objects.requireNonNull(source, "source must not be null");
-    Objects.requireNonNull(applicative, "applicative must not be null");
-    return new TraversalStepsImpl<>(traversal, source, applicative, applicative::of);
-  }
-
-  /**
-   * A builder interface for chaining operations on traversal-focused elements.
-   *
-   * @param <F> The witness type for the applicative context.
-   * @param <S> The type of the source structure.
-   * @param <A> The type of the focused elements.
-   */
-  public interface TraversalSteps<F extends WitnessArity<TypeArity.Unary>, S, A> {
+    // Static access only
+    private ForTraversal() {
+    }
 
     /**
-     * Filters elements, only applying subsequent operations to those that match the predicate.
+     * Starts a traversal-based comprehension over elements of a structure.
      *
-     * <p>Elements that don't match are preserved unchanged in the structure during modifications.
-     *
-     * @param predicate The predicate to test elements against.
-     * @return A new builder with the filter applied.
-     * @throws NullPointerException if {@code predicate} is null.
-     */
-    TraversalSteps<F, S, A> filter(Predicate<A> predicate);
-
-    /**
-     * Modifies a specific field within each focused element using a lens.
-     *
-     * @param lens The lens focusing on the field to modify.
-     * @param modifier The function to apply to the field.
-     * @param <B> The type of the field being modified.
-     * @return A new builder with the modification applied.
+     * @param traversal The {@link Traversal} that focuses on the elements to operate on.
+     * @param source The source structure containing the elements.
+     * @param applicative The {@link Applicative} instance for the effect context.
+     * @param <F> The witness type for the applicative context.
+     * @param <S> The type of the source structure.
+     * @param <A> The type of the focused elements.
+     * @return A {@link TraversalSteps} builder for chaining operations.
      * @throws NullPointerException if any argument is null.
      */
-    <B> TraversalSteps<F, S, A> modify(Lens<A, B> lens, Function<B, B> modifier);
+    public static <F extends WitnessArity<TypeArity.Unary>, S, A> TraversalSteps<F, S, A> over(Traversal<S, A> traversal, S source, Applicative<F> applicative) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
     /**
-     * Sets a specific field within each focused element using a lens.
+     * A builder interface for chaining operations on traversal-focused elements.
      *
-     * @param lens The lens focusing on the field to set.
-     * @param value The new value for the field.
-     * @param <B> The type of the field being set.
-     * @return A new builder with the field set.
-     * @throws NullPointerException if {@code lens} is null.
+     * @param <F> The witness type for the applicative context.
+     * @param <S> The type of the source structure.
+     * @param <A> The type of the focused elements.
      */
-    <B> TraversalSteps<F, S, A> set(Lens<A, B> lens, B value);
+    public interface TraversalSteps<F extends WitnessArity<TypeArity.Unary>, S, A> {
+
+        /**
+         * Filters elements, only applying subsequent operations to those that match the predicate.
+         *
+         * <p>Elements that don't match are preserved unchanged in the structure during modifications.
+         *
+         * @param predicate The predicate to test elements against.
+         * @return A new builder with the filter applied.
+         * @throws NullPointerException if {@code predicate} is null.
+         */
+        TraversalSteps<F, S, A> filter(Predicate<A> predicate);
+
+        /**
+         * Modifies a specific field within each focused element using a lens.
+         *
+         * @param lens The lens focusing on the field to modify.
+         * @param modifier The function to apply to the field.
+         * @param <B> The type of the field being modified.
+         * @return A new builder with the modification applied.
+         * @throws NullPointerException if any argument is null.
+         */
+        <B> TraversalSteps<F, S, A> modify(Lens<A, B> lens, Function<B, B> modifier);
+
+        /**
+         * Sets a specific field within each focused element using a lens.
+         *
+         * @param lens The lens focusing on the field to set.
+         * @param value The new value for the field.
+         * @param <B> The type of the field being set.
+         * @return A new builder with the field set.
+         * @throws NullPointerException if {@code lens} is null.
+         */
+        <B> TraversalSteps<F, S, A> set(Lens<A, B> lens, B value);
+
+        /**
+         * Completes the traversal and returns the modified structure wrapped in the applicative
+         * context.
+         *
+         * @return The modified structure in the applicative context.
+         */
+        Kind<F, S> run();
+
+        /**
+         * Collects all focused elements into a list.
+         *
+         * <p>Note: This operation extracts the current state of elements and collects them. It does not
+         * apply any pending transformations that would modify the structure.
+         *
+         * @return A list of all focused elements in the applicative context.
+         */
+        Kind<F, List<A>> toList();
+    }
 
     /**
-     * Completes the traversal and returns the modified structure wrapped in the applicative
-     * context.
-     *
-     * @return The modified structure in the applicative context.
+     * Implementation of the traversal steps builder.
      */
-    Kind<F, S> run();
+    private static final class TraversalStepsImpl<F extends WitnessArity<TypeArity.Unary>, S, A> implements TraversalSteps<F, S, A> {
 
-    /**
-     * Collects all focused elements into a list.
-     *
-     * <p>Note: This operation extracts the current state of elements and collects them. It does not
-     * apply any pending transformations that would modify the structure.
-     *
-     * @return A list of all focused elements in the applicative context.
-     */
-    Kind<F, List<A>> toList();
-  }
+        private final Traversal<S, A> traversal;
 
-  /** Implementation of the traversal steps builder. */
-  private static final class TraversalStepsImpl<F extends WitnessArity<TypeArity.Unary>, S, A>
-      implements TraversalSteps<F, S, A> {
-    private final Traversal<S, A> traversal;
-    private final S source;
-    private final Applicative<F> applicative;
-    private final Function<A, Kind<F, A>> transformation;
-    private final Predicate<A> filterPredicate;
+        private final S source;
 
-    TraversalStepsImpl(
-        Traversal<S, A> traversal,
-        S source,
-        Applicative<F> applicative,
-        Function<A, Kind<F, A>> transformation) {
-      this(traversal, source, applicative, transformation, a -> true);
+        private final Applicative<F> applicative;
+
+        private final Function<A, Kind<F, A>> transformation;
+
+        private final Predicate<A> filterPredicate;
+
+        TraversalStepsImpl(Traversal<S, A> traversal, S source, Applicative<F> applicative, Function<A, Kind<F, A>> transformation) {
+            this(traversal, source, applicative, transformation, a -> true);
+        }
+
+        TraversalStepsImpl(Traversal<S, A> traversal, S source, Applicative<F> applicative, Function<A, Kind<F, A>> transformation, Predicate<A> filterPredicate) {
+            this.traversal = traversal;
+            this.source = source;
+            this.applicative = applicative;
+            this.transformation = transformation;
+            this.filterPredicate = filterPredicate;
+        }
+
+        @Override
+        public TraversalSteps<F, S, A> filter(Predicate<A> predicate) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public <B> TraversalSteps<F, S, A> modify(Lens<A, B> lens, Function<B, B> modifier) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public <B> TraversalSteps<F, S, A> set(Lens<A, B> lens, B value) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public Kind<F, S> run() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public Kind<F, List<A>> toList() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
     }
-
-    TraversalStepsImpl(
-        Traversal<S, A> traversal,
-        S source,
-        Applicative<F> applicative,
-        Function<A, Kind<F, A>> transformation,
-        Predicate<A> filterPredicate) {
-      this.traversal = traversal;
-      this.source = source;
-      this.applicative = applicative;
-      this.transformation = transformation;
-      this.filterPredicate = filterPredicate;
-    }
-
-    @Override
-    public TraversalSteps<F, S, A> filter(Predicate<A> predicate) {
-      Objects.requireNonNull(predicate, "predicate must not be null");
-      // Combine predicates: both must pass
-      return new TraversalStepsImpl<>(
-          traversal, source, applicative, transformation, filterPredicate.and(predicate));
-    }
-
-    @Override
-    public <B> TraversalSteps<F, S, A> modify(Lens<A, B> lens, Function<B, B> modifier) {
-      Objects.requireNonNull(lens, "lens must not be null");
-      Objects.requireNonNull(modifier, "modifier must not be null");
-
-      // Only modify elements that pass the filter predicate
-      Function<A, Kind<F, A>> modifiedTransformation =
-          a ->
-              filterPredicate.test(a)
-                  ? applicative.map(newA -> lens.modify(modifier, newA), transformation.apply(a))
-                  : transformation.apply(a);
-
-      return new TraversalStepsImpl<>(
-          traversal, source, applicative, modifiedTransformation, filterPredicate);
-    }
-
-    @Override
-    public <B> TraversalSteps<F, S, A> set(Lens<A, B> lens, B value) {
-      Objects.requireNonNull(lens, "lens must not be null");
-
-      // Only set on elements that pass the filter predicate
-      Function<A, Kind<F, A>> setTransformation =
-          a ->
-              filterPredicate.test(a)
-                  ? applicative.map(newA -> lens.set(value, newA), transformation.apply(a))
-                  : transformation.apply(a);
-
-      return new TraversalStepsImpl<>(
-          traversal, source, applicative, setTransformation, filterPredicate);
-    }
-
-    @Override
-    public Kind<F, S> run() {
-      return traversal.modifyF(transformation, source, applicative);
-    }
-
-    @Override
-    public Kind<F, List<A>> toList() {
-      return applicative.of(traversal.asFold().getAll(source));
-    }
-  }
 }

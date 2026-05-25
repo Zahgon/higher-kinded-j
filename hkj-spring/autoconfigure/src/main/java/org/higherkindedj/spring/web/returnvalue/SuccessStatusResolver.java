@@ -38,40 +38,20 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  */
 public final class SuccessStatusResolver {
 
-  private SuccessStatusResolver() {
-    throw new UnsupportedOperationException("Utility class");
-  }
-
-  /**
-   * Resolves the success HTTP status code for the given return type.
-   *
-   * @param returnType the method parameter describing the controller method's return type (may be
-   *     null, in which case {@code defaultStatus} is returned)
-   * @param defaultStatus the status code to use when no {@code @ResponseStatus} annotation is
-   *     present on the method or its declaring class
-   * @return the resolved HTTP status code
-   */
-  public static int resolveSuccessStatus(@Nullable MethodParameter returnType, int defaultStatus) {
-    if (returnType == null) {
-      return defaultStatus;
+    private SuccessStatusResolver() {
+        throw new UnsupportedOperationException("Utility class");
     }
 
-    Method method = returnType.getMethod();
-    ResponseStatus annotation = null;
-    if (method != null) {
-      annotation = AnnotatedElementUtils.findMergedAnnotation(method, ResponseStatus.class);
+    /**
+     * Resolves the success HTTP status code for the given return type.
+     *
+     * @param returnType the method parameter describing the controller method's return type (may be
+     *     null, in which case {@code defaultStatus} is returned)
+     * @param defaultStatus the status code to use when no {@code @ResponseStatus} annotation is
+     *     present on the method or its declaring class
+     * @return the resolved HTTP status code
+     */
+    public static int resolveSuccessStatus(@Nullable MethodParameter returnType, int defaultStatus) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-    if (annotation == null) {
-      Class<?> containingClass = returnType.getContainingClass();
-      if (containingClass != null) {
-        annotation =
-            AnnotatedElementUtils.findMergedAnnotation(containingClass, ResponseStatus.class);
-      }
-    }
-
-    if (annotation != null) {
-      return annotation.code().value();
-    }
-    return defaultStatus;
-  }
 }

@@ -35,111 +35,82 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public final class ObservableEffectBoundary<F extends WitnessArity<TypeArity.Unary>> {
 
-  private final EffectBoundary<F> delegate;
-  private final HkjMetricsService metrics;
+    private final EffectBoundary<F> delegate;
 
-  /**
-   * Creates an ObservableEffectBoundary wrapping the given boundary with metrics.
-   *
-   * @param delegate the underlying EffectBoundary
-   * @param metrics the metrics service for recording invocations
-   */
-  public ObservableEffectBoundary(EffectBoundary<F> delegate, HkjMetricsService metrics) {
-    this.delegate = Objects.requireNonNull(delegate, "delegate must not be null");
-    this.metrics = Objects.requireNonNull(metrics, "metrics must not be null");
-  }
+    private final HkjMetricsService metrics;
 
-  /**
-   * Interprets and executes a Free program synchronously, recording metrics.
-   *
-   * @param program the Free monad program
-   * @param <A> the result type
-   * @return the result
-   */
-  public <A> A run(Free<F, A> program) {
-    long start = System.currentTimeMillis();
-    try {
-      A result = delegate.run(program);
-      metrics.recordEffectBoundarySuccess();
-      return result;
-    } catch (Exception e) {
-      metrics.recordEffectBoundaryError(e.getClass().getSimpleName());
-      throw e;
-    } finally {
-      metrics.recordEffectBoundaryDuration(System.currentTimeMillis() - start);
+    /**
+     * Creates an ObservableEffectBoundary wrapping the given boundary with metrics.
+     *
+     * @param delegate the underlying EffectBoundary
+     * @param metrics the metrics service for recording invocations
+     */
+    public ObservableEffectBoundary(EffectBoundary<F> delegate, HkjMetricsService metrics) {
+        this.delegate = Objects.requireNonNull(delegate, "delegate must not be null");
+        this.metrics = Objects.requireNonNull(metrics, "metrics must not be null");
     }
-  }
 
-  /**
-   * Interprets and executes a FreePath program synchronously, recording metrics.
-   *
-   * @param program the FreePath program
-   * @param <A> the result type
-   * @return the result
-   */
-  public <A> A run(FreePath<F, A> program) {
-    return run(program.toFree());
-  }
-
-  /**
-   * Interprets and executes safely, recording metrics.
-   *
-   * @param program the Free monad program
-   * @param <A> the result type
-   * @return a Try containing the result or exception
-   */
-  public <A> Try<A> runSafe(Free<F, A> program) {
-    long start = System.currentTimeMillis();
-    Try<A> result = delegate.runSafe(program);
-    if (result.isSuccess()) {
-      metrics.recordEffectBoundarySuccess();
-    } else {
-      metrics.recordEffectBoundaryError(
-          ((Try.Failure<A>) result).cause().getClass().getSimpleName());
+    /**
+     * Interprets and executes a Free program synchronously, recording metrics.
+     *
+     * @param program the Free monad program
+     * @param <A> the result type
+     * @return the result
+     */
+    public <A> A run(Free<F, A> program) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-    metrics.recordEffectBoundaryDuration(System.currentTimeMillis() - start);
-    return result;
-  }
 
-  /**
-   * Interprets asynchronously, recording metrics on completion.
-   *
-   * @param program the Free monad program
-   * @param <A> the result type
-   * @return a CompletableFuture that records metrics on completion
-   */
-  public <A> CompletableFuture<A> runAsync(Free<F, A> program) {
-    long start = System.currentTimeMillis();
-    return delegate
-        .runAsync(program)
-        .whenComplete(
-            (result, throwable) -> {
-              if (throwable != null) {
-                metrics.recordEffectBoundaryError(throwable.getClass().getSimpleName());
-              } else {
-                metrics.recordEffectBoundarySuccess();
-              }
-              metrics.recordEffectBoundaryDuration(System.currentTimeMillis() - start);
-            });
-  }
+    /**
+     * Interprets and executes a FreePath program synchronously, recording metrics.
+     *
+     * @param program the FreePath program
+     * @param <A> the result type
+     * @return the result
+     */
+    public <A> A run(FreePath<F, A> program) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Returns a deferred IOPath, recording metrics when eventually executed.
-   *
-   * @param program the Free monad program
-   * @param <A> the result type
-   * @return an IOPath that records metrics on execution
-   */
-  public <A> IOPath<A> runIO(Free<F, A> program) {
-    return delegate.runIO(program);
-  }
+    /**
+     * Interprets and executes safely, recording metrics.
+     *
+     * @param program the Free monad program
+     * @param <A> the result type
+     * @return a Try containing the result or exception
+     */
+    public <A> Try<A> runSafe(Free<F, A> program) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Returns the underlying EffectBoundary.
-   *
-   * @return the delegate boundary
-   */
-  public EffectBoundary<F> delegate() {
-    return delegate;
-  }
+    /**
+     * Interprets asynchronously, recording metrics on completion.
+     *
+     * @param program the Free monad program
+     * @param <A> the result type
+     * @return a CompletableFuture that records metrics on completion
+     */
+    public <A> CompletableFuture<A> runAsync(Free<F, A> program) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Returns a deferred IOPath, recording metrics when eventually executed.
+     *
+     * @param program the Free monad program
+     * @param <A> the result type
+     * @return an IOPath that records metrics on execution
+     */
+    public <A> IOPath<A> runIO(Free<F, A> program) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Returns the underlying EffectBoundary.
+     *
+     * @return the delegate boundary
+     */
+    public EffectBoundary<F> delegate() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

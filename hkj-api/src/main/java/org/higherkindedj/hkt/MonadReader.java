@@ -28,44 +28,44 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public interface MonadReader<F extends WitnessArity<TypeArity.Unary>, R> extends Monad<F> {
 
-  /**
-   * Returns the current environment.
-   *
-   * @return A monadic value containing the environment.
-   */
-  Kind<F, R> ask();
+    /**
+     * Returns the current environment.
+     *
+     * @return A monadic value containing the environment.
+     */
+    Kind<F, R> ask();
 
-  /**
-   * Runs a computation in a modified environment. The function {@code f} transforms the environment
-   * before it is made available to the computation {@code ma}.
-   *
-   * @param f The function to modify the environment. Must not be null.
-   * @param ma The computation to run in the modified environment. Must not be null.
-   * @param <A> The result type of the computation.
-   * @return The result of running {@code ma} with the modified environment.
-   */
-  <A> Kind<F, A> local(Function<R, R> f, Kind<F, A> ma);
+    /**
+     * Runs a computation in a modified environment. The function {@code f} transforms the environment
+     * before it is made available to the computation {@code ma}.
+     *
+     * @param f The function to modify the environment. Must not be null.
+     * @param ma The computation to run in the modified environment. Must not be null.
+     * @param <A> The result type of the computation.
+     * @return The result of running {@code ma} with the modified environment.
+     */
+    <A> Kind<F, A> local(Function<R, R> f, Kind<F, A> ma);
 
-  /**
-   * Extracts a value from the environment using the given function. This is a convenience method
-   * equivalent to {@code map(f, ask())}.
-   *
-   * @param f The function to extract a value from the environment. Must not be null.
-   * @param <A> The type of the extracted value.
-   * @return A monadic value containing the extracted value.
-   */
-  default <A> Kind<F, A> reader(Function<R, A> f) {
-    return map(f, ask());
-  }
+    /**
+     * Extracts a value from the environment using the given function. This is a convenience method
+     * equivalent to {@code map(f, ask())}.
+     *
+     * @param f The function to extract a value from the environment. Must not be null.
+     * @param <A> The type of the extracted value.
+     * @return A monadic value containing the extracted value.
+     */
+    default <A> Kind<F, A> reader(Function<R, A> f) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Extracts a value from the environment. This is an alias for {@link #reader(Function)}.
-   *
-   * @param f The function to extract a value from the environment. Must not be null.
-   * @param <A> The type of the extracted value.
-   * @return A monadic value containing the extracted value.
-   */
-  default <A> Kind<F, A> asks(Function<R, A> f) {
-    return reader(f);
-  }
+    /**
+     * Extracts a value from the environment. This is an alias for {@link #reader(Function)}.
+     *
+     * @param f The function to extract a value from the environment. Must not be null.
+     * @param <A> The type of the extracted value.
+     * @return A monadic value containing the extracted value.
+     */
+    default <A> Kind<F, A> asks(Function<R, A> f) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

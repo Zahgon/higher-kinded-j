@@ -21,41 +21,34 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
  * </configuration>
  * }</pre>
  */
-record HKJConfiguration(
-    String version, boolean preview, boolean spring, boolean skills, boolean pathTypeMismatch) {
+record HKJConfiguration(String version, boolean preview, boolean spring, boolean skills, boolean pathTypeMismatch) {
 
-  /** Reads configuration from the plugin declaration, applying defaults for missing values. */
-  static HKJConfiguration fromPlugin(Plugin plugin, MavenProject project) {
-    Xpp3Dom config = (Xpp3Dom) plugin.getConfiguration();
-
-    String version = readString(config, "version", project.getVersion());
-    boolean preview = readBoolean(config, "preview", true);
-    boolean spring = readBoolean(config, "spring", false);
-    boolean skills = readBoolean(config, "skills", false);
-    boolean pathTypeMismatch = readBoolean(config, "pathTypeMismatch", true);
-
-    return new HKJConfiguration(version, preview, spring, skills, pathTypeMismatch);
-  }
-
-  private static String readString(Xpp3Dom config, String name, String defaultValue) {
-    if (config == null) {
-      return defaultValue;
+    /**
+     * Reads configuration from the plugin declaration, applying defaults for missing values.
+     */
+    static HKJConfiguration fromPlugin(Plugin plugin, MavenProject project) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-    Xpp3Dom child = config.getChild(name);
-    if (child == null || child.getValue() == null || child.getValue().isBlank()) {
-      return defaultValue;
-    }
-    return child.getValue().trim();
-  }
 
-  private static boolean readBoolean(Xpp3Dom config, String name, boolean defaultValue) {
-    if (config == null) {
-      return defaultValue;
+    private static String readString(Xpp3Dom config, String name, String defaultValue) {
+        if (config == null) {
+            return defaultValue;
+        }
+        Xpp3Dom child = config.getChild(name);
+        if (child == null || child.getValue() == null || child.getValue().isBlank()) {
+            return defaultValue;
+        }
+        return child.getValue().trim();
     }
-    Xpp3Dom child = config.getChild(name);
-    if (child == null || child.getValue() == null || child.getValue().isBlank()) {
-      return defaultValue;
+
+    private static boolean readBoolean(Xpp3Dom config, String name, boolean defaultValue) {
+        if (config == null) {
+            return defaultValue;
+        }
+        Xpp3Dom child = config.getChild(name);
+        if (child == null || child.getValue() == null || child.getValue().isBlank()) {
+            return defaultValue;
+        }
+        return Boolean.parseBoolean(child.getValue().trim());
     }
-    return Boolean.parseBoolean(child.getValue().trim());
-  }
 }

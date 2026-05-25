@@ -3,7 +3,6 @@
 package org.higherkindedj.hkt.error;
 
 import static org.higherkindedj.hkt.util.validation.Operation.FROM_KIND;
-
 import org.higherkindedj.hkt.Kind;
 import org.higherkindedj.hkt.util.validation.Validation;
 import org.jspecify.annotations.NullMarked;
@@ -17,35 +16,37 @@ import org.jspecify.annotations.NullMarked;
  */
 @NullMarked
 public enum ErrorOpKindHelper {
-  /** Singleton instance. */
-  ERROR_OP;
 
-  record ErrorOpHolder<E, A>(ErrorOp<E, A> op) implements ErrorOpKind<E, A> {}
+    /**
+     * Singleton instance.
+     */
+    ERROR_OP;
 
-  /**
-   * Widens a concrete {@code ErrorOp<E, A>} into its Kind representation.
-   *
-   * @param op The concrete ErrorOp instance. Must not be null.
-   * @param <E> The error type
-   * @param <A> The result type
-   * @return The widened Kind representation
-   */
-  public <E, A> Kind<ErrorOpKind.Witness<E>, A> widen(ErrorOp<E, A> op) {
-    Validation.kind().requireForWiden(op, ErrorOp.class);
-    return new ErrorOpHolder<>(op);
-  }
+    record ErrorOpHolder<E, A>(ErrorOp<E, A> op) implements ErrorOpKind<E, A> {
+    }
 
-  /**
-   * Narrows a Kind representation back to concrete {@code ErrorOp<E, A>}.
-   *
-   * @param kind The Kind representation. Must not be null.
-   * @param <E> The error type
-   * @param <A> The result type
-   * @return The concrete ErrorOp
-   */
-  @SuppressWarnings("unchecked")
-  public <E, A> ErrorOp<E, A> narrow(Kind<ErrorOpKind.Witness<E>, A> kind) {
-    Validation.kind().requireNonNull(kind, FROM_KIND);
-    return ((ErrorOpHolder<E, A>) kind).op();
-  }
+    /**
+     * Widens a concrete {@code ErrorOp<E, A>} into its Kind representation.
+     *
+     * @param op The concrete ErrorOp instance. Must not be null.
+     * @param <E> The error type
+     * @param <A> The result type
+     * @return The widened Kind representation
+     */
+    public <E, A> Kind<ErrorOpKind.Witness<E>, A> widen(ErrorOp<E, A> op) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Narrows a Kind representation back to concrete {@code ErrorOp<E, A>}.
+     *
+     * @param kind The Kind representation. Must not be null.
+     * @param <E> The error type
+     * @param <A> The result type
+     * @return The concrete ErrorOp
+     */
+    @SuppressWarnings("unchecked")
+    public <E, A> ErrorOp<E, A> narrow(Kind<ErrorOpKind.Witness<E>, A> kind) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

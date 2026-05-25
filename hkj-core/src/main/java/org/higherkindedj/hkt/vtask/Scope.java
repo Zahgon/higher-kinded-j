@@ -68,236 +68,208 @@ import org.higherkindedj.hkt.validated.Validated;
  */
 public final class Scope<T, R> {
 
-  private final ScopeJoiner<T, R> joiner;
-  private final List<VTask<? extends T>> tasks;
-  private final Duration timeout;
-  private final String name;
+    private final ScopeJoiner<T, R> joiner;
 
-  private Scope(
-      ScopeJoiner<T, R> joiner, List<VTask<? extends T>> tasks, Duration timeout, String name) {
-    this.joiner = joiner;
-    this.tasks = tasks;
-    this.timeout = timeout;
-    this.name = name;
-  }
+    private final List<VTask<? extends T>> tasks;
 
-  // ==================== Factory Methods ====================
+    private final Duration timeout;
 
-  /**
-   * Creates a scope that waits for all subtasks to succeed.
-   *
-   * <p>If any subtask fails, the entire operation fails with that exception and remaining tasks are
-   * cancelled.
-   *
-   * @param <T> the type of values produced by subtasks
-   * @return a new Scope builder configured for all-succeed semantics
-   */
-  public static <T> Scope<T, List<T>> allSucceed() {
-    return new Scope<>(ScopeJoiner.allSucceed(), new ArrayList<>(), null, null);
-  }
+    private final String name;
 
-  /**
-   * Creates a scope that returns the first successful result.
-   *
-   * <p>As soon as any subtask succeeds, its result is returned and other tasks are cancelled.
-   *
-   * @param <T> the type of values produced by subtasks
-   * @return a new Scope builder configured for any-succeed semantics
-   */
-  public static <T> Scope<T, T> anySucceed() {
-    return new Scope<>(ScopeJoiner.anySucceed(), new ArrayList<>(), null, null);
-  }
+    private Scope(ScopeJoiner<T, R> joiner, List<VTask<? extends T>> tasks, Duration timeout, String name) {
+        this.joiner = joiner;
+        this.tasks = tasks;
+        this.timeout = timeout;
+        this.name = name;
+    }
 
-  /**
-   * Creates a scope that returns the first completed result (success or failure).
-   *
-   * @param <T> the type of values produced by subtasks
-   * @return a new Scope builder configured for first-complete semantics
-   */
-  public static <T> Scope<T, T> firstComplete() {
-    return new Scope<>(ScopeJoiner.firstComplete(), new ArrayList<>(), null, null);
-  }
+    // ==================== Factory Methods ====================
+    /**
+     * Creates a scope that waits for all subtasks to succeed.
+     *
+     * <p>If any subtask fails, the entire operation fails with that exception and remaining tasks are
+     * cancelled.
+     *
+     * @param <T> the type of values produced by subtasks
+     * @return a new Scope builder configured for all-succeed semantics
+     */
+    public static <T> Scope<T, List<T>> allSucceed() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a scope that accumulates errors using {@link Validated}.
-   *
-   * <p>Unlike fail-fast scopes, this waits for all tasks to complete and collects both successes
-   * and failures.
-   *
-   * @param <E> the error type after mapping
-   * @param <T> the type of values produced by subtasks
-   * @param errorMapper function to convert exceptions to error type E; must not be null
-   * @return a new Scope builder configured for error accumulation
-   * @throws NullPointerException if errorMapper is null
-   */
-  public static <E, T> Scope<T, Validated<List<E>, List<T>>> accumulating(
-      Function<Throwable, E> errorMapper) {
-    Objects.requireNonNull(errorMapper, "errorMapper must not be null");
-    return new Scope<>(ScopeJoiner.accumulating(errorMapper), new ArrayList<>(), null, null);
-  }
+    /**
+     * Creates a scope that returns the first successful result.
+     *
+     * <p>As soon as any subtask succeeds, its result is returned and other tasks are cancelled.
+     *
+     * @param <T> the type of values produced by subtasks
+     * @return a new Scope builder configured for any-succeed semantics
+     */
+    public static <T> Scope<T, T> anySucceed() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a scope with a custom joiner.
-   *
-   * @param <T> the type of values produced by subtasks
-   * @param <R> the type of the final result after joining
-   * @param joiner the custom joiner to use; must not be null
-   * @return a new Scope builder with the custom joiner
-   * @throws NullPointerException if joiner is null
-   */
-  public static <T, R> Scope<T, R> withJoiner(ScopeJoiner<T, R> joiner) {
-    Objects.requireNonNull(joiner, "joiner must not be null");
-    return new Scope<>(joiner, new ArrayList<>(), null, null);
-  }
+    /**
+     * Creates a scope that returns the first completed result (success or failure).
+     *
+     * @param <T> the type of values produced by subtasks
+     * @return a new Scope builder configured for first-complete semantics
+     */
+    public static <T> Scope<T, T> firstComplete() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  // ==================== Configuration Methods ====================
+    /**
+     * Creates a scope that accumulates errors using {@link Validated}.
+     *
+     * <p>Unlike fail-fast scopes, this waits for all tasks to complete and collects both successes
+     * and failures.
+     *
+     * @param <E> the error type after mapping
+     * @param <T> the type of values produced by subtasks
+     * @param errorMapper function to convert exceptions to error type E; must not be null
+     * @return a new Scope builder configured for error accumulation
+     * @throws NullPointerException if errorMapper is null
+     */
+    public static <E, T> Scope<T, Validated<List<E>, List<T>>> accumulating(Function<Throwable, E> errorMapper) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Sets a timeout for the scope.
-   *
-   * <p>If the tasks don't complete within the timeout, a {@link TimeoutException} is thrown.
-   *
-   * @param timeout the maximum time to wait; must not be null
-   * @return a new Scope with the timeout configured
-   * @throws NullPointerException if timeout is null
-   */
-  public Scope<T, R> timeout(Duration timeout) {
-    Objects.requireNonNull(timeout, "timeout must not be null");
-    return new Scope<>(joiner, tasks, timeout, name);
-  }
+    /**
+     * Creates a scope with a custom joiner.
+     *
+     * @param <T> the type of values produced by subtasks
+     * @param <R> the type of the final result after joining
+     * @param joiner the custom joiner to use; must not be null
+     * @return a new Scope builder with the custom joiner
+     * @throws NullPointerException if joiner is null
+     */
+    public static <T, R> Scope<T, R> withJoiner(ScopeJoiner<T, R> joiner) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Sets a name for the scope (useful for debugging).
-   *
-   * @param name the name for this scope
-   * @return a new Scope with the name configured
-   */
-  public Scope<T, R> named(String name) {
-    return new Scope<>(joiner, tasks, timeout, name);
-  }
+    // ==================== Configuration Methods ====================
+    /**
+     * Sets a timeout for the scope.
+     *
+     * <p>If the tasks don't complete within the timeout, a {@link TimeoutException} is thrown.
+     *
+     * @param timeout the maximum time to wait; must not be null
+     * @return a new Scope with the timeout configured
+     * @throws NullPointerException if timeout is null
+     */
+    public Scope<T, R> timeout(Duration timeout) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  // ==================== Fork Methods ====================
+    /**
+     * Sets a name for the scope (useful for debugging).
+     *
+     * @param name the name for this scope
+     * @return a new Scope with the name configured
+     */
+    public Scope<T, R> named(String name) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Forks a VTask to run as a subtask within this scope.
-   *
-   * @param task the task to fork; must not be null
-   * @return a new Scope with the task added
-   * @throws NullPointerException if task is null
-   */
-  public Scope<T, R> fork(VTask<? extends T> task) {
-    Objects.requireNonNull(task, "task must not be null");
-    List<VTask<? extends T>> newTasks = new ArrayList<>(tasks);
-    newTasks.add(task);
-    return new Scope<>(joiner, newTasks, timeout, name);
-  }
+    // ==================== Fork Methods ====================
+    /**
+     * Forks a VTask to run as a subtask within this scope.
+     *
+     * @param task the task to fork; must not be null
+     * @return a new Scope with the task added
+     * @throws NullPointerException if task is null
+     */
+    public Scope<T, R> fork(VTask<? extends T> task) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Forks multiple VTasks to run as subtasks within this scope.
-   *
-   * @param tasksToFork the tasks to fork; must not be null
-   * @return a new Scope with all tasks added
-   * @throws NullPointerException if tasksToFork is null
-   */
-  public Scope<T, R> forkAll(List<? extends VTask<? extends T>> tasksToFork) {
-    Objects.requireNonNull(tasksToFork, "tasksToFork must not be null");
-    List<VTask<? extends T>> newTasks = new ArrayList<>(tasks);
-    newTasks.addAll(tasksToFork);
-    return new Scope<>(joiner, newTasks, timeout, name);
-  }
+    /**
+     * Forks multiple VTasks to run as subtasks within this scope.
+     *
+     * @param tasksToFork the tasks to fork; must not be null
+     * @return a new Scope with all tasks added
+     * @throws NullPointerException if tasksToFork is null
+     */
+    public Scope<T, R> forkAll(List<? extends VTask<? extends T>> tasksToFork) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  // ==================== Join Methods ====================
+    // ==================== Join Methods ====================
+    /**
+     * Joins all forked tasks and returns the result as a VTask.
+     *
+     * <p>The returned VTask, when executed, will:
+     *
+     * <ol>
+     *   <li>Open a StructuredTaskScope with the configured joiner
+     *   <li>Fork all added tasks
+     *   <li>Wait for completion according to the joiner's semantics
+     *   <li>Return the joined result
+     * </ol>
+     *
+     * @return a VTask that executes the scope and returns the result
+     */
+    @SuppressWarnings("preview")
+    public VTask<R> join() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Joins all forked tasks and returns the result as a VTask.
-   *
-   * <p>The returned VTask, when executed, will:
-   *
-   * <ol>
-   *   <li>Open a StructuredTaskScope with the configured joiner
-   *   <li>Fork all added tasks
-   *   <li>Wait for completion according to the joiner's semantics
-   *   <li>Return the joined result
-   * </ol>
-   *
-   * @return a VTask that executes the scope and returns the result
-   */
-  @SuppressWarnings("preview")
-  public VTask<R> join() {
-    VTask<R> joinTask =
-        () -> {
-          try (var scope = StructuredTaskScope.open(joiner.joiner())) {
-            for (VTask<? extends T> task : tasks) {
-              scope.fork(task.asCallable());
-            }
+    /**
+     * Joins all forked tasks and returns the result wrapped in a {@link Try}.
+     *
+     * @return a VTask that executes the scope and returns a Try containing the result or exception
+     */
+    public VTask<Try<R>> joinSafe() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-            // StructuredTaskScope with custom Joiner returns result directly from join()
-            return scope.join();
-          } catch (StructuredTaskScope.FailedException e) {
-            throw e.getCause();
-          }
-        };
+    /**
+     * Joins all forked tasks and returns the result wrapped in an {@link Either}.
+     *
+     * @return a VTask that executes the scope and returns Either.right(result) or
+     *     Either.left(exception)
+     */
+    public VTask<Either<Throwable, R>> joinEither() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    // Apply timeout if configured
-    return timeout != null ? joinTask.timeout(timeout) : joinTask;
-  }
+    /**
+     * Joins all forked tasks and returns the result wrapped in a {@link Maybe}.
+     *
+     * <p>Returns {@code Maybe.just(result)} on success, {@code Maybe.nothing()} on failure.
+     *
+     * @return a VTask that executes the scope and returns a Maybe
+     */
+    public VTask<Maybe<R>> joinMaybe() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Joins all forked tasks and returns the result wrapped in a {@link Try}.
-   *
-   * @return a VTask that executes the scope and returns a Try containing the result or exception
-   */
-  public VTask<Try<R>> joinSafe() {
-    return join().map(Try::success).recover(Try::failure);
-  }
+    // ==================== Utility Methods ====================
+    /**
+     * Returns the number of tasks currently forked in this scope.
+     *
+     * @return the number of forked tasks
+     */
+    public int taskCount() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Joins all forked tasks and returns the result wrapped in an {@link Either}.
-   *
-   * @return a VTask that executes the scope and returns Either.right(result) or
-   *     Either.left(exception)
-   */
-  public VTask<Either<Throwable, R>> joinEither() {
-    return join().map(Either::<Throwable, R>right).recover(Either::left);
-  }
+    /**
+     * Returns whether this scope has a timeout configured.
+     *
+     * @return true if a timeout is set
+     */
+    public boolean hasTimeout() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Joins all forked tasks and returns the result wrapped in a {@link Maybe}.
-   *
-   * <p>Returns {@code Maybe.just(result)} on success, {@code Maybe.nothing()} on failure.
-   *
-   * @return a VTask that executes the scope and returns a Maybe
-   */
-  public VTask<Maybe<R>> joinMaybe() {
-    return join().map(Maybe::just).recover(e -> Maybe.nothing());
-  }
-
-  // ==================== Utility Methods ====================
-
-  /**
-   * Returns the number of tasks currently forked in this scope.
-   *
-   * @return the number of forked tasks
-   */
-  public int taskCount() {
-    return tasks.size();
-  }
-
-  /**
-   * Returns whether this scope has a timeout configured.
-   *
-   * @return true if a timeout is set
-   */
-  public boolean hasTimeout() {
-    return timeout != null;
-  }
-
-  /**
-   * Returns the configured timeout, if any.
-   *
-   * @return Maybe containing the timeout, or nothing if not set
-   */
-  public Maybe<Duration> getTimeout() {
-    return timeout != null ? Maybe.just(timeout) : Maybe.nothing();
-  }
+    /**
+     * Returns the configured timeout, if any.
+     *
+     * @return Maybe containing the timeout, or nothing if not set
+     */
+    public Maybe<Duration> getTimeout() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

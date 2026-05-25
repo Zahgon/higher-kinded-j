@@ -21,92 +21,91 @@ import java.util.Optional;
  */
 public final class ContactInfo {
 
-  private final String email;
-  private final String phone;
-  private final Optional<String> fax;
+    private final String email;
 
-  private ContactInfo(String email, String phone, Optional<String> fax) {
-    this.email = Objects.requireNonNull(email, "email");
-    this.phone = Objects.requireNonNull(phone, "phone");
-    this.fax = Objects.requireNonNull(fax, "fax");
-  }
+    private final String phone;
 
-  public String email() {
-    return email;
-  }
+    private final Optional<String> fax;
 
-  public String phone() {
-    return phone;
-  }
-
-  public Optional<String> fax() {
-    return fax;
-  }
-
-  public ContactInfo withEmail(String email) {
-    return new ContactInfo(email, this.phone, this.fax);
-  }
-
-  public ContactInfo withPhone(String phone) {
-    return new ContactInfo(this.email, phone, this.fax);
-  }
-
-  public ContactInfo withFax(Optional<String> fax) {
-    return new ContactInfo(this.email, this.phone, fax);
-  }
-
-  public ContactInfo withFax(String fax) {
-    return withFax(Optional.ofNullable(fax));
-  }
-
-  public static Builder builder() {
-    return new Builder();
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof ContactInfo that)) return false;
-    return email.equals(that.email) && phone.equals(that.phone) && fax.equals(that.fax);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(email, phone, fax);
-  }
-
-  @Override
-  public String toString() {
-    return "ContactInfo{email='%s', phone='%s', fax=%s}".formatted(email, phone, fax);
-  }
-
-  public static final class Builder {
-    private String email;
-    private String phone;
-    private Optional<String> fax = Optional.empty();
-
-    public Builder email(String email) {
-      this.email = email;
-      return this;
+    private ContactInfo(String email, String phone, Optional<String> fax) {
+        this.email = Objects.requireNonNull(email, "email");
+        this.phone = Objects.requireNonNull(phone, "phone");
+        this.fax = Objects.requireNonNull(fax, "fax");
     }
 
-    public Builder phone(String phone) {
-      this.phone = phone;
-      return this;
+    public String email() {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    public Builder fax(String fax) {
-      this.fax = Optional.ofNullable(fax);
-      return this;
+    public String phone() {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    public Builder fax(Optional<String> fax) {
-      this.fax = fax;
-      return this;
+    public Optional<String> fax() {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    public ContactInfo build() {
-      return new ContactInfo(email, phone, fax);
+    public ContactInfo withEmail(String email) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-  }
+
+    public ContactInfo withPhone(String phone) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    public ContactInfo withFax(Optional<String> fax) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    public ContactInfo withFax(String fax) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    public static Builder builder() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public int hashCode() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public String toString() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    public static final class Builder {
+
+        private String email;
+
+        private String phone;
+
+        private Optional<String> fax = Optional.empty();
+
+        public Builder email(String email) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public Builder phone(String phone) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public Builder fax(String fax) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public Builder fax(Optional<String> fax) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public ContactInfo build() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+    }
 }

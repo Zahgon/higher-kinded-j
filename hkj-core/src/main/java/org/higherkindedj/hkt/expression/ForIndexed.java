@@ -60,189 +60,152 @@ import org.higherkindedj.optics.indexed.Pair;
  */
 public final class ForIndexed {
 
-  private ForIndexed() {} // Static access only
-
-  /**
-   * Starts an indexed traversal-based comprehension over elements of a structure.
-   *
-   * @param traversal The {@link IndexedTraversal} that focuses on elements with their indices.
-   * @param source The source structure containing the elements.
-   * @param applicative The {@link Applicative} instance for the effect context.
-   * @param <F> The witness type for the applicative context.
-   * @param <I> The index type.
-   * @param <S> The type of the source structure.
-   * @param <A> The type of the focused elements.
-   * @return An {@link IndexedSteps} builder for chaining operations.
-   * @throws NullPointerException if any argument is null.
-   */
-  public static <F extends WitnessArity<TypeArity.Unary>, I, S, A>
-      IndexedSteps<F, I, S, A> overIndexed(
-          IndexedTraversal<I, S, A> traversal, S source, Applicative<F> applicative) {
-    Objects.requireNonNull(traversal, "traversal must not be null");
-    Objects.requireNonNull(source, "source must not be null");
-    Objects.requireNonNull(applicative, "applicative must not be null");
-    return new IndexedStepsImpl<>(traversal, source, applicative, (i, a) -> applicative.of(a));
-  }
-
-  /**
-   * A builder interface for chaining operations on indexed traversal-focused elements.
-   *
-   * @param <F> The witness type for the applicative context.
-   * @param <I> The index type.
-   * @param <S> The type of the source structure.
-   * @param <A> The type of the focused elements.
-   */
-  public interface IndexedSteps<F extends WitnessArity<TypeArity.Unary>, I, S, A> {
+    // Static access only
+    private ForIndexed() {
+    }
 
     /**
-     * Filters elements based on their index only.
+     * Starts an indexed traversal-based comprehension over elements of a structure.
      *
-     * <p>Elements whose indices don't match the predicate are preserved unchanged.
-     *
-     * @param predicate The predicate to test indices against.
-     * @return A new builder with the index filter applied.
-     * @throws NullPointerException if {@code predicate} is null.
-     */
-    IndexedSteps<F, I, S, A> filterIndex(Predicate<I> predicate);
-
-    /**
-     * Filters elements based on both their index and value.
-     *
-     * <p>Elements that don't match the predicate are preserved unchanged.
-     *
-     * @param predicate The predicate to test index-value pairs against.
-     * @return A new builder with the filter applied.
-     * @throws NullPointerException if {@code predicate} is null.
-     */
-    IndexedSteps<F, I, S, A> filter(BiPredicate<I, A> predicate);
-
-    /**
-     * Modifies a specific field within each focused element using a lens, with index awareness.
-     *
-     * @param lens The lens focusing on the field to modify.
-     * @param modifier A function taking index and current field value, returning new value.
-     * @param <B> The type of the field being modified.
-     * @return A new builder with the modification applied.
+     * @param traversal The {@link IndexedTraversal} that focuses on elements with their indices.
+     * @param source The source structure containing the elements.
+     * @param applicative The {@link Applicative} instance for the effect context.
+     * @param <F> The witness type for the applicative context.
+     * @param <I> The index type.
+     * @param <S> The type of the source structure.
+     * @param <A> The type of the focused elements.
+     * @return An {@link IndexedSteps} builder for chaining operations.
      * @throws NullPointerException if any argument is null.
      */
-    <B> IndexedSteps<F, I, S, A> modify(Lens<A, B> lens, BiFunction<I, B, B> modifier);
+    public static <F extends WitnessArity<TypeArity.Unary>, I, S, A> IndexedSteps<F, I, S, A> overIndexed(IndexedTraversal<I, S, A> traversal, S source, Applicative<F> applicative) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
     /**
-     * Sets a specific field within each focused element using a lens, with index-based values.
+     * A builder interface for chaining operations on indexed traversal-focused elements.
      *
-     * @param lens The lens focusing on the field to set.
-     * @param valueFunction A function taking index and returning the value to set.
-     * @param <B> The type of the field being set.
-     * @return A new builder with the field set.
-     * @throws NullPointerException if any argument is null.
+     * @param <F> The witness type for the applicative context.
+     * @param <I> The index type.
+     * @param <S> The type of the source structure.
+     * @param <A> The type of the focused elements.
      */
-    <B> IndexedSteps<F, I, S, A> set(Lens<A, B> lens, Function<I, B> valueFunction);
+    public interface IndexedSteps<F extends WitnessArity<TypeArity.Unary>, I, S, A> {
+
+        /**
+         * Filters elements based on their index only.
+         *
+         * <p>Elements whose indices don't match the predicate are preserved unchanged.
+         *
+         * @param predicate The predicate to test indices against.
+         * @return A new builder with the index filter applied.
+         * @throws NullPointerException if {@code predicate} is null.
+         */
+        IndexedSteps<F, I, S, A> filterIndex(Predicate<I> predicate);
+
+        /**
+         * Filters elements based on both their index and value.
+         *
+         * <p>Elements that don't match the predicate are preserved unchanged.
+         *
+         * @param predicate The predicate to test index-value pairs against.
+         * @return A new builder with the filter applied.
+         * @throws NullPointerException if {@code predicate} is null.
+         */
+        IndexedSteps<F, I, S, A> filter(BiPredicate<I, A> predicate);
+
+        /**
+         * Modifies a specific field within each focused element using a lens, with index awareness.
+         *
+         * @param lens The lens focusing on the field to modify.
+         * @param modifier A function taking index and current field value, returning new value.
+         * @param <B> The type of the field being modified.
+         * @return A new builder with the modification applied.
+         * @throws NullPointerException if any argument is null.
+         */
+        <B> IndexedSteps<F, I, S, A> modify(Lens<A, B> lens, BiFunction<I, B, B> modifier);
+
+        /**
+         * Sets a specific field within each focused element using a lens, with index-based values.
+         *
+         * @param lens The lens focusing on the field to set.
+         * @param valueFunction A function taking index and returning the value to set.
+         * @param <B> The type of the field being set.
+         * @return A new builder with the field set.
+         * @throws NullPointerException if any argument is null.
+         */
+        <B> IndexedSteps<F, I, S, A> set(Lens<A, B> lens, Function<I, B> valueFunction);
+
+        /**
+         * Completes the traversal and returns the modified structure wrapped in the applicative
+         * context.
+         *
+         * @return The modified structure in the applicative context.
+         */
+        Kind<F, S> run();
+
+        /**
+         * Collects all focused elements along with their indices into a list.
+         *
+         * @return A list of index-value pairs in the applicative context.
+         */
+        Kind<F, List<Pair<I, A>>> toIndexedList();
+    }
 
     /**
-     * Completes the traversal and returns the modified structure wrapped in the applicative
-     * context.
-     *
-     * @return The modified structure in the applicative context.
+     * Implementation of the indexed traversal steps builder.
      */
-    Kind<F, S> run();
+    private static final class IndexedStepsImpl<F extends WitnessArity<TypeArity.Unary>, I, S, A> implements IndexedSteps<F, I, S, A> {
 
-    /**
-     * Collects all focused elements along with their indices into a list.
-     *
-     * @return A list of index-value pairs in the applicative context.
-     */
-    Kind<F, List<Pair<I, A>>> toIndexedList();
-  }
+        private final IndexedTraversal<I, S, A> traversal;
 
-  /** Implementation of the indexed traversal steps builder. */
-  private static final class IndexedStepsImpl<F extends WitnessArity<TypeArity.Unary>, I, S, A>
-      implements IndexedSteps<F, I, S, A> {
-    private final IndexedTraversal<I, S, A> traversal;
-    private final S source;
-    private final Applicative<F> applicative;
-    private final BiFunction<I, A, Kind<F, A>> transformation;
-    private final BiPredicate<I, A> filterPredicate;
+        private final S source;
 
-    IndexedStepsImpl(
-        IndexedTraversal<I, S, A> traversal,
-        S source,
-        Applicative<F> applicative,
-        BiFunction<I, A, Kind<F, A>> transformation) {
-      this(traversal, source, applicative, transformation, (i, a) -> true);
+        private final Applicative<F> applicative;
+
+        private final BiFunction<I, A, Kind<F, A>> transformation;
+
+        private final BiPredicate<I, A> filterPredicate;
+
+        IndexedStepsImpl(IndexedTraversal<I, S, A> traversal, S source, Applicative<F> applicative, BiFunction<I, A, Kind<F, A>> transformation) {
+            this(traversal, source, applicative, transformation, (i, a) -> true);
+        }
+
+        IndexedStepsImpl(IndexedTraversal<I, S, A> traversal, S source, Applicative<F> applicative, BiFunction<I, A, Kind<F, A>> transformation, BiPredicate<I, A> filterPredicate) {
+            this.traversal = traversal;
+            this.source = source;
+            this.applicative = applicative;
+            this.transformation = transformation;
+            this.filterPredicate = filterPredicate;
+        }
+
+        @Override
+        public IndexedSteps<F, I, S, A> filterIndex(Predicate<I> predicate) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public IndexedSteps<F, I, S, A> filter(BiPredicate<I, A> predicate) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public <B> IndexedSteps<F, I, S, A> modify(Lens<A, B> lens, BiFunction<I, B, B> modifier) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public <B> IndexedSteps<F, I, S, A> set(Lens<A, B> lens, Function<I, B> valueFunction) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public Kind<F, S> run() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public Kind<F, List<Pair<I, A>>> toIndexedList() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
     }
-
-    IndexedStepsImpl(
-        IndexedTraversal<I, S, A> traversal,
-        S source,
-        Applicative<F> applicative,
-        BiFunction<I, A, Kind<F, A>> transformation,
-        BiPredicate<I, A> filterPredicate) {
-      this.traversal = traversal;
-      this.source = source;
-      this.applicative = applicative;
-      this.transformation = transformation;
-      this.filterPredicate = filterPredicate;
-    }
-
-    @Override
-    public IndexedSteps<F, I, S, A> filterIndex(Predicate<I> predicate) {
-      Objects.requireNonNull(predicate, "predicate must not be null");
-      // Combine predicates: adapt index-only predicate to BiPredicate
-      BiPredicate<I, A> indexPredicate = (i, a) -> predicate.test(i);
-      return new IndexedStepsImpl<>(
-          traversal, source, applicative, transformation, filterPredicate.and(indexPredicate));
-    }
-
-    @Override
-    public IndexedSteps<F, I, S, A> filter(BiPredicate<I, A> predicate) {
-      Objects.requireNonNull(predicate, "predicate must not be null");
-      return new IndexedStepsImpl<>(
-          traversal, source, applicative, transformation, filterPredicate.and(predicate));
-    }
-
-    @Override
-    public <B> IndexedSteps<F, I, S, A> modify(Lens<A, B> lens, BiFunction<I, B, B> modifier) {
-      Objects.requireNonNull(lens, "lens must not be null");
-      Objects.requireNonNull(modifier, "modifier must not be null");
-
-      // Only modify elements that pass the filter predicate
-      BiFunction<I, A, Kind<F, A>> modifiedTransformation =
-          (i, a) ->
-              filterPredicate.test(i, a)
-                  ? applicative.map(
-                      newA -> lens.modify(b -> modifier.apply(i, b), newA),
-                      transformation.apply(i, a))
-                  : transformation.apply(i, a);
-
-      return new IndexedStepsImpl<>(
-          traversal, source, applicative, modifiedTransformation, filterPredicate);
-    }
-
-    @Override
-    public <B> IndexedSteps<F, I, S, A> set(Lens<A, B> lens, Function<I, B> valueFunction) {
-      Objects.requireNonNull(lens, "lens must not be null");
-      Objects.requireNonNull(valueFunction, "valueFunction must not be null");
-
-      // Only set on elements that pass the filter predicate
-      BiFunction<I, A, Kind<F, A>> setTransformation =
-          (i, a) ->
-              filterPredicate.test(i, a)
-                  ? applicative.map(
-                      newA -> lens.set(valueFunction.apply(i), newA), transformation.apply(i, a))
-                  : transformation.apply(i, a);
-
-      return new IndexedStepsImpl<>(
-          traversal, source, applicative, setTransformation, filterPredicate);
-    }
-
-    @Override
-    public Kind<F, S> run() {
-      return traversal.imodifyF(transformation, source, applicative);
-    }
-
-    @Override
-    public Kind<F, List<Pair<I, A>>> toIndexedList() {
-      return applicative.of(traversal.asIndexedFold().toIndexedList(source));
-    }
-  }
 }

@@ -10,8 +10,9 @@ package org.higherkindedj.spring.example.domain;
  * @param message the validation error message
  */
 public record ValidationError(String field, String message) implements DomainError {
-  @Override
-  public String message() {
-    return "Validation error on field '" + field + "': " + message;
-  }
+
+    @Override
+    public String message() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

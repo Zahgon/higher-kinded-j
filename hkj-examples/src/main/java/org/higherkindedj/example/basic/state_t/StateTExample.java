@@ -5,7 +5,6 @@ package org.higherkindedj.example.basic.state_t;
 import static org.higherkindedj.hkt.instances.Witnesses.*;
 import static org.higherkindedj.hkt.optional.OptionalKindHelper.OPTIONAL;
 import static org.higherkindedj.hkt.state_t.StateTKindHelper.STATE_T;
-
 import java.util.Optional;
 import java.util.function.Function;
 import org.higherkindedj.hkt.Kind;
@@ -25,178 +24,33 @@ import org.higherkindedj.hkt.state_t.StateTKind;
 
 public class StateTExample {
 
-  public static void main(String[] args) {
-    MonadError<OptionalKind.Witness, Unit> optionalMonad = Instances.monadError(optional());
-
-    Function<Integer, Kind<OptionalKind.Witness, StateTuple<Integer, String>>> runFn =
-        currentState -> {
-          if (currentState < 0) {
-            return OPTIONAL.widen(Optional.empty());
-          }
-          return OPTIONAL.widen(
-              Optional.of(StateTuple.of(currentState + 1, "Value: " + currentState)));
-        };
-
-    StateT<Integer, OptionalKind.Witness, String> stateTExplicit =
-        StateT.create(runFn, optionalMonad);
-
-    Kind<StateTKind.Witness<Integer, OptionalKind.Witness>, String> stateTKind = stateTExplicit;
-
-    Monad<StateTKind.Witness<Integer, OptionalKind.Witness>> stateTMonad =
-        Instances.stateT(optionalMonad);
-
-    Kind<StateTKind.Witness<Integer, OptionalKind.Witness>, String> pureStateT =
-        stateTMonad.of("pure value");
-
-    Optional<StateTuple<Integer, String>> pureResult =
-        OPTIONAL.narrow(STATE_T.runStateT(pureStateT, 10));
-    System.out.println("Pure StateT result: " + pureResult);
-
-    // running computations
-
-    Kind<OptionalKind.Witness, StateTuple<Integer, String>> resultOptionalTuple =
-        STATE_T.runStateT(stateTKind, 10);
-
-    Optional<StateTuple<Integer, String>> actualOptional = OPTIONAL.narrow(resultOptionalTuple);
-
-    if (actualOptional.isPresent()) {
-      StateTuple<Integer, String> tuple = actualOptional.get();
-      System.out.println("New State (from stateTExplicit): " + tuple.state());
-      System.out.println("Value (from stateTExplicit): " + tuple.value());
-    } else {
-      System.out.println("actualOptional was empty for initial state 10");
+    public static void main(String[] args) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    // Example with negative initial state (expecting empty Optional)
-    Kind<OptionalKind.Witness, StateTuple<Integer, String>> resultEmptyOptional =
-        STATE_T.runStateT(stateTKind, -5);
-    Optional<StateTuple<Integer, String>> actualEmpty = OPTIONAL.narrow(resultEmptyOptional);
-    // Output: Is empty: true
-    System.out.println("Is empty (for initial state -5): " + actualEmpty.isEmpty());
+    public static <S, F extends WitnessArity<TypeArity.Unary>> Kind<StateTKind.Witness<S, F>, S> get(Monad<F> monadF) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    // Composing StateT Actions
+    // Usage: stateTMonad.flatMap(currentState -> ..., get(optionalMonad))
+    public static <S, F extends WitnessArity<TypeArity.Unary>> Kind<StateTKind.Witness<S, F>, Void> set(S newState, Monad<F> monadF) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    Kind<StateTKind.Witness<Integer, OptionalKind.Witness>, Integer> initialComputation =
-        StateT.create(s -> OPTIONAL.widen(Optional.of(StateTuple.of(s + 1, s * 2))), optionalMonad);
+    public static <S, F extends WitnessArity<TypeArity.Unary>> Kind<StateTKind.Witness<S, F>, Void> modify(Function<S, S> f, Monad<F> monadF) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    Kind<StateTKind.Witness<Integer, OptionalKind.Witness>, String> mappedComputation =
-        stateTMonad.map(val -> "Computed: " + val, initialComputation);
+    public static <S, F extends WitnessArity<TypeArity.Unary>, A> Kind<StateTKind.Witness<S, F>, A> gets(Function<S, A> f, Monad<F> monadF) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    // Run mappedComputation with initial state 5:
-    // 1. initialComputation runs: state becomes 6, value is 10. Wrapped in Optional.
-    // 2. map's function ("Computed: " + 10) is applied to 10.
-    // Result: Optional.of(StateTuple(6, "Computed: 10"))
-    Optional<StateTuple<Integer, String>> mappedResult =
-        OPTIONAL.narrow(STATE_T.runStateT(mappedComputation, 5));
-    System.out.print("Mapped result (initial state 5): ");
-    mappedResult.ifPresentOrElse(System.out::println, () -> System.out.println("Empty"));
-    // Output: StateTuple[state=6, value=Computed: 10]
-
-    // stateTMonad and optionalMonad are defined
-    Kind<StateTKind.Witness<Integer, OptionalKind.Witness>, Integer> firstStep =
-        StateT.create(
-            s -> OPTIONAL.widen(Optional.of(StateTuple.of(s + 1, s * 10))), optionalMonad);
-
-    Function<Integer, Kind<StateTKind.Witness<Integer, OptionalKind.Witness>, String>>
-        secondStepFn =
-            prevValue ->
-                StateT.create(
-                    s -> {
-                      if (prevValue > 100) {
-                        return OPTIONAL.widen(
-                            Optional.of(StateTuple.of(s + prevValue, "Large: " + prevValue)));
-                      } else {
-                        return OPTIONAL.widen(Optional.empty());
-                      }
-                    },
-                    optionalMonad);
-
-    Kind<StateTKind.Witness<Integer, OptionalKind.Witness>, String> combined =
-        stateTMonad.flatMap(secondStepFn, firstStep);
-
-    // Run with initial state 15
-    // 1. firstStep(15): state=16, value=150. Wrapped in Optional.of.
-    // 2. secondStepFn(150) is called. It returns a new StateT.
-    // 3. The new StateT is run with state=16:
-    //    Its function: s' (which is 16) -> Optional.of(StateTuple(16 + 150, "Large: 150"))
-    //    Result: Optional.of(StateTuple(166, "Large: 150"))
-    Optional<StateTuple<Integer, String>> combinedResult =
-        OPTIONAL.narrow(STATE_T.runStateT(combined, 15));
-    System.out.print("Combined result (initial state 15): ");
-    combinedResult.ifPresentOrElse(System.out::println, () -> System.out.println("Empty"));
-
-    // Output: StateTuple[state=166, value=Large: 150]
-
-    // Run with initial state 5
-    // 1. firstStep(5): state=6, value=50. Wrapped in Optional.of.
-    // 2. secondStepFn(50) is called.
-    // 3. The new StateT is run with state=6:
-    //    Its function: s' (which is 6) -> Optional.empty()
-    //    Result: Optional.empty()
-    Optional<StateTuple<Integer, String>> combinedEmptyResult =
-        OPTIONAL.narrow(STATE_T.runStateT(combined, 5));
-    // Output: true
-    System.out.println(
-        "Is empty from small initial (state 5 for combined): " + combinedEmptyResult.isEmpty());
-
-    mapTExample();
-  }
-
-  public static <S, F extends WitnessArity<TypeArity.Unary>> Kind<StateTKind.Witness<S, F>, S> get(
-      Monad<F> monadF) {
-    Function<S, Kind<F, StateTuple<S, S>>> runFn = s -> monadF.of(StateTuple.of(s, s));
-    return StateT.create(runFn, monadF);
-  }
-
-  // Usage: stateTMonad.flatMap(currentState -> ..., get(optionalMonad))
-
-  public static <S, F extends WitnessArity<TypeArity.Unary>>
-      Kind<StateTKind.Witness<S, F>, Void> set(S newState, Monad<F> monadF) {
-    Function<S, Kind<F, StateTuple<S, Void>>> runFn =
-        s -> monadF.of(StateTuple.of(newState, (Void) null));
-    return StateT.create(runFn, monadF);
-  }
-
-  public static <S, F extends WitnessArity<TypeArity.Unary>>
-      Kind<StateTKind.Witness<S, F>, Void> modify(Function<S, S> f, Monad<F> monadF) {
-    Function<S, Kind<F, StateTuple<S, Void>>> runFn =
-        s -> monadF.of(StateTuple.of(f.apply(s), (Void) null));
-    return StateT.create(runFn, monadF);
-  }
-
-  public static <S, F extends WitnessArity<TypeArity.Unary>, A>
-      Kind<StateTKind.Witness<S, F>, A> gets(Function<S, A> f, Monad<F> monadF) {
-    Function<S, Kind<F, StateTuple<S, A>>> runFn = s -> monadF.of(StateTuple.of(s, f.apply(s)));
-    return StateT.create(runFn, monadF);
-  }
-
-  // --- mapT: Switching from Optional to Id ---
-  //
-  // mapT swaps the outer monad without touching the state-threading logic.
-  // StateT uniquely requires a new Monad instance because it stores its monad
-  // for internal sequencing.
-
-  public static void mapTExample() {
-    MonadError<OptionalKind.Witness, Unit> optionalMonad = Instances.monadError(optional());
-    Monad<IdKind.Witness> idMonad = Instances.monad(id());
-
-    StateT<Integer, OptionalKind.Witness, String> optionalStateT =
-        StateT.create(
-            s -> OPTIONAL.widen(Optional.of(StateTuple.of(s + 1, "count=" + s))), optionalMonad);
-
-    // Use mapT to switch from Optional to Id, providing a default for empty results
-    StateT<Integer, IdKind.Witness, String> idStateT =
-        optionalStateT.mapT(
-            idMonad,
-            optKind -> {
-              Optional<StateTuple<Integer, String>> opt = OPTIONAL.narrow(optKind);
-              return IdKindHelper.ID.widen(Id.of(opt.orElse(StateTuple.of(0, "empty"))));
-            });
-
-    // Run with Id monad — no optionality, guaranteed result
-    Kind<IdKind.Witness, StateTuple<Integer, String>> result = idStateT.runStateT(10);
-    Id<StateTuple<Integer, String>> id = IdKindHelper.ID.narrow(result);
-    System.out.println("\nmapT result (Optional -> Id): " + id.value());
-    // StateTuple[state=11, value=count=10]
-  }
+    // --- mapT: Switching from Optional to Id ---
+    //
+    // mapT swaps the outer monad without touching the state-threading logic.
+    // StateT uniquely requires a new Monad instance because it stores its monad
+    // for internal sequencing.
+    public static void mapTExample() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

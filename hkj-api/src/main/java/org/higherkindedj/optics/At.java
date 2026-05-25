@@ -66,103 +66,103 @@ import java.util.function.Function;
 @FunctionalInterface
 public interface At<S, I, A> {
 
-  /**
-   * Returns a {@link Lens} that focuses on the optional presence of a value at the given index.
-   *
-   * <p>The returned lens has the following semantics:
-   *
-   * <ul>
-   *   <li>{@code get(source)} returns {@link Optional#empty()} if the index is absent, or {@link
-   *       Optional#of(Object)} if present
-   *   <li>{@code set(Optional.empty(), source)} removes the entry at the index
-   *   <li>{@code set(Optional.of(value), source)} inserts or updates the entry at the index
-   * </ul>
-   *
-   * <p>Note on null values: Due to Java's {@link Optional} semantics, an index present with a
-   * {@code null} value is indistinguishable from an absent index. Both will result in {@link
-   * Optional#empty()} from a {@code get} operation.
-   *
-   * @param index The index to focus on
-   * @return A {@link Lens} focusing on {@code Optional<A>} at the given index
-   */
-  Lens<S, Optional<A>> at(I index);
+    /**
+     * Returns a {@link Lens} that focuses on the optional presence of a value at the given index.
+     *
+     * <p>The returned lens has the following semantics:
+     *
+     * <ul>
+     *   <li>{@code get(source)} returns {@link Optional#empty()} if the index is absent, or {@link
+     *       Optional#of(Object)} if present
+     *   <li>{@code set(Optional.empty(), source)} removes the entry at the index
+     *   <li>{@code set(Optional.of(value), source)} inserts or updates the entry at the index
+     * </ul>
+     *
+     * <p>Note on null values: Due to Java's {@link Optional} semantics, an index present with a
+     * {@code null} value is indistinguishable from an absent index. Both will result in {@link
+     * Optional#empty()} from a {@code get} operation.
+     *
+     * @param index The index to focus on
+     * @return A {@link Lens} focusing on {@code Optional<A>} at the given index
+     */
+    Lens<S, Optional<A>> at(I index);
 
-  /**
-   * Retrieves the value at the given index, if present.
-   *
-   * <p>This is a convenience method equivalent to {@code at(index).get(source)}.
-   *
-   * @param index The index to look up
-   * @param source The structure to query
-   * @return An {@link Optional} containing the value if present, or empty if absent
-   */
-  default Optional<A> get(I index, S source) {
-    return at(index).get(source);
-  }
+    /**
+     * Retrieves the value at the given index, if present.
+     *
+     * <p>This is a convenience method equivalent to {@code at(index).get(source)}.
+     *
+     * @param index The index to look up
+     * @param source The structure to query
+     * @return An {@link Optional} containing the value if present, or empty if absent
+     */
+    default Optional<A> get(I index, S source) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Sets the optional value at the given index.
-   *
-   * <p>This is a convenience method equivalent to {@code at(index).set(value, source)}.
-   *
-   * @param index The index to modify
-   * @param value The optional value to set (empty to remove, present to insert/update)
-   * @param source The original structure
-   * @return A new structure with the modification applied
-   */
-  default S set(I index, Optional<A> value, S source) {
-    return at(index).set(value, source);
-  }
+    /**
+     * Sets the optional value at the given index.
+     *
+     * <p>This is a convenience method equivalent to {@code at(index).set(value, source)}.
+     *
+     * @param index The index to modify
+     * @param value The optional value to set (empty to remove, present to insert/update)
+     * @param source The original structure
+     * @return A new structure with the modification applied
+     */
+    default S set(I index, Optional<A> value, S source) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Removes the entry at the given index.
-   *
-   * <p>This is equivalent to {@code at(index).set(Optional.empty(), source)}.
-   *
-   * @param index The index to remove
-   * @param source The original structure
-   * @return A new structure with the entry removed (or unchanged if not present)
-   */
-  default S remove(I index, S source) {
-    return at(index).set(Optional.empty(), source);
-  }
+    /**
+     * Removes the entry at the given index.
+     *
+     * <p>This is equivalent to {@code at(index).set(Optional.empty(), source)}.
+     *
+     * @param index The index to remove
+     * @param source The original structure
+     * @return A new structure with the entry removed (or unchanged if not present)
+     */
+    default S remove(I index, S source) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Inserts or updates the value at the given index.
-   *
-   * <p>This is equivalent to {@code at(index).set(Optional.of(value), source)}.
-   *
-   * @param index The index to insert or update
-   * @param value The value to set
-   * @param source The original structure
-   * @return A new structure with the entry inserted or updated
-   */
-  default S insertOrUpdate(I index, A value, S source) {
-    return at(index).set(Optional.of(value), source);
-  }
+    /**
+     * Inserts or updates the value at the given index.
+     *
+     * <p>This is equivalent to {@code at(index).set(Optional.of(value), source)}.
+     *
+     * @param index The index to insert or update
+     * @param value The value to set
+     * @param source The original structure
+     * @return A new structure with the entry inserted or updated
+     */
+    default S insertOrUpdate(I index, A value, S source) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Modifies the value at the given index if present, using the provided function.
-   *
-   * <p>If the index is absent, the structure is returned unchanged.
-   *
-   * @param index The index to modify
-   * @param modifier The function to apply to the existing value
-   * @param source The original structure
-   * @return A new structure with the modified value, or unchanged if absent
-   */
-  default S modify(I index, Function<A, A> modifier, S source) {
-    return at(index).modify(opt -> opt.map(modifier), source);
-  }
+    /**
+     * Modifies the value at the given index if present, using the provided function.
+     *
+     * <p>If the index is absent, the structure is returned unchanged.
+     *
+     * @param index The index to modify
+     * @param modifier The function to apply to the existing value
+     * @param source The original structure
+     * @return A new structure with the modified value, or unchanged if absent
+     */
+    default S modify(I index, Function<A, A> modifier, S source) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Checks if a value is present at the given index.
-   *
-   * @param index The index to check
-   * @param source The structure to query
-   * @return {@code true} if a value is present at the index, {@code false} otherwise
-   */
-  default boolean contains(I index, S source) {
-    return get(index, source).isPresent();
-  }
+    /**
+     * Checks if a value is present at the given index.
+     *
+     * @param index The index to check
+     * @param source The structure to query
+     * @return {@code true} if a value is present at the index, {@code false} otherwise
+     */
+    default boolean contains(I index, S source) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

@@ -38,328 +38,188 @@ import org.higherkindedj.optics.focus.FocusPath;
  */
 final class DefaultVTaskPath<A> implements VTaskPath<A> {
 
-  private final VTask<A> value;
+    private final VTask<A> value;
 
-  /**
-   * Creates a new DefaultVTaskPath wrapping the given VTask.
-   *
-   * @param value the VTask to wrap; must not be null
-   */
-  DefaultVTaskPath(VTask<A> value) {
-    this.value = Objects.requireNonNull(value, "value must not be null");
-  }
-
-  @Override
-  public VTask<A> run() {
-    return value;
-  }
-
-  @Override
-  public A unsafeRun() {
-    // VTask.run() already wraps checked exceptions in VTaskExecutionException,
-    // so it can only throw RuntimeException or Error — no additional wrapping needed.
-    return value.run();
-  }
-
-  @Override
-  public CompletableFuture<A> runAsync() {
-    return value.runAsync();
-  }
-
-  // ===== Composable implementation =====
-
-  @Override
-  public <B> VTaskPath<B> map(Function<? super A, ? extends B> mapper) {
-    Objects.requireNonNull(mapper, "mapper must not be null");
-    return new DefaultVTaskPath<>(value.map(mapper));
-  }
-
-  @Override
-  public VTaskPath<A> peek(Consumer<? super A> consumer) {
-    Objects.requireNonNull(consumer, "consumer must not be null");
-    return new DefaultVTaskPath<>(value.peek(consumer));
-  }
-
-  @Override
-  public VTaskPath<Unit> asUnit() {
-    return new DefaultVTaskPath<>(value.asUnit());
-  }
-
-  // ===== Combinable implementation =====
-
-  @Override
-  public <B, C> VTaskPath<C> zipWith(
-      Combinable<B> other, BiFunction<? super A, ? super B, ? extends C> combiner) {
-    Objects.requireNonNull(other, "other must not be null");
-    Objects.requireNonNull(combiner, "combiner must not be null");
-
-    if (!(other instanceof VTaskPath<?> otherVTask)) {
-      throw new IllegalArgumentException("Cannot zipWith non-VTaskPath: " + other.getClass());
+    /**
+     * Creates a new DefaultVTaskPath wrapping the given VTask.
+     *
+     * @param value the VTask to wrap; must not be null
+     */
+    DefaultVTaskPath(VTask<A> value) {
+        this.value = Objects.requireNonNull(value, "value must not be null");
     }
 
-    @SuppressWarnings("unchecked")
-    VTaskPath<B> typedOther = (VTaskPath<B>) otherVTask;
+    @Override
+    public VTask<A> run() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    return new DefaultVTaskPath<>(Par.map2(this.run(), typedOther.run(), combiner));
-  }
+    @Override
+    public A unsafeRun() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public <B, C, D> VTaskPath<D> zipWith3(
-      VTaskPath<B> second,
-      VTaskPath<C> third,
-      Function3<? super A, ? super B, ? super C, ? extends D> combiner) {
-    Objects.requireNonNull(second, "second must not be null");
-    Objects.requireNonNull(third, "third must not be null");
-    Objects.requireNonNull(combiner, "combiner must not be null");
+    @Override
+    public CompletableFuture<A> runAsync() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    // Adapt the combiner to match Par.map3's invariant signature
-    Function3<A, B, C, D> adaptedCombiner = (a, b, c) -> combiner.apply(a, b, c);
-    return new DefaultVTaskPath<>(Par.map3(this.run(), second.run(), third.run(), adaptedCombiner));
-  }
+    // ===== Composable implementation =====
+    @Override
+    public <B> VTaskPath<B> map(Function<? super A, ? extends B> mapper) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  // ===== Chainable implementation =====
+    @Override
+    public VTaskPath<A> peek(Consumer<? super A> consumer) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public <B> VTaskPath<B> via(Function<? super A, ? extends Chainable<B>> mapper) {
-    Objects.requireNonNull(mapper, "mapper must not be null");
+    @Override
+    public VTaskPath<Unit> asUnit() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    return new DefaultVTaskPath<>(
-        VTask.delay(
-            () -> {
-              A a = this.unsafeRun();
-              Chainable<B> result = mapper.apply(a);
-              Objects.requireNonNull(result, "mapper must not return null");
+    // ===== Combinable implementation =====
+    @Override
+    public <B, C> VTaskPath<C> zipWith(Combinable<B> other, BiFunction<? super A, ? super B, ? extends C> combiner) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-              if (!(result instanceof VTaskPath<?> vtaskPath)) {
-                throw new IllegalArgumentException(
-                    "via mapper must return VTaskPath, got: " + result.getClass());
-              }
+    @Override
+    public <B, C, D> VTaskPath<D> zipWith3(VTaskPath<B> second, VTaskPath<C> third, Function3<? super A, ? super B, ? super C, ? extends D> combiner) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-              @SuppressWarnings("unchecked")
-              VTaskPath<B> typedResult = (VTaskPath<B>) vtaskPath;
-              return typedResult.unsafeRun();
-            }));
-  }
+    // ===== Chainable implementation =====
+    @Override
+    public <B> VTaskPath<B> via(Function<? super A, ? extends Chainable<B>> mapper) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public <B> VTaskPath<B> flatMap(Function<? super A, ? extends Chainable<B>> mapper) {
-    return via(mapper);
-  }
+    @Override
+    public <B> VTaskPath<B> flatMap(Function<? super A, ? extends Chainable<B>> mapper) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public <B> VTaskPath<B> then(Supplier<? extends Chainable<B>> supplier) {
-    Objects.requireNonNull(supplier, "supplier must not be null");
+    @Override
+    public <B> VTaskPath<B> then(Supplier<? extends Chainable<B>> supplier) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    return new DefaultVTaskPath<>(
-        VTask.delay(
-            () -> {
-              // Execute this VTask for its side effects
-              this.unsafeRun();
+    // ===== Error handling =====
+    @Override
+    public VTaskPath<A> handleError(Function<? super Throwable, ? extends A> recovery) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-              Chainable<B> result = supplier.get();
-              Objects.requireNonNull(result, "supplier must not return null");
+    @Override
+    public VTaskPath<A> handleErrorWith(Function<? super Throwable, ? extends Effectful<A>> recovery) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-              if (!(result instanceof VTaskPath<?> vtaskPath)) {
-                throw new IllegalArgumentException(
-                    "then supplier must return VTaskPath, got: " + result.getClass());
-              }
+    // ===== Timeout =====
+    @Override
+    public VTaskPath<A> timeout(Duration duration) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-              @SuppressWarnings("unchecked")
-              VTaskPath<B> typedResult = (VTaskPath<B>) vtaskPath;
-              return typedResult.unsafeRun();
-            }));
-  }
+    // ===== Focus Bridge Methods =====
+    @Override
+    public <B> VTaskPath<B> focus(FocusPath<A, B> path) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  // ===== Error handling =====
+    @Override
+    public <B> VTaskPath<B> focus(AffinePath<A, B> path, Supplier<? extends RuntimeException> exceptionIfAbsent) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public VTaskPath<A> handleError(Function<? super Throwable, ? extends A> recovery) {
-    Objects.requireNonNull(recovery, "recovery must not be null");
-    return new DefaultVTaskPath<>(value.recover(recovery));
-  }
+    // ===== Retry Operations =====
+    @Override
+    public VTaskPath<A> withRetry(RetryPolicy policy) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public VTaskPath<A> handleErrorWith(
-      Function<? super Throwable, ? extends Effectful<A>> recovery) {
-    Objects.requireNonNull(recovery, "recovery must not be null");
-    return new DefaultVTaskPath<>(
-        value.recoverWith(
-            t -> {
-              Effectful<A> fallback = recovery.apply(t);
-              Objects.requireNonNull(fallback, "recovery must not return null");
-              // If the fallback is itself a VTaskPath, use its VTask directly so we
-              // preserve virtual-thread execution semantics; otherwise adapt the
-              // arbitrary Effectful<A> by delegating to unsafeRun inside a VTask.
-              if (fallback instanceof VTaskPath<A> vtaskFallback) {
-                return vtaskFallback.run();
-              }
-              return VTask.of(fallback::unsafeRun);
-            }));
-  }
+    @Override
+    public VTaskPath<A> retry(int maxAttempts, Duration initialDelay) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  // ===== Timeout =====
+    // ===== Resilience Operations =====
+    @Override
+    public VTaskPath<A> withCircuitBreaker(CircuitBreaker circuitBreaker) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public VTaskPath<A> timeout(Duration duration) {
-    Objects.requireNonNull(duration, "duration must not be null");
-    return new DefaultVTaskPath<>(value.timeout(duration));
-  }
+    @Override
+    public VTaskPath<A> withBulkhead(Bulkhead bulkhead) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  // ===== Focus Bridge Methods =====
+    // ===== Effect Wrapping Methods =====
+    @Override
+    public <E> VTaskPath<Either<E, A>> catching(Function<? super Throwable, ? extends E> exceptionMapper) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public <B> VTaskPath<B> focus(FocusPath<A, B> path) {
-    Objects.requireNonNull(path, "path must not be null");
-    return map(path::get);
-  }
+    @Override
+    public VTaskPath<Maybe<A>> asMaybe() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public <B> VTaskPath<B> focus(
-      AffinePath<A, B> path, Supplier<? extends RuntimeException> exceptionIfAbsent) {
-    Objects.requireNonNull(path, "path must not be null");
-    Objects.requireNonNull(exceptionIfAbsent, "exceptionIfAbsent must not be null");
-    return via(
-        a ->
-            path.getOptional(a)
-                .<VTaskPath<B>>map(Path::vtaskPure)
-                .orElseGet(
-                    () ->
-                        Path.vtask(
-                            () -> {
-                              throw exceptionIfAbsent.get();
-                            })));
-  }
+    @Override
+    public VTaskPath<Try<A>> asTry() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  // ===== Retry Operations =====
+    // ===== Error Transformation =====
+    @Override
+    public VTaskPath<A> mapError(Function<? super Throwable, ? extends Throwable> f) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public VTaskPath<A> withRetry(RetryPolicy policy) {
-    Objects.requireNonNull(policy, "policy must not be null");
-    return new DefaultVTaskPath<>(Retry.retryTask(value, policy));
-  }
+    // ===== Resource Safety =====
+    @Override
+    public VTaskPath<A> guarantee(Runnable finalizer) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public VTaskPath<A> retry(int maxAttempts, Duration initialDelay) {
-    return withRetry(RetryPolicy.exponentialBackoffWithJitter(maxAttempts, initialDelay));
-  }
+    // ===== Parallel Combinators =====
+    @Override
+    public <B, C> VTaskPath<C> parZipWith(VTaskPath<B> other, BiFunction<? super A, ? super B, ? extends C> combiner) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  // ===== Resilience Operations =====
+    @Override
+    public VTaskPath<A> race(VTaskPath<A> other) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public VTaskPath<A> withCircuitBreaker(CircuitBreaker circuitBreaker) {
-    Objects.requireNonNull(circuitBreaker, "circuitBreaker must not be null");
-    return new DefaultVTaskPath<>(circuitBreaker.protect(value));
-  }
+    // ===== Conversion Methods =====
+    @Override
+    public TryPath<A> toTryPath() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public VTaskPath<A> withBulkhead(Bulkhead bulkhead) {
-    Objects.requireNonNull(bulkhead, "bulkhead must not be null");
-    return new DefaultVTaskPath<>(bulkhead.protect(value));
-  }
+    @Override
+    public IOPath<A> toIOPath() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  // ===== Effect Wrapping Methods =====
+    // ===== Object methods =====
+    @Override
+    public boolean equals(Object obj) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public <E> VTaskPath<Either<E, A>> catching(
-      Function<? super Throwable, ? extends E> exceptionMapper) {
-    Objects.requireNonNull(exceptionMapper, "exceptionMapper must not be null");
-    return new DefaultVTaskPath<>(
-        VTask.delay(
-            () -> {
-              try {
-                return Either.right(this.unsafeRun());
-              } catch (Throwable t) {
-                return Either.left(exceptionMapper.apply(t));
-              }
-            }));
-  }
+    @Override
+    public int hashCode() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public VTaskPath<Maybe<A>> asMaybe() {
-    return new DefaultVTaskPath<>(
-        VTask.delay(
-            () -> {
-              try {
-                return Maybe.just(this.unsafeRun());
-              } catch (Throwable t) {
-                return Maybe.nothing();
-              }
-            }));
-  }
-
-  @Override
-  public VTaskPath<Try<A>> asTry() {
-    return new DefaultVTaskPath<>(VTask.delay(() -> this.runSafe()));
-  }
-
-  // ===== Error Transformation =====
-
-  @Override
-  public VTaskPath<A> mapError(Function<? super Throwable, ? extends Throwable> f) {
-    Objects.requireNonNull(f, "f must not be null");
-    return new DefaultVTaskPath<>(value.mapError(f));
-  }
-
-  // ===== Resource Safety =====
-
-  @Override
-  public VTaskPath<A> guarantee(Runnable finalizer) {
-    Objects.requireNonNull(finalizer, "finalizer must not be null");
-    return new DefaultVTaskPath<>(
-        VTask.delay(
-            () -> {
-              try {
-                return this.unsafeRun();
-              } finally {
-                finalizer.run();
-              }
-            }));
-  }
-
-  // ===== Parallel Combinators =====
-
-  @Override
-  public <B, C> VTaskPath<C> parZipWith(
-      VTaskPath<B> other, BiFunction<? super A, ? super B, ? extends C> combiner) {
-    Objects.requireNonNull(other, "other must not be null");
-    Objects.requireNonNull(combiner, "combiner must not be null");
-    // VTaskPath.zipWith already uses Par.map2 for parallel execution.
-    return zipWith(other, combiner);
-  }
-
-  @Override
-  public VTaskPath<A> race(VTaskPath<A> other) {
-    Objects.requireNonNull(other, "other must not be null");
-    return new DefaultVTaskPath<>(Par.race(List.of(this.run(), other.run())));
-  }
-
-  // ===== Conversion Methods =====
-
-  @Override
-  public TryPath<A> toTryPath() {
-    return new TryPath<>(runSafe());
-  }
-
-  @Override
-  public IOPath<A> toIOPath() {
-    return new IOPath<>(IO.delay(this::unsafeRun));
-  }
-
-  // ===== Object methods =====
-
-  @Override
-  public boolean equals(Object obj) {
-    // VTask equality is based on reference since VTask represents a computation
-    return this == obj;
-  }
-
-  @Override
-  public int hashCode() {
-    return System.identityHashCode(this);
-  }
-
-  @Override
-  public String toString() {
-    return "VTaskPath(" + PathToString.DEFERRED + ")";
-  }
+    @Override
+    public String toString() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

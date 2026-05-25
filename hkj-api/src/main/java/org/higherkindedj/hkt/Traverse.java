@@ -138,180 +138,167 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public interface Traverse<T extends WitnessArity<TypeArity.Unary>> extends Functor<T>, Foldable<T> {
 
-  /**
-   * Traverses this structure from left to right, applying an effectful function {@code f} to each
-   * element {@code A}, and collecting the results into the same structure shape, all within an
-   * {@link Applicative} context {@code G}.
-   *
-   * <p>This is the fundamental operation of the Traverse type class. It combines mapping and
-   * sequencing: applying a function that produces effects to each element, and then "sequencing"
-   * those effects according to the rules of the applicative being used.
-   *
-   * <p><b>Behaviour varies by Applicative:</b>
-   *
-   * <ul>
-   *   <li><b>Optional/Maybe:</b> Short-circuits on the first {@code None} encountered, otherwise
-   *       returns {@code Some} of the mapped structure.
-   *   <li><b>Validation:</b> Accumulates all errors using the validation's semigroup, or returns a
-   *       valid result if all applications succeed.
-   *   <li><b>IO/Future:</b> Creates a single composite effect that, when executed, runs all effects
-   *       in sequence and collects results.
-   *   <li><b>List:</b> Generates all possible combinations (cartesian product) of results.
-   *   <li><b>Either:</b> Returns the first error encountered (left), or the successfully mapped
-   *       structure (right).
-   * </ul>
-   *
-   * <p><b>Example Usage:</b>
-   *
-   * <pre>{@code
-   * // Validate a list of strings, converting each to an integer
-   * Traverse<ListKind.Witness> listTraverse = ...;
-   * Applicative<ValidationKind.Witness> validationApp = ...;
-   *
-   * Function<String, Kind<ValidationKind.Witness, Integer>> parseAndValidate = s -> {
-   *   try {
-   *     int value = Integer.parseInt(s);
-   *     return value > 0 ? valid(value) : invalid("Must be positive");
-   *   } catch (NumberFormatException e) {
-   *     return invalid("Not a number: " + s);
-   *   }
-   * };
-   *
-   * Kind<ListKind.Witness, String> inputs = ListKind.of("1", "2", "abc", "-5");
-   * Kind<ValidationKind.Witness, Kind<ListKind.Witness, Integer>> result =
-   *     listTraverse.traverse(validationApp, parseAndValidate, inputs);
-   * // Result: Invalid with errors ["Not a number: abc", "Must be positive"]
-   * }</pre>
-   *
-   * <p><b>Key Properties:</b>
-   *
-   * <ul>
-   *   <li>Preserves the structure's shape (same number and arrangement of elements)
-   *   <li>Processes elements left-to-right
-   *   <li>Effects are sequenced according to the applicative's rules
-   *   <li>Type-safe: The compiler ensures all effects are handled
-   * </ul>
-   *
-   * @param <G> The type constructor of the applicative effect (e.g., {@code IO.Witness}, {@code
-   *     ValidationKind.Witness}, {@code OptionKind.Witness}).
-   * @param <A> The type of elements in the input structure {@code ta}.
-   * @param <B> The type of elements in the output structure, after applying the effectful function
-   *     {@code f}.
-   * @param applicative The {@link Applicative} instance for the effect type {@code G}, which
-   *     determines how effects are sequenced and combined. Must not be null.
-   * @param f A function from {@code A} to {@code Kind<G, B>}, producing an effectful computation
-   *     for each element. The function must not be null. The wildcard bounds allow for flexible
-   *     variance: the function can accept any supertype of {@code A} and return any subtype of
-   *     {@code B} wrapped in the effect {@code G}.
-   * @param ta The traversable structure {@code Kind<T, A>} to traverse (e.g., a {@code List<A>}, a
-   *     {@code Tree<A>}). Must not be null.
-   * @return A {@code Kind<G, Kind<T, B>>}, which represents the structure {@code T} containing
-   *     elements of type {@code B}, all wrapped in the applicative effect {@code G}. For example:
-   *     {@code IO<List<User>>}, {@code Validation<Error, Tree<Int>>}, or {@code
-   *     Optional<Set<String>>}. Guaranteed to be non-null.
-   * @throws NullPointerException if {@code applicative}, {@code f}, or {@code ta} is null
-   *     (implementation-dependent).
-   */
-  <G extends WitnessArity<TypeArity.Unary>, A, B> Kind<G, Kind<T, B>> traverse(
-      Applicative<G> applicative,
-      Function<? super A, ? extends Kind<G, ? extends B>> f,
-      Kind<T, A> ta);
+    /**
+     * Traverses this structure from left to right, applying an effectful function {@code f} to each
+     * element {@code A}, and collecting the results into the same structure shape, all within an
+     * {@link Applicative} context {@code G}.
+     *
+     * <p>This is the fundamental operation of the Traverse type class. It combines mapping and
+     * sequencing: applying a function that produces effects to each element, and then "sequencing"
+     * those effects according to the rules of the applicative being used.
+     *
+     * <p><b>Behaviour varies by Applicative:</b>
+     *
+     * <ul>
+     *   <li><b>Optional/Maybe:</b> Short-circuits on the first {@code None} encountered, otherwise
+     *       returns {@code Some} of the mapped structure.
+     *   <li><b>Validation:</b> Accumulates all errors using the validation's semigroup, or returns a
+     *       valid result if all applications succeed.
+     *   <li><b>IO/Future:</b> Creates a single composite effect that, when executed, runs all effects
+     *       in sequence and collects results.
+     *   <li><b>List:</b> Generates all possible combinations (cartesian product) of results.
+     *   <li><b>Either:</b> Returns the first error encountered (left), or the successfully mapped
+     *       structure (right).
+     * </ul>
+     *
+     * <p><b>Example Usage:</b>
+     *
+     * <pre>{@code
+     * // Validate a list of strings, converting each to an integer
+     * Traverse<ListKind.Witness> listTraverse = ...;
+     * Applicative<ValidationKind.Witness> validationApp = ...;
+     *
+     * Function<String, Kind<ValidationKind.Witness, Integer>> parseAndValidate = s -> {
+     *   try {
+     *     int value = Integer.parseInt(s);
+     *     return value > 0 ? valid(value) : invalid("Must be positive");
+     *   } catch (NumberFormatException e) {
+     *     return invalid("Not a number: " + s);
+     *   }
+     * };
+     *
+     * Kind<ListKind.Witness, String> inputs = ListKind.of("1", "2", "abc", "-5");
+     * Kind<ValidationKind.Witness, Kind<ListKind.Witness, Integer>> result =
+     *     listTraverse.traverse(validationApp, parseAndValidate, inputs);
+     * // Result: Invalid with errors ["Not a number: abc", "Must be positive"]
+     * }</pre>
+     *
+     * <p><b>Key Properties:</b>
+     *
+     * <ul>
+     *   <li>Preserves the structure's shape (same number and arrangement of elements)
+     *   <li>Processes elements left-to-right
+     *   <li>Effects are sequenced according to the applicative's rules
+     *   <li>Type-safe: The compiler ensures all effects are handled
+     * </ul>
+     *
+     * @param <G> The type constructor of the applicative effect (e.g., {@code IO.Witness}, {@code
+     *     ValidationKind.Witness}, {@code OptionKind.Witness}).
+     * @param <A> The type of elements in the input structure {@code ta}.
+     * @param <B> The type of elements in the output structure, after applying the effectful function
+     *     {@code f}.
+     * @param applicative The {@link Applicative} instance for the effect type {@code G}, which
+     *     determines how effects are sequenced and combined. Must not be null.
+     * @param f A function from {@code A} to {@code Kind<G, B>}, producing an effectful computation
+     *     for each element. The function must not be null. The wildcard bounds allow for flexible
+     *     variance: the function can accept any supertype of {@code A} and return any subtype of
+     *     {@code B} wrapped in the effect {@code G}.
+     * @param ta The traversable structure {@code Kind<T, A>} to traverse (e.g., a {@code List<A>}, a
+     *     {@code Tree<A>}). Must not be null.
+     * @return A {@code Kind<G, Kind<T, B>>}, which represents the structure {@code T} containing
+     *     elements of type {@code B}, all wrapped in the applicative effect {@code G}. For example:
+     *     {@code IO<List<User>>}, {@code Validation<Error, Tree<Int>>}, or {@code
+     *     Optional<Set<String>>}. Guaranteed to be non-null.
+     * @throws NullPointerException if {@code applicative}, {@code f}, or {@code ta} is null
+     *     (implementation-dependent).
+     */
+    <G extends WitnessArity<TypeArity.Unary>, A, B> Kind<G, Kind<T, B>> traverse(Applicative<G> applicative, Function<? super A, ? extends Kind<G, ? extends B>> f, Kind<T, A> ta);
 
-  /**
-   * Sequences a structure of applicative effects {@code Kind<T, Kind<G, A>>} into an applicative
-   * effect of a structure {@code Kind<G, Kind<T, A>>}.
-   *
-   * <p>This operation "flips" the nesting of type constructors, taking a structure (like a List)
-   * where each element is an effect (like an IO action), and turning it into a single effect that
-   * produces the structure of results.
-   *
-   * <p>This is a specialized version of {@link #traverse(Applicative, Function, Kind)} where the
-   * function {@code f} is the identity function (i.e., the effects are already present in the
-   * structure, we just need to sequence them).
-   *
-   * <p><b>Common Use Cases:</b>
-   *
-   * <ul>
-   *   <li>Executing a collection of IO actions and collecting their results
-   *   <li>Validating a collection of validations and accumulating errors
-   *   <li>Converting {@code List<Optional<T>>} to {@code Optional<List<T>>}
-   *   <li>Converting {@code Tree<Future<T>>} to {@code Future<Tree<T>>}
-   * </ul>
-   *
-   * <p><b>Example Usage:</b>
-   *
-   * <pre>{@code
-   * // Execute multiple database queries and collect results
-   * Traverse<ListKind.Witness> listTraverse = ...;
-   * Applicative<IO.Witness> ioApp = ...;
-   *
-   * // A list of IO actions
-   * Kind<ListKind.Witness, Kind<IO.Witness, User>> queries = ListKind.of(
-   *     fetchUser(1),
-   *     fetchUser(2),
-   *     fetchUser(3)
-   * );
-   *
-   * // Sequence into a single IO action
-   * Kind<IO.Witness, Kind<ListKind.Witness, User>> allUsers =
-   *     listTraverse.sequenceA(ioApp, queries);
-   * // When executed, performs all queries in sequence and returns List<User>
-   *
-   * // Example with Optional: fail-fast semantics
-   * Kind<ListKind.Witness, Kind<OptionKind.Witness, Integer>> maybeInts = ListKind.of(
-   *     Optional.of(1),
-   *     Optional.empty(),  // This causes the whole thing to be None
-   *     Optional.of(3)
-   * );
-   * Kind<OptionKind.Witness, Kind<ListKind.Witness, Integer>> result =
-   *     listTraverse.sequenceA(optionApp, maybeInts);
-   * // Result: Optional.empty() because one element was empty
-   * }</pre>
-   *
-   * <p><b>Relationship to traverse:</b>
-   *
-   * <pre>{@code
-   * sequenceA(app, tga) == traverse(app, identity, tga)
-   * }</pre>
-   *
-   * where {@code identity} is the function {@code ga -> ga}.
-   *
-   * <p><b>Type Transformation:</b>
-   *
-   * <pre>
-   * Structure&lt;Effect&lt;A&gt;&gt; ──sequenceA──&gt; Effect&lt;Structure&lt;A&gt;&gt;
-   *
-   * Examples:
-   * List&lt;Optional&lt;Int&gt;&gt;  ──&gt;  Optional&lt;List&lt;Int&gt;&gt;
-   * Tree&lt;IO&lt;String&gt;&gt;     ──&gt;  IO&lt;Tree&lt;String&gt;&gt;
-   * Set&lt;Validation&lt;E,A&gt;&gt; ──&gt;  Validation&lt;E, Set&lt;A&gt;&gt;
-   * </pre>
-   *
-   * @param <G> The type constructor of the applicative effect that is currently nested inside the
-   *     structure.
-   * @param <A> The type of elements wrapped in the effect {@code G} within the structure {@code T}.
-   * @param applicative The {@link Applicative} instance for the effect type {@code G}, which
-   *     determines how the effects are sequenced. Must not be null.
-   * @param tga The traversable structure where each element is already an applicative effect:
-   *     {@code Kind<T, Kind<G, A>>}. For example, a {@code List<IO<String>>} or {@code
-   *     Tree<Optional<Int>>}. Must not be null.
-   * @return An applicative effect {@code Kind<G, Kind<T, A>>} that, when "run" or "extracted",
-   *     produces the structure of results. For example, an {@code IO<List<String>>} or {@code
-   *     Optional<Tree<Int>>}. Guaranteed to be non-null.
-   * @throws NullPointerException if {@code applicative} or {@code tga} is null
-   *     (implementation-dependent).
-   */
-  default <G extends WitnessArity<TypeArity.Unary>, A> Kind<G, Kind<T, A>> sequenceA(
-      Applicative<G> applicative, Kind<T, Kind<G, A>> tga) {
-    // Implementation using traverse with identity function
-    // The cast for '? extends A' to 'A' is generally safe here due to how sequence is used.
-    // The function f is A -> Kind<G, A>, where A is Kind<G,A> from tga.
-    // So it becomes Kind<G,A> -> Kind<G, Kind<G,A>> which is not what we want.
-    // The A in traverse's f: A -> Kind<G,B> is the inner A of Kind<T,A>
-    // Here, A is Kind<G,A_val> for tga :: Kind<T, Kind<G,A_val>>.
-    // So f is (Kind<G, A_val> element) -> (Kind<G, A_val> element)
-    // B becomes A_val.
-    // The result of traverse is Kind<G, Kind<T, A_val>>
-    return traverse(applicative, (Kind<G, A> ga) -> ga, tga);
-  }
+    /**
+     * Sequences a structure of applicative effects {@code Kind<T, Kind<G, A>>} into an applicative
+     * effect of a structure {@code Kind<G, Kind<T, A>>}.
+     *
+     * <p>This operation "flips" the nesting of type constructors, taking a structure (like a List)
+     * where each element is an effect (like an IO action), and turning it into a single effect that
+     * produces the structure of results.
+     *
+     * <p>This is a specialized version of {@link #traverse(Applicative, Function, Kind)} where the
+     * function {@code f} is the identity function (i.e., the effects are already present in the
+     * structure, we just need to sequence them).
+     *
+     * <p><b>Common Use Cases:</b>
+     *
+     * <ul>
+     *   <li>Executing a collection of IO actions and collecting their results
+     *   <li>Validating a collection of validations and accumulating errors
+     *   <li>Converting {@code List<Optional<T>>} to {@code Optional<List<T>>}
+     *   <li>Converting {@code Tree<Future<T>>} to {@code Future<Tree<T>>}
+     * </ul>
+     *
+     * <p><b>Example Usage:</b>
+     *
+     * <pre>{@code
+     * // Execute multiple database queries and collect results
+     * Traverse<ListKind.Witness> listTraverse = ...;
+     * Applicative<IO.Witness> ioApp = ...;
+     *
+     * // A list of IO actions
+     * Kind<ListKind.Witness, Kind<IO.Witness, User>> queries = ListKind.of(
+     *     fetchUser(1),
+     *     fetchUser(2),
+     *     fetchUser(3)
+     * );
+     *
+     * // Sequence into a single IO action
+     * Kind<IO.Witness, Kind<ListKind.Witness, User>> allUsers =
+     *     listTraverse.sequenceA(ioApp, queries);
+     * // When executed, performs all queries in sequence and returns List<User>
+     *
+     * // Example with Optional: fail-fast semantics
+     * Kind<ListKind.Witness, Kind<OptionKind.Witness, Integer>> maybeInts = ListKind.of(
+     *     Optional.of(1),
+     *     Optional.empty(),  // This causes the whole thing to be None
+     *     Optional.of(3)
+     * );
+     * Kind<OptionKind.Witness, Kind<ListKind.Witness, Integer>> result =
+     *     listTraverse.sequenceA(optionApp, maybeInts);
+     * // Result: Optional.empty() because one element was empty
+     * }</pre>
+     *
+     * <p><b>Relationship to traverse:</b>
+     *
+     * <pre>{@code
+     * sequenceA(app, tga) == traverse(app, identity, tga)
+     * }</pre>
+     *
+     * where {@code identity} is the function {@code ga -> ga}.
+     *
+     * <p><b>Type Transformation:</b>
+     *
+     * <pre>
+     * Structure&lt;Effect&lt;A&gt;&gt; ──sequenceA──&gt; Effect&lt;Structure&lt;A&gt;&gt;
+     *
+     * Examples:
+     * List&lt;Optional&lt;Int&gt;&gt;  ──&gt;  Optional&lt;List&lt;Int&gt;&gt;
+     * Tree&lt;IO&lt;String&gt;&gt;     ──&gt;  IO&lt;Tree&lt;String&gt;&gt;
+     * Set&lt;Validation&lt;E,A&gt;&gt; ──&gt;  Validation&lt;E, Set&lt;A&gt;&gt;
+     * </pre>
+     *
+     * @param <G> The type constructor of the applicative effect that is currently nested inside the
+     *     structure.
+     * @param <A> The type of elements wrapped in the effect {@code G} within the structure {@code T}.
+     * @param applicative The {@link Applicative} instance for the effect type {@code G}, which
+     *     determines how the effects are sequenced. Must not be null.
+     * @param tga The traversable structure where each element is already an applicative effect:
+     *     {@code Kind<T, Kind<G, A>>}. For example, a {@code List<IO<String>>} or {@code
+     *     Tree<Optional<Int>>}. Must not be null.
+     * @return An applicative effect {@code Kind<G, Kind<T, A>>} that, when "run" or "extracted",
+     *     produces the structure of results. For example, an {@code IO<List<String>>} or {@code
+     *     Optional<Tree<Int>>}. Guaranteed to be non-null.
+     * @throws NullPointerException if {@code applicative} or {@code tga} is null
+     *     (implementation-dependent).
+     */
+    default <G extends WitnessArity<TypeArity.Unary>, A> Kind<G, Kind<T, A>> sequenceA(Applicative<G> applicative, Kind<T, Kind<G, A>> tga) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

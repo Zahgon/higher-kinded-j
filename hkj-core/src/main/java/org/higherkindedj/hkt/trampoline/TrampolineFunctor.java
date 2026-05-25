@@ -3,7 +3,6 @@
 package org.higherkindedj.hkt.trampoline;
 
 import static org.higherkindedj.hkt.trampoline.TrampolineKindHelper.TRAMPOLINE;
-
 import java.util.function.Function;
 import org.higherkindedj.hkt.Functor;
 import org.higherkindedj.hkt.Kind;
@@ -26,44 +25,43 @@ import org.higherkindedj.hkt.util.validation.Validation;
  */
 public class TrampolineFunctor implements Functor<TrampolineKind.Witness> {
 
-  /** Singleton instance of {@code TrampolineFunctor}. */
-  public static final TrampolineFunctor INSTANCE = new TrampolineFunctor();
+    /**
+     * Singleton instance of {@code TrampolineFunctor}.
+     */
+    public static final TrampolineFunctor INSTANCE = new TrampolineFunctor();
 
-  /** Protected constructor to allow subclassing (e.g., by {@code TrampolineMonad}). */
-  protected TrampolineFunctor() {}
+    /**
+     * Protected constructor to allow subclassing (e.g., by {@code TrampolineMonad}).
+     */
+    protected TrampolineFunctor() {
+    }
 
-  /**
-   * Applies a function to the eventual result of a {@link Trampoline} computation, maintaining
-   * stack safety.
-   *
-   * <p>This method leverages {@link TrampolineKindHelper#narrow(Kind)
-   * TrampolineKindHelper.TRAMPOLINE.narrow(Kind)} to access the underlying {@link Trampoline}
-   * instance and {@link TrampolineKindHelper#widen(Trampoline)
-   * TrampolineKindHelper.TRAMPOLINE.widen(Trampoline)} to package the result.
-   *
-   * <p>The function {@code f} is not executed immediately - it will only be applied when the
-   * resulting trampoline is evaluated via {@link Trampoline#run()}.
-   *
-   * @param <A> The type of the value produced by the input {@code Trampoline}.
-   * @param <B> The type of the value produced by the resulting {@code Trampoline} after applying
-   *     the function.
-   * @param f The function to apply to the eventual result. Must not be {@code null}.
-   * @param fa The input {@code TrampolineKind<A>} instance, which is a {@link Kind} representing a
-   *     {@link Trampoline}. Must not be {@code null}.
-   * @return A new {@code TrampolineKind<B>} that will produce the result of applying {@code f} to
-   *     the result of {@code fa} when evaluated. Never {@code null}.
-   * @throws NullPointerException if {@code f} or {@code fa} is {@code null}.
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code fa} cannot be unwrapped
-   *     to a valid {@code Trampoline} representation.
-   */
-  @Override
-  public <A, B> Kind<TrampolineKind.Witness, B> map(
-      Function<? super A, ? extends B> f, Kind<TrampolineKind.Witness, A> fa) {
-
-    Validation.function().validateMap(f, fa);
-
-    Trampoline<A> trampolineA = TRAMPOLINE.narrow(fa);
-    Trampoline<B> resultTrampoline = trampolineA.map(f);
-    return TRAMPOLINE.widen(resultTrampoline);
-  }
+    /**
+     * Applies a function to the eventual result of a {@link Trampoline} computation, maintaining
+     * stack safety.
+     *
+     * <p>This method leverages {@link TrampolineKindHelper#narrow(Kind)
+     * TrampolineKindHelper.TRAMPOLINE.narrow(Kind)} to access the underlying {@link Trampoline}
+     * instance and {@link TrampolineKindHelper#widen(Trampoline)
+     * TrampolineKindHelper.TRAMPOLINE.widen(Trampoline)} to package the result.
+     *
+     * <p>The function {@code f} is not executed immediately - it will only be applied when the
+     * resulting trampoline is evaluated via {@link Trampoline#run()}.
+     *
+     * @param <A> The type of the value produced by the input {@code Trampoline}.
+     * @param <B> The type of the value produced by the resulting {@code Trampoline} after applying
+     *     the function.
+     * @param f The function to apply to the eventual result. Must not be {@code null}.
+     * @param fa The input {@code TrampolineKind<A>} instance, which is a {@link Kind} representing a
+     *     {@link Trampoline}. Must not be {@code null}.
+     * @return A new {@code TrampolineKind<B>} that will produce the result of applying {@code f} to
+     *     the result of {@code fa} when evaluated. Never {@code null}.
+     * @throws NullPointerException if {@code f} or {@code fa} is {@code null}.
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code fa} cannot be unwrapped
+     *     to a valid {@code Trampoline} representation.
+     */
+    @Override
+    public <A, B> Kind<TrampolineKind.Witness, B> map(Function<? super A, ? extends B> f, Kind<TrampolineKind.Witness, A> fa) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

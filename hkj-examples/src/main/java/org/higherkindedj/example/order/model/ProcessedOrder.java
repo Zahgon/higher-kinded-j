@@ -27,145 +27,91 @@ import org.higherkindedj.optics.annotations.GenerateLenses;
  */
 @GenerateLenses
 @GenerateFocus
-public record ProcessedOrder(
-    OrderId orderId,
-    CustomerId customerId,
-    Customer customer,
-    OrderStatus status,
-    Optional<InventoryReservation> inventoryReservation,
-    Optional<PaymentConfirmation> paymentConfirmation,
-    Optional<ShipmentInfo> shipmentInfo,
-    Instant createdAt,
-    Instant lastUpdatedAt) {
-  /**
-   * Creates a processed order from a validated order.
-   *
-   * @param validatedOrder the validated order
-   * @return a new processed order in PROCESSING status
-   */
-  public static ProcessedOrder fromValidated(ValidatedOrder validatedOrder) {
-    var now = Instant.now();
-    return new ProcessedOrder(
-        validatedOrder.orderId(),
-        validatedOrder.customerId(),
-        validatedOrder.customer(),
-        OrderStatus.PROCESSING,
-        Optional.empty(),
-        Optional.empty(),
-        Optional.empty(),
-        validatedOrder.createdAt(),
-        now);
-  }
+public record ProcessedOrder(OrderId orderId, CustomerId customerId, Customer customer, OrderStatus status, Optional<InventoryReservation> inventoryReservation, Optional<PaymentConfirmation> paymentConfirmation, Optional<ShipmentInfo> shipmentInfo, Instant createdAt, Instant lastUpdatedAt) {
 
-  /**
-   * Returns a new order with the status updated.
-   *
-   * @param newStatus the new status
-   * @return updated order
-   */
-  public ProcessedOrder withStatus(OrderStatus newStatus) {
-    return new ProcessedOrder(
-        orderId,
-        customerId,
-        customer,
-        newStatus,
-        inventoryReservation,
-        paymentConfirmation,
-        shipmentInfo,
-        createdAt,
-        Instant.now());
-  }
+    /**
+     * Creates a processed order from a validated order.
+     *
+     * @param validatedOrder the validated order
+     * @return a new processed order in PROCESSING status
+     */
+    public static ProcessedOrder fromValidated(ValidatedOrder validatedOrder) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Returns a new order with inventory reservation set.
-   *
-   * @param reservation the inventory reservation
-   * @return updated order
-   */
-  public ProcessedOrder withInventoryReservation(InventoryReservation reservation) {
-    return new ProcessedOrder(
-        orderId,
-        customerId,
-        customer,
-        OrderStatus.INVENTORY_RESERVED,
-        Optional.of(reservation),
-        paymentConfirmation,
-        shipmentInfo,
-        createdAt,
-        Instant.now());
-  }
+    /**
+     * Returns a new order with the status updated.
+     *
+     * @param newStatus the new status
+     * @return updated order
+     */
+    public ProcessedOrder withStatus(OrderStatus newStatus) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Returns a new order with payment confirmation set.
-   *
-   * @param confirmation the payment confirmation
-   * @return updated order
-   */
-  public ProcessedOrder withPaymentConfirmation(PaymentConfirmation confirmation) {
-    return new ProcessedOrder(
-        orderId,
-        customerId,
-        customer,
-        OrderStatus.PAYMENT_COMPLETE,
-        inventoryReservation,
-        Optional.of(confirmation),
-        shipmentInfo,
-        createdAt,
-        Instant.now());
-  }
+    /**
+     * Returns a new order with inventory reservation set.
+     *
+     * @param reservation the inventory reservation
+     * @return updated order
+     */
+    public ProcessedOrder withInventoryReservation(InventoryReservation reservation) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Returns a new order with shipment info set.
-   *
-   * @param info the shipment info
-   * @return updated order
-   */
-  public ProcessedOrder withShipmentInfo(ShipmentInfo info) {
-    return new ProcessedOrder(
-        orderId,
-        customerId,
-        customer,
-        OrderStatus.SHIPPED,
-        inventoryReservation,
-        paymentConfirmation,
-        Optional.of(info),
-        createdAt,
-        Instant.now());
-  }
+    /**
+     * Returns a new order with payment confirmation set.
+     *
+     * @param confirmation the payment confirmation
+     * @return updated order
+     */
+    public ProcessedOrder withPaymentConfirmation(PaymentConfirmation confirmation) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Checks if this order can be cancelled.
-   *
-   * @return true if the order can be cancelled
-   */
-  public boolean isCancellable() {
-    return status.isCancellable();
-  }
+    /**
+     * Returns a new order with shipment info set.
+     *
+     * @param info the shipment info
+     * @return updated order
+     */
+    public ProcessedOrder withShipmentInfo(ShipmentInfo info) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Checks if this order requires a refund on cancellation.
-   *
-   * @return true if a refund is needed
-   */
-  public boolean requiresRefund() {
-    return paymentConfirmation.isPresent() && status.requiresRefund();
-  }
+    /**
+     * Checks if this order can be cancelled.
+     *
+     * @return true if the order can be cancelled
+     */
+    public boolean isCancellable() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Checks if this order has inventory to release on cancellation.
-   *
-   * @return true if inventory should be released
-   */
-  public boolean hasInventoryToRelease() {
-    return inventoryReservation.isPresent() && status.hasReservedInventory();
-  }
+    /**
+     * Checks if this order requires a refund on cancellation.
+     *
+     * @return true if a refund is needed
+     */
+    public boolean requiresRefund() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Checks if this order has a shipment that can be cancelled.
-   *
-   * @return true if shipment can be cancelled
-   */
-  public boolean hasShipmentToCancel() {
-    return shipmentInfo.isPresent() && status == OrderStatus.SHIPPED;
-  }
+    /**
+     * Checks if this order has inventory to release on cancellation.
+     *
+     * @return true if inventory should be released
+     */
+    public boolean hasInventoryToRelease() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Checks if this order has a shipment that can be cancelled.
+     *
+     * @return true if shipment can be cancelled
+     */
+    public boolean hasShipmentToCancel() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

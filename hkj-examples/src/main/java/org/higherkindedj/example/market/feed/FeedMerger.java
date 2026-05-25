@@ -22,26 +22,24 @@ import org.higherkindedj.hkt.vstream.VStreamPar;
  */
 public interface FeedMerger {
 
-  /**
-   * Merges multiple exchange feeds into a single stream.
-   *
-   * @param feeds the exchange feeds to merge
-   * @return a single VStream containing ticks from all feeds, interleaved by arrival order
-   */
-  static VStream<PriceTick> merge(List<ExchangeFeed> feeds) {
-    Objects.requireNonNull(feeds, "feeds must not be null");
-    List<VStream<PriceTick>> tickStreams = feeds.stream().map(ExchangeFeed::ticks).toList();
-    return VStreamPar.merge(tickStreams);
-  }
+    /**
+     * Merges multiple exchange feeds into a single stream.
+     *
+     * @param feeds the exchange feeds to merge
+     * @return a single VStream containing ticks from all feeds, interleaved by arrival order
+     */
+    static VStream<PriceTick> merge(List<ExchangeFeed> feeds) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Merges two exchange feeds.
-   *
-   * @param first the first feed
-   * @param second the second feed
-   * @return a merged stream
-   */
-  static VStream<PriceTick> merge(ExchangeFeed first, ExchangeFeed second) {
-    return VStreamPar.merge(first.ticks(), second.ticks());
-  }
+    /**
+     * Merges two exchange feeds.
+     *
+     * @param first the first feed
+     * @param second the second feed
+     * @return a merged stream
+     */
+    static VStream<PriceTick> merge(ExchangeFeed first, ExchangeFeed second) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

@@ -38,55 +38,66 @@ import org.higherkindedj.hkt.vstream.VStream;
  */
 public class MarketDataPipeline {
 
-  private final List<ExchangeFeed> feeds;
-  private final TickEnricher enricher;
-  private final RiskPipeline riskPipeline;
-  private final AnomalyDetector anomalyDetector;
-  private final AlertDispatcher alertDispatcher;
-  private final PipelineConfig config;
+    private final List<ExchangeFeed> feeds;
 
-  public MarketDataPipeline(
-      List<ExchangeFeed> feeds,
-      TickEnricher enricher,
-      RiskPipeline riskPipeline,
-      AnomalyDetector anomalyDetector,
-      AlertDispatcher alertDispatcher,
-      PipelineConfig config) {
-    this.feeds = List.copyOf(Objects.requireNonNull(feeds));
-    this.enricher = Objects.requireNonNull(enricher);
-    this.riskPipeline = Objects.requireNonNull(riskPipeline);
-    this.anomalyDetector = Objects.requireNonNull(anomalyDetector);
-    this.alertDispatcher = Objects.requireNonNull(alertDispatcher);
-    this.config = Objects.requireNonNull(config);
-  }
+    private final TickEnricher enricher;
 
-  /** Returns the merged raw tick stream from all feeds, limited by config. */
-  public VStream<PriceTick> mergedTicks() {
-    return FeedMerger.merge(feeds).take(config.maxTicks());
-  }
+    private final RiskPipeline riskPipeline;
 
-  /** Returns the enriched tick stream. */
-  public VStream<EnrichedTick> enrichedTicks() {
-    return enricher.enrich(mergedTicks());
-  }
+    private final AnomalyDetector anomalyDetector;
 
-  /** Returns the risk-assessed stream. */
-  public VStream<RiskAssessment> assessedTicks() {
-    return riskPipeline.assess(enrichedTicks());
-  }
+    private final AlertDispatcher alertDispatcher;
 
-  /** Returns the windowed aggregation stream. */
-  public VStream<AggregatedView> aggregatedViews() {
-    return WindowAggregator.aggregate(assessedTicks(), config.windowSize());
-  }
+    private final PipelineConfig config;
 
-  /** Returns the alert stream (anomaly detection applied). */
-  public VStream<Alert> alerts() {
-    return anomalyDetector.detect(aggregatedViews());
-  }
+    public MarketDataPipeline(List<ExchangeFeed> feeds, TickEnricher enricher, RiskPipeline riskPipeline, AnomalyDetector anomalyDetector, AlertDispatcher alertDispatcher, PipelineConfig config) {
+        this.feeds = List.copyOf(Objects.requireNonNull(feeds));
+        this.enricher = Objects.requireNonNull(enricher);
+        this.riskPipeline = Objects.requireNonNull(riskPipeline);
+        this.anomalyDetector = Objects.requireNonNull(anomalyDetector);
+        this.alertDispatcher = Objects.requireNonNull(alertDispatcher);
+        this.config = Objects.requireNonNull(config);
+    }
 
-  /** Returns the full pipeline: alerts dispatched to all channels. */
-  public VStream<Alert> fullPipeline() {
-    return alertDispatcher.dispatch(alerts());
-  }
+    /**
+     * Returns the merged raw tick stream from all feeds, limited by config.
+     */
+    public VStream<PriceTick> mergedTicks() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Returns the enriched tick stream.
+     */
+    public VStream<EnrichedTick> enrichedTicks() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Returns the risk-assessed stream.
+     */
+    public VStream<RiskAssessment> assessedTicks() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Returns the windowed aggregation stream.
+     */
+    public VStream<AggregatedView> aggregatedViews() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Returns the alert stream (anomaly detection applied).
+     */
+    public VStream<Alert> alerts() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Returns the full pipeline: alerts dispatched to all channels.
+     */
+    public VStream<Alert> fullPipeline() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

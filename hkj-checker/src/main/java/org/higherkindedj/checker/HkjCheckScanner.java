@@ -22,57 +22,39 @@ import java.util.List;
  */
 final class HkjCheckScanner extends TreePathScanner<Void, Void> {
 
-  private final List<CheckVisitor> checks;
+    private final List<CheckVisitor> checks;
 
-  HkjCheckScanner(List<CheckVisitor> checks) {
-    this.checks = checks;
-  }
-
-  @Override
-  public Void visitMethodInvocation(MethodInvocationTree node, Void unused) {
-    for (CheckVisitor c : checks) {
-      c.onMethodInvocation(node, getCurrentPath());
+    HkjCheckScanner(List<CheckVisitor> checks) {
+        this.checks = checks;
     }
-    return super.visitMethodInvocation(node, unused);
-  }
 
-  @Override
-  public Void visitNewClass(NewClassTree node, Void unused) {
-    for (CheckVisitor c : checks) {
-      c.onNewClass(node, getCurrentPath());
+    @Override
+    public Void visitMethodInvocation(MethodInvocationTree node, Void unused) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-    return super.visitNewClass(node, unused);
-  }
 
-  @Override
-  public Void visitExpressionStatement(ExpressionStatementTree node, Void unused) {
-    for (CheckVisitor c : checks) {
-      c.onExpressionStatement(node, getCurrentPath());
+    @Override
+    public Void visitNewClass(NewClassTree node, Void unused) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-    return super.visitExpressionStatement(node, unused);
-  }
 
-  @Override
-  public Void visitSwitch(SwitchTree node, Void unused) {
-    for (CheckVisitor c : checks) {
-      c.onSwitch(node, getCurrentPath());
+    @Override
+    public Void visitExpressionStatement(ExpressionStatementTree node, Void unused) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-    return super.visitSwitch(node, unused);
-  }
 
-  @Override
-  public Void visitSwitchExpression(SwitchExpressionTree node, Void unused) {
-    for (CheckVisitor c : checks) {
-      c.onSwitchExpression(node, getCurrentPath());
+    @Override
+    public Void visitSwitch(SwitchTree node, Void unused) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-    return super.visitSwitchExpression(node, unused);
-  }
 
-  @Override
-  public Void visitParameterizedType(ParameterizedTypeTree node, Void unused) {
-    for (CheckVisitor c : checks) {
-      c.onParameterizedType(node, getCurrentPath());
+    @Override
+    public Void visitSwitchExpression(SwitchExpressionTree node, Void unused) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-    return super.visitParameterizedType(node, unused);
-  }
+
+    @Override
+    public Void visitParameterizedType(ParameterizedTypeTree node, Void unused) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

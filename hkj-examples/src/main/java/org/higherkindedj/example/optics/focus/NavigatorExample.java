@@ -47,438 +47,272 @@ import org.higherkindedj.optics.focus.FocusPath;
  */
 public class NavigatorExample {
 
-  // ============= Domain Model with Navigators Enabled =============
+    // ============= Domain Model with Navigators Enabled =============
+    /**
+     * A company with a headquarters address.
+     *
+     * <p>With {@code generateNavigators = true}, the processor generates a {@code
+     * HeadquartersNavigator} inner class in {@code CompanyFocus} that enables fluent navigation to
+     * {@code Address} fields.
+     */
+    @GenerateFocus(generateNavigators = true)
+    public record Company(String name, Address headquarters, int employeeCount) {
+    }
 
-  /**
-   * A company with a headquarters address.
-   *
-   * <p>With {@code generateNavigators = true}, the processor generates a {@code
-   * HeadquartersNavigator} inner class in {@code CompanyFocus} that enables fluent navigation to
-   * {@code Address} fields.
-   */
-  @GenerateFocus(generateNavigators = true)
-  public record Company(String name, Address headquarters, int employeeCount) {}
+    /**
+     * An address with street and city fields.
+     *
+     * <p>Both fields are navigable from parent types when navigators are enabled.
+     */
+    @GenerateFocus(generateNavigators = true)
+    public record Address(String street, String city, String postcode) {
+    }
 
-  /**
-   * An address with street and city fields.
-   *
-   * <p>Both fields are navigable from parent types when navigators are enabled.
-   */
-  @GenerateFocus(generateNavigators = true)
-  public record Address(String street, String city, String postcode) {}
+    // ============= Domain Model with Depth Limiting =============
+    /**
+     * An organisation with nested department structure.
+     *
+     * <p>The {@code maxNavigatorDepth = 2} limits how deep navigator generation goes. At depth 2, the
+     * navigation returns plain {@code FocusPath} instances instead of further navigators.
+     */
+    @GenerateFocus(generateNavigators = true, maxNavigatorDepth = 2)
+    public record Organisation(String name, Division mainDivision) {
+    }
 
-  // ============= Domain Model with Depth Limiting =============
+    /**
+     * A division containing a department.
+     */
+    @GenerateFocus(generateNavigators = true)
+    public record Division(String name, Department department) {
+    }
 
-  /**
-   * An organisation with nested department structure.
-   *
-   * <p>The {@code maxNavigatorDepth = 2} limits how deep navigator generation goes. At depth 2, the
-   * navigation returns plain {@code FocusPath} instances instead of further navigators.
-   */
-  @GenerateFocus(generateNavigators = true, maxNavigatorDepth = 2)
-  public record Organisation(String name, Division mainDivision) {}
+    /**
+     * A department with a manager name.
+     */
+    @GenerateFocus(generateNavigators = true)
+    public record Department(String name, String managerName) {
+    }
 
-  /** A division containing a department. */
-  @GenerateFocus(generateNavigators = true)
-  public record Division(String name, Department department) {}
+    // ============= Domain Model with Field Filtering =============
+    /**
+     * A person with multiple addresses, demonstrating field filtering.
+     *
+     * <p>The {@code includeFields} attribute restricts navigator generation to only the specified
+     * fields. Here, only {@code homeAddress} gets a navigator; {@code workAddress} uses standard
+     * {@code FocusPath}.
+     */
+    @GenerateFocus(generateNavigators = true, includeFields = { "homeAddress" })
+    public record Person(String name, Address homeAddress, Address workAddress) {
+    }
 
-  /** A department with a manager name. */
-  @GenerateFocus(generateNavigators = true)
-  public record Department(String name, String managerName) {}
+    // ============= Domain Model with SPI-Aware Navigator Widening =============
+    /**
+     * A warehouse with inventory tracked as a Map and a location address.
+     *
+     * <p>The {@code inventory} field is a {@code Map<String, Integer>}, which the SPI recognises via
+     * {@code MapValueGenerator} with {@code ZERO_OR_MORE} cardinality. Navigator methods for this
+     * field will return {@code TraversalPath} instead of {@code FocusPath}.
+     *
+     * <p>The {@code verifiedName} field is an {@code Either<String, String>}, which the SPI
+     * recognises via {@code EitherGenerator} with {@code ZERO_OR_ONE} cardinality. Navigator methods
+     * for this field will return {@code AffinePath} instead of {@code FocusPath}.
+     */
+    @GenerateFocus(generateNavigators = true)
+    public record Warehouse(String name, Map<String, Integer> inventory, Either<String, String> verifiedName, Address location) {
+    }
 
-  // ============= Domain Model with Field Filtering =============
+    // ============= Domain Model with widenCollections =============
+    /**
+     * A shop with inventory tracked as a Map, demonstrating {@code widenCollections = true}.
+     *
+     * <p>By default, SPI-registered ZERO_OR_MORE container types (like {@code Map<K,V>}) produce
+     * {@code FocusPath} in the generated Focus class. With {@code widenCollections = true}, they
+     * automatically widen to {@code TraversalPath}, eliminating the need to manually call {@code
+     * .each(eachInstance)}.
+     *
+     * <p>Compare:
+     *
+     * <ul>
+     *   <li><b>Without</b> {@code widenCollections}: {@code ShopFocus.stock()} returns {@code
+     *       FocusPath<Shop, Map<String, Integer>>} — requires manual {@code .each(mapValuesEach())}
+     *   <li><b>With</b> {@code widenCollections}: {@code ShopWidenedFocus.stock()} returns {@code
+     *       TraversalPath<ShopWidened, Integer>} — already widened
+     * </ul>
+     */
+    @GenerateFocus
+    public record Shop(String name, Map<String, Integer> stock) {
+    }
 
-  /**
-   * A person with multiple addresses, demonstrating field filtering.
-   *
-   * <p>The {@code includeFields} attribute restricts navigator generation to only the specified
-   * fields. Here, only {@code homeAddress} gets a navigator; {@code workAddress} uses standard
-   * {@code FocusPath}.
-   */
-  @GenerateFocus(
-      generateNavigators = true,
-      includeFields = {"homeAddress"})
-  public record Person(String name, Address homeAddress, Address workAddress) {}
+    /**
+     * Same as {@link Shop} but with {@code widenCollections = true}.
+     */
+    @GenerateFocus(widenCollections = true)
+    public record ShopWidened(String name, Map<String, Integer> stock) {
+    }
 
-  // ============= Domain Model with SPI-Aware Navigator Widening =============
+    // ============= Examples =============
+    public static void main(String[] args) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * A warehouse with inventory tracked as a Map and a location address.
-   *
-   * <p>The {@code inventory} field is a {@code Map<String, Integer>}, which the SPI recognises via
-   * {@code MapValueGenerator} with {@code ZERO_OR_MORE} cardinality. Navigator methods for this
-   * field will return {@code TraversalPath} instead of {@code FocusPath}.
-   *
-   * <p>The {@code verifiedName} field is an {@code Either<String, String>}, which the SPI
-   * recognises via {@code EitherGenerator} with {@code ZERO_OR_ONE} cardinality. Navigator methods
-   * for this field will return {@code AffinePath} instead of {@code FocusPath}.
-   */
-  @GenerateFocus(generateNavigators = true)
-  public record Warehouse(
-      String name,
-      Map<String, Integer> inventory,
-      Either<String, String> verifiedName,
-      Address location) {}
+    /**
+     * Demonstrates basic fluent navigation using generated navigators.
+     *
+     * <p>When the annotation processor runs on {@code Company} and {@code Address}, it generates
+     * navigator classes that enable:
+     *
+     * <pre>{@code
+     * CompanyFocus.headquarters().city()  // Returns FocusPath<Company, String>
+     * }</pre>
+     *
+     * <p>Instead of:
+     *
+     * <pre>{@code
+     * CompanyFocus.headquarters().via(AddressFocus.city().toLens())
+     * }</pre>
+     */
+    static void basicNavigatorUsage() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  // ============= Domain Model with widenCollections =============
+    /**
+     * Demonstrates navigator delegate methods.
+     *
+     * <p>Navigator classes delegate all {@code FocusPath} operations to the underlying path:
+     *
+     * <ul>
+     *   <li>{@code get(source)} - Extract the focused value
+     *   <li>{@code set(value, source)} - Replace the focused value
+     *   <li>{@code modify(f, source)} - Transform the focused value
+     *   <li>{@code toPath()} - Access the underlying {@code FocusPath}
+     *   <li>{@code toLens()} - Extract the underlying {@code Lens}
+     * </ul>
+     */
+    static void navigatorDelegateMethods() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * A shop with inventory tracked as a Map, demonstrating {@code widenCollections = true}.
-   *
-   * <p>By default, SPI-registered ZERO_OR_MORE container types (like {@code Map<K,V>}) produce
-   * {@code FocusPath} in the generated Focus class. With {@code widenCollections = true}, they
-   * automatically widen to {@code TraversalPath}, eliminating the need to manually call {@code
-   * .each(eachInstance)}.
-   *
-   * <p>Compare:
-   *
-   * <ul>
-   *   <li><b>Without</b> {@code widenCollections}: {@code ShopFocus.stock()} returns {@code
-   *       FocusPath<Shop, Map<String, Integer>>} — requires manual {@code .each(mapValuesEach())}
-   *   <li><b>With</b> {@code widenCollections}: {@code ShopWidenedFocus.stock()} returns {@code
-   *       TraversalPath<ShopWidened, Integer>} — already widened
-   * </ul>
-   */
-  @GenerateFocus
-  public record Shop(String name, Map<String, Integer> stock) {}
+    /**
+     * Demonstrates SPI-aware navigator path widening.
+     *
+     * <p>The {@code TraversableGenerator} SPI allows the processor to recognise container types
+     * beyond the hardcoded {@code Optional}, {@code Maybe}, {@code List}, {@code Set}, and {@code
+     * Collection}. Each SPI generator declares a {@code Cardinality}:
+     *
+     * <ul>
+     *   <li>{@code ZERO_OR_ONE} (Either, Try, Validated) → navigator returns {@code AffinePath}
+     *   <li>{@code ZERO_OR_MORE} (Map, arrays, third-party collections) → navigator returns {@code
+     *       TraversalPath}
+     * </ul>
+     *
+     * <p>This means navigators correctly handle SPI-registered types without falling back to {@code
+     * FocusPath}:
+     *
+     * <pre>{@code
+     * // Map<String, Integer> field → TraversalPath (via MapValueGenerator SPI)
+     * WarehouseFocus.inventory()  // Returns TraversalPath<Warehouse, Integer>
+     *
+     * // Either<String, String> field → AffinePath (via EitherGenerator SPI)
+     * WarehouseFocus.verifiedName()  // Returns AffinePath<Warehouse, String>
+     * }</pre>
+     */
+    static void spiAwareNavigationExample() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /** Same as {@link Shop} but with {@code widenCollections = true}. */
-  @GenerateFocus(widenCollections = true)
-  public record ShopWidened(String name, Map<String, Integer> stock) {}
+    /**
+     * Demonstrates the {@code widenCollections} annotation attribute.
+     *
+     * <p>By default, SPI-registered ZERO_OR_MORE container types (like {@code Map<K,V>}) produce
+     * {@code FocusPath} in the generated Focus class. Users must manually call {@code
+     * .each(eachInstance)} to get a {@code TraversalPath}.
+     *
+     * <p>With {@code @GenerateFocus(widenCollections = true)}, the processor automatically applies
+     * the SPI's optic expression, producing {@code TraversalPath} directly.
+     *
+     * <pre>{@code
+     * // Without widenCollections (default):
+     * FocusPath<Shop, Map<String, Integer>> stock = ShopFocus.stock();
+     * TraversalPath<Shop, Integer> values = stock.each(EachInstances.mapValuesEach());
+     *
+     * // With widenCollections = true:
+     * TraversalPath<ShopWidened, Integer> values = ShopWidenedFocus.stock();
+     * }</pre>
+     */
+    static void widenCollectionsExample() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  // ============= Examples =============
+    /**
+     * Demonstrates the SPI priority system for resolving conflicts.
+     *
+     * <p>When multiple {@code TraversableGenerator} SPI providers support the same type, priority
+     * determines which one wins. Higher values win; equal priorities emit a compile-time warning.
+     *
+     * <p>Priority constants:
+     *
+     * <ul>
+     *   <li>{@code PRIORITY_FALLBACK} (-100) — catch-all generators
+     *   <li>{@code PRIORITY_DEFAULT} (0) — standard generators (the default)
+     *   <li>{@code PRIORITY_OVERRIDE} (100) — explicit overrides of built-in generators
+     * </ul>
+     *
+     * <p>This system allows third-party libraries to provide custom generators that override or
+     * coexist with built-in ones without conflicts.
+     */
+    static void spiPriorityExample() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  public static void main(String[] args) {
-    System.out.println("=== Navigator Example ===\n");
+    /**
+     * Demonstrates depth limiting with {@code maxNavigatorDepth}.
+     *
+     * <p>Navigator generation stops at the specified depth. Beyond this, navigation returns plain
+     * {@code FocusPath} instances. For deeper access, use {@code .via()} composition.
+     *
+     * <pre>{@code
+     * @GenerateFocus(generateNavigators = true, maxNavigatorDepth = 2)
+     * record Organisation(Division mainDivision) {}
+     *
+     * // Depth 1: Returns MainDivisionNavigator (has nested navigators)
+     * OrganisationFocus.mainDivision()
+     *
+     * // Depth 2: Returns DepartmentNavigator (delegate methods only, no deeper navigators)
+     * OrganisationFocus.mainDivision().department()
+     *
+     * // Use .toPath() to access the underlying FocusPath for .via() composition
+     * OrganisationFocus.mainDivision().department().toPath().via(DepartmentFocus.managerName().toLens())
+     * }</pre>
+     */
+    static void depthLimitingExample() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    basicNavigatorUsage();
-    navigatorDelegateMethods();
-    spiAwareNavigationExample();
-    widenCollectionsExample();
-    spiPriorityExample();
-    depthLimitingExample();
-    fieldFilteringExample();
-  }
-
-  /**
-   * Demonstrates basic fluent navigation using generated navigators.
-   *
-   * <p>When the annotation processor runs on {@code Company} and {@code Address}, it generates
-   * navigator classes that enable:
-   *
-   * <pre>{@code
-   * CompanyFocus.headquarters().city()  // Returns FocusPath<Company, String>
-   * }</pre>
-   *
-   * <p>Instead of:
-   *
-   * <pre>{@code
-   * CompanyFocus.headquarters().via(AddressFocus.city().toLens())
-   * }</pre>
-   */
-  static void basicNavigatorUsage() {
-    System.out.println("--- Basic Navigator Usage ---");
-
-    Company company =
-        new Company("Acme Corp", new Address("123 Main St", "London", "SW1A 1AA"), 100);
-
-    // Without navigators - explicit composition with .via()
-    String cityManual =
-        CompanyFocus.headquarters().toPath().via(AddressFocus.city().toLens()).get(company);
-    System.out.println("City (manual .via() composition): " + cityManual);
-
-    // With navigators - fluent cross-type navigation
-    String cityNavigator = CompanyFocus.headquarters().city().get(company);
-    System.out.println("City (navigator):                 " + cityNavigator);
-
-    // Navigate to a different field just as easily
-    String street = CompanyFocus.headquarters().street().get(company);
-    System.out.println("Street (navigator):               " + street);
-
-    System.out.println();
-  }
-
-  /**
-   * Demonstrates navigator delegate methods.
-   *
-   * <p>Navigator classes delegate all {@code FocusPath} operations to the underlying path:
-   *
-   * <ul>
-   *   <li>{@code get(source)} - Extract the focused value
-   *   <li>{@code set(value, source)} - Replace the focused value
-   *   <li>{@code modify(f, source)} - Transform the focused value
-   *   <li>{@code toPath()} - Access the underlying {@code FocusPath}
-   *   <li>{@code toLens()} - Extract the underlying {@code Lens}
-   * </ul>
-   */
-  static void navigatorDelegateMethods() {
-    System.out.println("--- Navigator Delegate Methods ---");
-
-    Company company = new Company("TechCo", new Address("456 Oak Ave", "Manchester", "M1 1AA"), 50);
-
-    // get() on the navigator - extract the nested Address
-    Address hq = CompanyFocus.headquarters().get(company);
-    System.out.println("get():    " + hq);
-
-    // set() on the navigator - replace the entire Address
-    Company movedCompany =
-        CompanyFocus.headquarters().set(new Address("789 New St", "Birmingham", "B1 1AA"), company);
-    System.out.println(
-        "set():    Moved to " + CompanyFocus.headquarters().get(movedCompany).city());
-
-    // modify() on the navigator - transform the Address
-    Company updatedCompany =
-        CompanyFocus.headquarters()
-            .modify(
-                addr -> new Address(addr.street().toUpperCase(), addr.city(), addr.postcode()),
-                company);
-    System.out.println(
-        "modify(): Street is now " + CompanyFocus.headquarters().get(updatedCompany).street());
-
-    // Navigated delegate methods work on nested paths too
-    FocusPath<Company, String> cityPath = CompanyFocus.headquarters().city();
-    System.out.println("Nested get():    " + cityPath.get(company));
-
-    Company renamedCity = cityPath.set("Edinburgh", company);
-    System.out.println("Nested set():    " + cityPath.get(renamedCity));
-
-    Company uppercasedCity = cityPath.modify(String::toUpperCase, company);
-    System.out.println("Nested modify(): " + cityPath.get(uppercasedCity));
-
-    System.out.println();
-  }
-
-  /**
-   * Demonstrates SPI-aware navigator path widening.
-   *
-   * <p>The {@code TraversableGenerator} SPI allows the processor to recognise container types
-   * beyond the hardcoded {@code Optional}, {@code Maybe}, {@code List}, {@code Set}, and {@code
-   * Collection}. Each SPI generator declares a {@code Cardinality}:
-   *
-   * <ul>
-   *   <li>{@code ZERO_OR_ONE} (Either, Try, Validated) → navigator returns {@code AffinePath}
-   *   <li>{@code ZERO_OR_MORE} (Map, arrays, third-party collections) → navigator returns {@code
-   *       TraversalPath}
-   * </ul>
-   *
-   * <p>This means navigators correctly handle SPI-registered types without falling back to {@code
-   * FocusPath}:
-   *
-   * <pre>{@code
-   * // Map<String, Integer> field → TraversalPath (via MapValueGenerator SPI)
-   * WarehouseFocus.inventory()  // Returns TraversalPath<Warehouse, Integer>
-   *
-   * // Either<String, String> field → AffinePath (via EitherGenerator SPI)
-   * WarehouseFocus.verifiedName()  // Returns AffinePath<Warehouse, String>
-   * }</pre>
-   */
-  static void spiAwareNavigationExample() {
-    System.out.println("--- SPI-Aware Navigator Path Widening ---");
-
-    Warehouse warehouse =
-        new Warehouse(
-            "Central",
-            Map.of("widgets", 100, "gadgets", 50),
-            Either.right("Verified Central"),
-            new Address("10 Dock Rd", "Bristol", "BS1 1AA"));
-
-    // location is a plain record field → navigator returns FocusPath delegates
-    String locationCity = WarehouseFocus.location().city().get(warehouse);
-    System.out.println("location().city():    " + locationCity);
-
-    Warehouse movedWarehouse = WarehouseFocus.location().city().set("Cardiff", warehouse);
-    System.out.println(
-        "After set(Cardiff):   " + WarehouseFocus.location().city().get(movedWarehouse));
-
-    // Standard Focus fields on Warehouse for non-navigable types
-    String name = WarehouseFocus.name().get(warehouse);
-    System.out.println("name():               " + name);
-
-    System.out.println();
-    System.out.println("SPI cardinality summary:");
-    System.out.println("  ZERO_OR_ONE  → AffinePath:    Either, Try, Validated, Optional, Maybe");
-    System.out.println("  ZERO_OR_MORE → TraversalPath:  Map, List, Set, Collection");
-    System.out.println();
-  }
-
-  /**
-   * Demonstrates the {@code widenCollections} annotation attribute.
-   *
-   * <p>By default, SPI-registered ZERO_OR_MORE container types (like {@code Map<K,V>}) produce
-   * {@code FocusPath} in the generated Focus class. Users must manually call {@code
-   * .each(eachInstance)} to get a {@code TraversalPath}.
-   *
-   * <p>With {@code @GenerateFocus(widenCollections = true)}, the processor automatically applies
-   * the SPI's optic expression, producing {@code TraversalPath} directly.
-   *
-   * <pre>{@code
-   * // Without widenCollections (default):
-   * FocusPath<Shop, Map<String, Integer>> stock = ShopFocus.stock();
-   * TraversalPath<Shop, Integer> values = stock.each(EachInstances.mapValuesEach());
-   *
-   * // With widenCollections = true:
-   * TraversalPath<ShopWidened, Integer> values = ShopWidenedFocus.stock();
-   * }</pre>
-   */
-  static void widenCollectionsExample() {
-    System.out.println("--- widenCollections Attribute ---");
-
-    Shop shop = new Shop("Corner Shop", Map.of("apples", 50, "bread", 30, "milk", 20));
-    ShopWidened shopW =
-        new ShopWidened("Corner Shop", Map.of("apples", 50, "bread", 30, "milk", 20));
-
-    // Without widenCollections: stock() returns FocusPath<Shop, Map<String, Integer>>
-    // Must manually widen to traverse into Map values.
-    var stockPath = ShopFocus.stock(); // FocusPath<Shop, Map<String, Integer>>
-    System.out.println("ShopFocus.stock() type:        " + stockPath.getClass().getSimpleName());
-    System.out.println("  Raw Map value:               " + stockPath.get(shop));
-
-    // With widenCollections = true: stock() returns TraversalPath<ShopWidened, Integer>
-    // Already widened — no manual .each() call needed.
-    var stockWidened = ShopWidenedFocus.stock(); // TraversalPath<ShopWidened, Integer>
-    System.out.println("ShopWidenedFocus.stock() type: " + stockWidened.getClass().getSimpleName());
-    System.out.println("  All stock values:            " + stockWidened.getAll(shopW));
-    System.out.println(
-        "  Total stock:                 "
-            + stockWidened.getAll(shopW).stream().mapToInt(Integer::intValue).sum());
-
-    System.out.println();
-  }
-
-  /**
-   * Demonstrates the SPI priority system for resolving conflicts.
-   *
-   * <p>When multiple {@code TraversableGenerator} SPI providers support the same type, priority
-   * determines which one wins. Higher values win; equal priorities emit a compile-time warning.
-   *
-   * <p>Priority constants:
-   *
-   * <ul>
-   *   <li>{@code PRIORITY_FALLBACK} (-100) — catch-all generators
-   *   <li>{@code PRIORITY_DEFAULT} (0) — standard generators (the default)
-   *   <li>{@code PRIORITY_OVERRIDE} (100) — explicit overrides of built-in generators
-   * </ul>
-   *
-   * <p>This system allows third-party libraries to provide custom generators that override or
-   * coexist with built-in ones without conflicts.
-   */
-  static void spiPriorityExample() {
-    System.out.println("--- SPI Generator Priority ---");
-
-    System.out.println("TraversableGenerator priority constants:");
-    System.out.println("  PRIORITY_FALLBACK (-100): Catch-all / fallback generators");
-    System.out.println("  PRIORITY_DEFAULT  (  0): Standard generators (built-in)");
-    System.out.println("  PRIORITY_OVERRIDE ( 100): Explicit overrides of built-ins");
-    System.out.println();
-    System.out.println("Resolution rules:");
-    System.out.println("  1. Generators are sorted by priority (highest first)");
-    System.out.println("  2. The first matching generator wins");
-    System.out.println("  3. Equal-priority conflicts emit a compile-time WARNING");
-    System.out.println("  4. Higher-priority match silently takes precedence");
-    System.out.println();
-    System.out.println("Example: A custom ImmutableList generator with PRIORITY_OVERRIDE");
-    System.out.println("would override the built-in Eclipse Collections generator.");
-
-    System.out.println();
-  }
-
-  /**
-   * Demonstrates depth limiting with {@code maxNavigatorDepth}.
-   *
-   * <p>Navigator generation stops at the specified depth. Beyond this, navigation returns plain
-   * {@code FocusPath} instances. For deeper access, use {@code .via()} composition.
-   *
-   * <pre>{@code
-   * @GenerateFocus(generateNavigators = true, maxNavigatorDepth = 2)
-   * record Organisation(Division mainDivision) {}
-   *
-   * // Depth 1: Returns MainDivisionNavigator (has nested navigators)
-   * OrganisationFocus.mainDivision()
-   *
-   * // Depth 2: Returns DepartmentNavigator (delegate methods only, no deeper navigators)
-   * OrganisationFocus.mainDivision().department()
-   *
-   * // Use .toPath() to access the underlying FocusPath for .via() composition
-   * OrganisationFocus.mainDivision().department().toPath().via(DepartmentFocus.managerName().toLens())
-   * }</pre>
-   */
-  static void depthLimitingExample() {
-    System.out.println("--- Depth Limiting ---");
-
-    Department engineering = new Department("Engineering", "Alice");
-    Division rd = new Division("R&D", engineering);
-    Organisation org = new Organisation("Acme Corp", rd);
-
-    // Depth 1: mainDivision() returns a MainDivisionNavigator
-    String divisionName = OrganisationFocus.mainDivision().name().get(org);
-    System.out.println("Depth 1 - division name: " + divisionName);
-
-    // Depth 2: department() returns a DepartmentNavigator with delegate methods
-    // but no further nested navigators (depth exhausted)
-    Department dept = OrganisationFocus.mainDivision().department().get(org);
-    System.out.println("Depth 2 - department:    " + dept.name());
-
-    // Access leaf fields directly through the navigator's delegate methods
-    String deptName = OrganisationFocus.mainDivision().department().name().get(org);
-    System.out.println("Depth 2 - dept name:     " + deptName);
-
-    // Or use .toPath() to get the underlying FocusPath for .via() composition
-    String manager =
-        OrganisationFocus.mainDivision()
-            .department()
-            .toPath()
-            .via(DepartmentFocus.managerName().toLens())
-            .get(org);
-    System.out.println("Via toPath().via():       " + manager);
-
-    System.out.println();
-  }
-
-  /**
-   * Demonstrates field filtering with {@code includeFields} and {@code excludeFields}.
-   *
-   * <p>Control which fields get navigator generation:
-   *
-   * <ul>
-   *   <li>{@code includeFields = {"field1", "field2"}} - Only these fields get navigators
-   *   <li>{@code excludeFields = {"field3"}} - These fields use standard {@code FocusPath}
-   * </ul>
-   *
-   * <p>If both are specified, {@code includeFields} takes precedence.
-   *
-   * <pre>{@code
-   * @GenerateFocus(generateNavigators = true, includeFields = {"homeAddress"})
-   * record Person(String name, Address homeAddress, Address workAddress) {}
-   *
-   * // homeAddress gets a navigator
-   * PersonFocus.homeAddress().city()  // Returns FocusPath<Person, String>
-   *
-   * // workAddress uses standard FocusPath (no navigator)
-   * PersonFocus.workAddress()  // Returns FocusPath<Person, Address>
-   * PersonFocus.workAddress().via(AddressFocus.city().toLens())  // Explicit composition
-   * }</pre>
-   */
-  static void fieldFilteringExample() {
-    System.out.println("--- Field Filtering ---");
-
-    Address home = new Address("1 Home Lane", "Oxford", "OX1 1AA");
-    Address work = new Address("2 Office St", "Reading", "RG1 1AA");
-    Person person = new Person("Bob", home, work);
-
-    // homeAddress has a navigator (included in includeFields)
-    String homeCity = PersonFocus.homeAddress().city().get(person);
-    System.out.println("homeAddress (navigator): " + homeCity);
-
-    // workAddress returns plain FocusPath (not in includeFields)
-    FocusPath<Person, Address> workPath = PersonFocus.workAddress();
-    String workCity = workPath.via(AddressFocus.city().toLens()).get(person);
-    System.out.println("workAddress (via()):     " + workCity);
-
-    // Modify through the navigator
-    Person movedPerson = PersonFocus.homeAddress().city().set("Cambridge", person);
-    System.out.println(
-        "After move home:         " + PersonFocus.homeAddress().city().get(movedPerson));
-
-    System.out.println();
-  }
+    /**
+     * Demonstrates field filtering with {@code includeFields} and {@code excludeFields}.
+     *
+     * <p>Control which fields get navigator generation:
+     *
+     * <ul>
+     *   <li>{@code includeFields = {"field1", "field2"}} - Only these fields get navigators
+     *   <li>{@code excludeFields = {"field3"}} - These fields use standard {@code FocusPath}
+     * </ul>
+     *
+     * <p>If both are specified, {@code includeFields} takes precedence.
+     *
+     * <pre>{@code
+     * @GenerateFocus(generateNavigators = true, includeFields = {"homeAddress"})
+     * record Person(String name, Address homeAddress, Address workAddress) {}
+     *
+     * // homeAddress gets a navigator
+     * PersonFocus.homeAddress().city()  // Returns FocusPath<Person, String>
+     *
+     * // workAddress uses standard FocusPath (no navigator)
+     * PersonFocus.workAddress()  // Returns FocusPath<Person, Address>
+     * PersonFocus.workAddress().via(AddressFocus.city().toLens())  // Explicit composition
+     * }</pre>
+     */
+    static void fieldFilteringExample() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

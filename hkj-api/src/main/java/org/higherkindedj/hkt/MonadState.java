@@ -28,54 +28,54 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public interface MonadState<F extends WitnessArity<TypeArity.Unary>, S> extends Monad<F> {
 
-  /**
-   * Returns the current state.
-   *
-   * @return A monadic value containing the current state.
-   */
-  Kind<F, S> get();
+    /**
+     * Returns the current state.
+     *
+     * @return A monadic value containing the current state.
+     */
+    Kind<F, S> get();
 
-  /**
-   * Replaces the current state with the given value.
-   *
-   * @param s The new state value.
-   * @return A monadic value containing {@link Unit#INSTANCE}.
-   */
-  Kind<F, Unit> put(S s);
+    /**
+     * Replaces the current state with the given value.
+     *
+     * @param s The new state value.
+     * @return A monadic value containing {@link Unit#INSTANCE}.
+     */
+    Kind<F, Unit> put(S s);
 
-  /**
-   * Transforms the current state using the given function.
-   *
-   * <p>This is equivalent to {@code flatMap(s -> put(f.apply(s)), get())}.
-   *
-   * @param f The function to transform the state. Must not be null.
-   * @return A monadic value containing {@link Unit#INSTANCE}.
-   */
-  default Kind<F, Unit> modify(Function<S, S> f) {
-    return flatMap(s -> put(f.apply(s)), get());
-  }
+    /**
+     * Transforms the current state using the given function.
+     *
+     * <p>This is equivalent to {@code flatMap(s -> put(f.apply(s)), get())}.
+     *
+     * @param f The function to transform the state. Must not be null.
+     * @return A monadic value containing {@link Unit#INSTANCE}.
+     */
+    default Kind<F, Unit> modify(Function<S, S> f) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Extracts a value from the current state using the given function.
-   *
-   * <p>This is equivalent to {@code map(f, get())}.
-   *
-   * @param f The function to extract a value from the state. Must not be null.
-   * @param <A> The type of the extracted value.
-   * @return A monadic value containing the extracted value.
-   */
-  default <A> Kind<F, A> gets(Function<S, A> f) {
-    return map(f, get());
-  }
+    /**
+     * Extracts a value from the current state using the given function.
+     *
+     * <p>This is equivalent to {@code map(f, get())}.
+     *
+     * @param f The function to extract a value from the state. Must not be null.
+     * @param <A> The type of the extracted value.
+     * @return A monadic value containing the extracted value.
+     */
+    default <A> Kind<F, A> gets(Function<S, A> f) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Extracts a value from the current state. This is an alias for {@link #gets(Function)}.
-   *
-   * @param f The function to extract a value from the state. Must not be null.
-   * @param <A> The type of the extracted value.
-   * @return A monadic value containing the extracted value.
-   */
-  default <A> Kind<F, A> inspect(Function<S, A> f) {
-    return gets(f);
-  }
+    /**
+     * Extracts a value from the current state. This is an alias for {@link #gets(Function)}.
+     *
+     * @param f The function to extract a value from the state. Must not be null.
+     * @param <A> The type of the extracted value.
+     * @return A monadic value containing the extracted value.
+     */
+    default <A> Kind<F, A> inspect(Function<S, A> f) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

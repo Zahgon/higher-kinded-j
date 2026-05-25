@@ -36,105 +36,97 @@ import javax.tools.Diagnostic;
  */
 public final class WitnessArityChecker implements CheckVisitor {
 
-  static final String WITNESS_ARITY_FQN = "org.higherkindedj.hkt.WitnessArity";
+    static final String WITNESS_ARITY_FQN = "org.higherkindedj.hkt.WitnessArity";
 
-  private static final Set<String> HKT_GENERICS =
-      Set.of(
-          "org.higherkindedj.hkt.Kind",
-          "org.higherkindedj.hkt.Kind2",
-          "org.higherkindedj.hkt.Monad",
-          "org.higherkindedj.hkt.Functor",
-          "org.higherkindedj.hkt.Applicative");
+    private static final Set<String> HKT_GENERICS = Set.of("org.higherkindedj.hkt.Kind", "org.higherkindedj.hkt.Kind2", "org.higherkindedj.hkt.Monad", "org.higherkindedj.hkt.Functor", "org.higherkindedj.hkt.Applicative");
 
-  private final Trees trees;
-  private final Types types;
-  private final Elements elements;
-  private final Diagnostic.Kind severity;
+    private final Trees trees;
 
-  /**
-   * Creates a checker reporting at {@link Diagnostic.Kind#ERROR}.
-   *
-   * @param trees the {@link Trees} utility for AST and type resolution
-   * @param types the {@link Types} utility for type operations
-   * @param elements the {@link Elements} utility for element operations
-   */
-  public WitnessArityChecker(Trees trees, Types types, Elements elements) {
-    this(trees, types, elements, Diagnostic.Kind.ERROR);
-  }
+    private final Types types;
 
-  /**
-   * Creates a checker reporting at the given severity.
-   *
-   * @param trees the Trees utility from the javac task; must not be null
-   * @param types the model Types utility from the javac task
-   * @param elements the model Elements utility from the javac task
-   * @param severity the severity at which the companion diagnostic is reported
-   */
-  public WitnessArityChecker(
-      Trees trees, Types types, Elements elements, Diagnostic.Kind severity) {
-    this.trees = trees;
-    this.types = types;
-    this.elements = elements;
-    this.severity = severity;
-  }
+    private final Elements elements;
 
-  @Override
-  public void onParameterizedType(ParameterizedTypeTree node, TreePath path) {
-    inspect(node, path);
-  }
+    private final Diagnostic.Kind severity;
 
-  private void inspect(ParameterizedTypeTree node, TreePath path) {
-    if (node.getTypeArguments().isEmpty()) {
-      return;
+    /**
+     * Creates a checker reporting at {@link Diagnostic.Kind#ERROR}.
+     *
+     * @param trees the {@link Trees} utility for AST and type resolution
+     * @param types the {@link Types} utility for type operations
+     * @param elements the {@link Elements} utility for element operations
+     */
+    public WitnessArityChecker(Trees trees, Types types, Elements elements) {
+        this(trees, types, elements, Diagnostic.Kind.ERROR);
     }
-    String genericFqn = declaredFqn(typeOf(path, node.getType()));
-    if (genericFqn == null || !HKT_GENERICS.contains(genericFqn)) {
-      return;
-    }
-    Tree witnessArg = node.getTypeArguments().getFirst();
-    TypeMirror x = typeOf(path, witnessArg);
-    if (x == null) {
-      return; // unresolved: skip silently (no false positives)
-    }
-    TypeElement wa = elements.getTypeElement(WITNESS_ARITY_FQN);
-    if (wa == null) {
-      return; // WitnessArity not on the classpath: nothing to check
-    }
-    TypeMirror waErasure = types.erasure(wa.asType());
 
-    boolean typeVariable;
-    boolean satisfies;
-    if (x.getKind() == TypeKind.TYPEVAR) {
-      typeVariable = true;
-      // Assignability on the type variable itself honours its (possibly intersection) bound;
-      // erasing the upper bound would collapse `A & WitnessArity<…>` to `A` and false-positive.
-      satisfies = types.isAssignable(x, waErasure);
-    } else if (x.getKind() == TypeKind.DECLARED) {
-      typeVariable = false;
-      satisfies = types.isAssignable(types.erasure(x), waErasure);
-    } else {
-      return; // wildcard / error / other: skip silently
+    /**
+     * Creates a checker reporting at the given severity.
+     *
+     * @param trees the Trees utility from the javac task; must not be null
+     * @param types the model Types utility from the javac task
+     * @param elements the model Elements utility from the javac task
+     * @param severity the severity at which the companion diagnostic is reported
+     */
+    public WitnessArityChecker(Trees trees, Types types, Elements elements, Diagnostic.Kind severity) {
+        this.trees = trees;
+        this.types = types;
+        this.elements = elements;
+        this.severity = severity;
     }
-    if (!satisfies) {
-      trees.printMessage(
-          severity,
-          DiagnosticMessages.witnessArity(typeVariable, witnessArg.toString()),
-          witnessArg,
-          path.getCompilationUnit());
-    }
-  }
 
-  private TypeMirror typeOf(TreePath path, Tree t) {
-    try {
-      return trees.getTypeMirror(new TreePath(path, t));
-    } catch (RuntimeException e) {
-      return null;
+    @Override
+    public void onParameterizedType(ParameterizedTypeTree node, TreePath path) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-  }
 
-  private static String declaredFqn(TypeMirror t) {
-    return t instanceof DeclaredType dt && dt.asElement() instanceof TypeElement te
-        ? te.getQualifiedName().toString()
-        : null;
-  }
+    private void inspect(ParameterizedTypeTree node, TreePath path) {
+        if (node.getTypeArguments().isEmpty()) {
+            return;
+        }
+        String genericFqn = declaredFqn(typeOf(path, node.getType()));
+        if (genericFqn == null || !HKT_GENERICS.contains(genericFqn)) {
+            return;
+        }
+        Tree witnessArg = node.getTypeArguments().getFirst();
+        TypeMirror x = typeOf(path, witnessArg);
+        if (x == null) {
+            // unresolved: skip silently (no false positives)
+            return;
+        }
+        TypeElement wa = elements.getTypeElement(WITNESS_ARITY_FQN);
+        if (wa == null) {
+            // WitnessArity not on the classpath: nothing to check
+            return;
+        }
+        TypeMirror waErasure = types.erasure(wa.asType());
+        boolean typeVariable;
+        boolean satisfies;
+        if (x.getKind() == TypeKind.TYPEVAR) {
+            typeVariable = true;
+            // Assignability on the type variable itself honours its (possibly intersection) bound;
+            // erasing the upper bound would collapse `A & WitnessArity<…>` to `A` and false-positive.
+            satisfies = types.isAssignable(x, waErasure);
+        } else if (x.getKind() == TypeKind.DECLARED) {
+            typeVariable = false;
+            satisfies = types.isAssignable(types.erasure(x), waErasure);
+        } else {
+            // wildcard / error / other: skip silently
+            return;
+        }
+        if (!satisfies) {
+            trees.printMessage(severity, DiagnosticMessages.witnessArity(typeVariable, witnessArg.toString()), witnessArg, path.getCompilationUnit());
+        }
+    }
+
+    private TypeMirror typeOf(TreePath path, Tree t) {
+        try {
+            return trees.getTypeMirror(new TreePath(path, t));
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+
+    private static String declaredFqn(TypeMirror t) {
+        return t instanceof DeclaredType dt && dt.asElement() instanceof TypeElement te ? te.getQualifiedName().toString() : null;
+    }
 }

@@ -5,7 +5,6 @@ package org.higherkindedj.hkt.effect;
 import static org.higherkindedj.hkt.list.ListKindHelper.LIST;
 import static org.higherkindedj.hkt.stream.StreamKindHelper.STREAM;
 import static org.higherkindedj.hkt.vstream.VStreamKindHelper.VSTREAM;
-
 import java.util.List;
 import java.util.stream.Stream;
 import org.higherkindedj.hkt.Kind;
@@ -47,81 +46,56 @@ import org.higherkindedj.hkt.vstream.VStreamKind;
  */
 public final class VStreamTransformations {
 
-  private VStreamTransformations() {}
+    private VStreamTransformations() {
+    }
 
-  /**
-   * Natural transformation from {@link Stream} to {@link VStream}.
-   *
-   * <p>The stream is consumed lazily via its iterator. This transformation does not materialise the
-   * stream; elements are produced on demand when the resulting VStream is pulled.
-   *
-   * @return a natural transformation from StreamKind to VStreamKind
-   */
-  public static NaturalTransformation<StreamKind.Witness, VStreamKind.Witness> streamToVStream() {
-    return new NaturalTransformation<>() {
-      @Override
-      public <A> Kind<VStreamKind.Witness, A> apply(Kind<StreamKind.Witness, A> fa) {
-        Stream<A> stream = STREAM.narrow(fa);
-        return VSTREAM.widen(VStream.fromStream(stream));
-      }
-    };
-  }
+    /**
+     * Natural transformation from {@link Stream} to {@link VStream}.
+     *
+     * <p>The stream is consumed lazily via its iterator. This transformation does not materialise the
+     * stream; elements are produced on demand when the resulting VStream is pulled.
+     *
+     * @return a natural transformation from StreamKind to VStreamKind
+     */
+    public static NaturalTransformation<StreamKind.Witness, VStreamKind.Witness> streamToVStream() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Natural transformation from {@link VStream} to {@link Stream}.
-   *
-   * <p><b>Warning:</b> This transformation materialises the entire VStream by collecting all
-   * elements into a list, then creating a stream from that list. Only safe for finite streams.
-   * Using this on an infinite stream will cause an {@link OutOfMemoryError}.
-   *
-   * @return a natural transformation from VStreamKind to StreamKind
-   */
-  public static NaturalTransformation<VStreamKind.Witness, StreamKind.Witness> vstreamToStream() {
-    return new NaturalTransformation<>() {
-      @Override
-      public <A> Kind<StreamKind.Witness, A> apply(Kind<VStreamKind.Witness, A> fa) {
-        VStream<A> vstream = VSTREAM.narrow(fa);
-        List<A> elements = vstream.toList().run();
-        return STREAM.widen(elements.stream());
-      }
-    };
-  }
+    /**
+     * Natural transformation from {@link VStream} to {@link Stream}.
+     *
+     * <p><b>Warning:</b> This transformation materialises the entire VStream by collecting all
+     * elements into a list, then creating a stream from that list. Only safe for finite streams.
+     * Using this on an infinite stream will cause an {@link OutOfMemoryError}.
+     *
+     * @return a natural transformation from VStreamKind to StreamKind
+     */
+    public static NaturalTransformation<VStreamKind.Witness, StreamKind.Witness> vstreamToStream() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Natural transformation from {@link List} to {@link VStream}.
-   *
-   * <p>The list is consumed lazily element by element. This transformation does not copy the list;
-   * elements are produced on demand when the resulting VStream is pulled.
-   *
-   * @return a natural transformation from ListKind to VStreamKind
-   */
-  public static NaturalTransformation<ListKind.Witness, VStreamKind.Witness> listToVStream() {
-    return new NaturalTransformation<>() {
-      @Override
-      public <A> Kind<VStreamKind.Witness, A> apply(Kind<ListKind.Witness, A> fa) {
-        List<A> list = LIST.narrow(fa);
-        return VSTREAM.widen(VStream.fromList(list));
-      }
-    };
-  }
+    /**
+     * Natural transformation from {@link List} to {@link VStream}.
+     *
+     * <p>The list is consumed lazily element by element. This transformation does not copy the list;
+     * elements are produced on demand when the resulting VStream is pulled.
+     *
+     * @return a natural transformation from ListKind to VStreamKind
+     */
+    public static NaturalTransformation<ListKind.Witness, VStreamKind.Witness> listToVStream() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Natural transformation from {@link VStream} to {@link List}.
-   *
-   * <p><b>Warning:</b> This transformation materialises the entire VStream by collecting all
-   * elements into a list. Only safe for finite streams. Using this on an infinite stream will cause
-   * an {@link OutOfMemoryError}.
-   *
-   * @return a natural transformation from VStreamKind to ListKind
-   */
-  public static NaturalTransformation<VStreamKind.Witness, ListKind.Witness> vstreamToList() {
-    return new NaturalTransformation<>() {
-      @Override
-      public <A> Kind<ListKind.Witness, A> apply(Kind<VStreamKind.Witness, A> fa) {
-        VStream<A> vstream = VSTREAM.narrow(fa);
-        List<A> elements = vstream.toList().run();
-        return LIST.widen(elements);
-      }
-    };
-  }
+    /**
+     * Natural transformation from {@link VStream} to {@link List}.
+     *
+     * <p><b>Warning:</b> This transformation materialises the entire VStream by collecting all
+     * elements into a list. Only safe for finite streams. Using this on an infinite stream will cause
+     * an {@link OutOfMemoryError}.
+     *
+     * @return a natural transformation from VStreamKind to ListKind
+     */
+    public static NaturalTransformation<VStreamKind.Witness, ListKind.Witness> vstreamToList() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

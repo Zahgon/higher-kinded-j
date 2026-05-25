@@ -17,86 +17,62 @@ import org.higherkindedj.optics.util.Traversals;
 /// Base of Traversable Generators for Apache Collections that are both:
 ///  * A collection of 0...n, not 1
 ///  * Of a single type/column
-public abstract class ApacheBaseSingleIterableTraversableGenerator
-    extends BaseTraversableGenerator {
-  /** Base package name for Apache Commons Collections 4. */
-  protected static final String PACKAGE = "org.apache.commons.collections4";
+public abstract class ApacheBaseSingleIterableTraversableGenerator extends BaseTraversableGenerator {
 
-  /** Package name for Apache Commons Collections bag implementations. */
-  protected static final String BAG_PACKAGE = PACKAGE + ".bag";
+    /**
+     * Base package name for Apache Commons Collections 4.
+     */
+    protected static final String PACKAGE = "org.apache.commons.collections4";
 
-  /** Package name for Apache Commons Collections list implementations. */
-  protected static final String LIST_PACKAGE = PACKAGE + ".list";
+    /**
+     * Package name for Apache Commons Collections bag implementations.
+     */
+    protected static final String BAG_PACKAGE = PACKAGE + ".bag";
 
-  /** Class name for Apache Commons Collections {@code HashBag}. */
-  public static final ClassName HASH_BAG = ClassName.get(BAG_PACKAGE, "HashBag");
+    /**
+     * Package name for Apache Commons Collections list implementations.
+     */
+    protected static final String LIST_PACKAGE = PACKAGE + ".list";
 
-  /** Class name for Apache Commons Collections {@code UnmodifiableList}. */
-  public static final ClassName UNMODIFIABLE_LIST = ClassName.get(LIST_PACKAGE, "UnmodifiableList");
+    /**
+     * Class name for Apache Commons Collections {@code HashBag}.
+     */
+    public static final ClassName HASH_BAG = ClassName.get(BAG_PACKAGE, "HashBag");
 
-  // Unfortunately, the return type of making both `UnmodifiableBag` and `UnmodifiableSet` is
-  //   `Bag` and `Set` respectively, which means we would probably need to do an unsafe cast to
-  //   properly convert them.
+    /**
+     * Class name for Apache Commons Collections {@code UnmodifiableList}.
+     */
+    public static final ClassName UNMODIFIABLE_LIST = ClassName.get(LIST_PACKAGE, "UnmodifiableList");
 
-  /** The concrete Apache collection type this generator supports. */
-  protected final ClassName supportedType;
+    // Unfortunately, the return type of making both `UnmodifiableBag` and `UnmodifiableSet` is
+    //   `Bag` and `Set` respectively, which means we would probably need to do an unsafe cast to
+    //   properly convert them.
+    /**
+     * The concrete Apache collection type this generator supports.
+     */
+    protected final ClassName supportedType;
 
-  ApacheBaseSingleIterableTraversableGenerator(final ClassName supportedType) {
-    this.supportedType = supportedType;
-  }
-
-  @Override
-  public String generateOpticExpression() {
-    return "EachInstances.fromIterableCollecting(" + supportedType.simpleName() + "::new)";
-  }
-
-  @Override
-  public Set<String> getRequiredImports() {
-    return Set.of(
-        "org.higherkindedj.optics.each.EachInstances",
-        supportedType.packageName() + "." + supportedType.simpleName());
-  }
-
-  @Override
-  public boolean supports(final TypeMirror type) {
-    if (!(type instanceof DeclaredType declaredType)) {
-      return false;
+    ApacheBaseSingleIterableTraversableGenerator(final ClassName supportedType) {
+        this.supportedType = supportedType;
     }
-    final Element element = declaredType.asElement();
-    return element.toString().equals(supportedType.canonicalName());
-  }
 
-  @Override
-  public CodeBlock generateModifyF(
-      final RecordComponentElement component,
-      final ClassName recordClassName,
-      final List<? extends RecordComponentElement> allComponents) {
+    @Override
+    public String generateOpticExpression() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    final String componentName = component.getSimpleName().toString();
-    final String constructorArgs =
-        generateConstructorArgs(componentName, "converted", allComponents);
+    @Override
+    public Set<String> getRequiredImports() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    return CodeBlock.builder()
-        // 1. Convert to Java ArrayList (like the `basejdk/SetGenerator.java` does)
-        .addStatement(
-            "final var sourceList = new $T<>(source.$L())", ArrayList.class, componentName)
+    @Override
+    public boolean supports(final TypeMirror type) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-        // 2. Call the static helper to traverse the list, yielding Kind<F, List<B>>.
-        .addStatement(
-            "final var effectOfList = $T.traverseList(sourceList, f, applicative)",
-            Traversals.class)
-
-        // 3. Map over the effect to convert the inner List back to our type.
-        .addStatement(
-            "final var effectOfConvertBack = applicative.map("
-                + "newList -> new $T<>(newList), effectOfList)",
-            supportedType)
-
-        // 4. Map over the final effect to reconstruct the record with the original type.
-        .addStatement(
-            "return applicative.map(converted -> new $T($L), effectOfConvertBack)",
-            recordClassName,
-            constructorArgs)
-        .build();
-  }
+    @Override
+    public CodeBlock generateModifyF(final RecordComponentElement component, final ClassName recordClassName, final List<? extends RecordComponentElement> allComponents) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

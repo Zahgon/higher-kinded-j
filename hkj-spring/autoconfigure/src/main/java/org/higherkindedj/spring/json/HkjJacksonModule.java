@@ -32,26 +32,26 @@ import tools.jackson.databind.module.SimpleModule;
  */
 public class HkjJacksonModule extends SimpleModule {
 
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  /** Creates a new HkjJacksonModule and registers serializers for HKJ types. */
-  @SuppressWarnings({"unchecked", "rawtypes"})
-  public HkjJacksonModule() {
-    super("HkjJacksonModule");
+    /**
+     * Creates a new HkjJacksonModule and registers serializers for HKJ types.
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public HkjJacksonModule() {
+        super("HkjJacksonModule");
+        // Either serialization/deserialization
+        // Raw type cast needed because Either<?, ?> is generic
+        addSerializer((Class) Either.class, new EitherSerializer());
+        addDeserializer((Class) Either.class, new EitherDeserializer());
+        // Validated serialization/deserialization
+        // Raw type cast needed because Validated<?, ?> is generic
+        addSerializer((Class) Validated.class, new ValidatedSerializer());
+        addDeserializer((Class) Validated.class, new ValidatedDeserializer());
+    }
 
-    // Either serialization/deserialization
-    // Raw type cast needed because Either<?, ?> is generic
-    addSerializer((Class) Either.class, new EitherSerializer());
-    addDeserializer((Class) Either.class, new EitherDeserializer());
-
-    // Validated serialization/deserialization
-    // Raw type cast needed because Validated<?, ?> is generic
-    addSerializer((Class) Validated.class, new ValidatedSerializer());
-    addDeserializer((Class) Validated.class, new ValidatedDeserializer());
-  }
-
-  @Override
-  public String getModuleName() {
-    return "HkjJacksonModule";
-  }
+    @Override
+    public String getModuleName() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

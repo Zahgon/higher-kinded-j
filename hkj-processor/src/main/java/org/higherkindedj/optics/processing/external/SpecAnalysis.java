@@ -25,280 +25,305 @@ import javax.lang.model.type.TypeMirror;
  * @param opticMethods abstract methods that define optics to generate
  * @param defaultMethods default methods to copy into the generated class
  */
-public record SpecAnalysis(
-    TypeElement specInterface,
-    TypeMirror sourceType,
-    TypeElement sourceTypeElement,
-    List<OpticMethodInfo> opticMethods,
-    List<ExecutableElement> defaultMethods) {
-
-  /** The kind of optic defined by a method. */
-  public enum OpticKind {
-    /** A Lens optic. */
-    LENS,
-    /** A Prism optic. */
-    PRISM,
-    /** A Traversal optic. */
-    TRAVERSAL,
-    /** An Affine optic. */
-    AFFINE,
-    /** An Iso optic. */
-    ISO,
-    /** A Getter optic. */
-    GETTER,
-    /** A Fold optic. */
-    FOLD
-  }
-
-  /** The copy strategy specified by an annotation. */
-  public enum CopyStrategyKind {
-    /** Uses the builder pattern. */
-    VIA_BUILDER,
-    /** Uses wither methods. */
-    WITHER,
-    /** Uses an all-args constructor. */
-    VIA_CONSTRUCTOR,
-    /** Uses a copy constructor and setter. */
-    VIA_COPY_AND_SET,
-    /** No copy strategy needed (for prisms and traversals). */
-    NONE
-  }
-
-  /** The prism matching strategy specified by an annotation. */
-  public enum PrismHintKind {
-    /** Uses instanceof pattern matching. */
-    INSTANCE_OF,
-    /** Uses predicate and getter methods. */
-    MATCH_WHEN,
-    /** No prism hint specified. */
-    NONE
-  }
-
-  /** The traversal strategy specified by an annotation. */
-  public enum TraversalHintKind {
-    /** Uses an explicit traversal reference. */
-    TRAVERSE_WITH,
-    /** Composes a lens to a field with a traversal. */
-    THROUGH_FIELD,
-    /** No traversal hint specified. */
-    NONE
-  }
-
-  /**
-   * Information about an abstract method defining an optic.
-   *
-   * @param method the abstract method element
-   * @param opticKind the kind of optic (Lens, Prism, Traversal, etc.)
-   * @param focusType the focus type {@code A} in {@code Lens<S, A>}
-   * @param copyStrategy the copy strategy for lenses
-   * @param copyStrategyInfo parsed annotation values for the copy strategy
-   * @param prismHint the prism hint for prisms
-   * @param prismHintInfo parsed annotation values for the prism hint
-   * @param traversalHint the traversal hint for traversals
-   * @param traversalHintInfo parsed annotation values for the traversal hint
-   */
-  public record OpticMethodInfo(
-      ExecutableElement method,
-      OpticKind opticKind,
-      TypeMirror focusType,
-      CopyStrategyKind copyStrategy,
-      CopyStrategyInfo copyStrategyInfo,
-      PrismHintKind prismHint,
-      PrismHintInfo prismHintInfo,
-      TraversalHintKind traversalHint,
-      TraversalHintInfo traversalHintInfo) {
+public record SpecAnalysis(TypeElement specInterface, TypeMirror sourceType, TypeElement sourceTypeElement, List<OpticMethodInfo> opticMethods, List<ExecutableElement> defaultMethods) {
 
     /**
-     * Returns the method name.
-     *
-     * @return the simple name of the method
+     * The kind of optic defined by a method.
      */
-    public String methodName() {
-      return method.getSimpleName().toString();
+    public enum OpticKind {
+
+        /**
+         * A Lens optic.
+         */
+        LENS,
+        /**
+         * A Prism optic.
+         */
+        PRISM,
+        /**
+         * A Traversal optic.
+         */
+        TRAVERSAL,
+        /**
+         * An Affine optic.
+         */
+        AFFINE,
+        /**
+         * An Iso optic.
+         */
+        ISO,
+        /**
+         * A Getter optic.
+         */
+        GETTER,
+        /**
+         * A Fold optic.
+         */
+        FOLD
     }
 
     /**
-     * Returns whether this optic requires a copy strategy annotation.
-     *
-     * @return true if this is a lens that needs a copy strategy
+     * The copy strategy specified by an annotation.
      */
-    public boolean requiresCopyStrategy() {
-      return opticKind == OpticKind.LENS;
+    public enum CopyStrategyKind {
+
+        /**
+         * Uses the builder pattern.
+         */
+        VIA_BUILDER,
+        /**
+         * Uses wither methods.
+         */
+        WITHER,
+        /**
+         * Uses an all-args constructor.
+         */
+        VIA_CONSTRUCTOR,
+        /**
+         * Uses a copy constructor and setter.
+         */
+        VIA_COPY_AND_SET,
+        /**
+         * No copy strategy needed (for prisms and traversals).
+         */
+        NONE
     }
 
     /**
-     * Returns whether this optic requires a prism hint annotation.
-     *
-     * @return true if this is a prism that needs a hint
+     * The prism matching strategy specified by an annotation.
      */
-    public boolean requiresPrismHint() {
-      return opticKind == OpticKind.PRISM;
+    public enum PrismHintKind {
+
+        /**
+         * Uses instanceof pattern matching.
+         */
+        INSTANCE_OF,
+        /**
+         * Uses predicate and getter methods.
+         */
+        MATCH_WHEN,
+        /**
+         * No prism hint specified.
+         */
+        NONE
     }
 
     /**
-     * Returns whether this optic requires a traversal hint annotation.
-     *
-     * @return true if this is a traversal that needs a hint
+     * The traversal strategy specified by an annotation.
      */
-    public boolean requiresTraversalHint() {
-      return opticKind == OpticKind.TRAVERSAL;
-    }
-  }
+    public enum TraversalHintKind {
 
-  /**
-   * Parsed values from a copy strategy annotation.
-   *
-   * @param getter the getter method name on source (for @ViaBuilder)
-   * @param toBuilder the toBuilder method name (for @ViaBuilder)
-   * @param setter the setter method name (for @ViaBuilder, @ViaCopyAndSet)
-   * @param build the build method name (for @ViaBuilder)
-   * @param witherMethod the wither method name (for @Wither)
-   * @param parameterOrder the constructor parameter order (for @ViaConstructor)
-   * @param copyConstructor the copy constructor type (for @ViaCopyAndSet)
-   */
-  public record CopyStrategyInfo(
-      String getter,
-      String toBuilder,
-      String setter,
-      String build,
-      String witherMethod,
-      String[] parameterOrder,
-      String copyConstructor) {
-
-    /**
-     * Creates an empty copy strategy info.
-     *
-     * @return an empty CopyStrategyInfo
-     */
-    public static CopyStrategyInfo empty() {
-      return new CopyStrategyInfo("", "", "", "", "", new String[0], "");
+        /**
+         * Uses an explicit traversal reference.
+         */
+        TRAVERSE_WITH,
+        /**
+         * Composes a lens to a field with a traversal.
+         */
+        THROUGH_FIELD,
+        /**
+         * No traversal hint specified.
+         */
+        NONE
     }
 
     /**
-     * Creates info for {@code @ViaBuilder} annotation.
+     * Information about an abstract method defining an optic.
      *
-     * @param getter the getter method name
-     * @param toBuilder the toBuilder method name
-     * @param setter the setter method name on the builder
-     * @param build the build method name
-     * @return a CopyStrategyInfo for builder pattern
+     * @param method the abstract method element
+     * @param opticKind the kind of optic (Lens, Prism, Traversal, etc.)
+     * @param focusType the focus type {@code A} in {@code Lens<S, A>}
+     * @param copyStrategy the copy strategy for lenses
+     * @param copyStrategyInfo parsed annotation values for the copy strategy
+     * @param prismHint the prism hint for prisms
+     * @param prismHintInfo parsed annotation values for the prism hint
+     * @param traversalHint the traversal hint for traversals
+     * @param traversalHintInfo parsed annotation values for the traversal hint
      */
-    public static CopyStrategyInfo forBuilder(
-        String getter, String toBuilder, String setter, String build) {
-      return new CopyStrategyInfo(getter, toBuilder, setter, build, "", new String[0], "");
+    public record OpticMethodInfo(ExecutableElement method, OpticKind opticKind, TypeMirror focusType, CopyStrategyKind copyStrategy, CopyStrategyInfo copyStrategyInfo, PrismHintKind prismHint, PrismHintInfo prismHintInfo, TraversalHintKind traversalHint, TraversalHintInfo traversalHintInfo) {
+
+        /**
+         * Returns the method name.
+         *
+         * @return the simple name of the method
+         */
+        public String methodName() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Returns whether this optic requires a copy strategy annotation.
+         *
+         * @return true if this is a lens that needs a copy strategy
+         */
+        public boolean requiresCopyStrategy() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Returns whether this optic requires a prism hint annotation.
+         *
+         * @return true if this is a prism that needs a hint
+         */
+        public boolean requiresPrismHint() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Returns whether this optic requires a traversal hint annotation.
+         *
+         * @return true if this is a traversal that needs a hint
+         */
+        public boolean requiresTraversalHint() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
     }
 
     /**
-     * Creates info for {@code @Wither} annotation.
+     * Parsed values from a copy strategy annotation.
      *
-     * @param getter the getter method name
-     * @param witherMethod the wither method name
-     * @return a CopyStrategyInfo for wither pattern
+     * @param getter the getter method name on source (for @ViaBuilder)
+     * @param toBuilder the toBuilder method name (for @ViaBuilder)
+     * @param setter the setter method name (for @ViaBuilder, @ViaCopyAndSet)
+     * @param build the build method name (for @ViaBuilder)
+     * @param witherMethod the wither method name (for @Wither)
+     * @param parameterOrder the constructor parameter order (for @ViaConstructor)
+     * @param copyConstructor the copy constructor type (for @ViaCopyAndSet)
      */
-    public static CopyStrategyInfo forWither(String getter, String witherMethod) {
-      return new CopyStrategyInfo(getter, "", "", "", witherMethod, new String[0], "");
+    public record CopyStrategyInfo(String getter, String toBuilder, String setter, String build, String witherMethod, String[] parameterOrder, String copyConstructor) {
+
+        /**
+         * Creates an empty copy strategy info.
+         *
+         * @return an empty CopyStrategyInfo
+         */
+        public static CopyStrategyInfo empty() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Creates info for {@code @ViaBuilder} annotation.
+         *
+         * @param getter the getter method name
+         * @param toBuilder the toBuilder method name
+         * @param setter the setter method name on the builder
+         * @param build the build method name
+         * @return a CopyStrategyInfo for builder pattern
+         */
+        public static CopyStrategyInfo forBuilder(String getter, String toBuilder, String setter, String build) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Creates info for {@code @Wither} annotation.
+         *
+         * @param getter the getter method name
+         * @param witherMethod the wither method name
+         * @return a CopyStrategyInfo for wither pattern
+         */
+        public static CopyStrategyInfo forWither(String getter, String witherMethod) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Creates info for {@code @ViaConstructor} annotation.
+         *
+         * @param parameterOrder the constructor parameter order
+         * @return a CopyStrategyInfo for constructor pattern
+         */
+        public static CopyStrategyInfo forConstructor(String[] parameterOrder) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Creates info for {@code @ViaCopyAndSet} annotation.
+         *
+         * @param copyConstructor the copy constructor type
+         * @param setter the setter method name
+         * @return a CopyStrategyInfo for copy-and-set pattern
+         */
+        public static CopyStrategyInfo forCopyAndSet(String copyConstructor, String setter) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
     }
 
     /**
-     * Creates info for {@code @ViaConstructor} annotation.
+     * Parsed values from a prism hint annotation.
      *
-     * @param parameterOrder the constructor parameter order
-     * @return a CopyStrategyInfo for constructor pattern
+     * @param targetType the target subtype (for @InstanceOf)
+     * @param predicate the predicate method name (for @MatchWhen)
+     * @param getter the getter method name (for @MatchWhen)
      */
-    public static CopyStrategyInfo forConstructor(String[] parameterOrder) {
-      return new CopyStrategyInfo("", "", "", "", "", parameterOrder, "");
+    public record PrismHintInfo(TypeMirror targetType, String predicate, String getter) {
+
+        /**
+         * Creates an empty prism hint info.
+         *
+         * @return an empty PrismHintInfo
+         */
+        public static PrismHintInfo empty() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Creates info for {@code @InstanceOf} annotation.
+         *
+         * @param targetType the target subtype
+         * @return a PrismHintInfo for instanceof matching
+         */
+        public static PrismHintInfo forInstanceOf(TypeMirror targetType) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Creates info for {@code @MatchWhen} annotation.
+         *
+         * @param predicate the predicate method name
+         * @param getter the getter method name
+         * @return a PrismHintInfo for predicate matching
+         */
+        public static PrismHintInfo forMatchWhen(String predicate, String getter) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
     }
 
     /**
-     * Creates info for {@code @ViaCopyAndSet} annotation.
+     * Parsed values from a traversal hint annotation.
      *
-     * @param copyConstructor the copy constructor type
-     * @param setter the setter method name
-     * @return a CopyStrategyInfo for copy-and-set pattern
+     * @param traversalReference the traversal reference (for @TraverseWith)
+     * @param fieldName the field name (for @ThroughField)
+     * @param fieldTraversal the explicit traversal for the field (for @ThroughField)
      */
-    public static CopyStrategyInfo forCopyAndSet(String copyConstructor, String setter) {
-      return new CopyStrategyInfo("", "", setter, "", "", new String[0], copyConstructor);
+    public record TraversalHintInfo(String traversalReference, String fieldName, String fieldTraversal) {
+
+        /**
+         * Creates an empty traversal hint info.
+         *
+         * @return an empty TraversalHintInfo
+         */
+        public static TraversalHintInfo empty() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Creates info for {@code @TraverseWith} annotation.
+         *
+         * @param traversalReference the traversal reference expression
+         * @return a TraversalHintInfo for explicit traversal
+         */
+        public static TraversalHintInfo forTraverseWith(String traversalReference) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Creates info for {@code @ThroughField} annotation.
+         *
+         * @param fieldName the field name to traverse through
+         * @param traversal the traversal expression for the field
+         * @return a TraversalHintInfo for field-based traversal
+         */
+        public static TraversalHintInfo forThroughField(String fieldName, String traversal) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
     }
-  }
-
-  /**
-   * Parsed values from a prism hint annotation.
-   *
-   * @param targetType the target subtype (for @InstanceOf)
-   * @param predicate the predicate method name (for @MatchWhen)
-   * @param getter the getter method name (for @MatchWhen)
-   */
-  public record PrismHintInfo(TypeMirror targetType, String predicate, String getter) {
-
-    /**
-     * Creates an empty prism hint info.
-     *
-     * @return an empty PrismHintInfo
-     */
-    public static PrismHintInfo empty() {
-      return new PrismHintInfo(null, "", "");
-    }
-
-    /**
-     * Creates info for {@code @InstanceOf} annotation.
-     *
-     * @param targetType the target subtype
-     * @return a PrismHintInfo for instanceof matching
-     */
-    public static PrismHintInfo forInstanceOf(TypeMirror targetType) {
-      return new PrismHintInfo(targetType, "", "");
-    }
-
-    /**
-     * Creates info for {@code @MatchWhen} annotation.
-     *
-     * @param predicate the predicate method name
-     * @param getter the getter method name
-     * @return a PrismHintInfo for predicate matching
-     */
-    public static PrismHintInfo forMatchWhen(String predicate, String getter) {
-      return new PrismHintInfo(null, predicate, getter);
-    }
-  }
-
-  /**
-   * Parsed values from a traversal hint annotation.
-   *
-   * @param traversalReference the traversal reference (for @TraverseWith)
-   * @param fieldName the field name (for @ThroughField)
-   * @param fieldTraversal the explicit traversal for the field (for @ThroughField)
-   */
-  public record TraversalHintInfo(
-      String traversalReference, String fieldName, String fieldTraversal) {
-
-    /**
-     * Creates an empty traversal hint info.
-     *
-     * @return an empty TraversalHintInfo
-     */
-    public static TraversalHintInfo empty() {
-      return new TraversalHintInfo("", "", "");
-    }
-
-    /**
-     * Creates info for {@code @TraverseWith} annotation.
-     *
-     * @param traversalReference the traversal reference expression
-     * @return a TraversalHintInfo for explicit traversal
-     */
-    public static TraversalHintInfo forTraverseWith(String traversalReference) {
-      return new TraversalHintInfo(traversalReference, "", "");
-    }
-
-    /**
-     * Creates info for {@code @ThroughField} annotation.
-     *
-     * @param fieldName the field name to traverse through
-     * @param traversal the traversal expression for the field
-     * @return a TraversalHintInfo for field-based traversal
-     */
-    public static TraversalHintInfo forThroughField(String fieldName, String traversal) {
-      return new TraversalHintInfo("", fieldName, traversal);
-    }
-  }
 }

@@ -16,36 +16,37 @@ import java.time.Duration;
  */
 public class CircuitOpenException extends RuntimeException {
 
-  private final CircuitBreaker.Status status;
-  private final Duration retryAfter;
+    private final CircuitBreaker.Status status;
 
-  /**
-   * Creates a new CircuitOpenException.
-   *
-   * @param status the current status of the circuit breaker
-   * @param retryAfter approximate duration until the circuit may allow a probe
-   */
-  public CircuitOpenException(CircuitBreaker.Status status, Duration retryAfter) {
-    super("Circuit breaker is " + status + ", retry after " + retryAfter);
-    this.status = status;
-    this.retryAfter = retryAfter;
-  }
+    private final Duration retryAfter;
 
-  /**
-   * Returns the status of the circuit breaker when the call was rejected.
-   *
-   * @return the circuit breaker status
-   */
-  public CircuitBreaker.Status status() {
-    return status;
-  }
+    /**
+     * Creates a new CircuitOpenException.
+     *
+     * @param status the current status of the circuit breaker
+     * @param retryAfter approximate duration until the circuit may allow a probe
+     */
+    public CircuitOpenException(CircuitBreaker.Status status, Duration retryAfter) {
+        super("Circuit breaker is " + status + ", retry after " + retryAfter);
+        this.status = status;
+        this.retryAfter = retryAfter;
+    }
 
-  /**
-   * Returns the approximate duration until the circuit breaker may allow a probe request.
-   *
-   * @return the retry-after duration
-   */
-  public Duration retryAfter() {
-    return retryAfter;
-  }
+    /**
+     * Returns the status of the circuit breaker when the call was rejected.
+     *
+     * @return the circuit breaker status
+     */
+    public CircuitBreaker.Status status() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Returns the approximate duration until the circuit breaker may allow a probe request.
+     *
+     * @return the retry-after duration
+     */
+    public Duration retryAfter() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

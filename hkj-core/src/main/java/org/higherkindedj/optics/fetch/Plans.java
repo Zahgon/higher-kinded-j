@@ -3,7 +3,6 @@
 package org.higherkindedj.optics.fetch;
 
 import static java.util.Objects.requireNonNull;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -34,48 +33,30 @@ import java.util.Set;
  */
 public final class Plans {
 
-  private Plans() {}
+    private Plans() {
+    }
 
-  /**
-   * Fold a {@link Fetch} program into its {@link Plan} without any backend I/O.
-   *
-   * @param fetch the program to inspect
-   * @return the plan; {@link Plan#empty()} for a {@code Done}, otherwise a list of per-round
-   *     keysets and a flag indicating whether a {@code flatMap} stopped further inspection
-   */
-  public static <K, V, A> Plan<K> preflight(Fetch<K, V, A> fetch) {
-    requireNonNull(fetch, "fetch");
-    ArrayList<Set<K>> batches = new ArrayList<>();
-    Fetch<K, V, A> current = fetch;
-    boolean truncated = false;
-    while (current instanceof Blocked<K, V, A> blocked) {
-      Set<K> keys = blocked.pending().flatten();
-      batches.add(Collections.unmodifiableSet(keys));
-      Map<K, V> stub = stubMap(keys);
-      try {
-        current = blocked.resume().apply(stub).run();
-      } catch (RuntimeException flatMapHitValue) {
-        truncated = true;
-        break;
-      }
+    /**
+     * Fold a {@link Fetch} program into its {@link Plan} without any backend I/O.
+     *
+     * @param fetch the program to inspect
+     * @return the plan; {@link Plan#empty()} for a {@code Done}, otherwise a list of per-round
+     *     keysets and a flag indicating whether a {@code flatMap} stopped further inspection
+     */
+    public static <K, V, A> Plan<K> preflight(Fetch<K, V, A> fetch) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-    int total = 0;
-    for (Set<K> b : batches) {
-      total += b.size();
-    }
-    return new Plan<>(batches, total, truncated);
-  }
 
-  /**
-   * A map whose entries are present (so the substrate's {@code containsKey} round-skipping logic
-   * works) but whose values are {@code null}: deliberately useless to anyone who tries to read one,
-   * which is how a preflight detects a {@code flatMap} dependency.
-   */
-  private static <K, V> Map<K, V> stubMap(Set<K> keys) {
-    HashMap<K, V> m = HashMap.newHashMap(keys.size());
-    for (K k : keys) {
-      m.put(k, null);
+    /**
+     * A map whose entries are present (so the substrate's {@code containsKey} round-skipping logic
+     * works) but whose values are {@code null}: deliberately useless to anyone who tries to read one,
+     * which is how a preflight detects a {@code flatMap} dependency.
+     */
+    private static <K, V> Map<K, V> stubMap(Set<K> keys) {
+        HashMap<K, V> m = HashMap.newHashMap(keys.size());
+        for (K k : keys) {
+            m.put(k, null);
+        }
+        return Collections.unmodifiableMap(m);
     }
-    return Collections.unmodifiableMap(m);
-  }
 }

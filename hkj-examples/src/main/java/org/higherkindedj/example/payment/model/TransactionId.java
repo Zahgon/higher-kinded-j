@@ -14,24 +14,24 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public record TransactionId(String value) {
 
-  public TransactionId {
-    Objects.requireNonNull(value, "TransactionId value cannot be null");
-    if (value.isBlank()) {
-      throw new IllegalArgumentException("TransactionId cannot be blank");
+    public TransactionId {
+        Objects.requireNonNull(value, "TransactionId value cannot be null");
+        if (value.isBlank()) {
+            throw new IllegalArgumentException("TransactionId cannot be blank");
+        }
     }
-  }
 
-  /**
-   * Generates a new random transaction identifier.
-   *
-   * @return a new TransactionId
-   */
-  public static TransactionId generate() {
-    return new TransactionId(UUID.randomUUID().toString());
-  }
+    /**
+     * Generates a new random transaction identifier.
+     *
+     * @return a new TransactionId
+     */
+    public static TransactionId generate() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public String toString() {
-    return value;
-  }
+    @Override
+    public String toString() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

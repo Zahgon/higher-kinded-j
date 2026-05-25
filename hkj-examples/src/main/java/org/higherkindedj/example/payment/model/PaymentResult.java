@@ -11,82 +11,83 @@ import org.jspecify.annotations.NullMarked;
  * <p>Represents one of three states: approved, declined, or failed.
  */
 @NullMarked
-public sealed interface PaymentResult
-    permits PaymentResult.Approved, PaymentResult.Declined, PaymentResult.Failed {
+public sealed interface PaymentResult permits PaymentResult.Approved, PaymentResult.Declined, PaymentResult.Failed {
 
-  /**
-   * Payment was approved and charged.
-   *
-   * @param chargeResult the successful charge details
-   * @param ledgerEntry the accounting entry created
-   * @param riskScore the fraud risk assessment
-   */
-  record Approved(ChargeResult chargeResult, LedgerEntry ledgerEntry, RiskScore riskScore)
-      implements PaymentResult {
-    public Approved {
-      Objects.requireNonNull(chargeResult, "chargeResult cannot be null");
-      Objects.requireNonNull(ledgerEntry, "ledgerEntry cannot be null");
-      Objects.requireNonNull(riskScore, "riskScore cannot be null");
+    /**
+     * Payment was approved and charged.
+     *
+     * @param chargeResult the successful charge details
+     * @param ledgerEntry the accounting entry created
+     * @param riskScore the fraud risk assessment
+     */
+    record Approved(ChargeResult chargeResult, LedgerEntry ledgerEntry, RiskScore riskScore) implements PaymentResult {
+
+        public Approved {
+            Objects.requireNonNull(chargeResult, "chargeResult cannot be null");
+            Objects.requireNonNull(ledgerEntry, "ledgerEntry cannot be null");
+            Objects.requireNonNull(riskScore, "riskScore cannot be null");
+        }
     }
-  }
 
-  /**
-   * Payment was declined before charging.
-   *
-   * @param reason the decline reason
-   */
-  record Declined(String reason) implements PaymentResult {
-    public Declined {
-      Objects.requireNonNull(reason, "reason cannot be null");
+    /**
+     * Payment was declined before charging.
+     *
+     * @param reason the decline reason
+     */
+    record Declined(String reason) implements PaymentResult {
+
+        public Declined {
+            Objects.requireNonNull(reason, "reason cannot be null");
+        }
     }
-  }
 
-  /**
-   * Payment attempt failed during charging.
-   *
-   * @param chargeResult the failed charge details
-   */
-  record Failed(ChargeResult chargeResult) implements PaymentResult {
-    public Failed {
-      Objects.requireNonNull(chargeResult, "chargeResult cannot be null");
+    /**
+     * Payment attempt failed during charging.
+     *
+     * @param chargeResult the failed charge details
+     */
+    record Failed(ChargeResult chargeResult) implements PaymentResult {
+
+        public Failed {
+            Objects.requireNonNull(chargeResult, "chargeResult cannot be null");
+        }
     }
-  }
 
-  /**
-   * Convenience factory for a declined result.
-   *
-   * @param reason the decline reason
-   * @return a Declined result
-   */
-  static PaymentResult declined(String reason) {
-    return new Declined(reason);
-  }
+    /**
+     * Convenience factory for a declined result.
+     *
+     * @param reason the decline reason
+     * @return a Declined result
+     */
+    static PaymentResult declined(String reason) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Convenience factory for a failed result.
-   *
-   * @param chargeResult the failed charge
-   * @return a Failed result
-   */
-  static PaymentResult failed(ChargeResult chargeResult) {
-    return new Failed(chargeResult);
-  }
+    /**
+     * Convenience factory for a failed result.
+     *
+     * @param chargeResult the failed charge
+     * @return a Failed result
+     */
+    static PaymentResult failed(ChargeResult chargeResult) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Whether this result represents a successful payment.
-   *
-   * @return true if the payment was approved
-   */
-  default boolean isApproved() {
-    return this instanceof Approved;
-  }
+    /**
+     * Whether this result represents a successful payment.
+     *
+     * @return true if the payment was approved
+     */
+    default boolean isApproved() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Whether this result represents a declined payment.
-   *
-   * @return true if the payment was declined
-   */
-  default boolean isDeclined() {
-    return this instanceof Declined;
-  }
+    /**
+     * Whether this result represents a declined payment.
+     *
+     * @return true if the payment was declined
+     */
+    default boolean isDeclined() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

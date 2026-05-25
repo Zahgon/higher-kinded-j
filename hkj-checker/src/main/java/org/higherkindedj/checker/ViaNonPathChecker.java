@@ -35,86 +35,81 @@ import javax.tools.Diagnostic;
  */
 public final class ViaNonPathChecker implements CheckVisitor {
 
-  private static final Set<String> CHAIN_METHODS = Set.of("via", "flatMap", "then");
+    private static final Set<String> CHAIN_METHODS = Set.of("via", "flatMap", "then");
 
-  private final Trees trees;
-  private final Types types;
-  private final Elements elements;
-  private final Diagnostic.Kind severity;
+    private final Trees trees;
 
-  /**
-   * Creates a checker reporting at {@link Diagnostic.Kind#ERROR}.
-   *
-   * @param trees the {@link Trees} utility for AST and type resolution
-   * @param types the {@link Types} utility for type operations
-   * @param elements the {@link Elements} utility for element operations
-   */
-  public ViaNonPathChecker(Trees trees, Types types, Elements elements) {
-    this(trees, types, elements, Diagnostic.Kind.ERROR);
-  }
+    private final Types types;
 
-  /**
-   * Creates a checker reporting at the given severity.
-   *
-   * @param trees the Trees utility from the javac task; must not be null
-   * @param types the model Types utility from the javac task
-   * @param elements the model Elements utility from the javac task
-   * @param severity the severity at which the companion diagnostic is reported
-   */
-  public ViaNonPathChecker(Trees trees, Types types, Elements elements, Diagnostic.Kind severity) {
-    this.trees = trees;
-    this.types = types;
-    this.elements = elements;
-    this.severity = severity;
-  }
+    private final Elements elements;
 
-  @Override
-  public void onMethodInvocation(MethodInvocationTree node, TreePath path) {
-    inspect(node, path);
-  }
+    private final Diagnostic.Kind severity;
 
-  private void inspect(MethodInvocationTree node, TreePath path) {
-    if (!(node.getMethodSelect() instanceof MemberSelectTree select)
-        || !CHAIN_METHODS.contains(select.getIdentifier().toString())
-        || node.getArguments().isEmpty()) {
-      return;
-    }
-    TypeElement chainable = elements.getTypeElement(DiscardedEffectChecker.CHAINABLE_FQN);
-    if (chainable == null) {
-      return; // effect API not on the classpath
-    }
-    TypeMirror chainableErasure = types.erasure(chainable.asType());
-
-    TypeMirror receiver = LambdaReturns.typeOf(trees, path, select.getExpression());
-    if (!isDeclaredAssignableTo(receiver, chainableErasure)) {
-      return; // not an HKJ chain receiver: out of scope
+    /**
+     * Creates a checker reporting at {@link Diagnostic.Kind#ERROR}.
+     *
+     * @param trees the {@link Trees} utility for AST and type resolution
+     * @param types the {@link Types} utility for type operations
+     * @param elements the {@link Elements} utility for element operations
+     */
+    public ViaNonPathChecker(Trees trees, Types types, Elements elements) {
+        this(trees, types, elements, Diagnostic.Kind.ERROR);
     }
 
-    List<TypeMirror> returns =
-        LambdaReturns.lambdaReturnTypes(trees, path, node.getArguments().getFirst());
-    // A lambda may mix a Path-returning and a plain-value return; flag the first plain one.
-    for (TypeMirror ret : returns) {
-      if (ret.getKind() != TypeKind.DECLARED) {
-        continue; // void / type-var / wildcard: skip silently
-      }
-      if (!types.isAssignable(types.erasure(ret), chainableErasure)) {
-        trees.printMessage(
-            severity,
-            DiagnosticMessages.viaNonPath(select.getIdentifier().toString(), simpleName(ret)),
-            node,
-            path.getCompilationUnit());
-        return;
-      }
+    /**
+     * Creates a checker reporting at the given severity.
+     *
+     * @param trees the Trees utility from the javac task; must not be null
+     * @param types the model Types utility from the javac task
+     * @param elements the model Elements utility from the javac task
+     * @param severity the severity at which the companion diagnostic is reported
+     */
+    public ViaNonPathChecker(Trees trees, Types types, Elements elements, Diagnostic.Kind severity) {
+        this.trees = trees;
+        this.types = types;
+        this.elements = elements;
+        this.severity = severity;
     }
-  }
 
-  private boolean isDeclaredAssignableTo(TypeMirror t, TypeMirror target) {
-    return t instanceof DeclaredType && types.isAssignable(types.erasure(t), target);
-  }
+    @Override
+    public void onMethodInvocation(MethodInvocationTree node, TreePath path) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  private static String simpleName(TypeMirror t) {
-    return t instanceof DeclaredType dt && dt.asElement() instanceof TypeElement te
-        ? te.getSimpleName().toString()
-        : String.valueOf(t);
-  }
+    private void inspect(MethodInvocationTree node, TreePath path) {
+        if (!(node.getMethodSelect() instanceof MemberSelectTree select) || !CHAIN_METHODS.contains(select.getIdentifier().toString()) || node.getArguments().isEmpty()) {
+            return;
+        }
+        TypeElement chainable = elements.getTypeElement(DiscardedEffectChecker.CHAINABLE_FQN);
+        if (chainable == null) {
+            // effect API not on the classpath
+            return;
+        }
+        TypeMirror chainableErasure = types.erasure(chainable.asType());
+        TypeMirror receiver = LambdaReturns.typeOf(trees, path, select.getExpression());
+        if (!isDeclaredAssignableTo(receiver, chainableErasure)) {
+            // not an HKJ chain receiver: out of scope
+            return;
+        }
+        List<TypeMirror> returns = LambdaReturns.lambdaReturnTypes(trees, path, node.getArguments().getFirst());
+        // A lambda may mix a Path-returning and a plain-value return; flag the first plain one.
+        for (TypeMirror ret : returns) {
+            if (ret.getKind() != TypeKind.DECLARED) {
+                // void / type-var / wildcard: skip silently
+                continue;
+            }
+            if (!types.isAssignable(types.erasure(ret), chainableErasure)) {
+                trees.printMessage(severity, DiagnosticMessages.viaNonPath(select.getIdentifier().toString(), simpleName(ret)), node, path.getCompilationUnit());
+                return;
+            }
+        }
+    }
+
+    private boolean isDeclaredAssignableTo(TypeMirror t, TypeMirror target) {
+        return t instanceof DeclaredType && types.isAssignable(types.erasure(t), target);
+    }
+
+    private static String simpleName(TypeMirror t) {
+        return t instanceof DeclaredType dt && dt.asElement() instanceof TypeElement te ? te.getSimpleName().toString() : String.valueOf(t);
+    }
 }

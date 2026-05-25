@@ -19,29 +19,24 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public final class ErrorOpFunctor<E> implements Functor<ErrorOpKind.Witness<E>> {
 
-  @SuppressWarnings("rawtypes")
-  private static final ErrorOpFunctor INSTANCE = new ErrorOpFunctor<>();
+    @SuppressWarnings("rawtypes")
+    private static final ErrorOpFunctor INSTANCE = new ErrorOpFunctor<>();
 
-  private ErrorOpFunctor() {}
+    private ErrorOpFunctor() {
+    }
 
-  @SuppressWarnings("unchecked")
-  public static <E> ErrorOpFunctor<E> instance() {
-    return (ErrorOpFunctor<E>) INSTANCE;
-  }
+    @SuppressWarnings("unchecked")
+    public static <E> ErrorOpFunctor<E> instance() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Maps a function over the value inside this ErrorOp. Since Raise never produces a value, this is
-   * a cast-through: the error is preserved unchanged.
-   */
-  @Override
-  @SuppressWarnings("unchecked")
-  public <A, B> Kind<ErrorOpKind.Witness<E>, B> map(
-      Function<? super A, ? extends B> f, Kind<ErrorOpKind.Witness<E>, A> fa) {
-    Validation.function().validateMap(f, fa);
-    // Safe cast: A is phantom in ErrorOp.Raise (the record holds only the error E, never a
-    // value of type A). Changing A to B has no runtime effect — the data is unchanged.
-    ErrorOp<E, A> op = ErrorOpKindHelper.ERROR_OP.narrow(fa);
-    return (Kind<ErrorOpKind.Witness<E>, B>)
-        ErrorOpKindHelper.ERROR_OP.widen((ErrorOp<E, B>) (ErrorOp<?, B>) op);
-  }
+    /**
+     * Maps a function over the value inside this ErrorOp. Since Raise never produces a value, this is
+     * a cast-through: the error is preserved unchanged.
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public <A, B> Kind<ErrorOpKind.Witness<E>, B> map(Function<? super A, ? extends B> f, Kind<ErrorOpKind.Witness<E>, A> fa) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

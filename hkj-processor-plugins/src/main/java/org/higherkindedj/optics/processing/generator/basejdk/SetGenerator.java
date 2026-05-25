@@ -24,58 +24,31 @@ import org.higherkindedj.optics.util.Traversals;
 @ServiceProvider(TraversableGenerator.class)
 public class SetGenerator extends BaseTraversableGenerator {
 
-  /** Creates a new generator for {@link java.util.Set} fields. */
-  public SetGenerator() {}
+    /**
+     * Creates a new generator for {@link java.util.Set} fields.
+     */
+    public SetGenerator() {
+    }
 
-  private static final String FQN_SET = "java.util.Set";
+    private static final String FQN_SET = "java.util.Set";
 
-  @Override
-  public boolean supports(final TypeMirror type) {
-    if (!(type instanceof DeclaredType declaredType)) return false;
-    final Element element = declaredType.asElement();
-    return element.toString().equals(FQN_SET);
-  }
+    @Override
+    public boolean supports(final TypeMirror type) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public String generateOpticExpression() {
-    return "EachInstances.setEach()";
-  }
+    @Override
+    public String generateOpticExpression() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public Set<String> getRequiredImports() {
-    return Set.of("org.higherkindedj.optics.each.EachInstances");
-  }
+    @Override
+    public Set<String> getRequiredImports() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public CodeBlock generateModifyF(
-      final RecordComponentElement component,
-      final ClassName recordClassName,
-      final List<? extends RecordComponentElement> allComponents) {
-
-    final String componentName = component.getSimpleName().toString();
-    final String constructorArgs = generateConstructorArgs(componentName, "newSet", allComponents);
-
-    return CodeBlock.builder()
-        // 1. Get the source Set and convert it to a List to ensure ordering for traversal.
-        .addStatement(
-            "final var sourceList = new $T<>(source.$L())", ArrayList.class, componentName)
-
-        // 2. Call the static helper to traverse the list, yielding Kind<F, List<B>>.
-        .addStatement(
-            "final var effectOfList = $T.traverseList(sourceList, f, applicative)",
-            Traversals.class)
-
-        // 3. Map over the effect to convert the inner List back to a Set.
-        .addStatement(
-            "final var effectOfSet = applicative.map("
-                + "newList -> newList.stream().collect($T.toSet()), effectOfList)",
-            Collectors.class)
-
-        // 4. Map over the final effect to reconstruct the record with the new Set.
-        .addStatement(
-            "return applicative.map(newSet -> new $T($L), effectOfSet)",
-            recordClassName,
-            constructorArgs)
-        .build();
-  }
+    @Override
+    public CodeBlock generateModifyF(final RecordComponentElement component, final ClassName recordClassName, final List<? extends RecordComponentElement> allComponents) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

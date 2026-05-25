@@ -24,38 +24,37 @@ package org.higherkindedj.hkt.resilience;
  */
 public final class RetryExhaustedException extends RuntimeException {
 
-  private final int attempts;
+    private final int attempts;
 
-  /**
-   * Creates a new RetryExhaustedException.
-   *
-   * @param message a descriptive message
-   * @param cause the last exception encountered
-   * @param attempts the number of attempts made
-   */
-  public RetryExhaustedException(String message, Throwable cause, int attempts) {
-    super(message, cause);
-    this.attempts = attempts;
-  }
+    /**
+     * Creates a new RetryExhaustedException.
+     *
+     * @param message a descriptive message
+     * @param cause the last exception encountered
+     * @param attempts the number of attempts made
+     */
+    public RetryExhaustedException(String message, Throwable cause, int attempts) {
+        super(message, cause);
+        this.attempts = attempts;
+    }
 
-  /**
-   * Creates a RetryExhaustedException with a default message.
-   *
-   * @param cause the last exception encountered
-   * @param attempts the number of attempts made
-   * @return a new RetryExhaustedException
-   */
-  public static RetryExhaustedException of(Throwable cause, int attempts) {
-    return new RetryExhaustedException(
-        "Retry exhausted after " + attempts + " attempts", cause, attempts);
-  }
+    /**
+     * Creates a RetryExhaustedException with a default message.
+     *
+     * @param cause the last exception encountered
+     * @param attempts the number of attempts made
+     * @return a new RetryExhaustedException
+     */
+    public static RetryExhaustedException of(Throwable cause, int attempts) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Returns the number of attempts made before giving up.
-   *
-   * @return the number of attempts
-   */
-  public int getAttempts() {
-    return attempts;
-  }
+    /**
+     * Returns the number of attempts made before giving up.
+     *
+     * @return the number of attempts
+     */
+    public int getAttempts() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

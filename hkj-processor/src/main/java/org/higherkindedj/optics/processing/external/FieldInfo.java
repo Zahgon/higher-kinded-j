@@ -17,77 +17,64 @@ import javax.lang.model.type.TypeMirror;
  * @param copyStrategy the strategy for creating modified copies
  * @param containerType if the field is a container, details about the container type
  */
-public record FieldInfo(
-    String name,
-    TypeMirror type,
-    String accessorMethod,
-    CopyStrategy copyStrategy,
-    Optional<ContainerType> containerType) {
+public record FieldInfo(String name, TypeMirror type, String accessorMethod, CopyStrategy copyStrategy, Optional<ContainerType> containerType) {
 
-  /**
-   * Creates a FieldInfo for a record component.
-   *
-   * @param name the component name
-   * @param type the component type
-   * @return a new FieldInfo configured for a record component
-   */
-  public static FieldInfo forRecordComponent(String name, TypeMirror type) {
-    return new FieldInfo(name, type, name, CopyStrategy.CANONICAL_CONSTRUCTOR, Optional.empty());
-  }
+    /**
+     * Creates a FieldInfo for a record component.
+     *
+     * @param name the component name
+     * @param type the component type
+     * @return a new FieldInfo configured for a record component
+     */
+    public static FieldInfo forRecordComponent(String name, TypeMirror type) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a FieldInfo for a record component with container type.
-   *
-   * @param name the component name
-   * @param type the component type
-   * @param containerType the detected container type
-   * @return a new FieldInfo configured for a record component with container
-   */
-  public static FieldInfo forRecordComponent(
-      String name, TypeMirror type, ContainerType containerType) {
-    return new FieldInfo(
-        name, type, name, CopyStrategy.CANONICAL_CONSTRUCTOR, Optional.of(containerType));
-  }
+    /**
+     * Creates a FieldInfo for a record component with container type.
+     *
+     * @param name the component name
+     * @param type the component type
+     * @param containerType the detected container type
+     * @return a new FieldInfo configured for a record component with container
+     */
+    public static FieldInfo forRecordComponent(String name, TypeMirror type, ContainerType containerType) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a FieldInfo for a field accessed via a getter method.
-   *
-   * @param name the field name
-   * @param type the field type
-   * @param getterName the name of the getter method
-   * @param copyStrategy the strategy for copying
-   * @return a new FieldInfo configured for a getter-based field
-   */
-  public static FieldInfo forGetter(
-      String name, TypeMirror type, String getterName, CopyStrategy copyStrategy) {
-    return new FieldInfo(name, type, getterName, copyStrategy, Optional.empty());
-  }
+    /**
+     * Creates a FieldInfo for a field accessed via a getter method.
+     *
+     * @param name the field name
+     * @param type the field type
+     * @param getterName the name of the getter method
+     * @param copyStrategy the strategy for copying
+     * @return a new FieldInfo configured for a getter-based field
+     */
+    public static FieldInfo forGetter(String name, TypeMirror type, String getterName, CopyStrategy copyStrategy) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a FieldInfo for a field accessed via a getter method with container type.
-   *
-   * @param name the field name
-   * @param type the field type
-   * @param getterName the name of the getter method
-   * @param copyStrategy the strategy for copying
-   * @param containerType the detected container type
-   * @return a new FieldInfo configured for a getter-based field with container
-   */
-  public static FieldInfo forGetter(
-      String name,
-      TypeMirror type,
-      String getterName,
-      CopyStrategy copyStrategy,
-      ContainerType containerType) {
-    return new FieldInfo(name, type, getterName, copyStrategy, Optional.of(containerType));
-  }
+    /**
+     * Creates a FieldInfo for a field accessed via a getter method with container type.
+     *
+     * @param name the field name
+     * @param type the field type
+     * @param getterName the name of the getter method
+     * @param copyStrategy the strategy for copying
+     * @param containerType the detected container type
+     * @return a new FieldInfo configured for a getter-based field with container
+     */
+    public static FieldInfo forGetter(String name, TypeMirror type, String getterName, CopyStrategy copyStrategy, ContainerType containerType) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Returns whether this field should also have a traversal generated.
-   *
-   * @return true if the field is a container type that supports traversal
-   */
-  public boolean hasTraversal() {
-    return containerType.isPresent();
-  }
+    /**
+     * Returns whether this field should also have a traversal generated.
+     *
+     * @return true if the field is a container type that supports traversal
+     */
+    public boolean hasTraversal() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

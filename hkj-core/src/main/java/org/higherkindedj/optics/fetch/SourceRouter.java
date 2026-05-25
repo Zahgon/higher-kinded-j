@@ -3,7 +3,6 @@
 package org.higherkindedj.optics.fetch;
 
 import static java.util.Objects.requireNonNull;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -31,53 +30,22 @@ import java.util.function.Function;
  */
 public final class SourceRouter {
 
-  private SourceRouter() {}
+    private SourceRouter() {
+    }
 
-  /**
-   * Combines per-source loaders into one {@link BatchLoader}.
-   *
-   * @param classifier maps each key to its source tag
-   * @param loadersBySource the {@link BatchLoader} for each source tag
-   * @param <K> key type
-   * @param <V> value type
-   * @param <S> source-tag type
-   * @return a loader that partitions each key set by source and dispatches one batch per source. If
-   *     a key classifies to a tag with no registered loader, the returned future fails with an
-   *     {@link IllegalStateException}.
-   */
-  public static <K, V, S> BatchLoader<K, V> routed(
-      Function<? super K, ? extends S> classifier,
-      Map<S, ? extends BatchLoader<K, V>> loadersBySource) {
-    requireNonNull(classifier, "classifier");
-    requireNonNull(loadersBySource, "loadersBySource");
-    Map<S, BatchLoader<K, V>> loaders = Map.copyOf(loadersBySource);
-
-    return keys -> {
-      Map<S, Set<K>> bySource = new LinkedHashMap<>();
-      for (K key : keys) {
-        bySource.computeIfAbsent(classifier.apply(key), tag -> new LinkedHashSet<>()).add(key);
-      }
-
-      List<CompletableFuture<Map<K, V>>> dispatches = new ArrayList<>(bySource.size());
-      for (Map.Entry<S, Set<K>> family : bySource.entrySet()) {
-        BatchLoader<K, V> loader = loaders.get(family.getKey());
-        if (loader == null) {
-          return CompletableFuture.failedFuture(
-              new IllegalStateException(
-                  "no BatchLoader registered for source: " + family.getKey()));
-        }
-        dispatches.add(loader.loadAll(family.getValue()));
-      }
-
-      return CompletableFuture.allOf(dispatches.toArray(new CompletableFuture<?>[0]))
-          .thenApply(
-              ignored -> {
-                Map<K, V> merged = new HashMap<>();
-                for (CompletableFuture<Map<K, V>> dispatch : dispatches) {
-                  merged.putAll(dispatch.join());
-                }
-                return merged;
-              });
-    };
-  }
+    /**
+     * Combines per-source loaders into one {@link BatchLoader}.
+     *
+     * @param classifier maps each key to its source tag
+     * @param loadersBySource the {@link BatchLoader} for each source tag
+     * @param <K> key type
+     * @param <V> value type
+     * @param <S> source-tag type
+     * @return a loader that partitions each key set by source and dispatches one batch per source. If
+     *     a key classifies to a tag with no registered loader, the returned future fails with an
+     *     {@link IllegalStateException}.
+     */
+    public static <K, V, S> BatchLoader<K, V> routed(Function<? super K, ? extends S> classifier, Map<S, ? extends BatchLoader<K, V>> loadersBySource) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

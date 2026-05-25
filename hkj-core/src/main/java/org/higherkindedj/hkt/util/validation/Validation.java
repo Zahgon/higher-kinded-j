@@ -28,31 +28,39 @@ package org.higherkindedj.hkt.util.validation;
  */
 public interface Validation {
 
-  /** Validator for core sum-type values and errors (Either, Validated, ...). */
-  CoreTypeValidator CORE = CoreTypeValidator.CORE_TYPE_VALIDATOR;
+    /**
+     * Validator for core sum-type values and errors (Either, Validated, ...).
+     */
+    CoreTypeValidator CORE = CoreTypeValidator.CORE_TYPE_VALIDATOR;
 
-  /** Validator for function and other reference parameters in monad/functor operations. */
-  FunctionValidator FUNCTION = FunctionValidator.FUNCTION_VALIDATOR;
+    /**
+     * Validator for function and other reference parameters in monad/functor operations.
+     */
+    FunctionValidator FUNCTION = FunctionValidator.FUNCTION_VALIDATOR;
 
-  /** Validator for {@link org.higherkindedj.hkt.Kind} parameters and narrow/widen operations. */
-  KindValidator KIND = KindValidator.KIND_VALIDATOR;
+    /**
+     * Validator for {@link org.higherkindedj.hkt.Kind} parameters and narrow/widen operations.
+     */
+    KindValidator KIND = KindValidator.KIND_VALIDATOR;
 
-  /** Validator for monad transformer outer instances and inner components. */
-  TransformerValidator TRANSFORMER = TransformerValidator.TRANSFORMER_VALIDATOR;
+    /**
+     * Validator for monad transformer outer instances and inner components.
+     */
+    TransformerValidator TRANSFORMER = TransformerValidator.TRANSFORMER_VALIDATOR;
 
-  static CoreTypeValidator coreType() {
-    return CORE;
-  }
+    static CoreTypeValidator coreType() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  static FunctionValidator function() {
-    return FUNCTION;
-  }
+    static FunctionValidator function() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  static KindValidator kind() {
-    return KIND;
-  }
+    static KindValidator kind() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  static TransformerValidator transformer() {
-    return TRANSFORMER;
-  }
+    static TransformerValidator transformer() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

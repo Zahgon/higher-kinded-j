@@ -35,88 +35,88 @@ import javax.tools.Diagnostic;
  */
 public final class FreeSwitchExhaustivenessChecker implements CheckVisitor {
 
-  private static final String FREE_FQN = "org.higherkindedj.hkt.free.Free";
-  private static final Set<String> KNOWN_FREE_CASES =
-      Set.of(FREE_FQN + ".Pure", FREE_FQN + ".Suspend", FREE_FQN + ".FlatMapped");
-  private static final String HANDLE_ERROR_FQN = FREE_FQN + ".HandleError";
-  private static final String AP_FQN = FREE_FQN + ".Ap";
+    private static final String FREE_FQN = "org.higherkindedj.hkt.free.Free";
 
-  private final Trees trees;
-  private final Diagnostic.Kind severity;
+    private static final Set<String> KNOWN_FREE_CASES = Set.of(FREE_FQN + ".Pure", FREE_FQN + ".Suspend", FREE_FQN + ".FlatMapped");
 
-  /**
-   * Creates a checker reporting at {@link Diagnostic.Kind#ERROR}.
-   *
-   * @param trees the {@link Trees} utility for AST and type resolution
-   */
-  public FreeSwitchExhaustivenessChecker(Trees trees) {
-    this(trees, Diagnostic.Kind.ERROR);
-  }
+    private static final String HANDLE_ERROR_FQN = FREE_FQN + ".HandleError";
 
-  /**
-   * Creates a checker reporting at the given severity.
-   *
-   * @param trees the Trees utility from the javac task; must not be null
-   * @param severity the severity at which the companion diagnostic is reported
-   */
-  public FreeSwitchExhaustivenessChecker(Trees trees, Diagnostic.Kind severity) {
-    this.trees = trees;
-    this.severity = severity;
-  }
+    private static final String AP_FQN = FREE_FQN + ".Ap";
 
-  @Override
-  public void onSwitch(SwitchTree node, TreePath path) {
-    inspect(node, node.getExpression(), node.getCases(), path);
-  }
+    private final Trees trees;
 
-  @Override
-  public void onSwitchExpression(SwitchExpressionTree node, TreePath path) {
-    inspect(node, node.getExpression(), node.getCases(), path);
-  }
+    private final Diagnostic.Kind severity;
 
-  private void inspect(
-      Tree switchNode, ExpressionTree selector, List<? extends CaseTree> cases, TreePath path) {
-    if (!FREE_FQN.equals(declaredFqn(LambdaReturns.typeOf(trees, path, selector)))) {
-      return; // selector is not the HKJ Free type: skip silently (no false positives)
+    /**
+     * Creates a checker reporting at {@link Diagnostic.Kind#ERROR}.
+     *
+     * @param trees the {@link Trees} utility for AST and type resolution
+     */
+    public FreeSwitchExhaustivenessChecker(Trees trees) {
+        this(trees, Diagnostic.Kind.ERROR);
     }
-    boolean matchesFreeVariants = false;
-    boolean hasHandleError = false;
-    boolean hasAp = false;
-    for (CaseTree c : cases) {
-      for (CaseLabelTree label : c.getLabels()) {
-        String fqn = patternTypeFqn(label, path);
-        if (fqn == null) {
-          continue;
+
+    /**
+     * Creates a checker reporting at the given severity.
+     *
+     * @param trees the Trees utility from the javac task; must not be null
+     * @param severity the severity at which the companion diagnostic is reported
+     */
+    public FreeSwitchExhaustivenessChecker(Trees trees, Diagnostic.Kind severity) {
+        this.trees = trees;
+        this.severity = severity;
+    }
+
+    @Override
+    public void onSwitch(SwitchTree node, TreePath path) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public void onSwitchExpression(SwitchExpressionTree node, TreePath path) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    private void inspect(Tree switchNode, ExpressionTree selector, List<? extends CaseTree> cases, TreePath path) {
+        if (!FREE_FQN.equals(declaredFqn(LambdaReturns.typeOf(trees, path, selector)))) {
+            // selector is not the HKJ Free type: skip silently (no false positives)
+            return;
         }
-        if (KNOWN_FREE_CASES.contains(fqn)) {
-          matchesFreeVariants = true;
-        } else if (HANDLE_ERROR_FQN.equals(fqn)) {
-          hasHandleError = true;
-        } else if (AP_FQN.equals(fqn)) {
-          hasAp = true;
+        boolean matchesFreeVariants = false;
+        boolean hasHandleError = false;
+        boolean hasAp = false;
+        for (CaseTree c : cases) {
+            for (CaseLabelTree label : c.getLabels()) {
+                String fqn = patternTypeFqn(label, path);
+                if (fqn == null) {
+                    continue;
+                }
+                if (KNOWN_FREE_CASES.contains(fqn)) {
+                    matchesFreeVariants = true;
+                } else if (HANDLE_ERROR_FQN.equals(fqn)) {
+                    hasHandleError = true;
+                } else if (AP_FQN.equals(fqn)) {
+                    hasAp = true;
+                }
+            }
         }
-      }
+        if (matchesFreeVariants && (!hasHandleError || !hasAp)) {
+            trees.printMessage(severity, DiagnosticMessages.freeSwitchMissingCases(!hasHandleError, !hasAp), switchNode, path.getCompilationUnit());
+        }
     }
-    if (matchesFreeVariants && (!hasHandleError || !hasAp)) {
-      trees.printMessage(
-          severity,
-          DiagnosticMessages.freeSwitchMissingCases(!hasHandleError, !hasAp),
-          switchNode,
-          path.getCompilationUnit());
-    }
-  }
 
-  /** The fully-qualified name of a pattern case label's matched type, or {@code null}. */
-  private String patternTypeFqn(CaseLabelTree label, TreePath path) {
-    if (!(label instanceof PatternCaseLabelTree patternLabel)) {
-      return null; // constant / default / null label: not a Free variant
+    /**
+     * The fully-qualified name of a pattern case label's matched type, or {@code null}.
+     */
+    private String patternTypeFqn(CaseLabelTree label, TreePath path) {
+        if (!(label instanceof PatternCaseLabelTree patternLabel)) {
+            // constant / default / null label: not a Free variant
+            return null;
+        }
+        return declaredFqn(LambdaReturns.typeOf(trees, path, patternLabel.getPattern()));
     }
-    return declaredFqn(LambdaReturns.typeOf(trees, path, patternLabel.getPattern()));
-  }
 
-  private static String declaredFqn(TypeMirror t) {
-    return t instanceof DeclaredType dt && dt.asElement() instanceof TypeElement te
-        ? te.getQualifiedName().toString()
-        : null;
-  }
+    private static String declaredFqn(TypeMirror t) {
+        return t instanceof DeclaredType dt && dt.asElement() instanceof TypeElement te ? te.getQualifiedName().toString() : null;
+    }
 }

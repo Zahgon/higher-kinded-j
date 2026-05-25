@@ -12,14 +12,16 @@ package org.higherkindedj.hkt.vstream;
  */
 final class StreamTailMarker extends RuntimeException {
 
-  private final VStream<?> remainingTail;
+    private final VStream<?> remainingTail;
 
-  StreamTailMarker(VStream<?> remainingTail) {
-    super(null, null, /* enableSuppression= */ true, /* writableStackTrace= */ false);
-    this.remainingTail = remainingTail;
-  }
+    StreamTailMarker(VStream<?> remainingTail) {
+        super(null, null, /* enableSuppression= */
+        true, /* writableStackTrace= */
+        false);
+        this.remainingTail = remainingTail;
+    }
 
-  VStream<?> remainingTail() {
-    return remainingTail;
-  }
+    VStream<?> remainingTail() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

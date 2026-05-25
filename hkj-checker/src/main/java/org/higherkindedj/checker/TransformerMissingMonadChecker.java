@@ -33,81 +33,69 @@ import javax.tools.Diagnostic;
  */
 public final class TransformerMissingMonadChecker implements CheckVisitor {
 
-  /** Transformer monad simple name to fully-qualified name. */
-  private static final Map<String, String> TRANSFORMER_MONADS =
-      Map.of(
-          "EitherTMonad", "org.higherkindedj.hkt.either_t.EitherTMonad",
-          "OptionalTMonad", "org.higherkindedj.hkt.optional_t.OptionalTMonad",
-          "MaybeTMonad", "org.higherkindedj.hkt.maybe_t.MaybeTMonad",
-          "ReaderTMonad", "org.higherkindedj.hkt.reader_t.ReaderTMonad",
-          "StateTMonad", "org.higherkindedj.hkt.state_t.StateTMonad",
-          "WriterTMonad", "org.higherkindedj.hkt.writer_t.WriterTMonad");
+    /**
+     * Transformer monad simple name to fully-qualified name.
+     */
+    private static final Map<String, String> TRANSFORMER_MONADS = Map.of("EitherTMonad", "org.higherkindedj.hkt.either_t.EitherTMonad", "OptionalTMonad", "org.higherkindedj.hkt.optional_t.OptionalTMonad", "MaybeTMonad", "org.higherkindedj.hkt.maybe_t.MaybeTMonad", "ReaderTMonad", "org.higherkindedj.hkt.reader_t.ReaderTMonad", "StateTMonad", "org.higherkindedj.hkt.state_t.StateTMonad", "WriterTMonad", "org.higherkindedj.hkt.writer_t.WriterTMonad");
 
-  private final Trees trees;
-  private final Diagnostic.Kind severity;
+    private final Trees trees;
 
-  /**
-   * Creates a checker reporting at {@link Diagnostic.Kind#ERROR}.
-   *
-   * @param trees the {@link Trees} utility for AST and type resolution
-   */
-  public TransformerMissingMonadChecker(Trees trees) {
-    this(trees, Diagnostic.Kind.ERROR);
-  }
+    private final Diagnostic.Kind severity;
 
-  /**
-   * Creates a checker reporting at the given severity.
-   *
-   * @param trees the Trees utility from the javac task; must not be null
-   * @param severity the severity at which the companion diagnostic is reported
-   */
-  public TransformerMissingMonadChecker(Trees trees, Diagnostic.Kind severity) {
-    this.trees = trees;
-    this.severity = severity;
-  }
-
-  @Override
-  public void onNewClass(NewClassTree node, TreePath path) {
-    if (node.getArguments().isEmpty()) {
-      String simpleName = constructedSimpleName(node.getIdentifier());
-      if (simpleName != null
-          && TRANSFORMER_MONADS.containsKey(simpleName)
-          && isHkjType(node, path)) {
-        trees.printMessage(
-            severity,
-            DiagnosticMessages.transformerMissingMonad(simpleName),
-            node,
-            path.getCompilationUnit());
-      }
+    /**
+     * Creates a checker reporting at {@link Diagnostic.Kind#ERROR}.
+     *
+     * @param trees the {@link Trees} utility for AST and type resolution
+     */
+    public TransformerMissingMonadChecker(Trees trees) {
+        this(trees, Diagnostic.Kind.ERROR);
     }
-  }
 
-  /** Simple name of the constructed type, unwrapping generics and qualified names. */
-  private String constructedSimpleName(Tree identifier) {
-    Tree t = identifier;
-    if (t instanceof ParameterizedTypeTree p) {
-      t = p.getType();
+    /**
+     * Creates a checker reporting at the given severity.
+     *
+     * @param trees the Trees utility from the javac task; must not be null
+     * @param severity the severity at which the companion diagnostic is reported
+     */
+    public TransformerMissingMonadChecker(Trees trees, Diagnostic.Kind severity) {
+        this.trees = trees;
+        this.severity = severity;
     }
-    if (t instanceof IdentifierTree id) {
-      return id.getName().toString();
-    }
-    if (t instanceof MemberSelectTree ms) {
-      return ms.getIdentifier().toString();
-    }
-    return null;
-  }
 
-  /**
-   * Confirms the constructed type is the HKJ transformer monad. If the type resolved, its
-   * fully-qualified name must match; if it did not resolve (e.g. attribution stopped at the failed
-   * constructor), the simple-name match already made is accepted, since no-arg construction of a
-   * type named like a transformer monad is unambiguously the documented mistake.
-   */
-  private boolean isHkjType(NewClassTree node, TreePath path) {
-    TypeMirror t = LambdaReturns.typeOf(trees, path, node.getIdentifier());
-    if (!(t instanceof DeclaredType dt) || !(dt.asElement() instanceof TypeElement te)) {
-      return true; // unresolved: fall back to the simple-name match
+    @Override
+    public void onNewClass(NewClassTree node, TreePath path) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-    return TRANSFORMER_MONADS.containsValue(te.getQualifiedName().toString());
-  }
+
+    /**
+     * Simple name of the constructed type, unwrapping generics and qualified names.
+     */
+    private String constructedSimpleName(Tree identifier) {
+        Tree t = identifier;
+        if (t instanceof ParameterizedTypeTree p) {
+            t = p.getType();
+        }
+        if (t instanceof IdentifierTree id) {
+            return id.getName().toString();
+        }
+        if (t instanceof MemberSelectTree ms) {
+            return ms.getIdentifier().toString();
+        }
+        return null;
+    }
+
+    /**
+     * Confirms the constructed type is the HKJ transformer monad. If the type resolved, its
+     * fully-qualified name must match; if it did not resolve (e.g. attribution stopped at the failed
+     * constructor), the simple-name match already made is accepted, since no-arg construction of a
+     * type named like a transformer monad is unambiguously the documented mistake.
+     */
+    private boolean isHkjType(NewClassTree node, TreePath path) {
+        TypeMirror t = LambdaReturns.typeOf(trees, path, node.getIdentifier());
+        if (!(t instanceof DeclaredType dt) || !(dt.asElement() instanceof TypeElement te)) {
+            // unresolved: fall back to the simple-name match
+            return true;
+        }
+        return TRANSFORMER_MONADS.containsValue(te.getQualifiedName().toString());
+    }
 }

@@ -14,30 +14,24 @@ package org.higherkindedj.hkt.resilience;
  */
 public class SagaExecutionException extends RuntimeException {
 
-  private final SagaError sagaError;
+    private final SagaError sagaError;
 
-  /**
-   * Creates a new SagaExecutionException.
-   *
-   * @param sagaError the saga error with compensation details
-   */
-  public SagaExecutionException(SagaError sagaError) {
-    super(
-        "Saga failed at step '"
-            + sagaError.failedStep()
-            + "' with "
-            + sagaError.compensationFailures().size()
-            + " compensation failure(s)",
-        sagaError.originalError());
-    this.sagaError = sagaError;
-  }
+    /**
+     * Creates a new SagaExecutionException.
+     *
+     * @param sagaError the saga error with compensation details
+     */
+    public SagaExecutionException(SagaError sagaError) {
+        super("Saga failed at step '" + sagaError.failedStep() + "' with " + sagaError.compensationFailures().size() + " compensation failure(s)", sagaError.originalError());
+        this.sagaError = sagaError;
+    }
 
-  /**
-   * Returns the detailed saga error including compensation results.
-   *
-   * @return the saga error
-   */
-  public SagaError sagaError() {
-    return sagaError;
-  }
+    /**
+     * Returns the detailed saga error including compensation results.
+     *
+     * @return the saga error
+     */
+    public SagaError sagaError() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

@@ -24,62 +24,62 @@ import org.gradle.api.provider.Property;
  */
 public abstract class HKJExtension {
 
-  private final HKJChecksExtension checks;
+    private final HKJChecksExtension checks;
 
-  /**
-   * Creates the extension.
-   *
-   * @param objects the Gradle object factory for creating nested extensions
-   */
-  @Inject
-  public HKJExtension(ObjectFactory objects) {
-    this.checks = objects.newInstance(HKJChecksExtension.class);
-  }
+    /**
+     * Creates the extension.
+     *
+     * @param objects the Gradle object factory for creating nested extensions
+     */
+    @Inject
+    public HKJExtension(ObjectFactory objects) {
+        this.checks = objects.newInstance(HKJChecksExtension.class);
+    }
 
-  /**
-   * HKJ library version. Defaults to the plugin version.
-   *
-   * @return the version property
-   */
-  public abstract Property<String> getVersion();
+    /**
+     * HKJ library version. Defaults to the plugin version.
+     *
+     * @return the version property
+     */
+    public abstract Property<String> getVersion();
 
-  /**
-   * Whether to add --enable-preview flags. Defaults to true.
-   *
-   * @return the preview property
-   */
-  public abstract Property<Boolean> getPreview();
+    /**
+     * Whether to add --enable-preview flags. Defaults to true.
+     *
+     * @return the preview property
+     */
+    public abstract Property<Boolean> getPreview();
 
-  /**
-   * Whether to add hkj-spring-boot-starter. Defaults to false.
-   *
-   * @return the spring integration property
-   */
-  public abstract Property<Boolean> getSpring();
+    /**
+     * Whether to add hkj-spring-boot-starter. Defaults to false.
+     *
+     * @return the spring integration property
+     */
+    public abstract Property<Boolean> getSpring();
 
-  /**
-   * Whether to install Claude Code skills into the project's .claude/skills/ directory. Defaults to
-   * false. When enabled, the {@code hkjInstallSkills} task runs automatically during the build.
-   *
-   * @return the skills property
-   */
-  public abstract Property<Boolean> getSkills();
+    /**
+     * Whether to install Claude Code skills into the project's .claude/skills/ directory. Defaults to
+     * false. When enabled, the {@code hkjInstallSkills} task runs automatically during the build.
+     *
+     * @return the skills property
+     */
+    public abstract Property<Boolean> getSkills();
 
-  /**
-   * Compile-time check configuration.
-   *
-   * @return the checks extension
-   */
-  public HKJChecksExtension getChecks() {
-    return checks;
-  }
+    /**
+     * Compile-time check configuration.
+     *
+     * @return the checks extension
+     */
+    public HKJChecksExtension getChecks() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Configures compile-time checks.
-   *
-   * @param action the configuration action
-   */
-  public void checks(Action<? super HKJChecksExtension> action) {
-    action.execute(checks);
-  }
+    /**
+     * Configures compile-time checks.
+     *
+     * @param action the configuration action
+     */
+    public void checks(Action<? super HKJChecksExtension> action) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

@@ -12,41 +12,42 @@ import java.util.Objects;
  * @param value the price as a BigDecimal
  */
 public record Price(BigDecimal value) implements Comparable<Price> {
-  public Price {
-    Objects.requireNonNull(value, "price value must not be null");
-  }
 
-  public static Price of(String s) {
-    return new Price(new BigDecimal(s));
-  }
+    public Price {
+        Objects.requireNonNull(value, "price value must not be null");
+    }
 
-  public static Price of(double d) {
-    return new Price(BigDecimal.valueOf(d).setScale(4, RoundingMode.HALF_UP));
-  }
+    public static Price of(String s) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  public Price multiply(BigDecimal factor) {
-    return new Price(value.multiply(factor).setScale(4, RoundingMode.HALF_UP));
-  }
+    public static Price of(double d) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  public Price add(Price other) {
-    return new Price(value.add(other.value));
-  }
+    public Price multiply(BigDecimal factor) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  public Price subtract(Price other) {
-    return new Price(value.subtract(other.value));
-  }
+    public Price add(Price other) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  public double toDouble() {
-    return value.doubleValue();
-  }
+    public Price subtract(Price other) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public int compareTo(Price other) {
-    return value.compareTo(other.value);
-  }
+    public double toDouble() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public String toString() {
-    return value.setScale(4, RoundingMode.HALF_UP).toPlainString();
-  }
+    @Override
+    public int compareTo(Price other) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public String toString() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

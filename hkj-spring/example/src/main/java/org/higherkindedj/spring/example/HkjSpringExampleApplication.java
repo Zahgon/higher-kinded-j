@@ -28,15 +28,18 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class HkjSpringExampleApplication {
 
-  /** Creates an HkjSpringExampleApplication instance. */
-  public HkjSpringExampleApplication() {}
+    /**
+     * Creates an HkjSpringExampleApplication instance.
+     */
+    public HkjSpringExampleApplication() {
+    }
 
-  /**
-   * Application entry point.
-   *
-   * @param args command-line arguments
-   */
-  public static void main(String[] args) {
-    SpringApplication.run(HkjSpringExampleApplication.class, args);
-  }
+    /**
+     * Application entry point.
+     *
+     * @param args command-line arguments
+     */
+    public static void main(String[] args) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

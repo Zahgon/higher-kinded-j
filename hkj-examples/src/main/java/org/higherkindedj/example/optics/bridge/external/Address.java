@@ -29,106 +29,103 @@ import java.util.Objects;
  */
 public final class Address {
 
-  private final String street;
-  private final String city;
-  private final String postcode;
-  private final String country;
+    private final String street;
 
-  private Address(String street, String city, String postcode, String country) {
-    this.street = Objects.requireNonNull(street, "street");
-    this.city = Objects.requireNonNull(city, "city");
-    this.postcode = Objects.requireNonNull(postcode, "postcode");
-    this.country = Objects.requireNonNull(country, "country");
-  }
+    private final String city;
 
-  // Accessor methods (Immutables style - no "get" prefix)
-  public String street() {
-    return street;
-  }
+    private final String postcode;
 
-  public String city() {
-    return city;
-  }
+    private final String country;
 
-  public String postcode() {
-    return postcode;
-  }
-
-  public String country() {
-    return country;
-  }
-
-  // Wither methods - return new instance with one field changed
-  public Address withStreet(String street) {
-    return new Address(street, this.city, this.postcode, this.country);
-  }
-
-  public Address withCity(String city) {
-    return new Address(this.street, city, this.postcode, this.country);
-  }
-
-  public Address withPostcode(String postcode) {
-    return new Address(this.street, this.city, postcode, this.country);
-  }
-
-  public Address withCountry(String country) {
-    return new Address(this.street, this.city, this.postcode, country);
-  }
-
-  // Builder pattern
-  public static Builder builder() {
-    return new Builder();
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof Address address)) return false;
-    return street.equals(address.street)
-        && city.equals(address.city)
-        && postcode.equals(address.postcode)
-        && country.equals(address.country);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(street, city, postcode, country);
-  }
-
-  @Override
-  public String toString() {
-    return "Address{street='%s', city='%s', postcode='%s', country='%s'}"
-        .formatted(street, city, postcode, country);
-  }
-
-  public static final class Builder {
-    private String street;
-    private String city;
-    private String postcode;
-    private String country;
-
-    public Builder street(String street) {
-      this.street = street;
-      return this;
+    private Address(String street, String city, String postcode, String country) {
+        this.street = Objects.requireNonNull(street, "street");
+        this.city = Objects.requireNonNull(city, "city");
+        this.postcode = Objects.requireNonNull(postcode, "postcode");
+        this.country = Objects.requireNonNull(country, "country");
     }
 
-    public Builder city(String city) {
-      this.city = city;
-      return this;
+    // Accessor methods (Immutables style - no "get" prefix)
+    public String street() {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    public Builder postcode(String postcode) {
-      this.postcode = postcode;
-      return this;
+    public String city() {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    public Builder country(String country) {
-      this.country = country;
-      return this;
+    public String postcode() {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    public Address build() {
-      return new Address(street, city, postcode, country);
+    public String country() {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-  }
+
+    // Wither methods - return new instance with one field changed
+    public Address withStreet(String street) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    public Address withCity(String city) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    public Address withPostcode(String postcode) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    public Address withCountry(String country) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // Builder pattern
+    public static Builder builder() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public int hashCode() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public String toString() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    public static final class Builder {
+
+        private String street;
+
+        private String city;
+
+        private String postcode;
+
+        private String country;
+
+        public Builder street(String street) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public Builder city(String city) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public Builder postcode(String postcode) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public Builder country(String country) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        public Address build() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+    }
 }

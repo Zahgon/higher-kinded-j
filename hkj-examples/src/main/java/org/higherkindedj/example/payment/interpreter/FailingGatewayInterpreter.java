@@ -22,21 +22,18 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public final class FailingGatewayInterpreter extends PaymentGatewayOpInterpreter<IdKind.Witness> {
 
-  @Override
-  protected <A> Kind<IdKind.Witness, A> handleAuthorise(PaymentGatewayOp.Authorise<A> op) {
-    Objects.requireNonNull(op, "op cannot be null");
-    return new Id<>(op.k().apply(new AuthorisationToken("fail-auth", op.amount())));
-  }
+    @Override
+    protected <A> Kind<IdKind.Witness, A> handleAuthorise(PaymentGatewayOp.Authorise<A> op) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  protected <A> Kind<IdKind.Witness, A> handleCharge(PaymentGatewayOp.Charge<A> op) {
-    Objects.requireNonNull(op, "op cannot be null");
-    return new Id<>(op.k().apply(ChargeResult.failed(op.amount(), "Card declined")));
-  }
+    @Override
+    protected <A> Kind<IdKind.Witness, A> handleCharge(PaymentGatewayOp.Charge<A> op) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  protected <A> Kind<IdKind.Witness, A> handleRefund(PaymentGatewayOp.Refund<A> op) {
-    Objects.requireNonNull(op, "op cannot be null");
-    return new Id<>(op.k().apply(ChargeResult.failed(op.amount(), "Refund failed")));
-  }
+    @Override
+    protected <A> Kind<IdKind.Witness, A> handleRefund(PaymentGatewayOp.Refund<A> op) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

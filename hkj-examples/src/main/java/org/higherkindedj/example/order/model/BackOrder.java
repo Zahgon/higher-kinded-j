@@ -21,93 +21,74 @@ import org.higherkindedj.example.order.model.value.ProductId;
  * @param createdAt when the back-order was created
  * @param estimatedAvailable estimated date when stock will be available
  */
-public record BackOrder(
-    String backOrderId,
-    OrderId originalOrderId,
-    ProductId productId,
-    int quantity,
-    Money unitPrice,
-    Status status,
-    Instant createdAt,
-    Instant estimatedAvailable) {
-  /** Back-order status. */
-  public enum Status {
-    /** Waiting for stock to become available. */
-    PENDING,
+public record BackOrder(String backOrderId, OrderId originalOrderId, ProductId productId, int quantity, Money unitPrice, Status status, Instant createdAt, Instant estimatedAvailable) {
 
-    /** Stock is available, ready to ship. */
-    READY_TO_SHIP,
+    /**
+     * Back-order status.
+     */
+    public enum Status {
 
-    /** Back-order has been shipped. */
-    SHIPPED,
+        /**
+         * Waiting for stock to become available.
+         */
+        PENDING,
+        /**
+         * Stock is available, ready to ship.
+         */
+        READY_TO_SHIP,
+        /**
+         * Back-order has been shipped.
+         */
+        SHIPPED,
+        /**
+         * Back-order was cancelled.
+         */
+        CANCELLED,
+        /**
+         * Back-order has been fulfilled.
+         */
+        FULFILLED
+    }
 
-    /** Back-order was cancelled. */
-    CANCELLED,
+    /**
+     * Creates a new pending back-order.
+     *
+     * @param originalOrderId the original order ID
+     * @param productId the product to back-order
+     * @param quantity the quantity
+     * @param unitPrice the locked-in price
+     * @param estimatedDays estimated days until stock available
+     * @return a new BackOrder in PENDING status
+     */
+    public static BackOrder create(OrderId originalOrderId, ProductId productId, int quantity, Money unitPrice, int estimatedDays) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    /** Back-order has been fulfilled. */
-    FULFILLED
-  }
+    /**
+     * Calculates the total value of this back-order.
+     *
+     * @return quantity multiplied by unit price
+     */
+    public Money totalValue() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a new pending back-order.
-   *
-   * @param originalOrderId the original order ID
-   * @param productId the product to back-order
-   * @param quantity the quantity
-   * @param unitPrice the locked-in price
-   * @param estimatedDays estimated days until stock available
-   * @return a new BackOrder in PENDING status
-   */
-  public static BackOrder create(
-      OrderId originalOrderId,
-      ProductId productId,
-      int quantity,
-      Money unitPrice,
-      int estimatedDays) {
-    return new BackOrder(
-        "BO-" + UUID.randomUUID().toString().substring(0, 12).toUpperCase(),
-        originalOrderId,
-        productId,
-        quantity,
-        unitPrice,
-        Status.PENDING,
-        Instant.now(),
-        Instant.now().plusSeconds(estimatedDays * 24L * 60 * 60));
-  }
+    /**
+     * Returns a copy with updated status.
+     *
+     * @param newStatus the new status
+     * @return a new BackOrder with the updated status
+     */
+    public BackOrder withStatus(Status newStatus) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Calculates the total value of this back-order.
-   *
-   * @return quantity multiplied by unit price
-   */
-  public Money totalValue() {
-    return unitPrice.multiply(quantity);
-  }
-
-  /**
-   * Returns a copy with updated status.
-   *
-   * @param newStatus the new status
-   * @return a new BackOrder with the updated status
-   */
-  public BackOrder withStatus(Status newStatus) {
-    return new BackOrder(
-        backOrderId,
-        originalOrderId,
-        productId,
-        quantity,
-        unitPrice,
-        newStatus,
-        createdAt,
-        estimatedAvailable);
-  }
-
-  /**
-   * Checks if this back-order can be cancelled.
-   *
-   * @return true if cancellation is allowed
-   */
-  public boolean isCancellable() {
-    return status == Status.PENDING || status == Status.READY_TO_SHIP;
-  }
+    /**
+     * Checks if this back-order can be cancelled.
+     *
+     * @return true if cancellation is allowed
+     */
+    public boolean isCancellable() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

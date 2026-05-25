@@ -28,57 +28,21 @@ import org.apache.maven.project.MavenProject;
 @Mojo(name = "install-skills", requiresProject = true)
 public class HKJInstallSkillsMojo extends AbstractMojo {
 
-  /** Creates a new HKJInstallSkillsMojo. */
-  public HKJInstallSkillsMojo() {}
-
-  private static final String MANIFEST_RESOURCE = "/META-INF/hkj-skills/manifest.txt";
-  private static final String SKILLS_RESOURCE_PREFIX = "/META-INF/hkj-skills/";
-
-  @Parameter(defaultValue = "${project}", readonly = true, required = true)
-  private MavenProject project;
-
-  @Override
-  public void execute() throws MojoExecutionException {
-    Path targetDir = project.getBasedir().toPath().resolve(".claude/skills");
-
-    try (InputStream manifestStream =
-        HKJInstallSkillsMojo.class.getResourceAsStream(MANIFEST_RESOURCE)) {
-      if (manifestStream == null) {
-        throw new MojoExecutionException(
-            "HKJ skills manifest not found in plugin resources. "
-                + "The plugin may have been built without skills bundled.");
-      }
-
-      int installed = 0;
-      try (BufferedReader reader =
-          new BufferedReader(new InputStreamReader(manifestStream, StandardCharsets.UTF_8))) {
-        String line;
-        while ((line = reader.readLine()) != null) {
-          String relativePath = line.trim();
-          if (relativePath.isEmpty()) {
-            continue;
-          }
-
-          String resourcePath = SKILLS_RESOURCE_PREFIX + relativePath;
-          try (InputStream skillStream =
-              HKJInstallSkillsMojo.class.getResourceAsStream(resourcePath)) {
-            if (skillStream == null) {
-              getLog().warn("Skill resource not found: " + resourcePath + " — skipping");
-              continue;
-            }
-
-            Path targetFile = targetDir.resolve(relativePath);
-            Files.createDirectories(targetFile.getParent());
-            Files.copy(skillStream, targetFile, StandardCopyOption.REPLACE_EXISTING);
-            installed++;
-          }
-        }
-      }
-
-      getLog().info("Installed " + installed + " HKJ Claude Code skill files into .claude/skills/");
-
-    } catch (IOException e) {
-      throw new MojoExecutionException("Failed to install HKJ skills: " + e.getMessage(), e);
+    /**
+     * Creates a new HKJInstallSkillsMojo.
+     */
+    public HKJInstallSkillsMojo() {
     }
-  }
+
+    private static final String MANIFEST_RESOURCE = "/META-INF/hkj-skills/manifest.txt";
+
+    private static final String SKILLS_RESOURCE_PREFIX = "/META-INF/hkj-skills/";
+
+    @Parameter(defaultValue = "${project}", readonly = true, required = true)
+    private MavenProject project;
+
+    @Override
+    public void execute() throws MojoExecutionException {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

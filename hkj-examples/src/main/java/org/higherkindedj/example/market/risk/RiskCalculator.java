@@ -21,56 +21,32 @@ import org.higherkindedj.hkt.vtask.VTask;
  */
 public class RiskCalculator {
 
-  private final double spreadThreshold;
-  private final long volumeThreshold;
+    private final double spreadThreshold;
 
-  /**
-   * Creates a risk calculator.
-   *
-   * @param spreadThreshold spread percentage above which to flag (e.g. 0.005 for 0.5%)
-   * @param volumeThreshold volume above which to flag as unusual
-   */
-  public RiskCalculator(double spreadThreshold, long volumeThreshold) {
-    this.spreadThreshold = spreadThreshold;
-    this.volumeThreshold = volumeThreshold;
-  }
+    private final long volumeThreshold;
 
-  public RiskCalculator() {
-    this(0.005, 5000);
-  }
+    /**
+     * Creates a risk calculator.
+     *
+     * @param spreadThreshold spread percentage above which to flag (e.g. 0.005 for 0.5%)
+     * @param volumeThreshold volume above which to flag as unusual
+     */
+    public RiskCalculator(double spreadThreshold, long volumeThreshold) {
+        this.spreadThreshold = spreadThreshold;
+        this.volumeThreshold = volumeThreshold;
+    }
 
-  /**
-   * Assesses risk for a single enriched tick.
-   *
-   * @param tick the enriched tick to assess
-   * @return a VTask producing the risk assessment
-   */
-  public VTask<RiskAssessment> assess(EnrichedTick tick) {
-    return VTask.of(
-        () -> {
-          List<String> flags = new ArrayList<>();
-          double score = 0.0;
+    public RiskCalculator() {
+        this(0.005, 5000);
+    }
 
-          // Check spread
-          double spreadPct = tick.tick().spread().toDouble() / tick.tick().mid().toDouble();
-          if (spreadPct > spreadThreshold) {
-            flags.add("WIDE_SPREAD(" + String.format("%.2f%%", spreadPct * 100) + ")");
-            score += 0.3;
-          }
-
-          // Check volume
-          if (tick.tick().volume().value() > volumeThreshold) {
-            flags.add("HIGH_VOLUME(" + tick.tick().volume() + ")");
-            score += 0.3;
-          }
-
-          // Check bid-ask inversion (anomalous)
-          if (tick.tick().bid().compareTo(tick.tick().ask()) > 0) {
-            flags.add("BID_ASK_INVERSION");
-            score += 0.5;
-          }
-
-          return new RiskAssessment(tick, Math.min(score, 1.0), List.copyOf(flags));
-        });
-  }
+    /**
+     * Assesses risk for a single enriched tick.
+     *
+     * @param tick the enriched tick to assess
+     * @return a VTask producing the risk assessment
+     */
+    public VTask<RiskAssessment> assess(EnrichedTick tick) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

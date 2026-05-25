@@ -32,77 +32,67 @@ import org.jspecify.annotations.Nullable;
  * }</pre>
  */
 public enum CoyonedaKindHelper {
-  /** Singleton instance of the CoyonedaKindHelper. */
-  COYONEDA;
 
-  /**
-   * Holder record that wraps a Coyoneda instance and implements CoyonedaKind.
-   *
-   * <p>This enables the concrete Coyoneda type to be represented as a Kind.
-   *
-   * @param <F> The underlying type constructor
-   * @param <A> The result type
-   */
-  record CoyonedaHolder<F extends WitnessArity<TypeArity.Unary>, A>(Coyoneda<F, A> coyoneda)
-      implements CoyonedaKind<F, A> {}
+    /**
+     * Singleton instance of the CoyonedaKindHelper.
+     */
+    COYONEDA;
 
-  /**
-   * Widens a concrete Coyoneda type to its Kind representation.
-   *
-   * <p>This allows Coyoneda to be used with type classes that operate on Kind types.
-   *
-   * @param coyoneda The Coyoneda instance to widen. Must not be null.
-   * @param <F> The underlying type constructor
-   * @param <A> The result type
-   * @return The Kind representation of the Coyoneda instance
-   * @throws NullPointerException if coyoneda is null
-   */
-  public <F extends WitnessArity<TypeArity.Unary>, A> Kind<CoyonedaKind.Witness<F>, A> widen(
-      Coyoneda<F, A> coyoneda) {
-    if (coyoneda == null) {
-      throw new NullPointerException("Coyoneda to widen cannot be null");
+    /**
+     * Holder record that wraps a Coyoneda instance and implements CoyonedaKind.
+     *
+     * <p>This enables the concrete Coyoneda type to be represented as a Kind.
+     *
+     * @param <F> The underlying type constructor
+     * @param <A> The result type
+     */
+    record CoyonedaHolder<F extends WitnessArity<TypeArity.Unary>, A>(Coyoneda<F, A> coyoneda) implements CoyonedaKind<F, A> {
     }
-    return new CoyonedaHolder<>(coyoneda);
-  }
 
-  /**
-   * Narrows a Kind representation back to a concrete Coyoneda type.
-   *
-   * <p>This is the inverse of {@link #widen(Coyoneda)}.
-   *
-   * @param kind The Kind representation to narrow. May be null.
-   * @param <F> The underlying type constructor
-   * @param <A> The result type
-   * @return The concrete Coyoneda instance
-   * @throws KindUnwrapException if kind is null or not a valid CoyonedaKind representation
-   */
-  @SuppressWarnings("unchecked")
-  public <F extends WitnessArity<TypeArity.Unary>, A> Coyoneda<F, A> narrow(
-      @Nullable Kind<CoyonedaKind.Witness<F>, A> kind) {
-    if (kind == null) {
-      throw new KindUnwrapException("Cannot narrow null Kind to Coyoneda");
+    /**
+     * Widens a concrete Coyoneda type to its Kind representation.
+     *
+     * <p>This allows Coyoneda to be used with type classes that operate on Kind types.
+     *
+     * @param coyoneda The Coyoneda instance to widen. Must not be null.
+     * @param <F> The underlying type constructor
+     * @param <A> The result type
+     * @return The Kind representation of the Coyoneda instance
+     * @throws NullPointerException if coyoneda is null
+     */
+    public <F extends WitnessArity<TypeArity.Unary>, A> Kind<CoyonedaKind.Witness<F>, A> widen(Coyoneda<F, A> coyoneda) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-    if (kind instanceof CoyonedaHolder<?, ?> holder) {
-      return (Coyoneda<F, A>) holder.coyoneda();
-    }
-    throw new KindUnwrapException(
-        "Cannot narrow Kind to Coyoneda: expected CoyonedaHolder but got " + kind.getClass());
-  }
 
-  /**
-   * Convenience factory that lifts a Kind into Coyoneda and wraps it as a Kind.
-   *
-   * <p>This combines {@link Coyoneda#lift(Kind)} and {@link #widen(Coyoneda)} in a single
-   * operation.
-   *
-   * @param fa The Kind to lift and widen. Must not be null.
-   * @param <F> The type constructor
-   * @param <A> The value type
-   * @return A Kind representing Coyoneda containing the lifted value
-   * @throws NullPointerException if fa is null
-   */
-  public <F extends WitnessArity<TypeArity.Unary>, A> Kind<CoyonedaKind.Witness<F>, A> lift(
-      Kind<F, A> fa) {
-    return widen(Coyoneda.lift(fa));
-  }
+    /**
+     * Narrows a Kind representation back to a concrete Coyoneda type.
+     *
+     * <p>This is the inverse of {@link #widen(Coyoneda)}.
+     *
+     * @param kind The Kind representation to narrow. May be null.
+     * @param <F> The underlying type constructor
+     * @param <A> The result type
+     * @return The concrete Coyoneda instance
+     * @throws KindUnwrapException if kind is null or not a valid CoyonedaKind representation
+     */
+    @SuppressWarnings("unchecked")
+    public <F extends WitnessArity<TypeArity.Unary>, A> Coyoneda<F, A> narrow(@Nullable Kind<CoyonedaKind.Witness<F>, A> kind) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Convenience factory that lifts a Kind into Coyoneda and wraps it as a Kind.
+     *
+     * <p>This combines {@link Coyoneda#lift(Kind)} and {@link #widen(Coyoneda)} in a single
+     * operation.
+     *
+     * @param fa The Kind to lift and widen. Must not be null.
+     * @param <F> The type constructor
+     * @param <A> The value type
+     * @return A Kind representing Coyoneda containing the lifted value
+     * @throws NullPointerException if fa is null
+     */
+    public <F extends WitnessArity<TypeArity.Unary>, A> Kind<CoyonedaKind.Witness<F>, A> lift(Kind<F, A> fa) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

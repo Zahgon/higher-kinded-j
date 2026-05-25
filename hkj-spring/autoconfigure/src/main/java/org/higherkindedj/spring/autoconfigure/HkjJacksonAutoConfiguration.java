@@ -44,30 +44,29 @@ import tools.jackson.databind.json.JsonMapper;
  * </pre>
  */
 @AutoConfiguration(after = HkjAutoConfiguration.class)
-@ConditionalOnClass({JsonMapper.class, Either.class})
+@ConditionalOnClass({ JsonMapper.class, Either.class })
 @AutoConfigureAfter(JacksonAutoConfiguration.class)
-@ConditionalOnProperty(
-    prefix = "hkj.json",
-    name = "custom-serializers-enabled",
-    havingValue = "true",
-    matchIfMissing = true)
+@ConditionalOnProperty(prefix = "hkj.json", name = "custom-serializers-enabled", havingValue = "true", matchIfMissing = true)
 public class HkjJacksonAutoConfiguration {
 
-  /** Creates a new HkjJacksonAutoConfiguration. */
-  public HkjJacksonAutoConfiguration() {}
+    /**
+     * Creates a new HkjJacksonAutoConfiguration.
+     */
+    public HkjJacksonAutoConfiguration() {
+    }
 
-  /**
-   * Provides the HkjJacksonModule bean which will be automatically registered with Spring Boot's
-   * JsonMapper.
-   *
-   * <p>Spring Boot automatically discovers and registers all {@link JacksonModule} beans with the
-   * JsonMapper, so we just need to declare it as a bean.
-   *
-   * @return the HkjJacksonModule
-   */
-  @Bean
-  @ConditionalOnMissingBean(name = "hkjJacksonModule")
-  public JacksonModule hkjJacksonModule() {
-    return new HkjJacksonModule();
-  }
+    /**
+     * Provides the HkjJacksonModule bean which will be automatically registered with Spring Boot's
+     * JsonMapper.
+     *
+     * <p>Spring Boot automatically discovers and registers all {@link JacksonModule} beans with the
+     * JsonMapper, so we just need to declare it as a bean.
+     *
+     * @return the HkjJacksonModule
+     */
+    @Bean
+    @ConditionalOnMissingBean(name = "hkjJacksonModule")
+    public JacksonModule hkjJacksonModule() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

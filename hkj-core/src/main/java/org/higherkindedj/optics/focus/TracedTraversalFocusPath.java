@@ -25,64 +25,60 @@ import org.jspecify.annotations.NullMarked;
  * @param <A> the focused type
  */
 @NullMarked
-record TracedTraversalFocusPath<S, A>(
-    TraversalPath<S, A> underlying, BiConsumer<S, List<A>> observer)
-    implements TraversalPath<S, A> {
+record TracedTraversalFocusPath<S, A>(TraversalPath<S, A> underlying, BiConsumer<S, List<A>> observer) implements TraversalPath<S, A> {
 
-  TracedTraversalFocusPath {
-    Objects.requireNonNull(underlying, "underlying must not be null");
-    Objects.requireNonNull(observer, "observer must not be null");
-  }
+    TracedTraversalFocusPath {
+        Objects.requireNonNull(underlying, "underlying must not be null");
+        Objects.requireNonNull(observer, "observer must not be null");
+    }
 
-  @Override
-  public List<A> getAll(S source) {
-    List<A> result = underlying.getAll(source);
-    observer.accept(source, result);
-    return result;
-  }
+    @Override
+    public List<A> getAll(S source) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public S setAll(A value, S source) {
-    return underlying.setAll(value, source);
-  }
+    @Override
+    public S setAll(A value, S source) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public S modifyAll(Function<A, A> f, S source) {
-    return underlying.modifyAll(f, source);
-  }
+    @Override
+    public S modifyAll(Function<A, A> f, S source) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public TraversalPath<S, A> filter(Predicate<A> predicate) {
-    return underlying.filter(predicate);
-  }
+    @Override
+    public TraversalPath<S, A> filter(Predicate<A> predicate) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public <B> TraversalPath<S, B> via(Lens<A, B> lens) {
-    return underlying.via(lens);
-  }
+    @Override
+    public <B> TraversalPath<S, B> via(Lens<A, B> lens) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public <B> TraversalPath<S, B> via(Prism<A, B> prism) {
-    return underlying.via(prism);
-  }
+    @Override
+    public <B> TraversalPath<S, B> via(Prism<A, B> prism) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public <B> TraversalPath<S, B> via(Affine<A, B> affine) {
-    return underlying.via(affine);
-  }
+    @Override
+    public <B> TraversalPath<S, B> via(Affine<A, B> affine) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public <B> TraversalPath<S, B> via(Traversal<A, B> traversal) {
-    return underlying.via(traversal);
-  }
+    @Override
+    public <B> TraversalPath<S, B> via(Traversal<A, B> traversal) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public <B> TraversalPath<S, B> via(Iso<A, B> iso) {
-    return underlying.via(iso);
-  }
+    @Override
+    public <B> TraversalPath<S, B> via(Iso<A, B> iso) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public Traversal<S, A> toTraversal() {
-    return underlying.toTraversal();
-  }
+    @Override
+    public Traversal<S, A> toTraversal() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

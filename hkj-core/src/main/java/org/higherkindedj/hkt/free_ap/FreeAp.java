@@ -8,7 +8,6 @@ import static org.higherkindedj.hkt.util.validation.Operation.FOLD_MAP;
 import static org.higherkindedj.hkt.util.validation.Operation.LIFT_F;
 import static org.higherkindedj.hkt.util.validation.Operation.MAP;
 import static org.higherkindedj.hkt.util.validation.Operation.MAP_2;
-
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.function.BiFunction;
@@ -102,248 +101,226 @@ import org.higherkindedj.hkt.util.validation.Validation;
  * @see org.higherkindedj.hkt.Applicative
  * @see org.higherkindedj.hkt.free.Free
  */
-public sealed interface FreeAp<F extends WitnessArity<TypeArity.Unary>, A>
-    permits FreeAp.Pure, FreeAp.Lift, FreeAp.Ap {
+public sealed interface FreeAp<F extends WitnessArity<TypeArity.Unary>, A> permits FreeAp.Pure, FreeAp.Lift, FreeAp.Ap {
 
-  /**
-   * Terminal case representing a pure value.
-   *
-   * <p>A computation that immediately produces a value without any effects.
-   *
-   * @param <F> The functor type
-   * @param <A> The value type
-   */
-  record Pure<F extends WitnessArity<TypeArity.Unary>, A>(A value) implements FreeAp<F, A> {}
-
-  /**
-   * Suspended computation lifting a single instruction in F.
-   *
-   * <p>Represents a single operation in the instruction set F that will produce a value of type A.
-   *
-   * @param <F> The functor type
-   * @param <A> The result type
-   */
-  record Lift<F extends WitnessArity<TypeArity.Unary>, A>(Kind<F, A> fa) implements FreeAp<F, A> {
-    public Lift {
-      Validation.KIND.requireNonNull(fa, CONSTRUCTION, "Lift.fa");
+    /**
+     * Terminal case representing a pure value.
+     *
+     * <p>A computation that immediately produces a value without any effects.
+     *
+     * @param <F> The functor type
+     * @param <A> The value type
+     */
+    record Pure<F extends WitnessArity<TypeArity.Unary>, A>(A value) implements FreeAp<F, A> {
     }
-  }
 
-  /**
-   * Application of a wrapped function to a wrapped value.
-   *
-   * <p>This represents two <em>independent</em> computations: one producing a function, one
-   * producing a value. Neither depends on the other's result, enabling parallel execution.
-   *
-   * <p>Note: The type parameter X is existentially quantified (hidden from external users).
-   *
-   * @param <F> The functor type
-   * @param <X> The intermediate type (existential)
-   * @param <A> The final result type
-   */
-  record Ap<F extends WitnessArity<TypeArity.Unary>, X, A>(
-      FreeAp<F, Function<X, A>> ff, FreeAp<F, X> fa) implements FreeAp<F, A> {
-    public Ap {
-      Validation.FUNCTION.require(ff, "ff", CONSTRUCTION);
-      Validation.FUNCTION.require(fa, "fa", CONSTRUCTION);
+    /**
+     * Suspended computation lifting a single instruction in F.
+     *
+     * <p>Represents a single operation in the instruction set F that will produce a value of type A.
+     *
+     * @param <F> The functor type
+     * @param <A> The result type
+     */
+    record Lift<F extends WitnessArity<TypeArity.Unary>, A>(Kind<F, A> fa) implements FreeAp<F, A> {
+
+        public Lift {
+            Validation.KIND.requireNonNull(fa, CONSTRUCTION, "Lift.fa");
+        }
     }
-  }
 
-  /**
-   * Creates a FreeAp from a pure value.
-   *
-   * @param value The value to lift
-   * @param <F> The functor type
-   * @param <A> The value type
-   * @return A FreeAp containing the pure value
-   */
-  static <F extends WitnessArity<TypeArity.Unary>, A> FreeAp<F, A> pure(A value) {
-    return new Pure<>(value);
-  }
+    /**
+     * Application of a wrapped function to a wrapped value.
+     *
+     * <p>This represents two <em>independent</em> computations: one producing a function, one
+     * producing a value. Neither depends on the other's result, enabling parallel execution.
+     *
+     * <p>Note: The type parameter X is existentially quantified (hidden from external users).
+     *
+     * @param <F> The functor type
+     * @param <X> The intermediate type (existential)
+     * @param <A> The final result type
+     */
+    record Ap<F extends WitnessArity<TypeArity.Unary>, X, A>(FreeAp<F, Function<X, A>> ff, FreeAp<F, X> fa) implements FreeAp<F, A> {
 
-  /**
-   * Lifts a single instruction in F into FreeAp.
-   *
-   * @param fa The instruction to lift. Must not be null.
-   * @param <F> The functor type
-   * @param <A> The result type
-   * @return A FreeAp containing the lifted instruction
-   * @throws NullPointerException if fa is null
-   */
-  static <F extends WitnessArity<TypeArity.Unary>, A> FreeAp<F, A> lift(Kind<F, A> fa) {
-    Validation.KIND.requireNonNull(fa, LIFT_F);
-    return new Lift<>(fa);
-  }
+        public Ap {
+            Validation.FUNCTION.require(ff, "ff", CONSTRUCTION);
+            Validation.FUNCTION.require(fa, "fa", CONSTRUCTION);
+        }
+    }
 
-  /**
-   * Maps a function over the result of this FreeAp.
-   *
-   * @param f The function to apply. Must not be null.
-   * @param <B> The result type
-   * @return A new FreeAp with the function applied
-   * @throws NullPointerException if f is null
-   */
-  default <B> FreeAp<F, B> map(Function<? super A, ? extends B> f) {
-    Validation.FUNCTION.require(f, "f", MAP);
-    return ap(pure(f));
-  }
+    /**
+     * Creates a FreeAp from a pure value.
+     *
+     * @param value The value to lift
+     * @param <F> The functor type
+     * @param <A> The value type
+     * @return A FreeAp containing the pure value
+     */
+    static <F extends WitnessArity<TypeArity.Unary>, A> FreeAp<F, A> pure(A value) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Applies a FreeAp containing a function to this FreeAp.
-   *
-   * <p>This is the core applicative operation. The function and this value are <em>independent</em>
-   * computations - neither depends on the other's result.
-   *
-   * @param ff The FreeAp containing the function. Must not be null.
-   * @param <B> The result type
-   * @return A new FreeAp representing the application
-   * @throws NullPointerException if ff is null
-   */
-  default <B> FreeAp<F, B> ap(FreeAp<F, ? extends Function<? super A, ? extends B>> ff) {
-    Validation.FUNCTION.require(ff, "ff", AP);
-    // Need to handle the variance carefully
+    /**
+     * Lifts a single instruction in F into FreeAp.
+     *
+     * @param fa The instruction to lift. Must not be null.
+     * @param <F> The functor type
+     * @param <A> The result type
+     * @return A FreeAp containing the lifted instruction
+     * @throws NullPointerException if fa is null
+     */
+    static <F extends WitnessArity<TypeArity.Unary>, A> FreeAp<F, A> lift(Kind<F, A> fa) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Maps a function over the result of this FreeAp.
+     *
+     * @param f The function to apply. Must not be null.
+     * @param <B> The result type
+     * @return A new FreeAp with the function applied
+     * @throws NullPointerException if f is null
+     */
+    default <B> FreeAp<F, B> map(Function<? super A, ? extends B> f) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Applies a FreeAp containing a function to this FreeAp.
+     *
+     * <p>This is the core applicative operation. The function and this value are <em>independent</em>
+     * computations - neither depends on the other's result.
+     *
+     * @param ff The FreeAp containing the function. Must not be null.
+     * @param <B> The result type
+     * @return A new FreeAp representing the application
+     * @throws NullPointerException if ff is null
+     */
+    default <B> FreeAp<F, B> ap(FreeAp<F, ? extends Function<? super A, ? extends B>> ff) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Combines this FreeAp with another using a combining function.
+     *
+     * <p>Both computations are independent and can be executed in parallel.
+     *
+     * @param fb The other FreeAp. Must not be null.
+     * @param combine The function to combine results. Must not be null.
+     * @param <B> The type of the other value
+     * @param <C> The result type
+     * @return A new FreeAp combining both values
+     * @throws NullPointerException if fb or combine is null
+     */
+    default <B, C> FreeAp<F, C> map2(FreeAp<F, B> fb, BiFunction<? super A, ? super B, ? extends C> combine) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Interprets this FreeAp into a target applicative G using a natural transformation.
+     *
+     * <p>The natural transformation converts each instruction in F to the target applicative G. The
+     * Applicative instance for G is used to combine the results.
+     *
+     * <h2>Parallel Execution</h2>
+     *
+     * <p>If the target Applicative supports parallel execution (like a parallel IO or
+     * CompletableFuture), the independent computations in FreeAp can be executed in parallel.
+     *
+     * <h2>Example</h2>
+     *
+     * <pre>{@code
+     * // Define interpreter
+     * Natural<MyOp.Witness, IO.Witness> interpreter = ...;
+     *
+     * // Interpret the FreeAp program
+     * FreeAp<MyOp.Witness, Result> program = ...;
+     * Kind<IO.Witness, Result> ioResult = program.foldMap(interpreter, ioApplicative);
+     * }</pre>
+     *
+     * @param transform The natural transformation from F to G. Must not be null.
+     * @param applicative The Applicative instance for G. Must not be null.
+     * @param <G> The target applicative type
+     * @return The interpreted result in G
+     * @throws NullPointerException if transform or applicative is null
+     */
+    default <G extends WitnessArity<TypeArity.Unary>> Kind<G, A> foldMap(Natural<F, G> transform, Applicative<G> applicative) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Analyses the structure of this FreeAp, returning information in the applicative G.
+     *
+     * <p>This is similar to {@link #foldMap} but is specifically named to emphasise that the
+     * structure can be analysed before any actual execution happens.
+     *
+     * @param transform The natural transformation from F to G. Must not be null.
+     * @param applicative The Applicative instance for G. Must not be null.
+     * @param <G> The target applicative type
+     * @return The analysis result in G
+     * @throws NullPointerException if transform or applicative is null
+     */
+    default <G extends WitnessArity<TypeArity.Unary>> Kind<G, A> analyse(Natural<F, G> transform, Applicative<G> applicative) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Internal helper that interprets a FreeAp using the given natural transformation and
+     * applicative.
+     *
+     * @param freeAp The FreeAp to interpret
+     * @param transform The natural transformation from F to G
+     * @param applicative The Applicative instance for G
+     * @param <F> The source functor type
+     * @param <G> The target applicative type
+     * @param <A> The result type
+     * @return The interpreted result in G
+     */
     @SuppressWarnings("unchecked")
-    FreeAp<F, Function<A, B>> safeFF = (FreeAp<F, Function<A, B>>) (FreeAp<F, ?>) ff;
-    return new Ap<>(safeFF, this);
-  }
-
-  /**
-   * Combines this FreeAp with another using a combining function.
-   *
-   * <p>Both computations are independent and can be executed in parallel.
-   *
-   * @param fb The other FreeAp. Must not be null.
-   * @param combine The function to combine results. Must not be null.
-   * @param <B> The type of the other value
-   * @param <C> The result type
-   * @return A new FreeAp combining both values
-   * @throws NullPointerException if fb or combine is null
-   */
-  default <B, C> FreeAp<F, C> map2(
-      FreeAp<F, B> fb, BiFunction<? super A, ? super B, ? extends C> combine) {
-    Validation.FUNCTION.require(fb, "fb", MAP_2);
-    Validation.FUNCTION.require(combine, "combine", MAP_2);
-    return fb.ap(this.map(a -> b -> combine.apply(a, b)));
-  }
-
-  /**
-   * Interprets this FreeAp into a target applicative G using a natural transformation.
-   *
-   * <p>The natural transformation converts each instruction in F to the target applicative G. The
-   * Applicative instance for G is used to combine the results.
-   *
-   * <h2>Parallel Execution</h2>
-   *
-   * <p>If the target Applicative supports parallel execution (like a parallel IO or
-   * CompletableFuture), the independent computations in FreeAp can be executed in parallel.
-   *
-   * <h2>Example</h2>
-   *
-   * <pre>{@code
-   * // Define interpreter
-   * Natural<MyOp.Witness, IO.Witness> interpreter = ...;
-   *
-   * // Interpret the FreeAp program
-   * FreeAp<MyOp.Witness, Result> program = ...;
-   * Kind<IO.Witness, Result> ioResult = program.foldMap(interpreter, ioApplicative);
-   * }</pre>
-   *
-   * @param transform The natural transformation from F to G. Must not be null.
-   * @param applicative The Applicative instance for G. Must not be null.
-   * @param <G> The target applicative type
-   * @return The interpreted result in G
-   * @throws NullPointerException if transform or applicative is null
-   */
-  default <G extends WitnessArity<TypeArity.Unary>> Kind<G, A> foldMap(
-      Natural<F, G> transform, Applicative<G> applicative) {
-    Validation.FUNCTION.require(transform, "transform", FOLD_MAP);
-    Validation.FUNCTION.require(applicative, "applicative", FOLD_MAP);
-    return interpretFreeAp(this, transform, applicative);
-  }
-
-  /**
-   * Analyses the structure of this FreeAp, returning information in the applicative G.
-   *
-   * <p>This is similar to {@link #foldMap} but is specifically named to emphasise that the
-   * structure can be analysed before any actual execution happens.
-   *
-   * @param transform The natural transformation from F to G. Must not be null.
-   * @param applicative The Applicative instance for G. Must not be null.
-   * @param <G> The target applicative type
-   * @return The analysis result in G
-   * @throws NullPointerException if transform or applicative is null
-   */
-  default <G extends WitnessArity<TypeArity.Unary>> Kind<G, A> analyse(
-      Natural<F, G> transform, Applicative<G> applicative) {
-    return foldMap(transform, applicative);
-  }
-
-  /**
-   * Internal helper that interprets a FreeAp using the given natural transformation and
-   * applicative.
-   *
-   * @param freeAp The FreeAp to interpret
-   * @param transform The natural transformation from F to G
-   * @param applicative The Applicative instance for G
-   * @param <F> The source functor type
-   * @param <G> The target applicative type
-   * @param <A> The result type
-   * @return The interpreted result in G
-   */
-  @SuppressWarnings("unchecked")
-  private static <
-          F extends WitnessArity<TypeArity.Unary>, G extends WitnessArity<TypeArity.Unary>, A>
-      Kind<G, A> interpretFreeAp(
-          FreeAp<F, A> freeAp, Natural<F, G> transform, Applicative<G> applicative) {
-
-    // Unwind right-nested Ap chains iteratively to avoid stack overflow.
-    // Collect the function (ff) nodes while following the value (fa) chain.
-    Deque<FreeAp<F, ?>> ffStack = new ArrayDeque<>();
-    FreeAp<F, ?> current = freeAp;
-
-    while (current instanceof Ap<F, ?, ?> ap) {
-      Ap<F, Object, ?> typed = (Ap<F, Object, ?>) ap;
-      ffStack.push(typed.ff());
-      current = typed.fa();
+    private static <F extends WitnessArity<TypeArity.Unary>, G extends WitnessArity<TypeArity.Unary>, A> Kind<G, A> interpretFreeAp(FreeAp<F, A> freeAp, Natural<F, G> transform, Applicative<G> applicative) {
+        // Unwind right-nested Ap chains iteratively to avoid stack overflow.
+        // Collect the function (ff) nodes while following the value (fa) chain.
+        Deque<FreeAp<F, ?>> ffStack = new ArrayDeque<>();
+        FreeAp<F, ?> current = freeAp;
+        while (current instanceof Ap<F, ?, ?> ap) {
+            Ap<F, Object, ?> typed = (Ap<F, Object, ?>) ap;
+            ffStack.push(typed.ff());
+            current = typed.fa();
+        }
+        // current is now Pure or Lift — interpret the leaf
+        // (Ap nodes were consumed by the while loop above, so only Pure/Lift remain)
+        Kind<G, Object> result;
+        if (current instanceof Pure<F, ?> pure) {
+            result = (Kind<G, Object>) applicative.of(pure.value());
+        } else {
+            Lift<F, ?> lift = (Lift<F, ?>) current;
+            result = (Kind<G, Object>) transform.apply(lift.fa());
+        }
+        // Apply accumulated function nodes in reverse (LIFO) order
+        while (!ffStack.isEmpty()) {
+            FreeAp<F, ?> ffNode = ffStack.pop();
+            // ff nodes are typically Pure/Lift but could be nested Ap (handled by recursion)
+            Kind<G, Function<Object, Object>> gf = (Kind<G, Function<Object, Object>>) interpretFreeAp(ffNode, transform, applicative);
+            result = (Kind<G, Object>) applicative.ap(gf, result);
+        }
+        return (Kind<G, A>) result;
     }
 
-    // current is now Pure or Lift — interpret the leaf
-    // (Ap nodes were consumed by the while loop above, so only Pure/Lift remain)
-    Kind<G, Object> result;
-    if (current instanceof Pure<F, ?> pure) {
-      result = (Kind<G, Object>) applicative.of(pure.value());
-    } else {
-      Lift<F, ?> lift = (Lift<F, ?>) current;
-      result = (Kind<G, Object>) transform.apply(lift.fa());
+    /**
+     * Retract this FreeAp back to F when F is an Applicative.
+     *
+     * <p>This is the inverse of lift when F has an Applicative instance. It's equivalent to:
+     *
+     * <pre>{@code
+     * freeAp.foldMap(Natural.identity(), applicative)
+     * }</pre>
+     *
+     * @param applicative The Applicative instance for F. Must not be null.
+     * @return The computation in F
+     * @throws NullPointerException if applicative is null
+     */
+    default Kind<F, A> retract(Applicative<F> applicative) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-
-    // Apply accumulated function nodes in reverse (LIFO) order
-    while (!ffStack.isEmpty()) {
-      FreeAp<F, ?> ffNode = ffStack.pop();
-      // ff nodes are typically Pure/Lift but could be nested Ap (handled by recursion)
-      Kind<G, Function<Object, Object>> gf =
-          (Kind<G, Function<Object, Object>>) interpretFreeAp(ffNode, transform, applicative);
-      result = (Kind<G, Object>) applicative.ap(gf, result);
-    }
-
-    return (Kind<G, A>) result;
-  }
-
-  /**
-   * Retract this FreeAp back to F when F is an Applicative.
-   *
-   * <p>This is the inverse of lift when F has an Applicative instance. It's equivalent to:
-   *
-   * <pre>{@code
-   * freeAp.foldMap(Natural.identity(), applicative)
-   * }</pre>
-   *
-   * @param applicative The Applicative instance for F. Must not be null.
-   * @return The computation in F
-   * @throws NullPointerException if applicative is null
-   */
-  default Kind<F, A> retract(Applicative<F> applicative) {
-    Validation.FUNCTION.require(applicative, "applicative", FOLD_MAP);
-    return foldMap(Natural.identity(), applicative);
-  }
 }

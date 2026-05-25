@@ -18,24 +18,28 @@ import org.higherkindedj.example.market.model.value.Volume;
  * @param exchange the source exchange
  * @param timestamp the tick timestamp
  */
-public record PriceTick(
-    Symbol symbol, Price bid, Price ask, Volume volume, Exchange exchange, Instant timestamp) {
-  public PriceTick {
-    Objects.requireNonNull(symbol, "symbol must not be null");
-    Objects.requireNonNull(bid, "bid must not be null");
-    Objects.requireNonNull(ask, "ask must not be null");
-    Objects.requireNonNull(volume, "volume must not be null");
-    Objects.requireNonNull(exchange, "exchange must not be null");
-    Objects.requireNonNull(timestamp, "timestamp must not be null");
-  }
+public record PriceTick(Symbol symbol, Price bid, Price ask, Volume volume, Exchange exchange, Instant timestamp) {
 
-  /** The mid-price between bid and ask. */
-  public Price mid() {
-    return Price.of((bid.toDouble() + ask.toDouble()) / 2.0);
-  }
+    public PriceTick {
+        Objects.requireNonNull(symbol, "symbol must not be null");
+        Objects.requireNonNull(bid, "bid must not be null");
+        Objects.requireNonNull(ask, "ask must not be null");
+        Objects.requireNonNull(volume, "volume must not be null");
+        Objects.requireNonNull(exchange, "exchange must not be null");
+        Objects.requireNonNull(timestamp, "timestamp must not be null");
+    }
 
-  /** The spread between ask and bid. */
-  public Price spread() {
-    return ask.subtract(bid);
-  }
+    /**
+     * The mid-price between bid and ask.
+     */
+    public Price mid() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * The spread between ask and bid.
+     */
+    public Price spread() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

@@ -3,7 +3,6 @@
 package org.higherkindedj.example.payment.interpreter;
 
 import static org.higherkindedj.hkt.instances.Witnesses.*;
-
 import java.util.Objects;
 import org.higherkindedj.example.payment.effect.FraudCheckOp;
 import org.higherkindedj.example.payment.effect.FraudCheckOpInterpreter;
@@ -24,15 +23,12 @@ import org.jspecify.annotations.NullMarked;
  * log.
  */
 @NullMarked
-public final class ReplayFraudInterpreter
-    extends FraudCheckOpInterpreter<ReaderTKind.Witness<IdKind.Witness, EventLog>> {
+public final class ReplayFraudInterpreter extends FraudCheckOpInterpreter<ReaderTKind.Witness<IdKind.Witness, EventLog>> {
 
-  private static final Monad<IdKind.Witness> ID = Instances.monad(id());
+    private static final Monad<IdKind.Witness> ID = Instances.monad(id());
 
-  @Override
-  protected <A> Kind<ReaderTKind.Witness<IdKind.Witness, EventLog>, A> handleCheckTransaction(
-      FraudCheckOp.CheckTransaction<A> op) {
-    Objects.requireNonNull(op, "op cannot be null");
-    return ReaderT.reader(ID, (EventLog log) -> op.k().apply(log.<RiskScore>get("fraudCheck")));
-  }
+    @Override
+    protected <A> Kind<ReaderTKind.Witness<IdKind.Witness, EventLog>, A> handleCheckTransaction(FraudCheckOp.CheckTransaction<A> op) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

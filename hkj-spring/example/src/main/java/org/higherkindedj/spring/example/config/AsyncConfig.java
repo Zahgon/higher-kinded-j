@@ -37,45 +37,27 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 @EnableAsync
 public class AsyncConfig {
 
-  /** Creates an AsyncConfig instance. */
-  public AsyncConfig() {}
+    /**
+     * Creates an AsyncConfig instance.
+     */
+    public AsyncConfig() {
+    }
 
-  /**
-   * Creates the async executor for CompletableFuture-based async operations.
-   *
-   * <p>This executor is used by:
-   *
-   * <ul>
-   *   <li>AsyncUserService for async database/external service calls
-   *   <li>CompletableFuture.supplyAsync() calls in services
-   *   <li>EitherT async operation chains
-   * </ul>
-   *
-   * @return configured ThreadPoolTaskExecutor
-   */
-  @Bean(name = "hkjAsyncExecutor")
-  public Executor hkjAsyncExecutor() {
-    ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-
-    // Core pool size - minimum number of threads to keep alive
-    executor.setCorePoolSize(10);
-
-    // Max pool size - maximum number of threads
-    executor.setMaxPoolSize(20);
-
-    // Queue capacity - number of tasks to queue before rejecting
-    executor.setQueueCapacity(100);
-
-    // Thread name prefix for easy identification in logs/debugging
-    executor.setThreadNamePrefix("hkj-async-");
-
-    // Wait for tasks to complete on shutdown
-    executor.setWaitForTasksToCompleteOnShutdown(true);
-
-    // Shutdown timeout
-    executor.setAwaitTerminationSeconds(60);
-
-    executor.initialize();
-    return executor;
-  }
+    /**
+     * Creates the async executor for CompletableFuture-based async operations.
+     *
+     * <p>This executor is used by:
+     *
+     * <ul>
+     *   <li>AsyncUserService for async database/external service calls
+     *   <li>CompletableFuture.supplyAsync() calls in services
+     *   <li>EitherT async operation chains
+     * </ul>
+     *
+     * @return configured ThreadPoolTaskExecutor
+     */
+    @Bean(name = "hkjAsyncExecutor")
+    public Executor hkjAsyncExecutor() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

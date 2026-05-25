@@ -28,63 +28,57 @@ import org.higherkindedj.hkt.vtask.VTask;
 @SuppressWarnings("preview")
 public class AlertDispatcher {
 
-  private final List<AlertChannel> channels;
-  private final List<Alert> dispatchedAlerts = new CopyOnWriteArrayList<>();
+    private final List<AlertChannel> channels;
 
-  /**
-   * Creates a dispatcher with the given channels.
-   *
-   * @param channels the alert channels to dispatch to
-   */
-  public AlertDispatcher(List<AlertChannel> channels) {
-    this.channels = List.copyOf(Objects.requireNonNull(channels));
-  }
+    private final List<Alert> dispatchedAlerts = new CopyOnWriteArrayList<>();
 
-  /**
-   * An alert delivery channel (e.g. log, email, webhook).
-   *
-   * @param name the channel name
-   * @param handler the handler that delivers the alert
-   */
-  public record AlertChannel(String name, Consumer<Alert> handler) {
-    public AlertChannel {
-      Objects.requireNonNull(name);
-      Objects.requireNonNull(handler);
+    /**
+     * Creates a dispatcher with the given channels.
+     *
+     * @param channels the alert channels to dispatch to
+     */
+    public AlertDispatcher(List<AlertChannel> channels) {
+        this.channels = List.copyOf(Objects.requireNonNull(channels));
     }
-  }
 
-  /**
-   * Dispatches a single alert to all channels concurrently using {@link Scope#allSucceed()}.
-   *
-   * @param alert the alert to dispatch
-   * @return a VTask that completes when all channels have been notified
-   */
-  public VTask<Unit> dispatchOne(Alert alert) {
-    Scope<Unit, List<Unit>> scope = Scope.allSucceed();
-    for (AlertChannel channel : channels) {
-      scope = scope.fork(VTask.exec(() -> channel.handler().accept(alert)));
+    /**
+     * An alert delivery channel (e.g. log, email, webhook).
+     *
+     * @param name the channel name
+     * @param handler the handler that delivers the alert
+     */
+    public record AlertChannel(String name, Consumer<Alert> handler) {
+
+        public AlertChannel {
+            Objects.requireNonNull(name);
+            Objects.requireNonNull(handler);
+        }
     }
-    return scope
-        .join()
-        .map(
-            results -> {
-              dispatchedAlerts.add(alert);
-              return Unit.INSTANCE;
-            });
-  }
 
-  /**
-   * Dispatches all alerts in a stream to all channels.
-   *
-   * @param alerts the stream of alerts
-   * @return a stream that has dispatched each alert
-   */
-  public VStream<Alert> dispatch(VStream<Alert> alerts) {
-    return alerts.mapTask(alert -> dispatchOne(alert).map(u -> alert));
-  }
+    /**
+     * Dispatches a single alert to all channels concurrently using {@link Scope#allSucceed()}.
+     *
+     * @param alert the alert to dispatch
+     * @return a VTask that completes when all channels have been notified
+     */
+    public VTask<Unit> dispatchOne(Alert alert) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /** Returns all alerts that have been dispatched (for testing/verification). */
-  public List<Alert> getDispatchedAlerts() {
-    return List.copyOf(dispatchedAlerts);
-  }
+    /**
+     * Dispatches all alerts in a stream to all channels.
+     *
+     * @param alerts the stream of alerts
+     * @return a stream that has dispatched each alert
+     */
+    public VStream<Alert> dispatch(VStream<Alert> alerts) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Returns all alerts that have been dispatched (for testing/verification).
+     */
+    public List<Alert> getDispatchedAlerts() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

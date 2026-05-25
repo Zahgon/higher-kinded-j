@@ -3,7 +3,6 @@
 package org.higherkindedj.hkt.reader_t;
 
 import static org.higherkindedj.hkt.util.validation.Operation.*;
-
 import java.util.function.Function;
 import org.higherkindedj.hkt.Kind;
 import org.higherkindedj.hkt.Monad;
@@ -37,140 +36,125 @@ import org.higherkindedj.hkt.util.validation.Validation;
  * @see Monad
  * @see Kind
  */
-public record ReaderT<F extends WitnessArity<TypeArity.Unary>, R_ENV, A>(
-    Function<R_ENV, Kind<F, A>> run) implements ReaderTKind<F, R_ENV, A> {
+public record ReaderT<F extends WitnessArity<TypeArity.Unary>, R_ENV, A>(Function<R_ENV, Kind<F, A>> run) implements ReaderTKind<F, R_ENV, A> {
 
-  private static final Class<ReaderT> READER_T_CLASS = ReaderT.class;
+    private static final Class<ReaderT> READER_T_CLASS = ReaderT.class;
 
-  /**
-   * Constructs a new {@link ReaderT}. The {@code run} function is the core of the {@code ReaderT},
-   * defining how to produce a monadic value {@code Kind<F, A>} from an environment {@code R_ENV}.
-   *
-   * @param run The function {@code R_ENV -> Kind<F, A>}. Must not be null.
-   * @throws NullPointerException if {@code run} is null.
-   */
-  public ReaderT {
-    Validation.function().require(run, "run", CONSTRUCTION);
-  }
+    /**
+     * Constructs a new {@link ReaderT}. The {@code run} function is the core of the {@code ReaderT},
+     * defining how to produce a monadic value {@code Kind<F, A>} from an environment {@code R_ENV}.
+     *
+     * @param run The function {@code R_ENV -> Kind<F, A>}. Must not be null.
+     * @throws NullPointerException if {@code run} is null.
+     */
+    public ReaderT {
+        Validation.function().require(run, "run", CONSTRUCTION);
+    }
 
-  /**
-   * Factory method to create a {@link ReaderT} instance from a given run function.
-   *
-   * @param <F> The witness type of the outer monad.
-   * @param <R_ENV> The type of the environment.
-   * @param <A> The type of the value.
-   * @param runFunction The function {@code R_ENV -> Kind<F, A>} that defines the {@code ReaderT}.
-   *     Must not be null.
-   * @return A new {@link ReaderT} instance. Never null.
-   * @throws NullPointerException if {@code runFunction} is null.
-   */
-  public static <F extends WitnessArity<TypeArity.Unary>, R_ENV, A> ReaderT<F, R_ENV, A> of(
-      Function<R_ENV, Kind<F, A>> runFunction) {
-    return new ReaderT<>(runFunction);
-  }
+    /**
+     * Factory method to create a {@link ReaderT} instance from a given run function.
+     *
+     * @param <F> The witness type of the outer monad.
+     * @param <R_ENV> The type of the environment.
+     * @param <A> The type of the value.
+     * @param runFunction The function {@code R_ENV -> Kind<F, A>} that defines the {@code ReaderT}.
+     *     Must not be null.
+     * @return A new {@link ReaderT} instance. Never null.
+     * @throws NullPointerException if {@code runFunction} is null.
+     */
+    public static <F extends WitnessArity<TypeArity.Unary>, R_ENV, A> ReaderT<F, R_ENV, A> of(Function<R_ENV, Kind<F, A>> runFunction) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Lifts a monadic value {@code Kind<F, A>} into the {@link ReaderT} context. The resulting {@code
-   * ReaderT} will produce the given monadic value {@code fa} regardless of the environment {@code
-   * R_ENV}.
-   *
-   * @param <F> The witness type of the outer monad.
-   * @param <R_ENV> The type of the environment (it will be ignored).
-   * @param <A> The type of the value within the outer monad.
-   * @param outerMonad An instance of {@link Monad} for the outer type {@code F}. Must not be null.
-   * @param fa The monadic value {@code Kind<F, A>} to lift. Must not be null.
-   * @return A new {@link ReaderT} that wraps {@code fa}. Never null.
-   * @throws NullPointerException if {@code outerMonad} or {@code fa} is null.
-   */
-  public static <F extends WitnessArity<TypeArity.Unary>, R_ENV, A> ReaderT<F, R_ENV, A> liftF(
-      Monad<F> outerMonad, Kind<F, A> fa) {
-    Validation.transformer().requireOuterMonad(outerMonad, READER_T_CLASS, LIFT_F);
-    Validation.kind().requireNonNull(fa, LIFT_F, "source Kind");
-    // outerMonad is not operationally needed here (unlike OptionalT/EitherT/MaybeT which must map
-    // over fa to wrap the inner value). The parameter is retained for API consistency across all
-    // transformer liftF signatures, and validated to catch caller errors early.
-    return new ReaderT<>(r -> fa);
-  }
+    /**
+     * Lifts a monadic value {@code Kind<F, A>} into the {@link ReaderT} context. The resulting {@code
+     * ReaderT} will produce the given monadic value {@code fa} regardless of the environment {@code
+     * R_ENV}.
+     *
+     * @param <F> The witness type of the outer monad.
+     * @param <R_ENV> The type of the environment (it will be ignored).
+     * @param <A> The type of the value within the outer monad.
+     * @param outerMonad An instance of {@link Monad} for the outer type {@code F}. Must not be null.
+     * @param fa The monadic value {@code Kind<F, A>} to lift. Must not be null.
+     * @return A new {@link ReaderT} that wraps {@code fa}. Never null.
+     * @throws NullPointerException if {@code outerMonad} or {@code fa} is null.
+     */
+    public static <F extends WitnessArity<TypeArity.Unary>, R_ENV, A> ReaderT<F, R_ENV, A> liftF(Monad<F> outerMonad, Kind<F, A> fa) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a {@link ReaderT} from a function {@code R_ENV -> A}, lifting the result {@code A} into
-   * the outer monad {@code F} using the provided {@code outerMonad}'s {@code of} method.
-   *
-   * @param <F> The witness type of the outer monad.
-   * @param <R_ENV> The type of the environment.
-   * @param <A> The type of the value produced by the function {@code f} and lifted into {@code F}.
-   * @param outerMonad The {@link Monad} instance for the outer type {@code F}. Must not be null.
-   * @param f The function {@code R_ENV -> A} which computes a value from the environment. Must not
-   *     be null.
-   * @return A new {@link ReaderT} instance. Never null.
-   * @throws NullPointerException if {@code outerMonad} or {@code f} is null.
-   */
-  public static <F extends WitnessArity<TypeArity.Unary>, R_ENV, A> ReaderT<F, R_ENV, A> reader(
-      Monad<F> outerMonad, Function<R_ENV, A> f) {
-    Validation.transformer().requireOuterMonad(outerMonad, READER_T_CLASS, READER);
-    Validation.function().require(f, "environment function", READER);
-    return new ReaderT<>(r -> outerMonad.of(f.apply(r)));
-  }
+    /**
+     * Creates a {@link ReaderT} from a function {@code R_ENV -> A}, lifting the result {@code A} into
+     * the outer monad {@code F} using the provided {@code outerMonad}'s {@code of} method.
+     *
+     * @param <F> The witness type of the outer monad.
+     * @param <R_ENV> The type of the environment.
+     * @param <A> The type of the value produced by the function {@code f} and lifted into {@code F}.
+     * @param outerMonad The {@link Monad} instance for the outer type {@code F}. Must not be null.
+     * @param f The function {@code R_ENV -> A} which computes a value from the environment. Must not
+     *     be null.
+     * @return A new {@link ReaderT} instance. Never null.
+     * @throws NullPointerException if {@code outerMonad} or {@code f} is null.
+     */
+    public static <F extends WitnessArity<TypeArity.Unary>, R_ENV, A> ReaderT<F, R_ENV, A> reader(Monad<F> outerMonad, Function<R_ENV, A> f) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a {@link ReaderT} that provides the environment {@code R_ENV} itself, lifted into the
-   * outer monad {@code F}. This is the "ask" operation for {@code ReaderT}.
-   *
-   * @param <F> The witness type of the outer monad.
-   * @param <R_ENV> The type of the environment, which will also be the value type within {@code F}.
-   * @param outerMonad The {@link Monad} instance for the outer type {@code F}. Must not be null.
-   * @return A new {@link ReaderT} that, when run, yields {@code outerMonad.of(r)}. Never null.
-   * @throws NullPointerException if {@code outerMonad} is null.
-   */
-  public static <F extends WitnessArity<TypeArity.Unary>, R_ENV> ReaderT<F, R_ENV, R_ENV> ask(
-      Monad<F> outerMonad) {
-    Validation.transformer().requireOuterMonad(outerMonad, READER_T_CLASS, ASK);
-    return new ReaderT<>(r -> outerMonad.of(r));
-  }
+    /**
+     * Creates a {@link ReaderT} that provides the environment {@code R_ENV} itself, lifted into the
+     * outer monad {@code F}. This is the "ask" operation for {@code ReaderT}.
+     *
+     * @param <F> The witness type of the outer monad.
+     * @param <R_ENV> The type of the environment, which will also be the value type within {@code F}.
+     * @param outerMonad The {@link Monad} instance for the outer type {@code F}. Must not be null.
+     * @return A new {@link ReaderT} that, when run, yields {@code outerMonad.of(r)}. Never null.
+     * @throws NullPointerException if {@code outerMonad} is null.
+     */
+    public static <F extends WitnessArity<TypeArity.Unary>, R_ENV> ReaderT<F, R_ENV, R_ENV> ask(Monad<F> outerMonad) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Transforms the outer monad layer of this {@code ReaderT} by applying the given function to the
-   * result of each invocation of the underlying {@code run} function, producing a new {@code
-   * ReaderT<G, R_ENV, A>}. The environment handling is left untouched — only the monadic context of
-   * each computed result changes.
-   *
-   * <p>Because {@code ReaderT} wraps a function rather than a value, {@code mapT} composes {@code
-   * f} after the result of {@code run}:
-   *
-   * <pre>
-   * env ──&gt; run() ──&gt; Kind&lt;F, A&gt; ──&gt; f ──&gt; Kind&lt;G, A&gt;
-   * </pre>
-   *
-   * <p>This is useful for applying cross-cutting concerns (logging, retry, timeout) at the monad
-   * level, or for switching between monadic contexts via a natural transformation.
-   *
-   * <p><b>Example — switching from IO to Task via a natural transformation:</b>
-   *
-   * <pre>{@code
-   * ReaderT<IOKind.Witness, Config, String> ioReader = ...;
-   * Natural<IOKind.Witness, TaskKind.Witness> ioToTask = ...;
-   *
-   * ReaderT<TaskKind.Witness, Config, String> taskReader = ioReader.mapT(ioToTask::apply);
-   * }</pre>
-   *
-   * @param f The function to apply to each computed {@code Kind<F, A>}. Must not be null.
-   * @param <G> The witness type of the target outer monad.
-   * @return A new {@code ReaderT<G, R_ENV, A>} that applies {@code f} after each run.
-   * @throws NullPointerException if {@code f} is null.
-   */
-  public <G extends WitnessArity<TypeArity.Unary>> ReaderT<G, R_ENV, A> mapT(
-      Function<Kind<F, A>, Kind<G, A>> f) {
-    Validation.function().require(f, "f", MAP_T);
-    return ReaderT.of(env -> f.apply(this.run().apply(env)));
-  }
+    /**
+     * Transforms the outer monad layer of this {@code ReaderT} by applying the given function to the
+     * result of each invocation of the underlying {@code run} function, producing a new {@code
+     * ReaderT<G, R_ENV, A>}. The environment handling is left untouched — only the monadic context of
+     * each computed result changes.
+     *
+     * <p>Because {@code ReaderT} wraps a function rather than a value, {@code mapT} composes {@code
+     * f} after the result of {@code run}:
+     *
+     * <pre>
+     * env ──&gt; run() ──&gt; Kind&lt;F, A&gt; ──&gt; f ──&gt; Kind&lt;G, A&gt;
+     * </pre>
+     *
+     * <p>This is useful for applying cross-cutting concerns (logging, retry, timeout) at the monad
+     * level, or for switching between monadic contexts via a natural transformation.
+     *
+     * <p><b>Example — switching from IO to Task via a natural transformation:</b>
+     *
+     * <pre>{@code
+     * ReaderT<IOKind.Witness, Config, String> ioReader = ...;
+     * Natural<IOKind.Witness, TaskKind.Witness> ioToTask = ...;
+     *
+     * ReaderT<TaskKind.Witness, Config, String> taskReader = ioReader.mapT(ioToTask::apply);
+     * }</pre>
+     *
+     * @param f The function to apply to each computed {@code Kind<F, A>}. Must not be null.
+     * @param <G> The witness type of the target outer monad.
+     * @return A new {@code ReaderT<G, R_ENV, A>} that applies {@code f} after each run.
+     * @throws NullPointerException if {@code f} is null.
+     */
+    public <G extends WitnessArity<TypeArity.Unary>> ReaderT<G, R_ENV, A> mapT(Function<Kind<F, A>, Kind<G, A>> f) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Accesses the underlying function {@code R_ENV -> Kind<F, A>} of this {@link ReaderT}.
-   *
-   * @return The function {@code R_ENV -> Kind<F, A>}. Never null.
-   */
-  @Override
-  public Function<R_ENV, Kind<F, A>> run() {
-    return run;
-  }
+    /**
+     * Accesses the underlying function {@code R_ENV -> Kind<F, A>} of this {@link ReaderT}.
+     *
+     * @return The function {@code R_ENV -> Kind<F, A>}. Never null.
+     */
+    @Override
+    public Function<R_ENV, Kind<F, A>> run() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

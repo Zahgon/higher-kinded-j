@@ -3,7 +3,6 @@
 package org.higherkindedj.hkt.stream;
 
 import static org.higherkindedj.hkt.stream.StreamKindHelper.STREAM;
-
 import java.util.function.Function;
 import java.util.stream.Stream;
 import org.higherkindedj.hkt.Functor;
@@ -59,62 +58,56 @@ import org.higherkindedj.hkt.util.validation.Validation;
  */
 class StreamFunctor implements Functor<StreamKind.Witness> {
 
-  /**
-   * Singleton instance of {@code StreamFunctor}. Consider accessing Functor operations via {@link
-   * StreamMonad#INSTANCE}.
-   */
-  public static final StreamFunctor INSTANCE = new StreamFunctor();
+    /**
+     * Singleton instance of {@code StreamFunctor}. Consider accessing Functor operations via {@link
+     * StreamMonad#INSTANCE}.
+     */
+    public static final StreamFunctor INSTANCE = new StreamFunctor();
 
-  /**
-   * Package-private constructor to allow instantiation within the package, primarily for {@link
-   * StreamMonad#INSTANCE}.
-   */
-  StreamFunctor() {
-    // Constructor for package-level access or for singleton.
-  }
+    /**
+     * Package-private constructor to allow instantiation within the package, primarily for {@link
+     * StreamMonad#INSTANCE}.
+     */
+    StreamFunctor() {
+        // Constructor for package-level access or for singleton.
+    }
 
-  /**
-   * Applies a function to each element of a stream wrapped in a {@link Kind}.
-   *
-   * <p>If the input stream ({@code fa}) is {@code StreamKind(Stream<A>)}, this method applies the
-   * function {@code f: A -> B} to each element of the stream, producing a new {@code
-   * StreamKind(Stream<B>)}.
-   *
-   * <p><b>Lazy Evaluation:</b> This operation is lazy and does not force evaluation of the stream.
-   * The transformation function {@code f} is added to the stream pipeline but is not executed until
-   * a terminal operation is performed on the resulting stream.
-   *
-   * <p>This operation adheres to the Functor laws:
-   *
-   * <ol>
-   *   <li>Identity: {@code map(x -> x, fa)} is equivalent to {@code fa}.
-   *   <li>Composition: {@code map(g.compose(f), fa)} is equivalent to {@code map(g, map(f, fa))}.
-   * </ol>
-   *
-   * <p><b>Single-Use Warning:</b> The input {@code fa} stream is consumed by this operation (in
-   * terms of being extracted from the Kind wrapper). The resulting stream is also single-use. Do
-   * not attempt to reuse the original stream after calling this method.
-   *
-   * @param <A> The type of the elements in the input stream.
-   * @param <B> The type of the elements in the output stream after applying the function.
-   * @param f The non-null function to apply to each element of the stream.
-   * @param fa The non-null {@code Kind<StreamKind.Witness, A>} (which is a {@code StreamKind<A>})
-   *     containing the input stream.
-   * @return A new non-null {@code Kind<StreamKind.Witness, B>} containing a stream with the results
-   *     of applying the function {@code f} to each element of the input stream. The transformation
-   *     is lazy.
-   * @throws NullPointerException if {@code f} or {@code fa} is null.
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code fa} is not a valid {@code
-   *     StreamKind} representation.
-   */
-  @Override
-  public <A, B> Kind<StreamKind.Witness, B> map(
-      Function<? super A, ? extends B> f, Kind<StreamKind.Witness, A> fa) {
-
-    Validation.function().validateMap(f, fa);
-
-    Stream<A> streamA = STREAM.narrow(fa);
-    Stream<B> streamB = streamA.map(f);
-    return STREAM.widen(streamB);
-  }
+    /**
+     * Applies a function to each element of a stream wrapped in a {@link Kind}.
+     *
+     * <p>If the input stream ({@code fa}) is {@code StreamKind(Stream<A>)}, this method applies the
+     * function {@code f: A -> B} to each element of the stream, producing a new {@code
+     * StreamKind(Stream<B>)}.
+     *
+     * <p><b>Lazy Evaluation:</b> This operation is lazy and does not force evaluation of the stream.
+     * The transformation function {@code f} is added to the stream pipeline but is not executed until
+     * a terminal operation is performed on the resulting stream.
+     *
+     * <p>This operation adheres to the Functor laws:
+     *
+     * <ol>
+     *   <li>Identity: {@code map(x -> x, fa)} is equivalent to {@code fa}.
+     *   <li>Composition: {@code map(g.compose(f), fa)} is equivalent to {@code map(g, map(f, fa))}.
+     * </ol>
+     *
+     * <p><b>Single-Use Warning:</b> The input {@code fa} stream is consumed by this operation (in
+     * terms of being extracted from the Kind wrapper). The resulting stream is also single-use. Do
+     * not attempt to reuse the original stream after calling this method.
+     *
+     * @param <A> The type of the elements in the input stream.
+     * @param <B> The type of the elements in the output stream after applying the function.
+     * @param f The non-null function to apply to each element of the stream.
+     * @param fa The non-null {@code Kind<StreamKind.Witness, A>} (which is a {@code StreamKind<A>})
+     *     containing the input stream.
+     * @return A new non-null {@code Kind<StreamKind.Witness, B>} containing a stream with the results
+     *     of applying the function {@code f} to each element of the input stream. The transformation
+     *     is lazy.
+     * @throws NullPointerException if {@code f} or {@code fa} is null.
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code fa} is not a valid {@code
+     *     StreamKind} representation.
+     */
+    @Override
+    public <A, B> Kind<StreamKind.Witness, B> map(Function<? super A, ? extends B> f, Kind<StreamKind.Witness, A> fa) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

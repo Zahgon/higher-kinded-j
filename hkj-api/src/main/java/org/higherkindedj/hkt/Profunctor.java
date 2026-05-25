@@ -31,47 +31,46 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public interface Profunctor<P extends WitnessArity<TypeArity.Binary>> {
 
-  /**
-   * Map over the input (contravariant).
-   *
-   * @param f Function to pre-compose with
-   * @param pab The profunctor value
-   * @param <A> Original input type
-   * @param <B> Output type (unchanged)
-   * @param <C> New input type
-   * @return Profunctor that first applies {@code f}, then the original profunctor
-   */
-  default <A, B, C> Kind2<P, C, B> lmap(Function<? super C, ? extends A> f, Kind2<P, A, B> pab) {
-    return dimap(f, Function.identity(), pab);
-  }
+    /**
+     * Map over the input (contravariant).
+     *
+     * @param f Function to pre-compose with
+     * @param pab The profunctor value
+     * @param <A> Original input type
+     * @param <B> Output type (unchanged)
+     * @param <C> New input type
+     * @return Profunctor that first applies {@code f}, then the original profunctor
+     */
+    default <A, B, C> Kind2<P, C, B> lmap(Function<? super C, ? extends A> f, Kind2<P, A, B> pab) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Map over the output (covariant).
-   *
-   * @param g Function to post-compose with
-   * @param pab The profunctor value
-   * @param <A> Input type (unchanged)
-   * @param <B> Original output type
-   * @param <C> New output type
-   * @return Profunctor that applies the original profunctor, then {@code g}
-   */
-  default <A, B, C> Kind2<P, A, C> rmap(Function<? super B, ? extends C> g, Kind2<P, A, B> pab) {
-    return dimap(Function.identity(), g, pab);
-  }
+    /**
+     * Map over the output (covariant).
+     *
+     * @param g Function to post-compose with
+     * @param pab The profunctor value
+     * @param <A> Input type (unchanged)
+     * @param <B> Original output type
+     * @param <C> New output type
+     * @return Profunctor that applies the original profunctor, then {@code g}
+     */
+    default <A, B, C> Kind2<P, A, C> rmap(Function<? super B, ? extends C> g, Kind2<P, A, B> pab) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Map over both input and output simultaneously (contravariant on input, covariant on output).
-   * This is the fundamental operation from which {@code lmap} and {@code rmap} can be derived.
-   *
-   * @param f Function to pre-compose with (contravariant)
-   * @param g Function to post-compose with (covariant)
-   * @param pab The profunctor value
-   * @param <A> Original input type
-   * @param <B> Original output type
-   * @param <C> New input type
-   * @param <D> New output type
-   * @return Transformed profunctor
-   */
-  <A, B, C, D> Kind2<P, C, D> dimap(
-      Function<? super C, ? extends A> f, Function<? super B, ? extends D> g, Kind2<P, A, B> pab);
+    /**
+     * Map over both input and output simultaneously (contravariant on input, covariant on output).
+     * This is the fundamental operation from which {@code lmap} and {@code rmap} can be derived.
+     *
+     * @param f Function to pre-compose with (contravariant)
+     * @param g Function to post-compose with (covariant)
+     * @param pab The profunctor value
+     * @param <A> Original input type
+     * @param <B> Original output type
+     * @param <C> New input type
+     * @param <D> New output type
+     * @return Transformed profunctor
+     */
+    <A, B, C, D> Kind2<P, C, D> dimap(Function<? super C, ? extends A> f, Function<? super B, ? extends D> g, Kind2<P, A, B> pab);
 }

@@ -18,28 +18,17 @@ import javax.lang.model.type.TypeMirror;
  * @param witherMethod the executable element representing the wither method
  * @param getterMethodName the name of the corresponding getter method (e.g., "getYear" or "year")
  */
-public record WitherInfo(
-    String fieldName,
-    String witherMethodName,
-    TypeMirror parameterType,
-    ExecutableElement witherMethod,
-    String getterMethodName) {
+public record WitherInfo(String fieldName, String witherMethodName, TypeMirror parameterType, ExecutableElement witherMethod, String getterMethodName) {
 
-  /**
-   * Creates a WitherInfo from a detected wither method.
-   *
-   * @param witherMethod the wither method element
-   * @param fieldName the derived field name
-   * @param getterMethodName the corresponding getter method name
-   * @return a new WitherInfo for the method
-   */
-  public static WitherInfo of(
-      ExecutableElement witherMethod, String fieldName, String getterMethodName) {
-    return new WitherInfo(
-        fieldName,
-        witherMethod.getSimpleName().toString(),
-        witherMethod.getParameters().getFirst().asType(),
-        witherMethod,
-        getterMethodName);
-  }
+    /**
+     * Creates a WitherInfo from a detected wither method.
+     *
+     * @param witherMethod the wither method element
+     * @param fieldName the derived field name
+     * @param getterMethodName the corresponding getter method name
+     * @return a new WitherInfo for the method
+     */
+    public static WitherInfo of(ExecutableElement witherMethod, String fieldName, String getterMethodName) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

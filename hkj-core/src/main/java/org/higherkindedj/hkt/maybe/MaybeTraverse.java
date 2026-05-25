@@ -4,7 +4,6 @@ package org.higherkindedj.hkt.maybe;
 
 import static org.higherkindedj.hkt.maybe.MaybeKindHelper.MAYBE;
 import static org.higherkindedj.hkt.util.validation.Operation.*;
-
 import java.util.function.Function;
 import org.higherkindedj.hkt.Applicative;
 import org.higherkindedj.hkt.Kind;
@@ -21,49 +20,21 @@ import org.higherkindedj.hkt.util.validation.Validation;
  * operations short-circuit or return an empty/identity value.
  */
 public enum MaybeTraverse implements Traverse<MaybeKind.Witness> {
-  INSTANCE;
 
-  @Override
-  public <A, B> Kind<MaybeKind.Witness, B> map(
-      Function<? super A, ? extends B> f, Kind<MaybeKind.Witness, A> fa) {
+    INSTANCE;
 
-    Validation.function().validateMap(f, fa);
-
-    return MAYBE.widen(MAYBE.narrow(fa).map(f));
-  }
-
-  @Override
-  public <G extends WitnessArity<TypeArity.Unary>, A, B>
-      Kind<G, Kind<MaybeKind.Witness, B>> traverse(
-          Applicative<G> applicative,
-          Function<? super A, ? extends Kind<G, ? extends B>> f,
-          Kind<MaybeKind.Witness, A> ta) {
-
-    Validation.function().validateTraverse(applicative, f, ta);
-
-    final Maybe<A> maybe = MAYBE.narrow(ta);
-
-    if (maybe.isJust()) {
-      // Just case: Apply the effectful function and map the result back into a Just.
-      return applicative.map(b -> MAYBE.widen(Maybe.just(b)), f.apply(maybe.get()));
-    } else {
-      // Nothing case: Lift the Nothing instance directly into the applicative context.
-      return applicative.of(MAYBE.widen(Maybe.nothing()));
+    @Override
+    public <A, B> Kind<MaybeKind.Witness, B> map(Function<? super A, ? extends B> f, Kind<MaybeKind.Witness, A> fa) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-  }
 
-  @Override
-  public <A, M> M foldMap(
-      Monoid<M> monoid, Function<? super A, ? extends M> f, Kind<MaybeKind.Witness, A> fa) {
-
-    Validation.function().validateFoldMap(monoid, f, fa);
-
-    final Maybe<A> maybe = MAYBE.narrow(fa);
-    // If Just, map the value. If Nothing, return the monoid's empty value.
-    if (maybe.isJust()) {
-      return f.apply(maybe.get());
-    } else {
-      return monoid.empty();
+    @Override
+    public <G extends WitnessArity<TypeArity.Unary>, A, B> Kind<G, Kind<MaybeKind.Witness, B>> traverse(Applicative<G> applicative, Function<? super A, ? extends Kind<G, ? extends B>> f, Kind<MaybeKind.Witness, A> ta) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-  }
+
+    @Override
+    public <A, M> M foldMap(Monoid<M> monoid, Function<? super A, ? extends M> f, Kind<MaybeKind.Witness, A> fa) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

@@ -14,27 +14,28 @@ import java.util.Set;
  */
 public final class GuardViolationException extends RuntimeException {
 
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  private final int roundIndex;
-  private final Set<?> pendingKeys;
+    private final int roundIndex;
 
-  /**
-   * @param reason human-readable summary of the violation
-   * @param roundIndex the round that triggered the guard
-   * @param pendingKeys the keys the round was about to dispatch
-   */
-  public GuardViolationException(String reason, int roundIndex, Set<?> pendingKeys) {
-    super(reason + " at round " + roundIndex);
-    this.roundIndex = roundIndex;
-    this.pendingKeys = Collections.unmodifiableSet(pendingKeys);
-  }
+    private final Set<?> pendingKeys;
 
-  public int roundIndex() {
-    return roundIndex;
-  }
+    /**
+     * @param reason human-readable summary of the violation
+     * @param roundIndex the round that triggered the guard
+     * @param pendingKeys the keys the round was about to dispatch
+     */
+    public GuardViolationException(String reason, int roundIndex, Set<?> pendingKeys) {
+        super(reason + " at round " + roundIndex);
+        this.roundIndex = roundIndex;
+        this.pendingKeys = Collections.unmodifiableSet(pendingKeys);
+    }
 
-  public Set<?> pendingKeys() {
-    return pendingKeys;
-  }
+    public int roundIndex() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    public Set<?> pendingKeys() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

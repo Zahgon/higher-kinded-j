@@ -10,26 +10,27 @@ package org.higherkindedj.example.market.pipeline;
  * @param windowSize number of ticks per aggregation window
  * @param maxTicks max ticks to process (safety valve for demos)
  */
-public record PipelineConfig(
-    int enrichmentConcurrency, int riskConcurrency, int windowSize, int maxTicks) {
+public record PipelineConfig(int enrichmentConcurrency, int riskConcurrency, int windowSize, int maxTicks) {
 
-  public PipelineConfig {
-    if (enrichmentConcurrency <= 0) {
-      throw new IllegalArgumentException("enrichmentConcurrency must be positive");
+    public PipelineConfig {
+        if (enrichmentConcurrency <= 0) {
+            throw new IllegalArgumentException("enrichmentConcurrency must be positive");
+        }
+        if (riskConcurrency <= 0) {
+            throw new IllegalArgumentException("riskConcurrency must be positive");
+        }
+        if (windowSize <= 0) {
+            throw new IllegalArgumentException("windowSize must be positive");
+        }
+        if (maxTicks <= 0) {
+            throw new IllegalArgumentException("maxTicks must be positive");
+        }
     }
-    if (riskConcurrency <= 0) {
-      throw new IllegalArgumentException("riskConcurrency must be positive");
-    }
-    if (windowSize <= 0) {
-      throw new IllegalArgumentException("windowSize must be positive");
-    }
-    if (maxTicks <= 0) {
-      throw new IllegalArgumentException("maxTicks must be positive");
-    }
-  }
 
-  /** Default configuration suitable for demos. */
-  public static PipelineConfig defaults() {
-    return new PipelineConfig(8, 4, 5, 50);
-  }
+    /**
+     * Default configuration suitable for demos.
+     */
+    public static PipelineConfig defaults() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

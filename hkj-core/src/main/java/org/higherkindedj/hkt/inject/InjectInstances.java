@@ -3,7 +3,6 @@
 package org.higherkindedj.hkt.inject;
 
 import static org.higherkindedj.hkt.util.validation.Operation.CONSTRUCTION;
-
 import org.higherkindedj.hkt.Kind;
 import org.higherkindedj.hkt.WitnessArity;
 import org.higherkindedj.hkt.eitherf.EitherF;
@@ -45,70 +44,51 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public final class InjectInstances {
 
-  private InjectInstances() {}
+    private InjectInstances() {
+    }
 
-  /**
-   * Creates an Inject instance that embeds effect type F into the left of {@code EitherF<F, G>}.
-   *
-   * @param <F> The effect type being injected
-   * @param <G> The right effect type in the EitherF
-   * @return An Inject that wraps instructions in {@link EitherF.Left}
-   */
-  public static <F extends WitnessArity<?>, G extends WitnessArity<?>>
-      Inject<F, EitherFKind.Witness<F, G>> injectLeft() {
-    return new Inject<>() {
-      @Override
-      public <A> Kind<EitherFKind.Witness<F, G>, A> inject(Kind<F, A> fa) {
-        return EitherFKindHelper.EITHERF.widen(EitherF.left(fa));
-      }
-    };
-  }
+    /**
+     * Creates an Inject instance that embeds effect type F into the left of {@code EitherF<F, G>}.
+     *
+     * @param <F> The effect type being injected
+     * @param <G> The right effect type in the EitherF
+     * @return An Inject that wraps instructions in {@link EitherF.Left}
+     */
+    public static <F extends WitnessArity<?>, G extends WitnessArity<?>> Inject<F, EitherFKind.Witness<F, G>> injectLeft() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates an Inject instance that embeds effect type G into the right of {@code EitherF<F, G>}.
-   *
-   * @param <F> The left effect type in the EitherF
-   * @param <G> The effect type being injected
-   * @return An Inject that wraps instructions in {@link EitherF.Right}
-   */
-  public static <F extends WitnessArity<?>, G extends WitnessArity<?>>
-      Inject<G, EitherFKind.Witness<F, G>> injectRight() {
-    return new Inject<>() {
-      @Override
-      public <A> Kind<EitherFKind.Witness<F, G>, A> inject(Kind<G, A> fa) {
-        return EitherFKindHelper.EITHERF.widen(EitherF.right(fa));
-      }
-    };
-  }
+    /**
+     * Creates an Inject instance that embeds effect type G into the right of {@code EitherF<F, G>}.
+     *
+     * @param <F> The left effect type in the EitherF
+     * @param <G> The effect type being injected
+     * @return An Inject that wraps instructions in {@link EitherF.Right}
+     */
+    public static <F extends WitnessArity<?>, G extends WitnessArity<?>> Inject<G, EitherFKind.Witness<F, G>> injectRight() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a transitive Inject instance that first injects into the right of an EitherF, then
-   * delegates to another Inject for deeper nesting.
-   *
-   * <p>This is used for composing 3 or more effects. For example, to inject {@code H} into {@code
-   * EitherF<F, EitherF<G, H>>}, you would use:
-   *
-   * <pre>{@code
-   * Inject<H, EitherFKind.Witness<G, H>> innerInject = InjectInstances.injectRight();
-   * Inject<H, EitherFKind.Witness<F, EitherFKind.Witness<G, H>>> composed =
-   *     InjectInstances.injectRightThen(innerInject);
-   * }</pre>
-   *
-   * @param inner The Inject instance for the inner (right) EitherF. Must not be null.
-   * @param <F> The left effect type of the outer EitherF
-   * @param <G> The target witness type of the inner EitherF (right side of outer)
-   * @param <H> The effect type being injected
-   * @return A composed Inject that navigates through the right side before delegating
-   */
-  public static <F extends WitnessArity<?>, G extends WitnessArity<?>, H extends WitnessArity<?>>
-      Inject<H, EitherFKind.Witness<F, G>> injectRightThen(Inject<H, G> inner) {
-    Validation.function().require(inner, "inner", CONSTRUCTION);
-    return new Inject<>() {
-      @Override
-      public <A> Kind<EitherFKind.Witness<F, G>, A> inject(Kind<H, A> fa) {
-        Kind<G, A> innerResult = inner.inject(fa);
-        return EitherFKindHelper.EITHERF.widen(EitherF.right(innerResult));
-      }
-    };
-  }
+    /**
+     * Creates a transitive Inject instance that first injects into the right of an EitherF, then
+     * delegates to another Inject for deeper nesting.
+     *
+     * <p>This is used for composing 3 or more effects. For example, to inject {@code H} into {@code
+     * EitherF<F, EitherF<G, H>>}, you would use:
+     *
+     * <pre>{@code
+     * Inject<H, EitherFKind.Witness<G, H>> innerInject = InjectInstances.injectRight();
+     * Inject<H, EitherFKind.Witness<F, EitherFKind.Witness<G, H>>> composed =
+     *     InjectInstances.injectRightThen(innerInject);
+     * }</pre>
+     *
+     * @param inner The Inject instance for the inner (right) EitherF. Must not be null.
+     * @param <F> The left effect type of the outer EitherF
+     * @param <G> The target witness type of the inner EitherF (right side of outer)
+     * @param <H> The effect type being injected
+     * @return A composed Inject that navigates through the right side before delegating
+     */
+    public static <F extends WitnessArity<?>, G extends WitnessArity<?>, H extends WitnessArity<?>> Inject<H, EitherFKind.Witness<F, G>> injectRightThen(Inject<H, G> inner) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

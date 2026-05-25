@@ -21,15 +21,13 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public final class ProductionLedgerInterpreter extends LedgerOpInterpreter<IOKind.Witness> {
 
-  @Override
-  protected <A> Kind<IOKind.Witness, A> handleRecordEntry(LedgerOp.RecordEntry<A> op) {
-    Objects.requireNonNull(op, "op cannot be null");
-    return IOKindHelper.IO_OP.widen(IO.delay(() -> op.k().apply(op.entry())));
-  }
+    @Override
+    protected <A> Kind<IOKind.Witness, A> handleRecordEntry(LedgerOp.RecordEntry<A> op) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  protected <A> Kind<IOKind.Witness, A> handleGetBalance(LedgerOp.GetBalance<A> op) {
-    Objects.requireNonNull(op, "op cannot be null");
-    return IOKindHelper.IO_OP.widen(IO.delay(() -> op.k().apply(Money.gbp("5000.00"))));
-  }
+    @Override
+    protected <A> Kind<IOKind.Witness, A> handleGetBalance(LedgerOp.GetBalance<A> op) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

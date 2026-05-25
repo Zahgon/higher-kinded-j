@@ -12,16 +12,16 @@ import java.util.Objects;
  */
 public record PromoCode(String code, Percentage discount) {
 
-  public PromoCode {
-    Objects.requireNonNull(code, "Promo code cannot be null");
-    Objects.requireNonNull(discount, "Discount cannot be null");
-    if (code.isBlank()) {
-      throw new IllegalArgumentException("Promo code cannot be blank");
+    public PromoCode {
+        Objects.requireNonNull(code, "Promo code cannot be null");
+        Objects.requireNonNull(discount, "Discount cannot be null");
+        if (code.isBlank()) {
+            throw new IllegalArgumentException("Promo code cannot be blank");
+        }
     }
-  }
 
-  @Override
-  public String toString() {
-    return code + " (" + discount + " off)";
-  }
+    @Override
+    public String toString() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

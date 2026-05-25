@@ -28,36 +28,29 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public final class RecordingGatewayInterpreter extends PaymentGatewayOpInterpreter<IdKind.Witness> {
 
-  private final List<String> calls = new ArrayList<>();
+    private final List<String> calls = new ArrayList<>();
 
-  /**
-   * Returns an unmodifiable view of the recorded operation names.
-   *
-   * @return the list of recorded calls
-   */
-  public List<String> calls() {
-    return Collections.unmodifiableList(calls);
-  }
+    /**
+     * Returns an unmodifiable view of the recorded operation names.
+     *
+     * @return the list of recorded calls
+     */
+    public List<String> calls() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  protected <A> Kind<IdKind.Witness, A> handleAuthorise(PaymentGatewayOp.Authorise<A> op) {
-    Objects.requireNonNull(op, "op cannot be null");
-    calls.add("authorise:" + op.amount());
-    return new Id<>(op.k().apply(new AuthorisationToken("test-auth-token", op.amount())));
-  }
+    @Override
+    protected <A> Kind<IdKind.Witness, A> handleAuthorise(PaymentGatewayOp.Authorise<A> op) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  protected <A> Kind<IdKind.Witness, A> handleCharge(PaymentGatewayOp.Charge<A> op) {
-    Objects.requireNonNull(op, "op cannot be null");
-    calls.add("charge:" + op.amount());
-    return new Id<>(
-        op.k().apply(ChargeResult.success(new TransactionId("test-txn-001"), op.amount())));
-  }
+    @Override
+    protected <A> Kind<IdKind.Witness, A> handleCharge(PaymentGatewayOp.Charge<A> op) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  protected <A> Kind<IdKind.Witness, A> handleRefund(PaymentGatewayOp.Refund<A> op) {
-    Objects.requireNonNull(op, "op cannot be null");
-    calls.add("refund:" + op.transactionId());
-    return new Id<>(op.k().apply(ChargeResult.success(op.transactionId(), op.amount())));
-  }
+    @Override
+    protected <A> Kind<IdKind.Witness, A> handleRefund(PaymentGatewayOp.Refund<A> op) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

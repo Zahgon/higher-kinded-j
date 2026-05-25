@@ -27,76 +27,36 @@ import org.gradle.work.DisableCachingByDefault;
  * project's {@code .claude/skills/} directory) and the copy cost is negligible compared to the
  * overhead of a cache lookup.
  */
-@DisableCachingByDefault(
-    because = "Writes to project directory, not build output; copy cost is negligible")
+@DisableCachingByDefault(because = "Writes to project directory, not build output; copy cost is negligible")
 public abstract class HKJInstallSkillsTask extends DefaultTask {
 
-  private static final String MANIFEST_RESOURCE = "/META-INF/hkj-skills/manifest.txt";
-  private static final String SKILLS_RESOURCE_PREFIX = "/META-INF/hkj-skills/";
+    private static final String MANIFEST_RESOURCE = "/META-INF/hkj-skills/manifest.txt";
 
-  /** Creates a new install skills task. */
-  public HKJInstallSkillsTask() {
-    setGroup("hkj");
-    setDescription("Installs HKJ Claude Code skills into .claude/skills/");
-  }
+    private static final String SKILLS_RESOURCE_PREFIX = "/META-INF/hkj-skills/";
 
-  /**
-   * Returns the output directory where skills are installed.
-   *
-   * @return the .claude/skills directory under the project root
-   */
-  @OutputDirectory
-  public Path getOutputDir() {
-    return getProject().getProjectDir().toPath().resolve(".claude/skills");
-  }
-
-  /** Copies skill files from the plugin's classpath resources to the project directory. */
-  @TaskAction
-  public void install() {
-    Path targetDir = getOutputDir();
-
-    try (InputStream manifestStream =
-        HKJInstallSkillsTask.class.getResourceAsStream(MANIFEST_RESOURCE)) {
-      if (manifestStream == null) {
-        throw new GradleException(
-            "HKJ skills manifest not found in plugin resources. "
-                + "The plugin may have been built without skills bundled.");
-      }
-
-      int installed = 0;
-      try (BufferedReader reader =
-          new BufferedReader(new InputStreamReader(manifestStream, StandardCharsets.UTF_8))) {
-        String line;
-        while ((line = reader.readLine()) != null) {
-          String relativePath = line.trim();
-          if (relativePath.isEmpty()) {
-            continue;
-          }
-
-          String resourcePath = SKILLS_RESOURCE_PREFIX + relativePath;
-          try (InputStream skillStream =
-              HKJInstallSkillsTask.class.getResourceAsStream(resourcePath)) {
-            if (skillStream == null) {
-              getLogger().warn("Skill resource not found: {} — skipping", resourcePath);
-              continue;
-            }
-
-            Path targetFile = targetDir.resolve(relativePath);
-            Files.createDirectories(targetFile.getParent());
-            Files.copy(skillStream, targetFile, StandardCopyOption.REPLACE_EXISTING);
-            installed++;
-          }
-        }
-      }
-
-      getLogger()
-          .lifecycle(
-              "Installed {} HKJ Claude Code skill files into {}",
-              installed,
-              getProject().getProjectDir().toPath().relativize(targetDir));
-
-    } catch (IOException e) {
-      throw new GradleException("Failed to install HKJ skills: " + e.getMessage(), e);
+    /**
+     * Creates a new install skills task.
+     */
+    public HKJInstallSkillsTask() {
+        setGroup("hkj");
+        setDescription("Installs HKJ Claude Code skills into .claude/skills/");
     }
-  }
+
+    /**
+     * Returns the output directory where skills are installed.
+     *
+     * @return the .claude/skills directory under the project root
+     */
+    @OutputDirectory
+    public Path getOutputDir() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Copies skill files from the plugin's classpath resources to the project directory.
+     */
+    @TaskAction
+    public void install() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

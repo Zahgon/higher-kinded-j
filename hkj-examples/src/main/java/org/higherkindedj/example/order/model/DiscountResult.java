@@ -17,32 +17,26 @@ import org.higherkindedj.optics.annotations.GenerateLenses;
  * @param finalTotal the final total after discounts
  */
 @GenerateLenses
-public record DiscountResult(
-    Optional<PromoCode> appliedCode,
-    Percentage discountPercentage,
-    Money discountAmount,
-    Money finalTotal) {
-  /**
-   * Creates a result with no discount applied.
-   *
-   * @param subtotal the original subtotal
-   * @return a DiscountResult with zero discount
-   */
-  public static DiscountResult noDiscount(Money subtotal) {
-    return new DiscountResult(Optional.empty(), Percentage.ZERO, Money.ZERO_GBP, subtotal);
-  }
+public record DiscountResult(Optional<PromoCode> appliedCode, Percentage discountPercentage, Money discountAmount, Money finalTotal) {
 
-  /**
-   * Creates a result with a promo code discount.
-   *
-   * @param promoCode the applied promo code
-   * @param subtotal the original subtotal
-   * @return a DiscountResult with the discount applied
-   */
-  public static DiscountResult withPromoCode(PromoCode promoCode, Money subtotal) {
-    var discountAmount = subtotal.subtract(subtotal.applyDiscount(promoCode.discount()));
-    var finalTotal = subtotal.applyDiscount(promoCode.discount());
-    return new DiscountResult(
-        Optional.of(promoCode), promoCode.discount(), discountAmount, finalTotal);
-  }
+    /**
+     * Creates a result with no discount applied.
+     *
+     * @param subtotal the original subtotal
+     * @return a DiscountResult with zero discount
+     */
+    public static DiscountResult noDiscount(Money subtotal) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Creates a result with a promo code discount.
+     *
+     * @param promoCode the applied promo code
+     * @param subtotal the original subtotal
+     * @return a DiscountResult with the discount applied
+     */
+    public static DiscountResult withPromoCode(PromoCode promoCode, Money subtotal) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

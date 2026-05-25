@@ -44,203 +44,138 @@ import org.higherkindedj.optics.processing.util.ExcludeFromJacocoGeneratedReport
  */
 public class KindFieldAnalyser {
 
-  private final ProcessingEnvironment processingEnv;
+    private final ProcessingEnvironment processingEnv;
 
-  /**
-   * Creates a new analyser.
-   *
-   * @param processingEnv the annotation processing environment
-   */
-  public KindFieldAnalyser(ProcessingEnvironment processingEnv) {
-    this.processingEnv = processingEnv;
-  }
-
-  /**
-   * Analyses a record component to determine if it is a Kind field.
-   *
-   * <p>If the field is a {@code Kind<F, A>} type and either:
-   *
-   * <ul>
-   *   <li>Has a {@code @TraverseField} annotation with explicit configuration, or
-   *   <li>Uses a witness type registered in {@link KindRegistry}
-   * </ul>
-   *
-   * <p>then a {@link KindFieldInfo} is returned with the necessary information for code generation.
-   *
-   * @param component the record component to analyse
-   * @return an Optional containing the analysis result, or empty if not a recognised Kind field
-   */
-  public Optional<KindFieldInfo> analyse(RecordComponentElement component) {
-    TypeMirror fieldType = component.asType();
-
-    // Check if this is a Kind<F, A> type
-    if (!isKindType(fieldType)) {
-      return Optional.empty();
+    /**
+     * Creates a new analyser.
+     *
+     * @param processingEnv the annotation processing environment
+     */
+    public KindFieldAnalyser(ProcessingEnvironment processingEnv) {
+        this.processingEnv = processingEnv;
     }
 
-    // Extract Kind type arguments: Kind<WitnessType, ElementType>
-    DeclaredType kindType = (DeclaredType) fieldType;
-    List<? extends TypeMirror> typeArgs = kindType.getTypeArguments();
-
-    if (typeArgs.size() != 2) {
-      // Malformed Kind type
-      return Optional.empty();
+    /**
+     * Analyses a record component to determine if it is a Kind field.
+     *
+     * <p>If the field is a {@code Kind<F, A>} type and either:
+     *
+     * <ul>
+     *   <li>Has a {@code @TraverseField} annotation with explicit configuration, or
+     *   <li>Uses a witness type registered in {@link KindRegistry}
+     * </ul>
+     *
+     * <p>then a {@link KindFieldInfo} is returned with the necessary information for code generation.
+     *
+     * @param component the record component to analyse
+     * @return an Optional containing the analysis result, or empty if not a recognised Kind field
+     */
+    public Optional<KindFieldInfo> analyse(RecordComponentElement component) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    TypeMirror witnessTypeMirror = typeArgs.get(0);
-    TypeMirror elementTypeMirror = typeArgs.get(1);
-    TypeName elementType = TypeName.get(elementTypeMirror).box();
-
-    // Check for explicit @TraverseField annotation first
-    TraverseField traverseFieldAnnotation = component.getAnnotation(TraverseField.class);
-    if (traverseFieldAnnotation != null) {
-      return Optional.of(
-          createFromAnnotation(traverseFieldAnnotation, witnessTypeMirror, elementType));
+    /**
+     * Checks if a type is the {@code Kind<F, A>} interface.
+     *
+     * @param type the type to check
+     * @return true if this is a Kind type
+     */
+    private boolean isKindType(TypeMirror type) {
+        if (type.getKind() != TypeKind.DECLARED) {
+            return false;
+        }
+        DeclaredType declaredType = (DeclaredType) type;
+        TypeElement typeElement = (TypeElement) declaredType.asElement();
+        String qualifiedName = typeElement.getQualifiedName().toString();
+        return KindRegistry.isKindInterface(qualifiedName);
     }
 
-    // Try to look up in registry
-    return createFromRegistry(witnessTypeMirror, elementType, component);
-  }
-
-  /**
-   * Checks if a type is the {@code Kind<F, A>} interface.
-   *
-   * @param type the type to check
-   * @return true if this is a Kind type
-   */
-  private boolean isKindType(TypeMirror type) {
-    if (type.getKind() != TypeKind.DECLARED) {
-      return false;
+    /**
+     * Creates KindFieldInfo from an explicit @TraverseField annotation.
+     *
+     * @param annotation the TraverseField annotation
+     * @param witnessTypeMirror the witness type from the Kind
+     * @param elementType the element type
+     * @return the KindFieldInfo
+     */
+    private KindFieldInfo createFromAnnotation(TraverseField annotation, TypeMirror witnessTypeMirror, TypeName elementType) {
+        String witnessType = witnessTypeMirror.toString();
+        String baseWitness = KindRegistry.extractBaseWitnessType(witnessType);
+        String typeArgs = KindRegistry.extractWitnessTypeArgs(witnessType);
+        boolean isParameterised = !typeArgs.isEmpty();
+        return new KindFieldInfo(baseWitness, elementType, annotation.traverse(), annotation.semantics(), isParameterised, typeArgs);
     }
 
-    DeclaredType declaredType = (DeclaredType) type;
-    TypeElement typeElement = (TypeElement) declaredType.asElement();
-    String qualifiedName = typeElement.getQualifiedName().toString();
-
-    return KindRegistry.isKindInterface(qualifiedName);
-  }
-
-  /**
-   * Creates KindFieldInfo from an explicit @TraverseField annotation.
-   *
-   * @param annotation the TraverseField annotation
-   * @param witnessTypeMirror the witness type from the Kind
-   * @param elementType the element type
-   * @return the KindFieldInfo
-   */
-  private KindFieldInfo createFromAnnotation(
-      TraverseField annotation, TypeMirror witnessTypeMirror, TypeName elementType) {
-
-    String witnessType = witnessTypeMirror.toString();
-    String baseWitness = KindRegistry.extractBaseWitnessType(witnessType);
-    String typeArgs = KindRegistry.extractWitnessTypeArgs(witnessType);
-    boolean isParameterised = !typeArgs.isEmpty();
-
-    return new KindFieldInfo(
-        baseWitness,
-        elementType,
-        annotation.traverse(),
-        annotation.semantics(),
-        isParameterised,
-        typeArgs);
-  }
-
-  /**
-   * Creates KindFieldInfo from registry lookup.
-   *
-   * @param witnessTypeMirror the witness type
-   * @param elementType the element type
-   * @param component the component (for error reporting)
-   * @return Optional containing the KindFieldInfo, or empty if not registered
-   */
-  private Optional<KindFieldInfo> createFromRegistry(
-      TypeMirror witnessTypeMirror, TypeName elementType, RecordComponentElement component) {
-
-    String witnessType = witnessTypeMirror.toString();
-    String baseWitness = KindRegistry.extractBaseWitnessType(witnessType);
-    String typeArgs = KindRegistry.extractWitnessTypeArgs(witnessType);
-
-    Optional<KindMapping> mapping = KindRegistry.lookup(baseWitness);
-
-    if (mapping.isEmpty()) {
-      // Not a known type - emit a note if it looks like a library type
-      if (KindRegistry.isLibraryWitness(baseWitness)) {
-        note(
-            "Kind field with witness type '"
-                + baseWitness
-                + "' is not registered. "
-                + "Consider adding @TraverseField annotation for explicit configuration.",
-            component);
-      }
-      return Optional.empty();
+    /**
+     * Creates KindFieldInfo from registry lookup.
+     *
+     * @param witnessTypeMirror the witness type
+     * @param elementType the element type
+     * @param component the component (for error reporting)
+     * @return Optional containing the KindFieldInfo, or empty if not registered
+     */
+    private Optional<KindFieldInfo> createFromRegistry(TypeMirror witnessTypeMirror, TypeName elementType, RecordComponentElement component) {
+        String witnessType = witnessTypeMirror.toString();
+        String baseWitness = KindRegistry.extractBaseWitnessType(witnessType);
+        String typeArgs = KindRegistry.extractWitnessTypeArgs(witnessType);
+        Optional<KindMapping> mapping = KindRegistry.lookup(baseWitness);
+        if (mapping.isEmpty()) {
+            // Not a known type - emit a note if it looks like a library type
+            if (KindRegistry.isLibraryWitness(baseWitness)) {
+                note("Kind field with witness type '" + baseWitness + "' is not registered. " + "Consider adding @TraverseField annotation for explicit configuration.", component);
+            }
+            return Optional.empty();
+        }
+        KindMapping kindMapping = mapping.get();
+        // Build the traverse expression
+        String traverseExpression = kindMapping.traverseExpression();
+        // For parameterised types, inject the type arguments
+        if (kindMapping.isParameterised() && !typeArgs.isEmpty()) {
+            // Transform "EitherTraverse.instance()" to "EitherTraverse.<String>instance()"
+            traverseExpression = injectTypeArgs(traverseExpression, typeArgs);
+        }
+        return Optional.of(new KindFieldInfo(baseWitness, elementType, traverseExpression, kindMapping.semantics(), kindMapping.isParameterised(), typeArgs));
     }
 
-    KindMapping kindMapping = mapping.get();
-
-    // Build the traverse expression
-    String traverseExpression = kindMapping.traverseExpression();
-
-    // For parameterised types, inject the type arguments
-    if (kindMapping.isParameterised() && !typeArgs.isEmpty()) {
-      // Transform "EitherTraverse.instance()" to "EitherTraverse.<String>instance()"
-      traverseExpression = injectTypeArgs(traverseExpression, typeArgs);
+    /**
+     * Injects type arguments into a factory method call.
+     *
+     * <p>For example, transforms "EitherTraverse.instance()" to
+     * "EitherTraverse.&lt;String&gt;instance()".
+     *
+     * <p>The two early-return guards ({@code parenPos <= 0} and {@code lastDot < 0}) are defensive
+     * fall-backs against malformed traverse expressions. They are structurally unreachable from the
+     * current call site: the only caller ({@link #createFromRegistry}) feeds expressions that
+     * originate from {@link KindRegistry}'s hardcoded {@code KNOWN_KINDS} map, which always uses the
+     * {@code ClassName.instance()} factory form containing both a {@code .} and a {@code (}. The
+     * guards remain as documentation and a safety net for future refactorings.
+     *
+     * @param expression the original expression
+     * @param typeArgs the type arguments to inject
+     * @return the modified expression
+     */
+    @ExcludeFromJacocoGeneratedReport
+    private String injectTypeArgs(String expression, String typeArgs) {
+        // Find the method name position (last dot before parenthesis)
+        int parenPos = expression.indexOf('(');
+        if (parenPos <= 0) {
+            return expression;
+        }
+        int lastDot = expression.lastIndexOf('.', parenPos);
+        if (lastDot < 0) {
+            return expression;
+        }
+        // Insert <typeArgs> after the dot
+        return expression.substring(0, lastDot + 1) + "<" + typeArgs + ">" + expression.substring(lastDot + 1);
     }
 
-    return Optional.of(
-        new KindFieldInfo(
-            baseWitness,
-            elementType,
-            traverseExpression,
-            kindMapping.semantics(),
-            kindMapping.isParameterised(),
-            typeArgs));
-  }
-
-  /**
-   * Injects type arguments into a factory method call.
-   *
-   * <p>For example, transforms "EitherTraverse.instance()" to
-   * "EitherTraverse.&lt;String&gt;instance()".
-   *
-   * <p>The two early-return guards ({@code parenPos <= 0} and {@code lastDot < 0}) are defensive
-   * fall-backs against malformed traverse expressions. They are structurally unreachable from the
-   * current call site: the only caller ({@link #createFromRegistry}) feeds expressions that
-   * originate from {@link KindRegistry}'s hardcoded {@code KNOWN_KINDS} map, which always uses the
-   * {@code ClassName.instance()} factory form containing both a {@code .} and a {@code (}. The
-   * guards remain as documentation and a safety net for future refactorings.
-   *
-   * @param expression the original expression
-   * @param typeArgs the type arguments to inject
-   * @return the modified expression
-   */
-  @ExcludeFromJacocoGeneratedReport
-  private String injectTypeArgs(String expression, String typeArgs) {
-    // Find the method name position (last dot before parenthesis)
-    int parenPos = expression.indexOf('(');
-    if (parenPos <= 0) {
-      return expression;
+    /**
+     * Emits a note diagnostic.
+     *
+     * @param message the message
+     * @param element the element
+     */
+    private void note(String message, RecordComponentElement element) {
+        processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, message, element);
     }
-
-    int lastDot = expression.lastIndexOf('.', parenPos);
-    if (lastDot < 0) {
-      return expression;
-    }
-
-    // Insert <typeArgs> after the dot
-    return expression.substring(0, lastDot + 1)
-        + "<"
-        + typeArgs
-        + ">"
-        + expression.substring(lastDot + 1);
-  }
-
-  /**
-   * Emits a note diagnostic.
-   *
-   * @param message the message
-   * @param element the element
-   */
-  private void note(String message, RecordComponentElement element) {
-    processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, message, element);
-  }
 }

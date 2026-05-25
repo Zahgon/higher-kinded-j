@@ -39,50 +39,31 @@ import org.openrewrite.marker.SearchResult;
  */
 public class DetectInjectBoilerplateRecipe extends Recipe {
 
-  /** Creates a new instance of this recipe. */
-  public DetectInjectBoilerplateRecipe() {}
+    /**
+     * Creates a new instance of this recipe.
+     */
+    public DetectInjectBoilerplateRecipe() {
+    }
 
-  private static final List<MethodMatcher> INJECT_MATCHERS =
-      List.of(
-          new MethodMatcher("org.higherkindedj.hkt.inject.InjectInstances injectLeft(..)"),
-          new MethodMatcher("org.higherkindedj.hkt.inject.InjectInstances injectRight(..)"),
-          new MethodMatcher("org.higherkindedj.hkt.inject.InjectInstances injectRightThen(..)"));
+    private static final List<MethodMatcher> INJECT_MATCHERS = List.of(new MethodMatcher("org.higherkindedj.hkt.inject.InjectInstances injectLeft(..)"), new MethodMatcher("org.higherkindedj.hkt.inject.InjectInstances injectRight(..)"), new MethodMatcher("org.higherkindedj.hkt.inject.InjectInstances injectRightThen(..)"));
 
-  @Override
-  public String getDisplayName() {
-    return "Detect manual Inject boilerplate";
-  }
+    @Override
+    public String getDisplayName() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public String getDescription() {
-    return "Identifies manual Inject instance construction via InjectInstances and suggests "
-        + "using @ComposeEffects with the generated Support class instead. This reduces "
-        + "boilerplate and ensures correct nesting of EitherF compositions.";
-  }
+    @Override
+    public String getDescription() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public Set<String> getTags() {
-    return Set.of("higher-kinded-j", "effects", "inject", "migration");
-  }
+    @Override
+    public Set<String> getTags() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public TreeVisitor<?, ExecutionContext> getVisitor() {
-    return new JavaIsoVisitor<>() {
-
-      @Override
-      public J.MethodInvocation visitMethodInvocation(
-          J.MethodInvocation method, ExecutionContext ctx) {
-        J.MethodInvocation mi = super.visitMethodInvocation(method, ctx);
-
-        if (INJECT_MATCHERS.stream().anyMatch(m -> m.matches(mi))) {
-          return SearchResult.found(
-              mi,
-              "Consider the @ComposeEffects generated Support class instead of manual"
-                  + " InjectInstances");
-        }
-
-        return mi;
-      }
-    };
-  }
+    @Override
+    public TreeVisitor<?, ExecutionContext> getVisitor() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

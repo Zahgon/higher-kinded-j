@@ -4,7 +4,6 @@ package org.higherkindedj.hkt.trymonad;
 
 import static org.higherkindedj.hkt.trymonad.TryKindHelper.TRY;
 import static org.higherkindedj.hkt.util.validation.Operation.*;
-
 import java.util.function.Function;
 import org.higherkindedj.hkt.Kind;
 import org.higherkindedj.hkt.MonadError;
@@ -37,108 +36,75 @@ import org.higherkindedj.hkt.util.validation.Validation;
  */
 public class TryMonad extends TryApplicative implements MonadError<TryKind.Witness, Throwable> {
 
-  public static final Class<TryMonad> TRY_MONAD_CLASS = TryMonad.class;
+    public static final Class<TryMonad> TRY_MONAD_CLASS = TryMonad.class;
 
-  /** Singleton instance of {@code TryMonad}. */
-  public static final TryMonad INSTANCE = new TryMonad();
+    /**
+     * Singleton instance of {@code TryMonad}.
+     */
+    public static final TryMonad INSTANCE = new TryMonad();
 
-  /** Private constructor to enforce the singleton pattern. */
-  private TryMonad() {
-    // Private constructor
-  }
+    /**
+     * Private constructor to enforce the singleton pattern.
+     */
+    private TryMonad() {
+        // Private constructor
+    }
 
-  /**
-   * Sequentially composes two {@code Try} actions, passing the result of the first into a function
-   * that produces the second, and flattening the result.
-   *
-   * <p>If {@code ma} is a {@link Try.Success}, its value is passed to the function {@code f}. If
-   * {@code f} returns a {@link Try.Success}, that becomes the result. If {@code f} throws an
-   * exception or returns a {@link Try.Failure}, that failure is captured as the result. If {@code
-   * ma} is already a {@link Try.Failure}, its error is propagated, and {@code f} is not called.
-   *
-   * @param <A> The value type of the first {@code Try}.
-   * @param <B> The value type of the {@code Try} produced by the function {@code f}.
-   * @param f The non-null function that takes the successful result of {@code ma} and returns a new
-   *     {@code Kind<TryKind.Witness, B>}.
-   * @param ma The first {@code Kind<TryKind.Witness, A>} to be flat-mapped over. Must not be null.
-   * @return A new {@code Kind<TryKind.Witness, B>} representing the composed operation. Never null.
-   * @throws NullPointerException if {@code f} or {@code ma} is null.
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code ma} or the result of
-   *     {@code f} is not a valid {@code Try} representation.
-   */
-  @Override
-  public <A, B> Kind<TryKind.Witness, B> flatMap(
-      Function<? super A, ? extends Kind<TryKind.Witness, B>> f, Kind<TryKind.Witness, A> ma) {
+    /**
+     * Sequentially composes two {@code Try} actions, passing the result of the first into a function
+     * that produces the second, and flattening the result.
+     *
+     * <p>If {@code ma} is a {@link Try.Success}, its value is passed to the function {@code f}. If
+     * {@code f} returns a {@link Try.Success}, that becomes the result. If {@code f} throws an
+     * exception or returns a {@link Try.Failure}, that failure is captured as the result. If {@code
+     * ma} is already a {@link Try.Failure}, its error is propagated, and {@code f} is not called.
+     *
+     * @param <A> The value type of the first {@code Try}.
+     * @param <B> The value type of the {@code Try} produced by the function {@code f}.
+     * @param f The non-null function that takes the successful result of {@code ma} and returns a new
+     *     {@code Kind<TryKind.Witness, B>}.
+     * @param ma The first {@code Kind<TryKind.Witness, A>} to be flat-mapped over. Must not be null.
+     * @return A new {@code Kind<TryKind.Witness, B>} representing the composed operation. Never null.
+     * @throws NullPointerException if {@code f} or {@code ma} is null.
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code ma} or the result of
+     *     {@code f} is not a valid {@code Try} representation.
+     */
+    @Override
+    public <A, B> Kind<TryKind.Witness, B> flatMap(Function<? super A, ? extends Kind<TryKind.Witness, B>> f, Kind<TryKind.Witness, A> ma) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    Validation.function().validateFlatMap(f, ma);
+    /**
+     * Lifts a {@link Throwable} into a {@code Kind<TryKind.Witness, A>}, creating a {@link
+     * Try.Failure}.
+     *
+     * @param <A> The phantom type of the value (since this is an error state).
+     * @param error The non-null {@link Throwable} to raise.
+     * @return A {@code Kind<TryKind.Witness, A>} representing {@code Try.failure(error)}. Never null.
+     * @throws NullPointerException if {@code error} is null.
+     */
+    @Override
+    public <A> Kind<TryKind.Witness, A> raiseError(Throwable error) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    Try<A> tryA = TRY.narrow(ma);
-
-    Try<B> resultTry =
-        tryA.flatMap(
-            a -> {
-              try {
-                Kind<TryKind.Witness, B> kindB = f.apply(a);
-                Validation.function().requireNonNullResult(kindB, "f", FLAT_MAP);
-                return TRY.narrow(kindB);
-              } catch (Throwable t) {
-                return Try.failure(t);
-              }
-            });
-    return TRY.widen(resultTry);
-  }
-
-  /**
-   * Lifts a {@link Throwable} into a {@code Kind<TryKind.Witness, A>}, creating a {@link
-   * Try.Failure}.
-   *
-   * @param <A> The phantom type of the value (since this is an error state).
-   * @param error The non-null {@link Throwable} to raise.
-   * @return A {@code Kind<TryKind.Witness, A>} representing {@code Try.failure(error)}. Never null.
-   * @throws NullPointerException if {@code error} is null.
-   */
-  @Override
-  public <A> Kind<TryKind.Witness, A> raiseError(Throwable error) {
-    Validation.coreType().requireError(error, TRY_MONAD_CLASS, RAISE_ERROR);
-    return TRY.widen(Try.failure(error));
-  }
-
-  /**
-   * Handles an error in a {@code Kind<TryKind.Witness, A>}. If {@code ma} is a {@link Try.Failure},
-   * the {@code handler} function is applied to its {@link Throwable} to produce a recovery {@code
-   * Kind<TryKind.Witness, A>}. If {@code ma} is a {@link Try.Success}, it is returned unchanged.
-   *
-   * @param <A> The type of the value.
-   * @param ma The {@code Kind<TryKind.Witness, A>} that might have failed. Must not be null.
-   * @param handler The non-null function that takes a {@link Throwable} and returns a new {@code
-   *     Kind<TryKind.Witness, A>}, providing a chance to recover.
-   * @return A {@code Kind<TryKind.Witness, A>} representing either the original success, or the
-   *     result of the error handler. Never null.
-   * @throws NullPointerException if {@code ma} or {@code handler} is null.
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code ma} or the result of
-   *     {@code handler} is not a valid {@code Try} representation.
-   */
-  @Override
-  public <A> Kind<TryKind.Witness, A> handleErrorWith(
-      Kind<TryKind.Witness, A> ma,
-      Function<? super Throwable, ? extends Kind<TryKind.Witness, A>> handler) {
-
-    Validation.function().validateHandleErrorWith(ma, handler);
-
-    Try<A> tryA = TRY.narrow(ma);
-
-    Try<A> resultTry =
-        tryA.recoverWith(
-            throwable -> {
-              try {
-                Kind<TryKind.Witness, A> recoveryKind = handler.apply(throwable);
-                Validation.function()
-                    .requireNonNullResult(recoveryKind, "handler", HANDLE_ERROR_WITH);
-                return TRY.narrow(recoveryKind);
-              } catch (Throwable t) {
-                return Try.failure(t);
-              }
-            });
-    return TRY.widen(resultTry);
-  }
+    /**
+     * Handles an error in a {@code Kind<TryKind.Witness, A>}. If {@code ma} is a {@link Try.Failure},
+     * the {@code handler} function is applied to its {@link Throwable} to produce a recovery {@code
+     * Kind<TryKind.Witness, A>}. If {@code ma} is a {@link Try.Success}, it is returned unchanged.
+     *
+     * @param <A> The type of the value.
+     * @param ma The {@code Kind<TryKind.Witness, A>} that might have failed. Must not be null.
+     * @param handler The non-null function that takes a {@link Throwable} and returns a new {@code
+     *     Kind<TryKind.Witness, A>}, providing a chance to recover.
+     * @return A {@code Kind<TryKind.Witness, A>} representing either the original success, or the
+     *     result of the error handler. Never null.
+     * @throws NullPointerException if {@code ma} or {@code handler} is null.
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code ma} or the result of
+     *     {@code handler} is not a valid {@code Try} representation.
+     */
+    @Override
+    public <A> Kind<TryKind.Witness, A> handleErrorWith(Kind<TryKind.Witness, A> ma, Function<? super Throwable, ? extends Kind<TryKind.Witness, A>> handler) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

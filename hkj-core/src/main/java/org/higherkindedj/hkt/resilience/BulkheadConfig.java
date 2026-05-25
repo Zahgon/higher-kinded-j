@@ -25,99 +25,108 @@ import java.util.Objects;
  * @param fairness whether waiting callers are served in FIFO order
  * @see Bulkhead
  */
-public record BulkheadConfig(
-    int maxConcurrent, int maxWait, Duration waitTimeout, boolean fairness) {
-
-  /** Default maximum concurrent executions. */
-  public static final int DEFAULT_MAX_CONCURRENT = 10;
-
-  /** Default maximum waiting callers. */
-  public static final int DEFAULT_MAX_WAIT = 0;
-
-  /** Default wait timeout. */
-  public static final Duration DEFAULT_WAIT_TIMEOUT = Duration.ofSeconds(5);
-
-  /** Creates a BulkheadConfig with validated parameters. */
-  public BulkheadConfig {
-    if (maxConcurrent < 1) {
-      throw new IllegalArgumentException("maxConcurrent must be at least 1");
-    }
-    if (maxWait < 0) {
-      throw new IllegalArgumentException("maxWait must not be negative");
-    }
-    Objects.requireNonNull(waitTimeout, "waitTimeout must not be null");
-  }
-
-  /**
-   * Returns a builder for creating custom configurations.
-   *
-   * @return a new Builder
-   */
-  public static Builder builder() {
-    return new Builder();
-  }
-
-  /** Builder for creating custom {@link BulkheadConfig} instances. */
-  public static final class Builder {
-
-    private int maxConcurrent = DEFAULT_MAX_CONCURRENT;
-    private int maxWait = DEFAULT_MAX_WAIT;
-    private Duration waitTimeout = DEFAULT_WAIT_TIMEOUT;
-    private boolean fairness = false;
-
-    private Builder() {}
+public record BulkheadConfig(int maxConcurrent, int maxWait, Duration waitTimeout, boolean fairness) {
 
     /**
-     * Sets the maximum number of concurrent executions.
-     *
-     * @param max the maximum concurrent (must be at least 1)
-     * @return this builder
+     * Default maximum concurrent executions.
      */
-    public Builder maxConcurrent(int max) {
-      this.maxConcurrent = max;
-      return this;
+    public static final int DEFAULT_MAX_CONCURRENT = 10;
+
+    /**
+     * Default maximum waiting callers.
+     */
+    public static final int DEFAULT_MAX_WAIT = 0;
+
+    /**
+     * Default wait timeout.
+     */
+    public static final Duration DEFAULT_WAIT_TIMEOUT = Duration.ofSeconds(5);
+
+    /**
+     * Creates a BulkheadConfig with validated parameters.
+     */
+    public BulkheadConfig {
+        if (maxConcurrent < 1) {
+            throw new IllegalArgumentException("maxConcurrent must be at least 1");
+        }
+        if (maxWait < 0) {
+            throw new IllegalArgumentException("maxWait must not be negative");
+        }
+        Objects.requireNonNull(waitTimeout, "waitTimeout must not be null");
     }
 
     /**
-     * Sets the maximum number of callers that can wait for a permit.
+     * Returns a builder for creating custom configurations.
      *
-     * @param max the maximum waiting callers (must not be negative)
-     * @return this builder
+     * @return a new Builder
      */
-    public Builder maxWait(int max) {
-      this.maxWait = max;
-      return this;
+    public static Builder builder() {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
     /**
-     * Sets how long a caller will wait for a permit.
-     *
-     * @param timeout the wait timeout; must not be null
-     * @return this builder
+     * Builder for creating custom {@link BulkheadConfig} instances.
      */
-    public Builder waitTimeout(Duration timeout) {
-      this.waitTimeout = Objects.requireNonNull(timeout, "timeout must not be null");
-      return this;
-    }
+    public static final class Builder {
 
-    /**
-     * Sets whether waiting callers are served in FIFO order.
-     *
-     * @param fair true for FIFO ordering
-     * @return this builder
-     */
-    public Builder fairness(boolean fair) {
-      this.fairness = fair;
-      return this;
-    }
+        private int maxConcurrent = DEFAULT_MAX_CONCURRENT;
 
-    /**
-     * Builds the BulkheadConfig.
-     *
-     * @return the configured BulkheadConfig
-     */
-    public BulkheadConfig build() {
-      return new BulkheadConfig(maxConcurrent, maxWait, waitTimeout, fairness);
+        private int maxWait = DEFAULT_MAX_WAIT;
+
+        private Duration waitTimeout = DEFAULT_WAIT_TIMEOUT;
+
+        private boolean fairness = false;
+
+        private Builder() {
+        }
+
+        /**
+         * Sets the maximum number of concurrent executions.
+         *
+         * @param max the maximum concurrent (must be at least 1)
+         * @return this builder
+         */
+        public Builder maxConcurrent(int max) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Sets the maximum number of callers that can wait for a permit.
+         *
+         * @param max the maximum waiting callers (must not be negative)
+         * @return this builder
+         */
+        public Builder maxWait(int max) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Sets how long a caller will wait for a permit.
+         *
+         * @param timeout the wait timeout; must not be null
+         * @return this builder
+         */
+        public Builder waitTimeout(Duration timeout) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Sets whether waiting callers are served in FIFO order.
+         *
+         * @param fair true for FIFO ordering
+         * @return this builder
+         */
+        public Builder fairness(boolean fair) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Builds the BulkheadConfig.
+         *
+         * @return the configured BulkheadConfig
+         */
+        public BulkheadConfig build() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
     }
-  }
 }

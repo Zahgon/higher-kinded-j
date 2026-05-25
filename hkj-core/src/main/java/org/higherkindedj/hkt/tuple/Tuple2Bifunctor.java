@@ -4,7 +4,6 @@ package org.higherkindedj.hkt.tuple;
 
 import static org.higherkindedj.hkt.tuple.Tuple2KindHelper.TUPLE2;
 import static org.higherkindedj.hkt.util.validation.Operation.*;
-
 import java.util.Objects;
 import java.util.function.Function;
 import org.higherkindedj.hkt.Bifunctor;
@@ -33,47 +32,26 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public class Tuple2Bifunctor implements Bifunctor<Tuple2Kind2.Witness> {
 
-  /** Singleton instance of the Tuple2Bifunctor. */
-  public static final Tuple2Bifunctor INSTANCE = new Tuple2Bifunctor();
+    /**
+     * Singleton instance of the Tuple2Bifunctor.
+     */
+    public static final Tuple2Bifunctor INSTANCE = new Tuple2Bifunctor();
 
-  private Tuple2Bifunctor() {}
+    private Tuple2Bifunctor() {
+    }
 
-  @Override
-  public <A, B, C, D> Kind2<Tuple2Kind2.Witness, C, D> bimap(
-      Function<? super A, ? extends C> f,
-      Function<? super B, ? extends D> g,
-      Kind2<Tuple2Kind2.Witness, A, B> fab) {
+    @Override
+    public <A, B, C, D> Kind2<Tuple2Kind2.Witness, C, D> bimap(Function<? super A, ? extends C> f, Function<? super B, ? extends D> g, Kind2<Tuple2Kind2.Witness, A, B> fab) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    Validation.function().require(f, "f", BIMAP);
-    Validation.function().require(g, "g", BIMAP);
-    Objects.requireNonNull(fab, "Kind for bimap cannot be null");
+    @Override
+    public <A, B, C> Kind2<Tuple2Kind2.Witness, C, B> first(Function<? super A, ? extends C> f, Kind2<Tuple2Kind2.Witness, A, B> fab) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    Tuple2<A, B> tuple = TUPLE2.narrow2(fab);
-    Tuple2<C, D> result = tuple.bimap(f, g);
-    return TUPLE2.widen2(result);
-  }
-
-  @Override
-  public <A, B, C> Kind2<Tuple2Kind2.Witness, C, B> first(
-      Function<? super A, ? extends C> f, Kind2<Tuple2Kind2.Witness, A, B> fab) {
-
-    Validation.function().require(f, "f", FIRST);
-    Objects.requireNonNull(fab, "Kind for first cannot be null");
-
-    Tuple2<A, B> tuple = TUPLE2.narrow2(fab);
-    Tuple2<C, B> result = tuple.mapFirst(f);
-    return TUPLE2.widen2(result);
-  }
-
-  @Override
-  public <A, B, D> Kind2<Tuple2Kind2.Witness, A, D> second(
-      Function<? super B, ? extends D> g, Kind2<Tuple2Kind2.Witness, A, B> fab) {
-
-    Validation.function().require(g, "g", SECOND);
-    Objects.requireNonNull(fab, "Kind for second cannot be null");
-
-    Tuple2<A, B> tuple = TUPLE2.narrow2(fab);
-    Tuple2<A, D> result = tuple.mapSecond(g);
-    return TUPLE2.widen2(result);
-  }
+    @Override
+    public <A, B, D> Kind2<Tuple2Kind2.Witness, A, D> second(Function<? super B, ? extends D> g, Kind2<Tuple2Kind2.Witness, A, B> fab) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

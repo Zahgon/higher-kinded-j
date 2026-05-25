@@ -45,405 +45,321 @@ import java.util.concurrent.TimeUnit;
  */
 public class HkjMetricsService {
 
-  private final MeterRegistry meterRegistry;
+    private final MeterRegistry meterRegistry;
 
-  // Either metrics
-  private final Counter eitherSuccessCounter;
-  private final Counter eitherErrorCounter;
+    // Either metrics
+    private final Counter eitherSuccessCounter;
 
-  // Validated metrics
-  private final Counter validatedValidCounter;
-  private final Counter validatedInvalidCounter;
+    private final Counter eitherErrorCounter;
 
-  // EitherT async metrics
-  private final Counter eitherTSuccessCounter;
-  private final Counter eitherTErrorCounter;
-  private final Timer eitherTAsyncTimer;
+    // Validated metrics
+    private final Counter validatedValidCounter;
 
-  // VTask metrics
-  private final Counter vtaskSuccessCounter;
-  private final Counter vtaskErrorCounter;
-  private final Timer vtaskDurationTimer;
+    private final Counter validatedInvalidCounter;
 
-  // VStream metrics
-  private final Counter vstreamSuccessCounter;
-  private final Counter vstreamErrorCounter;
+    // EitherT async metrics
+    private final Counter eitherTSuccessCounter;
 
-  // Effect boundary metrics
-  private final Counter effectBoundarySuccessCounter;
-  private final Counter effectBoundaryErrorCounter;
-  private final Timer effectBoundaryDurationTimer;
+    private final Counter eitherTErrorCounter;
 
-  /**
-   * Creates a new HkjMetricsService with the given MeterRegistry.
-   *
-   * @param meterRegistry the Micrometer registry for metrics
-   */
-  public HkjMetricsService(MeterRegistry meterRegistry) {
-    this.meterRegistry = meterRegistry;
+    private final Timer eitherTAsyncTimer;
 
-    // Initialize Either counters
-    this.eitherSuccessCounter =
-        Counter.builder("hkj.either.invocations")
-            .description("Number of Either return value handler invocations")
-            .tag("result", "success")
-            .register(meterRegistry);
+    // VTask metrics
+    private final Counter vtaskSuccessCounter;
 
-    this.eitherErrorCounter =
-        Counter.builder("hkj.either.invocations")
-            .description("Number of Either return value handler invocations")
-            .tag("result", "error")
-            .register(meterRegistry);
+    private final Counter vtaskErrorCounter;
 
-    // Initialize Validated counters
-    this.validatedValidCounter =
-        Counter.builder("hkj.validated.invocations")
-            .description("Number of Validated return value handler invocations")
-            .tag("result", "valid")
-            .register(meterRegistry);
+    private final Timer vtaskDurationTimer;
 
-    this.validatedInvalidCounter =
-        Counter.builder("hkj.validated.invocations")
-            .description("Number of Validated return value handler invocations")
-            .tag("result", "invalid")
-            .register(meterRegistry);
+    // VStream metrics
+    private final Counter vstreamSuccessCounter;
 
-    // Initialize EitherT async counters
-    this.eitherTSuccessCounter =
-        Counter.builder("hkj.either_t.invocations")
-            .description("Number of EitherT async return value handler invocations")
-            .tag("result", "success")
-            .register(meterRegistry);
+    private final Counter vstreamErrorCounter;
 
-    this.eitherTErrorCounter =
-        Counter.builder("hkj.either_t.invocations")
-            .description("Number of EitherT async return value handler invocations")
-            .tag("result", "error")
-            .register(meterRegistry);
+    // Effect boundary metrics
+    private final Counter effectBoundarySuccessCounter;
 
-    // Initialize EitherT async timer
-    this.eitherTAsyncTimer =
-        Timer.builder("hkj.either_t.async.duration")
-            .description("Duration of async EitherT operations")
-            .register(meterRegistry);
+    private final Counter effectBoundaryErrorCounter;
 
-    // Initialize VTask counters and timer
-    this.vtaskSuccessCounter =
-        Counter.builder("hkj.vtask.invocations")
-            .description("Number of VTask return value handler invocations")
-            .tag("result", "success")
-            .register(meterRegistry);
+    private final Timer effectBoundaryDurationTimer;
 
-    this.vtaskErrorCounter =
-        Counter.builder("hkj.vtask.invocations")
-            .description("Number of VTask return value handler invocations")
-            .tag("result", "error")
-            .register(meterRegistry);
+    /**
+     * Creates a new HkjMetricsService with the given MeterRegistry.
+     *
+     * @param meterRegistry the Micrometer registry for metrics
+     */
+    public HkjMetricsService(MeterRegistry meterRegistry) {
+        this.meterRegistry = meterRegistry;
+        // Initialize Either counters
+        this.eitherSuccessCounter = Counter.builder("hkj.either.invocations").description("Number of Either return value handler invocations").tag("result", "success").register(meterRegistry);
+        this.eitherErrorCounter = Counter.builder("hkj.either.invocations").description("Number of Either return value handler invocations").tag("result", "error").register(meterRegistry);
+        // Initialize Validated counters
+        this.validatedValidCounter = Counter.builder("hkj.validated.invocations").description("Number of Validated return value handler invocations").tag("result", "valid").register(meterRegistry);
+        this.validatedInvalidCounter = Counter.builder("hkj.validated.invocations").description("Number of Validated return value handler invocations").tag("result", "invalid").register(meterRegistry);
+        // Initialize EitherT async counters
+        this.eitherTSuccessCounter = Counter.builder("hkj.either_t.invocations").description("Number of EitherT async return value handler invocations").tag("result", "success").register(meterRegistry);
+        this.eitherTErrorCounter = Counter.builder("hkj.either_t.invocations").description("Number of EitherT async return value handler invocations").tag("result", "error").register(meterRegistry);
+        // Initialize EitherT async timer
+        this.eitherTAsyncTimer = Timer.builder("hkj.either_t.async.duration").description("Duration of async EitherT operations").register(meterRegistry);
+        // Initialize VTask counters and timer
+        this.vtaskSuccessCounter = Counter.builder("hkj.vtask.invocations").description("Number of VTask return value handler invocations").tag("result", "success").register(meterRegistry);
+        this.vtaskErrorCounter = Counter.builder("hkj.vtask.invocations").description("Number of VTask return value handler invocations").tag("result", "error").register(meterRegistry);
+        this.vtaskDurationTimer = Timer.builder("hkj.vtask.duration").description("Duration of VTask virtual thread operations").register(meterRegistry);
+        // Initialize VStream counters
+        this.vstreamSuccessCounter = Counter.builder("hkj.vstream.invocations").description("Number of VStream return value handler invocations").tag("result", "success").register(meterRegistry);
+        this.vstreamErrorCounter = Counter.builder("hkj.vstream.invocations").description("Number of VStream return value handler invocations").tag("result", "error").register(meterRegistry);
+        // Initialize effect boundary counters and timer
+        this.effectBoundarySuccessCounter = Counter.builder("hkj.effect.boundary.invocations").description("Number of EffectBoundary invocations").tag("result", "success").register(meterRegistry);
+        this.effectBoundaryErrorCounter = Counter.builder("hkj.effect.boundary.invocations").description("Number of EffectBoundary invocations").tag("result", "error").register(meterRegistry);
+        this.effectBoundaryDurationTimer = Timer.builder("hkj.effect.boundary.duration").description("Duration of EffectBoundary program execution").register(meterRegistry);
+    }
 
-    this.vtaskDurationTimer =
-        Timer.builder("hkj.vtask.duration")
-            .description("Duration of VTask virtual thread operations")
-            .register(meterRegistry);
+    /**
+     * Records a successful Either (Right) invocation.
+     */
+    public void recordEitherSuccess() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    // Initialize VStream counters
-    this.vstreamSuccessCounter =
-        Counter.builder("hkj.vstream.invocations")
-            .description("Number of VStream return value handler invocations")
-            .tag("result", "success")
-            .register(meterRegistry);
+    /**
+     * Records an error Either (Left) invocation.
+     *
+     * @param errorType the class name of the error type
+     */
+    public void recordEitherError(String errorType) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    this.vstreamErrorCounter =
-        Counter.builder("hkj.vstream.invocations")
-            .description("Number of VStream return value handler invocations")
-            .tag("result", "error")
-            .register(meterRegistry);
+    /**
+     * Records a valid Validated invocation.
+     */
+    public void recordValidatedValid() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    // Initialize effect boundary counters and timer
-    this.effectBoundarySuccessCounter =
-        Counter.builder("hkj.effect.boundary.invocations")
-            .description("Number of EffectBoundary invocations")
-            .tag("result", "success")
-            .register(meterRegistry);
+    /**
+     * Records an invalid Validated invocation.
+     *
+     * @param errorCount the number of validation errors
+     */
+    public void recordValidatedInvalid(int errorCount) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    this.effectBoundaryErrorCounter =
-        Counter.builder("hkj.effect.boundary.invocations")
-            .description("Number of EffectBoundary invocations")
-            .tag("result", "error")
-            .register(meterRegistry);
+    /**
+     * Records a successful EitherT async (Right) invocation.
+     */
+    public void recordEitherTSuccess() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    this.effectBoundaryDurationTimer =
-        Timer.builder("hkj.effect.boundary.duration")
-            .description("Duration of EffectBoundary program execution")
-            .register(meterRegistry);
-  }
+    /**
+     * Records an error EitherT async (Left) invocation.
+     *
+     * @param errorType the class name of the error type
+     */
+    public void recordEitherTError(String errorType) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /** Records a successful Either (Right) invocation. */
-  public void recordEitherSuccess() {
-    eitherSuccessCounter.increment();
-  }
+    /**
+     * Records the duration of an async EitherT operation.
+     *
+     * @param durationMillis the duration in milliseconds
+     */
+    public void recordEitherTAsyncDuration(long durationMillis) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Records an error Either (Left) invocation.
-   *
-   * @param errorType the class name of the error type
-   */
-  public void recordEitherError(String errorType) {
-    eitherErrorCounter.increment();
-    // Also track error type distribution
-    Counter.builder("hkj.either.errors")
-        .description("Distribution of Either error types")
-        .tag("error_type", errorType)
-        .register(meterRegistry)
-        .increment();
-  }
+    /**
+     * Records an exception that occurred during async execution.
+     *
+     * @param exceptionType the class name of the exception
+     */
+    public void recordEitherTException(String exceptionType) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /** Records a valid Validated invocation. */
-  public void recordValidatedValid() {
-    validatedValidCounter.increment();
-  }
+    /**
+     * Records a successful VTask invocation.
+     */
+    public void recordVTaskSuccess() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Records an invalid Validated invocation.
-   *
-   * @param errorCount the number of validation errors
-   */
-  public void recordValidatedInvalid(int errorCount) {
-    validatedInvalidCounter.increment();
-    // Track error count distribution
-    meterRegistry.summary("hkj.validated.error_count").record(errorCount);
-  }
+    /**
+     * Records a failed VTask invocation.
+     *
+     * @param errorType the class name of the exception
+     */
+    public void recordVTaskError(String errorType) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /** Records a successful EitherT async (Right) invocation. */
-  public void recordEitherTSuccess() {
-    eitherTSuccessCounter.increment();
-  }
+    /**
+     * Records the duration of a VTask operation.
+     *
+     * @param durationMillis the duration in milliseconds
+     */
+    public void recordVTaskDuration(long durationMillis) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Records an error EitherT async (Left) invocation.
-   *
-   * @param errorType the class name of the error type
-   */
-  public void recordEitherTError(String errorType) {
-    eitherTErrorCounter.increment();
-    // Also track error type distribution
-    Counter.builder("hkj.either_t.errors")
-        .description("Distribution of EitherT error types")
-        .tag("error_type", errorType)
-        .register(meterRegistry)
-        .increment();
-  }
+    /**
+     * Records a successful VStream completion.
+     */
+    public void recordVStreamSuccess() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Records the duration of an async EitherT operation.
-   *
-   * @param durationMillis the duration in milliseconds
-   */
-  public void recordEitherTAsyncDuration(long durationMillis) {
-    eitherTAsyncTimer.record(durationMillis, TimeUnit.MILLISECONDS);
-  }
+    /**
+     * Records a failed VStream completion.
+     *
+     * @param errorType the class name of the exception
+     */
+    public void recordVStreamError(String errorType) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Records an exception that occurred during async execution.
-   *
-   * @param exceptionType the class name of the exception
-   */
-  public void recordEitherTException(String exceptionType) {
-    Counter.builder("hkj.either_t.exceptions")
-        .description("Exceptions during async EitherT execution")
-        .tag("exception_type", exceptionType)
-        .register(meterRegistry)
-        .increment();
-  }
+    /**
+     * Records the number of elements emitted by a VStream.
+     *
+     * @param elementCount the number of elements emitted
+     */
+    public void recordVStreamElements(long elementCount) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /** Records a successful VTask invocation. */
-  public void recordVTaskSuccess() {
-    vtaskSuccessCounter.increment();
-  }
+    /**
+     * Records a successful EffectBoundary execution.
+     */
+    public void recordEffectBoundarySuccess() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Records a failed VTask invocation.
-   *
-   * @param errorType the class name of the exception
-   */
-  public void recordVTaskError(String errorType) {
-    vtaskErrorCounter.increment();
-    Counter.builder("hkj.vtask.errors")
-        .description("Distribution of VTask error types")
-        .tag("error_type", errorType)
-        .register(meterRegistry)
-        .increment();
-  }
+    /**
+     * Records a failed EffectBoundary execution.
+     *
+     * @param errorType the class name of the exception
+     */
+    public void recordEffectBoundaryError(String errorType) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Records the duration of a VTask operation.
-   *
-   * @param durationMillis the duration in milliseconds
-   */
-  public void recordVTaskDuration(long durationMillis) {
-    vtaskDurationTimer.record(durationMillis, TimeUnit.MILLISECONDS);
-  }
+    /**
+     * Records the duration of an EffectBoundary execution.
+     *
+     * @param durationMillis the duration in milliseconds
+     */
+    public void recordEffectBoundaryDuration(long durationMillis) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /** Records a successful VStream completion. */
-  public void recordVStreamSuccess() {
-    vstreamSuccessCounter.increment();
-  }
+    /**
+     * Gets the current count of EffectBoundary success invocations.
+     *
+     * @return the count
+     */
+    public double getEffectBoundarySuccessCount() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Records a failed VStream completion.
-   *
-   * @param errorType the class name of the exception
-   */
-  public void recordVStreamError(String errorType) {
-    vstreamErrorCounter.increment();
-    Counter.builder("hkj.vstream.errors")
-        .description("Distribution of VStream error types")
-        .tag("error_type", errorType)
-        .register(meterRegistry)
-        .increment();
-  }
+    /**
+     * Gets the current count of EffectBoundary error invocations.
+     *
+     * @return the count
+     */
+    public double getEffectBoundaryErrorCount() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Records the number of elements emitted by a VStream.
-   *
-   * @param elementCount the number of elements emitted
-   */
-  public void recordVStreamElements(long elementCount) {
-    meterRegistry.summary("hkj.vstream.elements").record(elementCount);
-  }
+    /**
+     * Gets the current count of VTask success invocations.
+     *
+     * @return the count
+     */
+    public double getVTaskSuccessCount() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /** Records a successful EffectBoundary execution. */
-  public void recordEffectBoundarySuccess() {
-    effectBoundarySuccessCounter.increment();
-  }
+    /**
+     * Gets the current count of VTask error invocations.
+     *
+     * @return the count
+     */
+    public double getVTaskErrorCount() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Records a failed EffectBoundary execution.
-   *
-   * @param errorType the class name of the exception
-   */
-  public void recordEffectBoundaryError(String errorType) {
-    effectBoundaryErrorCounter.increment();
-    Counter.builder("hkj.effect.boundary.errors")
-        .description("Distribution of EffectBoundary error types")
-        .tag("error_type", errorType)
-        .register(meterRegistry)
-        .increment();
-  }
+    /**
+     * Gets the current count of VStream success invocations.
+     *
+     * @return the count
+     */
+    public double getVStreamSuccessCount() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Records the duration of an EffectBoundary execution.
-   *
-   * @param durationMillis the duration in milliseconds
-   */
-  public void recordEffectBoundaryDuration(long durationMillis) {
-    effectBoundaryDurationTimer.record(durationMillis, TimeUnit.MILLISECONDS);
-  }
+    /**
+     * Gets the current count of VStream error invocations.
+     *
+     * @return the count
+     */
+    public double getVStreamErrorCount() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Gets the current count of EffectBoundary success invocations.
-   *
-   * @return the count
-   */
-  public double getEffectBoundarySuccessCount() {
-    return effectBoundarySuccessCounter.count();
-  }
+    /**
+     * Gets the current count of Either success invocations.
+     *
+     * @return the count
+     */
+    public double getEitherSuccessCount() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Gets the current count of EffectBoundary error invocations.
-   *
-   * @return the count
-   */
-  public double getEffectBoundaryErrorCount() {
-    return effectBoundaryErrorCounter.count();
-  }
+    /**
+     * Gets the current count of Either error invocations.
+     *
+     * @return the count
+     */
+    public double getEitherErrorCount() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Gets the current count of VTask success invocations.
-   *
-   * @return the count
-   */
-  public double getVTaskSuccessCount() {
-    return vtaskSuccessCounter.count();
-  }
+    /**
+     * Gets the current count of Validated valid invocations.
+     *
+     * @return the count
+     */
+    public double getValidatedValidCount() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Gets the current count of VTask error invocations.
-   *
-   * @return the count
-   */
-  public double getVTaskErrorCount() {
-    return vtaskErrorCounter.count();
-  }
+    /**
+     * Gets the current count of Validated invalid invocations.
+     *
+     * @return the count
+     */
+    public double getValidatedInvalidCount() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Gets the current count of VStream success invocations.
-   *
-   * @return the count
-   */
-  public double getVStreamSuccessCount() {
-    return vstreamSuccessCounter.count();
-  }
+    /**
+     * Gets the current count of EitherT async success invocations.
+     *
+     * @return the count
+     */
+    public double getEitherTSuccessCount() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Gets the current count of VStream error invocations.
-   *
-   * @return the count
-   */
-  public double getVStreamErrorCount() {
-    return vstreamErrorCounter.count();
-  }
-
-  /**
-   * Gets the current count of Either success invocations.
-   *
-   * @return the count
-   */
-  public double getEitherSuccessCount() {
-    return eitherSuccessCounter.count();
-  }
-
-  /**
-   * Gets the current count of Either error invocations.
-   *
-   * @return the count
-   */
-  public double getEitherErrorCount() {
-    return eitherErrorCounter.count();
-  }
-
-  /**
-   * Gets the current count of Validated valid invocations.
-   *
-   * @return the count
-   */
-  public double getValidatedValidCount() {
-    return validatedValidCounter.count();
-  }
-
-  /**
-   * Gets the current count of Validated invalid invocations.
-   *
-   * @return the count
-   */
-  public double getValidatedInvalidCount() {
-    return validatedInvalidCounter.count();
-  }
-
-  /**
-   * Gets the current count of EitherT async success invocations.
-   *
-   * @return the count
-   */
-  public double getEitherTSuccessCount() {
-    return eitherTSuccessCounter.count();
-  }
-
-  /**
-   * Gets the current count of EitherT async error invocations.
-   *
-   * @return the count
-   */
-  public double getEitherTErrorCount() {
-    return eitherTErrorCounter.count();
-  }
+    /**
+     * Gets the current count of EitherT async error invocations.
+     *
+     * @return the count
+     */
+    public double getEitherTErrorCount() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

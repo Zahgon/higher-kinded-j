@@ -33,40 +33,18 @@ import tools.jackson.databind.deser.std.StdDeserializer;
  */
 public class ValidatedDeserializer extends StdDeserializer<Validated<?, ?>> {
 
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  /** Creates a new ValidatedDeserializer for the Validated type. */
-  @SuppressWarnings("unchecked")
-  public ValidatedDeserializer() {
-    super((Class<Validated<?, ?>>) (Class<?>) Validated.class);
-  }
-
-  @Override
-  public Validated<?, ?> deserialize(JsonParser p, DeserializationContext ctxt)
-      throws JacksonException {
-    JsonNode node = p.readValueAsTree();
-
-    if (!node.has("valid")) {
-      throw ctxt.weirdStringException(
-          "", Validated.class, "Validated JSON must have 'valid' field");
+    /**
+     * Creates a new ValidatedDeserializer for the Validated type.
+     */
+    @SuppressWarnings("unchecked")
+    public ValidatedDeserializer() {
+        super((Class<Validated<?, ?>>) (Class<?>) Validated.class);
     }
 
-    boolean isValid = node.get("valid").asBoolean();
-
-    if (isValid) {
-      if (!node.has("value")) {
-        throw ctxt.weirdStringException(
-            "", Validated.class, "Validated with valid=true must have 'value' field");
-      }
-      Object value = ctxt.readTreeAsValue(node.get("value"), Object.class);
-      return Validated.valid(value);
-    } else {
-      if (!node.has("errors")) {
-        throw ctxt.weirdStringException(
-            "", Validated.class, "Validated with valid=false must have 'errors' field");
-      }
-      Object errors = ctxt.readTreeAsValue(node.get("errors"), Object.class);
-      return Validated.invalid(errors);
+    @Override
+    public Validated<?, ?> deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-  }
 }

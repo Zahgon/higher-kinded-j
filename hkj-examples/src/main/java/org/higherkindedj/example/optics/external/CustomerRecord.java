@@ -39,116 +39,131 @@ import org.jspecify.annotations.Nullable;
  */
 public final class CustomerRecord {
 
-  private final Long id;
-  private final String name;
-  private final String email;
-  private final BigDecimal creditLimit;
+    private final Long id;
 
-  private CustomerRecord(Builder builder) {
-    this.id = builder.id;
-    this.name = builder.name;
-    this.email = builder.email;
-    this.creditLimit = builder.creditLimit;
-  }
+    private final String name;
 
-  /** Returns a new builder for creating CustomerRecord instances. */
-  public static Builder builder() {
-    return new Builder();
-  }
+    private final String email;
 
-  /** Returns a builder pre-populated with this record's values for creating modified copies. */
-  public Builder toBuilder() {
-    return new Builder().id(id).name(name).email(email).creditLimit(creditLimit);
-  }
+    private final BigDecimal creditLimit;
 
-  /** Returns the customer ID. */
-  public Long id() {
-    return id;
-  }
-
-  /** Returns the customer name. */
-  public String name() {
-    return name;
-  }
-
-  /** Returns the customer email address. */
-  public String email() {
-    return email;
-  }
-
-  /** Returns the customer credit limit. */
-  public BigDecimal creditLimit() {
-    return creditLimit;
-  }
-
-  @Override
-  public boolean equals(@Nullable Object o) {
-    if (this == o) return true;
-    if (!(o instanceof CustomerRecord that)) return false;
-    return Objects.equals(id, that.id)
-        && Objects.equals(name, that.name)
-        && Objects.equals(email, that.email)
-        && Objects.equals(creditLimit, that.creditLimit);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(id, name, email, creditLimit);
-  }
-
-  @Override
-  public String toString() {
-    return "CustomerRecord{"
-        + "id="
-        + id
-        + ", name='"
-        + name
-        + '\''
-        + ", email='"
-        + email
-        + '\''
-        + ", creditLimit="
-        + creditLimit
-        + '}';
-  }
-
-  /** Builder for creating CustomerRecord instances. */
-  public static final class Builder {
-
-    private @Nullable Long id;
-    private @Nullable String name;
-    private @Nullable String email;
-    private @Nullable BigDecimal creditLimit;
-
-    private Builder() {}
-
-    /** Sets the customer ID. */
-    public Builder id(Long id) {
-      this.id = id;
-      return this;
+    private CustomerRecord(Builder builder) {
+        this.id = builder.id;
+        this.name = builder.name;
+        this.email = builder.email;
+        this.creditLimit = builder.creditLimit;
     }
 
-    /** Sets the customer name. */
-    public Builder name(String name) {
-      this.name = name;
-      return this;
+    /**
+     * Returns a new builder for creating CustomerRecord instances.
+     */
+    public static Builder builder() {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    /** Sets the customer email. */
-    public Builder email(String email) {
-      this.email = email;
-      return this;
+    /**
+     * Returns a builder pre-populated with this record's values for creating modified copies.
+     */
+    public Builder toBuilder() {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    /** Sets the customer credit limit. */
-    public Builder creditLimit(BigDecimal creditLimit) {
-      this.creditLimit = creditLimit;
-      return this;
+    /**
+     * Returns the customer ID.
+     */
+    public Long id() {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    /** Builds the CustomerRecord instance. */
-    public CustomerRecord build() {
-      return new CustomerRecord(this);
+    /**
+     * Returns the customer name.
+     */
+    public String name() {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-  }
+
+    /**
+     * Returns the customer email address.
+     */
+    public String email() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Returns the customer credit limit.
+     */
+    public BigDecimal creditLimit() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public boolean equals(@Nullable Object o) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public int hashCode() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public String toString() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Builder for creating CustomerRecord instances.
+     */
+    public static final class Builder {
+
+        @Nullable
+        private Long id;
+
+        @Nullable
+        private String name;
+
+        @Nullable
+        private String email;
+
+        @Nullable
+        private BigDecimal creditLimit;
+
+        private Builder() {
+        }
+
+        /**
+         * Sets the customer ID.
+         */
+        public Builder id(Long id) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Sets the customer name.
+         */
+        public Builder name(String name) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Sets the customer email.
+         */
+        public Builder email(String email) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Sets the customer credit limit.
+         */
+        public Builder creditLimit(BigDecimal creditLimit) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        /**
+         * Builds the CustomerRecord instance.
+         */
+        public CustomerRecord build() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+    }
 }

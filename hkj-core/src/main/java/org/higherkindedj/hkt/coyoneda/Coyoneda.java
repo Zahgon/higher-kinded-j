@@ -3,7 +3,6 @@
 package org.higherkindedj.hkt.coyoneda;
 
 import static java.util.Objects.requireNonNull;
-
 import java.util.function.Function;
 import org.higherkindedj.hkt.Functor;
 import org.higherkindedj.hkt.Kind;
@@ -103,153 +102,141 @@ import org.higherkindedj.hkt.WitnessArity;
  */
 public sealed interface Coyoneda<F extends WitnessArity<TypeArity.Unary>, A> permits Coyoneda.Impl {
 
-  /**
-   * Lifts a {@code Kind<F, A>} into Coyoneda with the identity transformation.
-   *
-   * <p>This is the canonical way to create a Coyoneda. The value is wrapped with the identity
-   * function, ready for subsequent map operations.
-   *
-   * <pre>{@code
-   * Kind<Maybe.Witness, Integer> maybe = MAYBE.just(42);
-   * Coyoneda<Maybe.Witness, Integer> coyo = Coyoneda.lift(maybe);
-   * }</pre>
-   *
-   * @param fa The value to lift into Coyoneda. Must not be null.
-   * @param <F> The type constructor
-   * @param <A> The value type
-   * @return A Coyoneda wrapping the value with identity transformation
-   * @throws NullPointerException if fa is null
-   */
-  static <F extends WitnessArity<TypeArity.Unary>, A> Coyoneda<F, A> lift(Kind<F, A> fa) {
-    requireNonNull(fa, "Kind to lift cannot be null");
-    return new Impl<>(fa, Function.identity());
-  }
-
-  /**
-   * Creates a Coyoneda from a value and a transformation function.
-   *
-   * <p>This factory method is useful when you already have a transformation to apply. It's
-   * equivalent to {@code Coyoneda.lift(fx).map(transform)} but more direct.
-   *
-   * @param fx The underlying value. Must not be null.
-   * @param transform The transformation function. Must not be null.
-   * @param <F> The type constructor
-   * @param <X> The original value type in F
-   * @param <A> The result type after transformation
-   * @return A Coyoneda with the given value and transformation
-   * @throws NullPointerException if fx or transform is null
-   */
-  static <F extends WitnessArity<TypeArity.Unary>, X, A> Coyoneda<F, A> apply(
-      Kind<F, X> fx, Function<? super X, ? extends A> transform) {
-    requireNonNull(fx, "Kind value cannot be null");
-    requireNonNull(transform, "Transform function cannot be null");
-    return new Impl<>(fx, transform);
-  }
-
-  /**
-   * Maps a function over this Coyoneda, accumulating it with existing transformations.
-   *
-   * <p>This operation does NOT require a Functor instance for F. The function is simply composed
-   * with the existing transformation, achieving map fusion:
-   *
-   * <pre>{@code
-   * coyo.map(f).map(g).map(h)
-   * // Internally becomes: Coyoneda(fx, h.compose(g).compose(f))
-   * // Only ONE actual map when lowered!
-   * }</pre>
-   *
-   * @param f The function to apply. Must not be null.
-   * @param <B> The result type
-   * @return A new Coyoneda with the function composed into the transformation
-   * @throws NullPointerException if f is null
-   */
-  <B> Coyoneda<F, B> map(Function<? super A, ? extends B> f);
-
-  /**
-   * Lowers this Coyoneda back to {@code Kind<F, A>} by applying the accumulated transformation.
-   *
-   * <p>This is where the actual mapping happens. The Functor instance for F is used to apply all
-   * the accumulated transformations in a single map operation.
-   *
-   * <pre>{@code
-   * Coyoneda<Maybe.Witness, String> coyo = Coyoneda.lift(MAYBE.just(42))
-   *     .map(x -> x * 2)
-   *     .map(Object::toString);
-   *
-   * // Lower using Maybe's Functor
-   * Kind<Maybe.Witness, String> result = coyo.lower(maybeFunctor);
-   * // Result: Just("84")
-   * }</pre>
-   *
-   * @param functor The Functor instance for F. Must not be null.
-   * @return The value with all transformations applied
-   * @throws NullPointerException if functor is null
-   */
-  Kind<F, A> lower(Functor<F> functor);
-
-  /**
-   * Returns the underlying Kind value before any transformations.
-   *
-   * <p>This provides access to the original wrapped value. Note that the type parameter is
-   * existentially quantified (hidden), so this returns a wildcard type.
-   *
-   * @return The underlying Kind value
-   */
-  Kind<F, ?> underlying();
-
-  /**
-   * Internal implementation of Coyoneda.
-   *
-   * <p>This record holds:
-   *
-   * <ul>
-   *   <li>{@code fx}: The underlying value of type {@code Kind<F, X>}
-   *   <li>{@code transform}: The accumulated transformation from X to A
-   * </ul>
-   *
-   * <p>The type parameter X is existentially quantified - it's hidden from the outside and only
-   * known internally. This is achieved by having the record be package-private with a wildcard type
-   * in some contexts.
-   *
-   * @param <F> The type constructor
-   * @param <X> The original value type (existential)
-   * @param <A> The current result type
-   */
-  record Impl<F extends WitnessArity<TypeArity.Unary>, X, A>(
-      Kind<F, X> fx, Function<? super X, ? extends A> transform) implements Coyoneda<F, A> {
+    /**
+     * Lifts a {@code Kind<F, A>} into Coyoneda with the identity transformation.
+     *
+     * <p>This is the canonical way to create a Coyoneda. The value is wrapped with the identity
+     * function, ready for subsequent map operations.
+     *
+     * <pre>{@code
+     * Kind<Maybe.Witness, Integer> maybe = MAYBE.just(42);
+     * Coyoneda<Maybe.Witness, Integer> coyo = Coyoneda.lift(maybe);
+     * }</pre>
+     *
+     * @param fa The value to lift into Coyoneda. Must not be null.
+     * @param <F> The type constructor
+     * @param <A> The value type
+     * @return A Coyoneda wrapping the value with identity transformation
+     * @throws NullPointerException if fa is null
+     */
+    static <F extends WitnessArity<TypeArity.Unary>, A> Coyoneda<F, A> lift(Kind<F, A> fa) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
     /**
-     * Creates a new Impl with validation.
+     * Creates a Coyoneda from a value and a transformation function.
      *
-     * @param fx The underlying value
-     * @param transform The transformation function
+     * <p>This factory method is useful when you already have a transformation to apply. It's
+     * equivalent to {@code Coyoneda.lift(fx).map(transform)} but more direct.
+     *
+     * @param fx The underlying value. Must not be null.
+     * @param transform The transformation function. Must not be null.
+     * @param <F> The type constructor
+     * @param <X> The original value type in F
+     * @param <A> The result type after transformation
+     * @return A Coyoneda with the given value and transformation
+     * @throws NullPointerException if fx or transform is null
      */
-    public Impl {
-      requireNonNull(fx, "Underlying Kind cannot be null");
-      requireNonNull(transform, "Transform function cannot be null");
+    static <F extends WitnessArity<TypeArity.Unary>, X, A> Coyoneda<F, A> apply(Kind<F, X> fx, Function<? super X, ? extends A> transform) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public <B> Coyoneda<F, B> map(Function<? super A, ? extends B> f) {
-      requireNonNull(f, "Map function cannot be null");
-      // Compose the new function with the existing transformation
-      // This achieves map fusion: multiple maps become one composed function
-      Function<X, B> composed = ((Function<X, A>) transform).andThen((Function<A, B>) f);
-      return new Impl<>(fx, composed);
-    }
+    /**
+     * Maps a function over this Coyoneda, accumulating it with existing transformations.
+     *
+     * <p>This operation does NOT require a Functor instance for F. The function is simply composed
+     * with the existing transformation, achieving map fusion:
+     *
+     * <pre>{@code
+     * coyo.map(f).map(g).map(h)
+     * // Internally becomes: Coyoneda(fx, h.compose(g).compose(f))
+     * // Only ONE actual map when lowered!
+     * }</pre>
+     *
+     * @param f The function to apply. Must not be null.
+     * @param <B> The result type
+     * @return A new Coyoneda with the function composed into the transformation
+     * @throws NullPointerException if f is null
+     */
+    <B> Coyoneda<F, B> map(Function<? super A, ? extends B> f);
 
-    @Override
-    public Kind<F, A> lower(Functor<F> functor) {
-      requireNonNull(functor, "Functor cannot be null");
-      // Apply the accumulated transformation using the Functor
-      // This is the only place where actual mapping happens
-      return functor.map(transform, fx);
-    }
+    /**
+     * Lowers this Coyoneda back to {@code Kind<F, A>} by applying the accumulated transformation.
+     *
+     * <p>This is where the actual mapping happens. The Functor instance for F is used to apply all
+     * the accumulated transformations in a single map operation.
+     *
+     * <pre>{@code
+     * Coyoneda<Maybe.Witness, String> coyo = Coyoneda.lift(MAYBE.just(42))
+     *     .map(x -> x * 2)
+     *     .map(Object::toString);
+     *
+     * // Lower using Maybe's Functor
+     * Kind<Maybe.Witness, String> result = coyo.lower(maybeFunctor);
+     * // Result: Just("84")
+     * }</pre>
+     *
+     * @param functor The Functor instance for F. Must not be null.
+     * @return The value with all transformations applied
+     * @throws NullPointerException if functor is null
+     */
+    Kind<F, A> lower(Functor<F> functor);
 
-    @Override
-    public Kind<F, ?> underlying() {
-      return fx;
+    /**
+     * Returns the underlying Kind value before any transformations.
+     *
+     * <p>This provides access to the original wrapped value. Note that the type parameter is
+     * existentially quantified (hidden), so this returns a wildcard type.
+     *
+     * @return The underlying Kind value
+     */
+    Kind<F, ?> underlying();
+
+    /**
+     * Internal implementation of Coyoneda.
+     *
+     * <p>This record holds:
+     *
+     * <ul>
+     *   <li>{@code fx}: The underlying value of type {@code Kind<F, X>}
+     *   <li>{@code transform}: The accumulated transformation from X to A
+     * </ul>
+     *
+     * <p>The type parameter X is existentially quantified - it's hidden from the outside and only
+     * known internally. This is achieved by having the record be package-private with a wildcard type
+     * in some contexts.
+     *
+     * @param <F> The type constructor
+     * @param <X> The original value type (existential)
+     * @param <A> The current result type
+     */
+    record Impl<F extends WitnessArity<TypeArity.Unary>, X, A>(Kind<F, X> fx, Function<? super X, ? extends A> transform) implements Coyoneda<F, A> {
+
+        /**
+         * Creates a new Impl with validation.
+         *
+         * @param fx The underlying value
+         * @param transform The transformation function
+         */
+        public Impl {
+            requireNonNull(fx, "Underlying Kind cannot be null");
+            requireNonNull(transform, "Transform function cannot be null");
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public <B> Coyoneda<F, B> map(Function<? super A, ? extends B> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public Kind<F, A> lower(Functor<F> functor) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+
+        @Override
+        public Kind<F, ?> underlying() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
     }
-  }
 }

@@ -21,15 +21,8 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public final class ProductionFraudInterpreter extends FraudCheckOpInterpreter<IOKind.Witness> {
 
-  @Override
-  protected <A> Kind<IOKind.Witness, A> handleCheckTransaction(
-      FraudCheckOp.CheckTransaction<A> op) {
-    Objects.requireNonNull(op, "op cannot be null");
-    return IOKindHelper.IO_OP.widen(
-        IO.delay(
-            () -> {
-              int score = op.amount().amount().intValue() > 1000 ? 45 : 15;
-              return op.k().apply(RiskScore.of(score));
-            }));
-  }
+    @Override
+    protected <A> Kind<IOKind.Witness, A> handleCheckTransaction(FraudCheckOp.CheckTransaction<A> op) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

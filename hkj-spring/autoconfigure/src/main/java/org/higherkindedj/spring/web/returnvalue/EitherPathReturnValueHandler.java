@@ -56,132 +56,101 @@ import tools.jackson.databind.json.JsonMapper;
  */
 public class EitherPathReturnValueHandler implements HandlerMethodReturnValueHandler {
 
-  private final JsonMapper jsonMapper;
-  private final ObjectWriter objectWriter;
-  private final int defaultErrorStatus;
-  private final ErrorStatusCodeStrategy errorStatusCodeStrategy;
+    private final JsonMapper jsonMapper;
 
-  /**
-   * Backward-compatible constructor preserved for programmatic adopters who built the handler
-   * directly without going through the auto-configuration. Equivalent to constructing with a {@link
-   * DefaultErrorStatusCodeStrategy} backed by an empty mapping table — i.e. heuristics only.
-   *
-   * @param jsonMapper the Jackson 3.x JsonMapper for JSON serialization
-   * @param defaultErrorStatus the default HTTP status code for errors
-   */
-  public EitherPathReturnValueHandler(JsonMapper jsonMapper, int defaultErrorStatus) {
-    this(jsonMapper, defaultErrorStatus, new DefaultErrorStatusCodeStrategy(Map.of()));
-  }
+    private final ObjectWriter objectWriter;
 
-  /**
-   * Creates a new EitherPathReturnValueHandler with the specified settings.
-   *
-   * @param jsonMapper the Jackson 3.x JsonMapper for JSON serialization
-   * @param defaultErrorStatus the default HTTP status code for errors when no rule matches
-   * @param errorStatusCodeStrategy the strategy that resolves the status code for an error
-   */
-  public EitherPathReturnValueHandler(
-      JsonMapper jsonMapper,
-      int defaultErrorStatus,
-      ErrorStatusCodeStrategy errorStatusCodeStrategy) {
-    this.jsonMapper = jsonMapper;
-    this.objectWriter = jsonMapper.writer();
-    this.defaultErrorStatus = defaultErrorStatus;
-    this.errorStatusCodeStrategy = errorStatusCodeStrategy;
-  }
+    private final int defaultErrorStatus;
 
-  @Override
-  public boolean supportsReturnType(MethodParameter returnType) {
-    Class<?> paramType = returnType.getParameterType();
-    return EitherPath.class.isAssignableFrom(paramType) || Either.class.isAssignableFrom(paramType);
-  }
+    private final ErrorStatusCodeStrategy errorStatusCodeStrategy;
 
-  @Override
-  public void handleReturnValue(
-      @Nullable Object returnValue,
-      MethodParameter returnType,
-      ModelAndViewContainer mavContainer,
-      NativeWebRequest webRequest) {
-
-    mavContainer.setRequestHandled(true);
-    HttpServletResponse response = webRequest.getNativeResponse(HttpServletResponse.class);
-
-    if (response == null) {
-      return;
+    /**
+     * Backward-compatible constructor preserved for programmatic adopters who built the handler
+     * directly without going through the auto-configuration. Equivalent to constructing with a {@link
+     * DefaultErrorStatusCodeStrategy} backed by an empty mapping table — i.e. heuristics only.
+     *
+     * @param jsonMapper the Jackson 3.x JsonMapper for JSON serialization
+     * @param defaultErrorStatus the default HTTP status code for errors
+     */
+    public EitherPathReturnValueHandler(JsonMapper jsonMapper, int defaultErrorStatus) {
+        this(jsonMapper, defaultErrorStatus, new DefaultErrorStatusCodeStrategy(Map.of()));
     }
 
-    Either<?, ?> either = extractEither(returnValue);
-    if (either == null) {
-      return;
+    /**
+     * Creates a new EitherPathReturnValueHandler with the specified settings.
+     *
+     * @param jsonMapper the Jackson 3.x JsonMapper for JSON serialization
+     * @param defaultErrorStatus the default HTTP status code for errors when no rule matches
+     * @param errorStatusCodeStrategy the strategy that resolves the status code for an error
+     */
+    public EitherPathReturnValueHandler(JsonMapper jsonMapper, int defaultErrorStatus, ErrorStatusCodeStrategy errorStatusCodeStrategy) {
+        this.jsonMapper = jsonMapper;
+        this.objectWriter = jsonMapper.writer();
+        this.defaultErrorStatus = defaultErrorStatus;
+        this.errorStatusCodeStrategy = errorStatusCodeStrategy;
     }
 
-    int successStatus =
-        SuccessStatusResolver.resolveSuccessStatus(returnType, HttpStatus.OK.value());
-
-    // Fold to HTTP response
-    either.fold(
-        error -> {
-          writeErrorResponse(error, response);
-          return null;
-        },
-        value -> {
-          writeSuccessResponse(value, response, successStatus);
-          return null;
-        });
-  }
-
-  /**
-   * Extracts the Either from either an EitherPath or raw Either.
-   *
-   * @param returnValue the return value
-   * @return the Either, or null if not supported
-   */
-  @Nullable
-  private Either<?, ?> extractEither(@Nullable Object returnValue) {
-    if (returnValue instanceof EitherPath<?, ?> path) {
-      return path.run();
-    } else if (returnValue instanceof Either<?, ?> either) {
-      return either;
+    @Override
+    public boolean supportsReturnType(MethodParameter returnType) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-    return null;
-  }
 
-  /**
-   * Writes an error (Left) value to the HTTP response.
-   *
-   * @param error the error value
-   * @param response the HTTP response
-   */
-  private void writeErrorResponse(Object error, HttpServletResponse response) {
-    try {
-      int statusCode = errorStatusCodeStrategy.statusCodeFor(error, defaultErrorStatus);
-      response.setStatus(statusCode);
-      ErrorResponseHeaders.applyTo(error, response);
-      response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-
-      Map<String, Object> errorBody = Map.of("success", false, "error", error);
-      objectWriter.writeValue(response.getWriter(), errorBody);
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to write error response", e);
+    @Override
+    public void handleReturnValue(@Nullable Object returnValue, MethodParameter returnType, ModelAndViewContainer mavContainer, NativeWebRequest webRequest) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-  }
 
-  /**
-   * Writes a success (Right) value to the HTTP response.
-   *
-   * @param value the success value
-   * @param response the HTTP response
-   * @param status the HTTP status code to set
-   */
-  private void writeSuccessResponse(Object value, HttpServletResponse response, int status) {
-    try {
-      response.setStatus(status);
-      if (status != HttpStatus.NO_CONTENT.value()) {
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        objectWriter.writeValue(response.getWriter(), value);
-      }
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to write success response", e);
+    /**
+     * Extracts the Either from either an EitherPath or raw Either.
+     *
+     * @param returnValue the return value
+     * @return the Either, or null if not supported
+     */
+    @Nullable
+    private Either<?, ?> extractEither(@Nullable Object returnValue) {
+        if (returnValue instanceof EitherPath<?, ?> path) {
+            return path.run();
+        } else if (returnValue instanceof Either<?, ?> either) {
+            return either;
+        }
+        return null;
     }
-  }
+
+    /**
+     * Writes an error (Left) value to the HTTP response.
+     *
+     * @param error the error value
+     * @param response the HTTP response
+     */
+    private void writeErrorResponse(Object error, HttpServletResponse response) {
+        try {
+            int statusCode = errorStatusCodeStrategy.statusCodeFor(error, defaultErrorStatus);
+            response.setStatus(statusCode);
+            ErrorResponseHeaders.applyTo(error, response);
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            Map<String, Object> errorBody = Map.of("success", false, "error", error);
+            objectWriter.writeValue(response.getWriter(), errorBody);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to write error response", e);
+        }
+    }
+
+    /**
+     * Writes a success (Right) value to the HTTP response.
+     *
+     * @param value the success value
+     * @param response the HTTP response
+     * @param status the HTTP status code to set
+     */
+    private void writeSuccessResponse(Object value, HttpServletResponse response, int status) {
+        try {
+            response.setStatus(status);
+            if (status != HttpStatus.NO_CONTENT.value()) {
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                objectWriter.writeValue(response.getWriter(), value);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to write success response", e);
+        }
+    }
 }

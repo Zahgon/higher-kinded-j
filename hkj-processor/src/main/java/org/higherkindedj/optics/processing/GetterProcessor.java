@@ -25,176 +25,105 @@ import org.higherkindedj.optics.Getter;
 import org.higherkindedj.optics.annotations.GenerateGetters;
 import org.higherkindedj.optics.processing.util.ExcludeFromJacocoGeneratedReport;
 
-/** Annotation processor that generates Getter optics for record types. */
+/**
+ * Annotation processor that generates Getter optics for record types.
+ */
 @AutoService(Processor.class)
 @SupportedAnnotationTypes("org.higherkindedj.optics.annotations.GenerateGetters")
 @SupportedSourceVersion(SourceVersion.RELEASE_25)
 public class GetterProcessor extends AbstractProcessor {
 
-  /** Creates a new GetterProcessor. */
-  public GetterProcessor() {}
+    /**
+     * Creates a new GetterProcessor.
+     */
+    public GetterProcessor() {
+    }
 
-  @Override
-  public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-    for (TypeElement annotation : annotations) {
-      Set<? extends Element> annotatedElements = roundEnv.getElementsAnnotatedWith(annotation);
-      for (Element element : annotatedElements) {
-        if (element.getKind() != ElementKind.RECORD) {
-          error("The @GenerateGetters annotation can only be applied to records.", element);
-          continue;
+    @Override
+    public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @ExcludeFromJacocoGeneratedReport
+    private void writeGettersFile(TypeElement element) {
+        try {
+            generateGettersFile(element);
+        } catch (IOException e) {
+            error("Could not generate getters file: " + e.getMessage(), element);
         }
-        writeGettersFile((TypeElement) element);
-      }
-    }
-    return true;
-  }
-
-  @ExcludeFromJacocoGeneratedReport
-  private void writeGettersFile(TypeElement element) {
-    try {
-      generateGettersFile(element);
-    } catch (IOException e) {
-      error("Could not generate getters file: " + e.getMessage(), element);
-    }
-  }
-
-  private void generateGettersFile(TypeElement recordElement) throws IOException {
-    String recordName = recordElement.getSimpleName().toString();
-    String defaultPackage =
-        processingEnv.getElementUtils().getPackageOf(recordElement).getQualifiedName().toString();
-
-    // Check for custom target package in annotation
-    GenerateGetters annotation = recordElement.getAnnotation(GenerateGetters.class);
-    String targetPackage = annotation.targetPackage();
-    String packageName = targetPackage.isEmpty() ? defaultPackage : targetPackage;
-
-    String gettersClassName = recordName + "Getters";
-
-    final ClassName generatedAnnotation =
-        ClassName.get("org.higherkindedj.optics.annotations", "Generated");
-
-    TypeSpec.Builder gettersClassBuilder =
-        TypeSpec.classBuilder(gettersClassName)
-            .addAnnotation(generatedAnnotation)
-            .addJavadoc(
-                "Generated getters for {@link $T}. Do not edit.", ClassName.get(recordElement))
-            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-            .addMethod(MethodSpec.constructorBuilder().addModifiers(Modifier.PRIVATE).build());
-
-    List<? extends RecordComponentElement> components = recordElement.getRecordComponents();
-    TypeName recordTypeName = getParameterizedTypeName(recordElement);
-
-    for (RecordComponentElement component : components) {
-      gettersClassBuilder.addMethod(createGetterMethod(component, recordElement, recordTypeName));
     }
 
-    for (RecordComponentElement component : components) {
-      gettersClassBuilder.addMethod(createGetMethod(component, recordElement, recordTypeName));
+    private void generateGettersFile(TypeElement recordElement) throws IOException {
+        String recordName = recordElement.getSimpleName().toString();
+        String defaultPackage = processingEnv.getElementUtils().getPackageOf(recordElement).getQualifiedName().toString();
+        // Check for custom target package in annotation
+        GenerateGetters annotation = recordElement.getAnnotation(GenerateGetters.class);
+        String targetPackage = annotation.targetPackage();
+        String packageName = targetPackage.isEmpty() ? defaultPackage : targetPackage;
+        String gettersClassName = recordName + "Getters";
+        final ClassName generatedAnnotation = ClassName.get("org.higherkindedj.optics.annotations", "Generated");
+        TypeSpec.Builder gettersClassBuilder = TypeSpec.classBuilder(gettersClassName).addAnnotation(generatedAnnotation).addJavadoc("Generated getters for {@link $T}. Do not edit.", ClassName.get(recordElement)).addModifiers(Modifier.PUBLIC, Modifier.FINAL).addMethod(MethodSpec.constructorBuilder().addModifiers(Modifier.PRIVATE).build());
+        List<? extends RecordComponentElement> components = recordElement.getRecordComponents();
+        TypeName recordTypeName = getParameterizedTypeName(recordElement);
+        for (RecordComponentElement component : components) {
+            gettersClassBuilder.addMethod(createGetterMethod(component, recordElement, recordTypeName));
+        }
+        for (RecordComponentElement component : components) {
+            gettersClassBuilder.addMethod(createGetMethod(component, recordElement, recordTypeName));
+        }
+        JavaFile javaFile = JavaFile.builder(packageName, gettersClassBuilder.build()).addFileComment("Generated by hkj-optics-processor. Do not edit.").build();
+        javaFile.writeTo(processingEnv.getFiler());
     }
 
-    JavaFile javaFile =
-        JavaFile.builder(packageName, gettersClassBuilder.build())
-            .addFileComment("Generated by hkj-optics-processor. Do not edit.")
-            .build();
-
-    javaFile.writeTo(processingEnv.getFiler());
-  }
-
-  private TypeName getParameterizedTypeName(TypeElement typeElement) {
-    List<? extends TypeParameterElement> typeParameters = typeElement.getTypeParameters();
-    if (typeParameters.isEmpty()) {
-      return ClassName.get(typeElement);
-    } else {
-      List<TypeVariableName> typeVars = typeParameters.stream().map(TypeVariableName::get).toList();
-      return ParameterizedTypeName.get(
-          ClassName.get(typeElement), typeVars.toArray(new TypeName[0]));
-    }
-  }
-
-  private MethodSpec createGetterMethod(
-      RecordComponentElement component, TypeElement recordElement, TypeName recordTypeName) {
-
-    String componentName = component.getSimpleName().toString();
-    TypeName componentTypeName = TypeName.get(component.asType());
-
-    ParameterizedTypeName getterTypeName =
-        ParameterizedTypeName.get(
-            ClassName.get(Getter.class), recordTypeName, componentTypeName.box());
-
-    MethodSpec.Builder methodBuilder =
-        MethodSpec.methodBuilder(componentName)
-            .addJavadoc(
-                "Creates a {@link $T} for the {@code $L} field of a {@link $T}.\n\n"
-                    + "@return A non-null {@code Getter<$T, $T>}.",
-                Getter.class,
-                component.getSimpleName(),
-                recordTypeName,
-                recordTypeName,
-                componentTypeName.box())
-            .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-            .returns(getterTypeName);
-
-    for (TypeParameterElement typeParam : recordElement.getTypeParameters()) {
-      methodBuilder.addTypeVariable(TypeVariableName.get(typeParam));
+    private TypeName getParameterizedTypeName(TypeElement typeElement) {
+        List<? extends TypeParameterElement> typeParameters = typeElement.getTypeParameters();
+        if (typeParameters.isEmpty()) {
+            return ClassName.get(typeElement);
+        } else {
+            List<TypeVariableName> typeVars = typeParameters.stream().map(TypeVariableName::get).toList();
+            return ParameterizedTypeName.get(ClassName.get(typeElement), typeVars.toArray(new TypeName[0]));
+        }
     }
 
-    methodBuilder.addStatement("return $T.of($T::$L)", Getter.class, recordTypeName, componentName);
-
-    return methodBuilder.build();
-  }
-
-  private MethodSpec createGetMethod(
-      RecordComponentElement component, TypeElement recordElement, TypeName recordTypeName) {
-
-    String componentName = component.getSimpleName().toString();
-    TypeName componentTypeName = TypeName.get(component.asType());
-    String methodName = "get" + capitalise(componentName);
-    String gettersClassName = recordElement.getSimpleName().toString() + "Getters";
-
-    MethodSpec.Builder methodBuilder =
-        MethodSpec.methodBuilder(methodName)
-            .addJavadoc(
-                "Gets the {@code $L} field from a {@link $T}.\n"
-                    + "<p>This is a convenience method that uses the {@link #$L()} getter.\n\n"
-                    + "@param source The {@code $T} instance.\n"
-                    + "@return The value of the {@code $L} field.",
-                componentName,
-                recordTypeName,
-                componentName,
-                recordTypeName,
-                componentName)
-            .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-            .returns(componentTypeName)
-            .addParameter(recordTypeName, "source");
-
-    List<? extends TypeParameterElement> typeParameters = recordElement.getTypeParameters();
-    for (TypeParameterElement typeParam : typeParameters) {
-      methodBuilder.addTypeVariable(TypeVariableName.get(typeParam));
+    private MethodSpec createGetterMethod(RecordComponentElement component, TypeElement recordElement, TypeName recordTypeName) {
+        String componentName = component.getSimpleName().toString();
+        TypeName componentTypeName = TypeName.get(component.asType());
+        ParameterizedTypeName getterTypeName = ParameterizedTypeName.get(ClassName.get(Getter.class), recordTypeName, componentTypeName.box());
+        MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder(componentName).addJavadoc("Creates a {@link $T} for the {@code $L} field of a {@link $T}.\n\n" + "@return A non-null {@code Getter<$T, $T>}.", Getter.class, component.getSimpleName(), recordTypeName, recordTypeName, componentTypeName.box()).addModifiers(Modifier.PUBLIC, Modifier.STATIC).returns(getterTypeName);
+        for (TypeParameterElement typeParam : recordElement.getTypeParameters()) {
+            methodBuilder.addTypeVariable(TypeVariableName.get(typeParam));
+        }
+        methodBuilder.addStatement("return $T.of($T::$L)", Getter.class, recordTypeName, componentName);
+        return methodBuilder.build();
     }
 
-    String typeArguments =
-        typeParameters.stream()
-            .map(p -> p.getSimpleName().toString())
-            .collect(Collectors.joining(", "));
-
-    if (typeArguments.isEmpty()) {
-      methodBuilder.addStatement("return $L().get(source)", componentName);
-    } else {
-      methodBuilder.addStatement(
-          "return $L.<$L>$L().get(source)", gettersClassName, typeArguments, componentName);
+    private MethodSpec createGetMethod(RecordComponentElement component, TypeElement recordElement, TypeName recordTypeName) {
+        String componentName = component.getSimpleName().toString();
+        TypeName componentTypeName = TypeName.get(component.asType());
+        String methodName = "get" + capitalise(componentName);
+        String gettersClassName = recordElement.getSimpleName().toString() + "Getters";
+        MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder(methodName).addJavadoc("Gets the {@code $L} field from a {@link $T}.\n" + "<p>This is a convenience method that uses the {@link #$L()} getter.\n\n" + "@param source The {@code $T} instance.\n" + "@return The value of the {@code $L} field.", componentName, recordTypeName, componentName, recordTypeName, componentName).addModifiers(Modifier.PUBLIC, Modifier.STATIC).returns(componentTypeName).addParameter(recordTypeName, "source");
+        List<? extends TypeParameterElement> typeParameters = recordElement.getTypeParameters();
+        for (TypeParameterElement typeParam : typeParameters) {
+            methodBuilder.addTypeVariable(TypeVariableName.get(typeParam));
+        }
+        String typeArguments = typeParameters.stream().map(p -> p.getSimpleName().toString()).collect(Collectors.joining(", "));
+        if (typeArguments.isEmpty()) {
+            methodBuilder.addStatement("return $L().get(source)", componentName);
+        } else {
+            methodBuilder.addStatement("return $L.<$L>$L().get(source)", gettersClassName, typeArguments, componentName);
+        }
+        return methodBuilder.build();
     }
 
-    return methodBuilder.build();
-  }
-
-  private String capitalise(String s) {
-    if (s == null || s.isEmpty()) {
-      return s;
+    private String capitalise(String s) {
+        if (s == null || s.isEmpty()) {
+            return s;
+        }
+        return s.substring(0, 1).toUpperCase() + s.substring(1);
     }
-    return s.substring(0, 1).toUpperCase() + s.substring(1);
-  }
 
-  private void error(String msg, Element e) {
-    processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, msg, e);
-  }
+    private void error(String msg, Element e) {
+        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, msg, e);
+    }
 }

@@ -29,79 +29,45 @@ import org.higherkindedj.hkt.vtask.VTask;
  */
 public class SimulatedExchangeFeed implements ExchangeFeed {
 
-  private final Exchange exchange;
-  private final List<Symbol> symbols;
-  private final double volatility;
-  private final double basePrice;
-  private final long seed;
+    private final Exchange exchange;
 
-  /**
-   * Creates a simulated feed.
-   *
-   * @param exchange the exchange identity
-   * @param symbols the symbols to cycle through
-   * @param basePrice the starting price for all instruments
-   * @param volatility the per-tick volatility factor (e.g. 0.002 for 0.2%)
-   * @param seed random seed for reproducibility
-   */
-  public SimulatedExchangeFeed(
-      Exchange exchange, List<Symbol> symbols, double basePrice, double volatility, long seed) {
-    this.exchange = Objects.requireNonNull(exchange);
-    this.symbols = List.copyOf(Objects.requireNonNull(symbols));
-    this.basePrice = basePrice;
-    this.volatility = volatility;
-    this.seed = seed;
-  }
+    private final List<Symbol> symbols;
 
-  /**
-   * Internal state for the unfold-based tick generator.
-   *
-   * @param prices current price per symbol index
-   * @param index which symbol to emit next
-   * @param random the RNG for random walk
-   */
-  record FeedState(double[] prices, int index, Random random) {}
+    private final double volatility;
 
-  @Override
-  public VStream<PriceTick> ticks() {
-    double[] initialPrices = new double[symbols.size()];
-    Arrays.fill(initialPrices, basePrice);
+    private final double basePrice;
 
-    return VStream.unfold(
-        new FeedState(initialPrices, 0, new Random(seed)),
-        state ->
-            VTask.of(
-                () -> {
-                  int idx = state.index();
-                  Symbol symbol = symbols.get(idx);
-                  double currentPrice = state.prices()[idx];
+    private final long seed;
 
-                  // Random walk: price changes by up to +-volatility%
-                  double change = (state.random().nextGaussian() * volatility) * currentPrice;
-                  double newPrice = Math.max(0.01, currentPrice + change);
-                  double spreadBps = 5 + state.random().nextDouble() * 10; // 5-15 bps spread
-                  double halfSpread = newPrice * spreadBps / 20000.0;
+    /**
+     * Creates a simulated feed.
+     *
+     * @param exchange the exchange identity
+     * @param symbols the symbols to cycle through
+     * @param basePrice the starting price for all instruments
+     * @param volatility the per-tick volatility factor (e.g. 0.002 for 0.2%)
+     * @param seed random seed for reproducibility
+     */
+    public SimulatedExchangeFeed(Exchange exchange, List<Symbol> symbols, double basePrice, double volatility, long seed) {
+        this.exchange = Objects.requireNonNull(exchange);
+        this.symbols = List.copyOf(Objects.requireNonNull(symbols));
+        this.basePrice = basePrice;
+        this.volatility = volatility;
+        this.seed = seed;
+    }
 
-                  Price bid =
-                      new Price(
-                          BigDecimal.valueOf(newPrice - halfSpread)
-                              .setScale(4, RoundingMode.HALF_UP));
-                  Price ask =
-                      new Price(
-                          BigDecimal.valueOf(newPrice + halfSpread)
-                              .setScale(4, RoundingMode.HALF_UP));
-                  Volume volume = Volume.of(100 + state.random().nextInt(9900));
+    /**
+     * Internal state for the unfold-based tick generator.
+     *
+     * @param prices current price per symbol index
+     * @param index which symbol to emit next
+     * @param random the RNG for random walk
+     */
+    record FeedState(double[] prices, int index, Random random) {
+    }
 
-                  PriceTick tick = new PriceTick(symbol, bid, ask, volume, exchange, Instant.now());
-
-                  // Update state: new price for this symbol, advance to next symbol
-                  double[] updatedPrices = state.prices().clone();
-                  updatedPrices[idx] = newPrice;
-                  int nextIndex = (idx + 1) % symbols.size();
-
-                  return Optional.of(
-                      new VStream.Seed<>(
-                          tick, new FeedState(updatedPrices, nextIndex, state.random())));
-                }));
-  }
+    @Override
+    public VStream<PriceTick> ticks() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

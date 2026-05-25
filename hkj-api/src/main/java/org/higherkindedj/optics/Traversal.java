@@ -33,310 +33,225 @@ import org.higherkindedj.hkt.WitnessArity;
  */
 public interface Traversal<S, A> extends Optic<S, S, A, A> {
 
-  /**
-   * {@inheritDoc}
-   *
-   * <p>This is the core operation of a {@code Traversal}. It modifies all focused parts {@code A}
-   * within a structure {@code S} by applying a function that returns a value in an {@link
-   * Applicative} context {@code F}.
-   *
-   * <p>The {@link Applicative} instance is crucial as it defines how to combine the results of
-   * modifying multiple parts (e.g., fail-fast for {@code Optional}, accumulate for {@code
-   * Validated}, or run in parallel for a concurrent data type).
-   *
-   * @param <F> The witness type for the {@link Applicative} context.
-   * @param f The effectful function to apply to each focused part.
-   * @param source The whole structure to operate on.
-   * @param applicative The {@link Applicative} instance for the context {@code F}.
-   * @return The updated structure {@code S}, itself wrapped in the context {@code F}.
-   */
-  @Override
-  <F extends WitnessArity<TypeArity.Unary>> Kind<F, S> modifyF(
-      Function<A, Kind<F, A>> f, S source, Applicative<F> applicative);
+    /**
+     * {@inheritDoc}
+     *
+     * <p>This is the core operation of a {@code Traversal}. It modifies all focused parts {@code A}
+     * within a structure {@code S} by applying a function that returns a value in an {@link
+     * Applicative} context {@code F}.
+     *
+     * <p>The {@link Applicative} instance is crucial as it defines how to combine the results of
+     * modifying multiple parts (e.g., fail-fast for {@code Optional}, accumulate for {@code
+     * Validated}, or run in parallel for a concurrent data type).
+     *
+     * @param <F> The witness type for the {@link Applicative} context.
+     * @param f The effectful function to apply to each focused part.
+     * @param source The whole structure to operate on.
+     * @param applicative The {@link Applicative} instance for the context {@code F}.
+     * @return The updated structure {@code S}, itself wrapped in the context {@code F}.
+     */
+    @Override
+    <F extends WitnessArity<TypeArity.Unary>> Kind<F, S> modifyF(Function<A, Kind<F, A>> f, S source, Applicative<F> applicative);
 
-  /**
-   * Converts this {@code Traversal} to a read-only {@link Fold}.
-   *
-   * <p>This is always possible because a {@code Traversal} can be viewed as a read-only query that
-   * focuses on zero or more elements. The resulting {@code Fold} discards the modification
-   * capability and retains only the ability to extract and aggregate focused parts.
-   *
-   * <p>Example:
-   *
-   * <pre>{@code
-   * Traversal<Order, Product> itemsTraversal = OrderTraversals.items();
-   * Fold<Order, Product> itemsFold = itemsTraversal.asFold();
-   *
-   * // Now use Fold operations like getAll, foldMap, exists, etc.
-   * List<Product> products = itemsFold.getAll(order);
-   * boolean hasExpensive = itemsFold.exists(p -> p.price() > 100, order);
-   * }</pre>
-   *
-   * @return A {@link Fold} that represents this {@code Traversal} as a read-only optic.
-   */
-  default Fold<S, A> asFold() {
-    Traversal<S, A> self = this;
-    return new Fold<>() {
-      @Override
-      public <M> M foldMap(Monoid<M> monoid, Function<? super A, ? extends M> f, S source) {
-        // Use the Const applicative to accumulate monoidal values through modifyF.
-        // Each focused element A is mapped to M via f, and the Const applicative
-        // combines them using the monoid, discarding any structural modifications.
-        Applicative<ConstForFold.Witness<M>> constApp = ConstForFold.applicative(monoid);
-        Kind<ConstForFold.Witness<M>, S> result =
-            self.modifyF(a -> new ConstForFold<>(f.apply(a)), source, constApp);
-        return ConstForFold.narrow(result).value();
-      }
-    };
-  }
+    /**
+     * Converts this {@code Traversal} to a read-only {@link Fold}.
+     *
+     * <p>This is always possible because a {@code Traversal} can be viewed as a read-only query that
+     * focuses on zero or more elements. The resulting {@code Fold} discards the modification
+     * capability and retains only the ability to extract and aggregate focused parts.
+     *
+     * <p>Example:
+     *
+     * <pre>{@code
+     * Traversal<Order, Product> itemsTraversal = OrderTraversals.items();
+     * Fold<Order, Product> itemsFold = itemsTraversal.asFold();
+     *
+     * // Now use Fold operations like getAll, foldMap, exists, etc.
+     * List<Product> products = itemsFold.getAll(order);
+     * boolean hasExpensive = itemsFold.exists(p -> p.price() > 100, order);
+     * }</pre>
+     *
+     * @return A {@link Fold} that represents this {@code Traversal} as a read-only optic.
+     */
+    default Fold<S, A> asFold() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Composes this {@code Traversal<S, A>} with another {@code Traversal<A, B>} to create a new
-   * {@code Traversal<S, B>}.
-   *
-   * <p>This specialized overload is kept for convenience to ensure the result is correctly and
-   * conveniently typed as a {@code Traversal}. For example, composing a traversal for a {@code
-   * List<Team>} with one for a {@code List<Player>} results in a traversal for every {@code Player}
-   * in the nested structure.
-   *
-   * @param other The {@link Traversal} to compose with.
-   * @param <B> The type of the final focused parts.
-   * @return A new, composed {@link Traversal}.
-   */
-  default <B> Traversal<S, B> andThen(final Traversal<A, B> other) {
-    // Use the generic 'andThen' from the parent Optic interface
-    // and wrap the result back into the Traversal interface.
-    final Optic<S, S, B, B> composedOptic = Optic.super.andThen(other);
-    return new Traversal<>() {
-      @Override
-      public <F extends WitnessArity<TypeArity.Unary>> Kind<F, S> modifyF(
-          Function<B, Kind<F, B>> f, S s, Applicative<F> app) {
-        // The actual composition logic is handled by the parent.
-        return composedOptic.modifyF(f, s, app);
-      }
-    };
-  }
+    /**
+     * Composes this {@code Traversal<S, A>} with another {@code Traversal<A, B>} to create a new
+     * {@code Traversal<S, B>}.
+     *
+     * <p>This specialized overload is kept for convenience to ensure the result is correctly and
+     * conveniently typed as a {@code Traversal}. For example, composing a traversal for a {@code
+     * List<Team>} with one for a {@code List<Player>} results in a traversal for every {@code Player}
+     * in the nested structure.
+     *
+     * @param other The {@link Traversal} to compose with.
+     * @param <B> The type of the final focused parts.
+     * @return A new, composed {@link Traversal}.
+     */
+    default <B> Traversal<S, B> andThen(final Traversal<A, B> other) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Composes this {@code Traversal<S, A>} with a {@code Lens<A, B>} to create a new {@code
-   * Traversal<S, B>}.
-   *
-   * <p>This allows you to focus through multiple elements (via the Traversal) and then zoom into a
-   * specific field of each element (via the Lens).
-   *
-   * <p>Example: If you have a traversal for all users in a list and a lens for the "email" field,
-   * composing them gives you a traversal for all email addresses.
-   *
-   * @param lens The {@link Lens} to compose with.
-   * @param <B> The type of the final focused parts.
-   * @return A new, composed {@link Traversal}.
-   */
-  default <B> Traversal<S, B> andThen(final Lens<A, B> lens) {
-    Traversal<S, A> self = this;
-    return new Traversal<>() {
-      @Override
-      public <F extends WitnessArity<TypeArity.Unary>> Kind<F, S> modifyF(
-          Function<B, Kind<F, B>> f, S source, Applicative<F> app) {
-        // For each A in the traversal, use the lens to modify B
-        return self.modifyF(
-            a -> {
-              B b = lens.get(a);
-              Kind<F, B> modifiedB = f.apply(b);
-              return app.map(newB -> lens.set(newB, a), modifiedB);
-            },
-            source,
-            app);
-      }
-    };
-  }
+    /**
+     * Composes this {@code Traversal<S, A>} with a {@code Lens<A, B>} to create a new {@code
+     * Traversal<S, B>}.
+     *
+     * <p>This allows you to focus through multiple elements (via the Traversal) and then zoom into a
+     * specific field of each element (via the Lens).
+     *
+     * <p>Example: If you have a traversal for all users in a list and a lens for the "email" field,
+     * composing them gives you a traversal for all email addresses.
+     *
+     * @param lens The {@link Lens} to compose with.
+     * @param <B> The type of the final focused parts.
+     * @return A new, composed {@link Traversal}.
+     */
+    default <B> Traversal<S, B> andThen(final Lens<A, B> lens) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Composes this {@code Traversal<S, A>} with a {@code Prism<A, B>} to create a new {@code
-   * Traversal<S, B>}.
-   *
-   * <p>This allows you to focus through multiple elements (via the Traversal) and then optionally
-   * zoom into each element (via the Prism). Elements where the prism doesn't match are left
-   * unchanged.
-   *
-   * <p>Example: If you have a traversal for all JSON values and a prism for string values,
-   * composing them gives you a traversal for all string values in the JSON.
-   *
-   * @param prism The {@link Prism} to compose with.
-   * @param <B> The type of the final focused parts.
-   * @return A new, composed {@link Traversal}.
-   */
-  default <B> Traversal<S, B> andThen(final Prism<A, B> prism) {
-    Traversal<S, A> self = this;
-    return new Traversal<>() {
-      @Override
-      public <F extends WitnessArity<TypeArity.Unary>> Kind<F, S> modifyF(
-          Function<B, Kind<F, B>> f, S source, Applicative<F> app) {
-        // For each A in the traversal, use the prism to optionally modify B
-        return self.modifyF(
-            a -> prism.getOptional(a).map(b -> app.map(prism::build, f.apply(b))).orElse(app.of(a)),
-            source,
-            app);
-      }
-    };
-  }
+    /**
+     * Composes this {@code Traversal<S, A>} with a {@code Prism<A, B>} to create a new {@code
+     * Traversal<S, B>}.
+     *
+     * <p>This allows you to focus through multiple elements (via the Traversal) and then optionally
+     * zoom into each element (via the Prism). Elements where the prism doesn't match are left
+     * unchanged.
+     *
+     * <p>Example: If you have a traversal for all JSON values and a prism for string values,
+     * composing them gives you a traversal for all string values in the JSON.
+     *
+     * @param prism The {@link Prism} to compose with.
+     * @param <B> The type of the final focused parts.
+     * @return A new, composed {@link Traversal}.
+     */
+    default <B> Traversal<S, B> andThen(final Prism<A, B> prism) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Branch between two modification strategies based on a predicate. Both branches are visible
-   * upfront, allowing selective implementations to potentially execute them in parallel.
-   *
-   * <p>Example:
-   *
-   * <pre>{@code
-   * // Different validation for different user types
-   * Kind<F, Users> result = traversal.branch(
-   *   User::isAdmin,
-   *   user -> strictAdminValidation(user),
-   *   user -> basicUserValidation(user),
-   *   users,
-   *   selective
-   * );
-   * }</pre>
-   *
-   * @param predicate Predicate to determine which branch to take
-   * @param thenBranch Function to apply when predicate is true
-   * @param elseBranch Function to apply when predicate is false
-   * @param source The source structure
-   * @param selective The Selective instance
-   * @param <F> The effect type
-   * @return The modified structure wrapped in the effect
-   */
-  default <F extends WitnessArity<TypeArity.Unary>> Kind<F, S> branch(
-      Predicate<? super A> predicate,
-      Function<A, Kind<F, A>> thenBranch,
-      Function<A, Kind<F, A>> elseBranch,
-      S source,
-      Selective<F> selective) {
-    return this.modifyF(
-        a ->
-            selective.ifS(
-                selective.of(predicate.test(a)), thenBranch.apply(a), elseBranch.apply(a)),
-        source,
-        selective);
-  }
+    /**
+     * Branch between two modification strategies based on a predicate. Both branches are visible
+     * upfront, allowing selective implementations to potentially execute them in parallel.
+     *
+     * <p>Example:
+     *
+     * <pre>{@code
+     * // Different validation for different user types
+     * Kind<F, Users> result = traversal.branch(
+     *   User::isAdmin,
+     *   user -> strictAdminValidation(user),
+     *   user -> basicUserValidation(user),
+     *   users,
+     *   selective
+     * );
+     * }</pre>
+     *
+     * @param predicate Predicate to determine which branch to take
+     * @param thenBranch Function to apply when predicate is true
+     * @param elseBranch Function to apply when predicate is false
+     * @param source The source structure
+     * @param selective The Selective instance
+     * @param <F> The effect type
+     * @return The modified structure wrapped in the effect
+     */
+    default <F extends WitnessArity<TypeArity.Unary>> Kind<F, S> branch(Predicate<? super A> predicate, Function<A, Kind<F, A>> thenBranch, Function<A, Kind<F, A>> elseBranch, S source, Selective<F> selective) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Apply a function only when a condition is met, otherwise leave unchanged. This is useful for
-   * performing effects only on elements that need processing.
-   *
-   * <p>Example:
-   *
-   * <pre>{@code
-   * // Only update stale cache entries
-   * Kind<F, Cache> result = traversal.modifyWhen(
-   *   CacheEntry::isStale,
-   *   entry -> refreshFromSource(entry),
-   *   cache,
-   *   selective
-   * );
-   * }</pre>
-   *
-   * @param shouldModify Predicate to test if modification is needed
-   * @param f Function to apply when modification is needed
-   * @param source The source structure
-   * @param selective The Selective instance
-   * @param <F> The effect type
-   * @return The modified structure wrapped in the effect
-   */
-  default <F extends WitnessArity<TypeArity.Unary>> Kind<F, S> modifyWhen(
-      Predicate<? super A> shouldModify,
-      Function<A, Kind<F, A>> f,
-      S source,
-      Selective<F> selective) {
-    return this.modifyF(
-        a -> selective.ifS(selective.of(shouldModify.test(a)), f.apply(a), selective.of(a)),
-        source,
-        selective);
-  }
+    /**
+     * Apply a function only when a condition is met, otherwise leave unchanged. This is useful for
+     * performing effects only on elements that need processing.
+     *
+     * <p>Example:
+     *
+     * <pre>{@code
+     * // Only update stale cache entries
+     * Kind<F, Cache> result = traversal.modifyWhen(
+     *   CacheEntry::isStale,
+     *   entry -> refreshFromSource(entry),
+     *   cache,
+     *   selective
+     * );
+     * }</pre>
+     *
+     * @param shouldModify Predicate to test if modification is needed
+     * @param f Function to apply when modification is needed
+     * @param source The source structure
+     * @param selective The Selective instance
+     * @param <F> The effect type
+     * @return The modified structure wrapped in the effect
+     */
+    default <F extends WitnessArity<TypeArity.Unary>> Kind<F, S> modifyWhen(Predicate<? super A> shouldModify, Function<A, Kind<F, A>> f, S source, Selective<F> selective) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a new {@code Traversal} that only focuses on elements matching the given predicate.
-   *
-   * <p>This is a composable filtering combinator that enables declarative filtering as part of
-   * optic composition. Elements that don't match the predicate are preserved unchanged in the
-   * structure during modifications, but are excluded from queries like {@code getAll}.
-   *
-   * <p>Example:
-   *
-   * <pre>{@code
-   * // Create a traversal for all users
-   * Traversal<List<User>, User> allUsers = Traversals.forList();
-   *
-   * // Filter to only active users
-   * Traversal<List<User>, User> activeUsers = allUsers.filtered(User::isActive);
-   *
-   * // Compose further to get their names
-   * Traversal<List<User>, String> activeUserNames =
-   *     activeUsers.andThen(userNameLens.asTraversal());
-   *
-   * // Usage:
-   * List<String> names = Traversals.getAll(activeUserNames, users);
-   * // Returns only names of active users
-   *
-   * List<User> modified = Traversals.modify(activeUsers, User::grantBonus, users);
-   * // Grants bonus only to active users, inactive users preserved unchanged
-   * }</pre>
-   *
-   * @param predicate The predicate to filter elements by
-   * @return A new {@code Traversal} that only focuses on matching elements
-   */
-  default Traversal<S, A> filtered(Predicate<? super A> predicate) {
-    Traversal<S, A> self = this;
-    return new Traversal<>() {
-      @Override
-      public <F extends WitnessArity<TypeArity.Unary>> Kind<F, S> modifyF(
-          Function<A, Kind<F, A>> f, S source, Applicative<F> applicative) {
-        // Apply f only to matching elements, leave others unchanged
-        Function<A, Kind<F, A>> conditionalF =
-            a -> predicate.test(a) ? f.apply(a) : applicative.of(a);
-        return self.modifyF(conditionalF, source, applicative);
-      }
-    };
-  }
+    /**
+     * Creates a new {@code Traversal} that only focuses on elements matching the given predicate.
+     *
+     * <p>This is a composable filtering combinator that enables declarative filtering as part of
+     * optic composition. Elements that don't match the predicate are preserved unchanged in the
+     * structure during modifications, but are excluded from queries like {@code getAll}.
+     *
+     * <p>Example:
+     *
+     * <pre>{@code
+     * // Create a traversal for all users
+     * Traversal<List<User>, User> allUsers = Traversals.forList();
+     *
+     * // Filter to only active users
+     * Traversal<List<User>, User> activeUsers = allUsers.filtered(User::isActive);
+     *
+     * // Compose further to get their names
+     * Traversal<List<User>, String> activeUserNames =
+     *     activeUsers.andThen(userNameLens.asTraversal());
+     *
+     * // Usage:
+     * List<String> names = Traversals.getAll(activeUserNames, users);
+     * // Returns only names of active users
+     *
+     * List<User> modified = Traversals.modify(activeUsers, User::grantBonus, users);
+     * // Grants bonus only to active users, inactive users preserved unchanged
+     * }</pre>
+     *
+     * @param predicate The predicate to filter elements by
+     * @return A new {@code Traversal} that only focuses on matching elements
+     */
+    default Traversal<S, A> filtered(Predicate<? super A> predicate) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a new {@code Traversal} that only focuses on elements where a nested query satisfies
-   * the given predicate.
-   *
-   * <p>This advanced filtering combinator allows filtering based on properties accessed through
-   * another optic (Fold), enabling queries like "all users who have at least one expensive order".
-   *
-   * <p>Example:
-   *
-   * <pre>{@code
-   * // Traversal for all users
-   * Traversal<List<User>, User> allUsers = Traversals.forList();
-   *
-   * // Fold from User to their order totals
-   * Fold<User, Integer> orderTotals = userOrdersFold.andThen(orderTotalFold);
-   *
-   * // Filter to users who have any order over $100
-   * Traversal<List<User>, User> bigSpenders =
-   *     allUsers.filterBy(orderTotals, total -> total > 100);
-   *
-   * // Get all big spenders
-   * List<User> spenders = Traversals.getAll(bigSpenders, users);
-   * }</pre>
-   *
-   * @param query The {@link Fold} to query each focused element
-   * @param predicate The predicate to test the queried values
-   * @param <B> The type of values queried by the Fold
-   * @return A new {@code Traversal} that only focuses on elements where the query matches
-   */
-  default <B> Traversal<S, A> filterBy(Fold<A, B> query, Predicate<? super B> predicate) {
-    Traversal<S, A> self = this;
-    return new Traversal<>() {
-      @Override
-      public <F extends WitnessArity<TypeArity.Unary>> Kind<F, S> modifyF(
-          Function<A, Kind<F, A>> f, S source, Applicative<F> applicative) {
-        Function<A, Kind<F, A>> conditionalF =
-            a -> query.exists(predicate, a) ? f.apply(a) : applicative.of(a);
-        return self.modifyF(conditionalF, source, applicative);
-      }
-    };
-  }
+    /**
+     * Creates a new {@code Traversal} that only focuses on elements where a nested query satisfies
+     * the given predicate.
+     *
+     * <p>This advanced filtering combinator allows filtering based on properties accessed through
+     * another optic (Fold), enabling queries like "all users who have at least one expensive order".
+     *
+     * <p>Example:
+     *
+     * <pre>{@code
+     * // Traversal for all users
+     * Traversal<List<User>, User> allUsers = Traversals.forList();
+     *
+     * // Fold from User to their order totals
+     * Fold<User, Integer> orderTotals = userOrdersFold.andThen(orderTotalFold);
+     *
+     * // Filter to users who have any order over $100
+     * Traversal<List<User>, User> bigSpenders =
+     *     allUsers.filterBy(orderTotals, total -> total > 100);
+     *
+     * // Get all big spenders
+     * List<User> spenders = Traversals.getAll(bigSpenders, users);
+     * }</pre>
+     *
+     * @param query The {@link Fold} to query each focused element
+     * @param predicate The predicate to test the queried values
+     * @param <B> The type of values queried by the Fold
+     * @return A new {@code Traversal} that only focuses on elements where the query matches
+     */
+    default <B> Traversal<S, A> filterBy(Fold<A, B> query, Predicate<? super B> predicate) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

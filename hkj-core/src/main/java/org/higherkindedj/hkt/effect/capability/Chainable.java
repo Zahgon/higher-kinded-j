@@ -53,78 +53,62 @@ import org.higherkindedj.hkt.effect.WriterPath;
  *
  * @param <A> the type of the contained value
  */
-public sealed interface Chainable<A> extends Combinable<A>
-    permits Recoverable,
-        Effectful,
-        ValidationPath,
-        IdPath,
-        OptionalPath,
-        GenericPath,
-        ReaderPath,
-        WithStatePath,
-        WriterPath,
-        LazyPath,
-        ListPath,
-        NonDetPath,
-        StreamPath,
-        VStreamPath,
-        TrampolinePath,
-        FreePath {
+public sealed interface Chainable<A> extends Combinable<A> permits Recoverable, Effectful, ValidationPath, IdPath, OptionalPath, GenericPath, ReaderPath, WithStatePath, WriterPath, LazyPath, ListPath, NonDetPath, StreamPath, VStreamPath, TrampolinePath, FreePath {
 
-  /**
-   * Chains a dependent computation that returns a path.
-   *
-   * <p>This is the core monadic bind operation, named {@code via} to match the Focus DSL's
-   * vocabulary. The function is applied to the contained value, and the resulting path becomes the
-   * new path.
-   *
-   * <p>Example:
-   *
-   * <pre>{@code
-   * MaybePath<User> user = Path.maybe(userId)
-   *     .via(id -> userRepo.findById(id))      // Returns MaybePath<User>
-   *     .via(user -> validateUser(user));      // Returns MaybePath<User>
-   * }</pre>
-   *
-   * @param mapper the function to apply, returning a new path; must not be null
-   * @param <B> the type of the value in the returned path
-   * @return the path returned by the function, or an error/empty path if this is an error/empty
-   * @throws NullPointerException if mapper is null or returns null
-   */
-  <B> Chainable<B> via(Function<? super A, ? extends Chainable<B>> mapper);
+    /**
+     * Chains a dependent computation that returns a path.
+     *
+     * <p>This is the core monadic bind operation, named {@code via} to match the Focus DSL's
+     * vocabulary. The function is applied to the contained value, and the resulting path becomes the
+     * new path.
+     *
+     * <p>Example:
+     *
+     * <pre>{@code
+     * MaybePath<User> user = Path.maybe(userId)
+     *     .via(id -> userRepo.findById(id))      // Returns MaybePath<User>
+     *     .via(user -> validateUser(user));      // Returns MaybePath<User>
+     * }</pre>
+     *
+     * @param mapper the function to apply, returning a new path; must not be null
+     * @param <B> the type of the value in the returned path
+     * @return the path returned by the function, or an error/empty path if this is an error/empty
+     * @throws NullPointerException if mapper is null or returns null
+     */
+    <B> Chainable<B> via(Function<? super A, ? extends Chainable<B>> mapper);
 
-  /**
-   * Chains a dependent computation that returns a path.
-   *
-   * <p>This is an alias for {@link #via(Function)} that matches traditional monad terminology.
-   *
-   * @param mapper the function to apply, returning a new path; must not be null
-   * @param <B> the type of the value in the returned path
-   * @return the path returned by the function, or an error/empty path if this is an error/empty
-   * @throws NullPointerException if mapper is null or returns null
-   */
-  default <B> Chainable<B> flatMap(Function<? super A, ? extends Chainable<B>> mapper) {
-    return via(mapper);
-  }
+    /**
+     * Chains a dependent computation that returns a path.
+     *
+     * <p>This is an alias for {@link #via(Function)} that matches traditional monad terminology.
+     *
+     * @param mapper the function to apply, returning a new path; must not be null
+     * @param <B> the type of the value in the returned path
+     * @return the path returned by the function, or an error/empty path if this is an error/empty
+     * @throws NullPointerException if mapper is null or returns null
+     */
+    default <B> Chainable<B> flatMap(Function<? super A, ? extends Chainable<B>> mapper) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Sequences an independent computation, discarding this path's result.
-   *
-   * <p>This operation is useful when you need to perform an effect but don't care about its result,
-   * only about sequencing it after this computation.
-   *
-   * <p>Example:
-   *
-   * <pre>{@code
-   * Path.maybe(userId)
-   *     .via(id -> userRepo.findById(id))
-   *     .then(() -> Path.maybe(logService.recordAccess()));  // Log access, discard result
-   * }</pre>
-   *
-   * @param supplier provides the next path to sequence; must not be null
-   * @param <B> the type of the value in the returned path
-   * @return the path from the supplier
-   * @throws NullPointerException if supplier is null or returns null
-   */
-  <B> Chainable<B> then(Supplier<? extends Chainable<B>> supplier);
+    /**
+     * Sequences an independent computation, discarding this path's result.
+     *
+     * <p>This operation is useful when you need to perform an effect but don't care about its result,
+     * only about sequencing it after this computation.
+     *
+     * <p>Example:
+     *
+     * <pre>{@code
+     * Path.maybe(userId)
+     *     .via(id -> userRepo.findById(id))
+     *     .then(() -> Path.maybe(logService.recordAccess()));  // Log access, discard result
+     * }</pre>
+     *
+     * @param supplier provides the next path to sequence; must not be null
+     * @param <B> the type of the value in the returned path
+     * @return the path from the supplier
+     * @throws NullPointerException if supplier is null or returns null
+     */
+    <B> Chainable<B> then(Supplier<? extends Chainable<B>> supplier);
 }

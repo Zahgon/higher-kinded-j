@@ -46,164 +46,158 @@ import org.higherkindedj.hkt.Monoid;
  */
 public interface Getter<S, A> extends Fold<S, A> {
 
-  /**
-   * Gets the focused value from the source structure.
-   *
-   * <p>This is the core operation of a Getter. Unlike {@link Lens#get}, this operation is
-   * inherently read-only and doesn't imply any ability to set the value back.
-   *
-   * @param source The source structure.
-   * @return The focused value.
-   */
-  A get(S source);
+    /**
+     * Gets the focused value from the source structure.
+     *
+     * <p>This is the core operation of a Getter. Unlike {@link Lens#get}, this operation is
+     * inherently read-only and doesn't imply any ability to set the value back.
+     *
+     * @param source The source structure.
+     * @return The focused value.
+     */
+    A get(S source);
 
-  /**
-   * {@inheritDoc}
-   *
-   * <p>For a Getter, this applies the function to the single focused element and returns the
-   * result. Since a Getter always focuses on exactly one element, the monoid's {@code combine} is
-   * never called.
-   */
-  @Override
-  default <M> M foldMap(Monoid<M> monoid, Function<? super A, ? extends M> f, S source) {
-    return f.apply(get(source));
-  }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>For a Getter, this applies the function to the single focused element and returns the
+     * result. Since a Getter always focuses on exactly one element, the monoid's {@code combine} is
+     * never called.
+     */
+    @Override
+    default <M> M foldMap(Monoid<M> monoid, Function<? super A, ? extends M> f, S source) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Composes this {@code Getter<S, A>} with another {@code Getter<A, B>} to create a new {@code
-   * Getter<S, B>}.
-   *
-   * <p>Example:
-   *
-   * <pre>{@code
-   * Getter<Person, Address> addressGetter = ...;
-   * Getter<Address, String> cityGetter = ...;
-   * Getter<Person, String> personCity = addressGetter.andThen(cityGetter);
-   * }</pre>
-   *
-   * @param other The Getter to compose with.
-   * @param <B> The type of the final focused value.
-   * @return A new composed Getter.
-   */
-  default <B> Getter<S, B> andThen(Getter<A, B> other) {
-    Getter<S, A> self = this;
-    return new Getter<>() {
-      @Override
-      public B get(S source) {
-        return other.get(self.get(source));
-      }
-    };
-  }
+    /**
+     * Composes this {@code Getter<S, A>} with another {@code Getter<A, B>} to create a new {@code
+     * Getter<S, B>}.
+     *
+     * <p>Example:
+     *
+     * <pre>{@code
+     * Getter<Person, Address> addressGetter = ...;
+     * Getter<Address, String> cityGetter = ...;
+     * Getter<Person, String> personCity = addressGetter.andThen(cityGetter);
+     * }</pre>
+     *
+     * @param other The Getter to compose with.
+     * @param <B> The type of the final focused value.
+     * @return A new composed Getter.
+     */
+    default <B> Getter<S, B> andThen(Getter<A, B> other) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Converts this Getter to a {@link Fold}.
-   *
-   * <p>This is always valid since a Getter is a Fold that focuses on exactly one element.
-   *
-   * @return A Fold view of this Getter.
-   */
-  default Fold<S, A> asFold() {
-    return this;
-  }
+    /**
+     * Converts this Getter to a {@link Fold}.
+     *
+     * <p>This is always valid since a Getter is a Fold that focuses on exactly one element.
+     *
+     * @return A Fold view of this Getter.
+     */
+    default Fold<S, A> asFold() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a Getter from a function.
-   *
-   * <p>This is the primary factory method for creating Getters. The provided function defines how
-   * to extract the focused value from the source structure.
-   *
-   * <p>Example:
-   *
-   * <pre>{@code
-   * Getter<String, Integer> stringLength = Getter.of(String::length);
-   * Getter<Person, String> firstName = Getter.of(Person::firstName);
-   * }</pre>
-   *
-   * @param getter The function that extracts the focused value.
-   * @param <S> The source type.
-   * @param <A> The target type.
-   * @return A new Getter.
-   */
-  static <S, A> Getter<S, A> of(Function<S, A> getter) {
-    return getter::apply;
-  }
+    /**
+     * Creates a Getter from a function.
+     *
+     * <p>This is the primary factory method for creating Getters. The provided function defines how
+     * to extract the focused value from the source structure.
+     *
+     * <p>Example:
+     *
+     * <pre>{@code
+     * Getter<String, Integer> stringLength = Getter.of(String::length);
+     * Getter<Person, String> firstName = Getter.of(Person::firstName);
+     * }</pre>
+     *
+     * @param getter The function that extracts the focused value.
+     * @param <S> The source type.
+     * @param <A> The target type.
+     * @return A new Getter.
+     */
+    static <S, A> Getter<S, A> of(Function<S, A> getter) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a Getter from a function.
-   *
-   * <p>This is an alias for {@link #of(Function)} that provides a more descriptive name,
-   * emphasizing the "extraction" aspect of a Getter.
-   *
-   * <p>Example:
-   *
-   * <pre>{@code
-   * Getter<List<String>, Integer> listSize = Getter.to(List::size);
-   * }</pre>
-   *
-   * @param getter The function that extracts the focused value.
-   * @param <S> The source type.
-   * @param <A> The target type.
-   * @return A new Getter.
-   */
-  static <S, A> Getter<S, A> to(Function<S, A> getter) {
-    return of(getter);
-  }
+    /**
+     * Creates a Getter from a function.
+     *
+     * <p>This is an alias for {@link #of(Function)} that provides a more descriptive name,
+     * emphasizing the "extraction" aspect of a Getter.
+     *
+     * <p>Example:
+     *
+     * <pre>{@code
+     * Getter<List<String>, Integer> listSize = Getter.to(List::size);
+     * }</pre>
+     *
+     * @param getter The function that extracts the focused value.
+     * @param <S> The source type.
+     * @param <A> The target type.
+     * @return A new Getter.
+     */
+    static <S, A> Getter<S, A> to(Function<S, A> getter) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a Getter that always returns the same constant value, ignoring the source.
-   *
-   * <p>Example:
-   *
-   * <pre>{@code
-   * Getter<String, Integer> always42 = Getter.constant(42);
-   * always42.get("anything"); // 42
-   * }</pre>
-   *
-   * @param value The constant value to return.
-   * @param <S> The source type (ignored).
-   * @param <A> The target type.
-   * @return A Getter that always returns the given value.
-   */
-  static <S, A> Getter<S, A> constant(A value) {
-    return source -> value;
-  }
+    /**
+     * Creates a Getter that always returns the same constant value, ignoring the source.
+     *
+     * <p>Example:
+     *
+     * <pre>{@code
+     * Getter<String, Integer> always42 = Getter.constant(42);
+     * always42.get("anything"); // 42
+     * }</pre>
+     *
+     * @param value The constant value to return.
+     * @param <S> The source type (ignored).
+     * @param <A> The target type.
+     * @return A Getter that always returns the given value.
+     */
+    static <S, A> Getter<S, A> constant(A value) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a Getter that returns the source itself (identity getter).
-   *
-   * <p>Example:
-   *
-   * <pre>{@code
-   * Getter<String, String> id = Getter.identity();
-   * id.get("hello"); // "hello"
-   * }</pre>
-   *
-   * @param <S> The source and target type.
-   * @return An identity Getter.
-   */
-  static <S> Getter<S, S> identity() {
-    return source -> source;
-  }
+    /**
+     * Creates a Getter that returns the source itself (identity getter).
+     *
+     * <p>Example:
+     *
+     * <pre>{@code
+     * Getter<String, String> id = Getter.identity();
+     * id.get("hello"); // "hello"
+     * }</pre>
+     *
+     * @param <S> The source and target type.
+     * @return An identity Getter.
+     */
+    static <S> Getter<S, S> identity() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a Getter for the first element of a pair.
-   *
-   * @param <A> The type of the first element.
-   * @param <B> The type of the second element.
-   * @return A Getter that extracts the first element.
-   */
-  static <A, B> Getter<Map.Entry<A, B>, A> first() {
-    return Map.Entry::getKey;
-  }
+    /**
+     * Creates a Getter for the first element of a pair.
+     *
+     * @param <A> The type of the first element.
+     * @param <B> The type of the second element.
+     * @return A Getter that extracts the first element.
+     */
+    static <A, B> Getter<Map.Entry<A, B>, A> first() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a Getter for the second element of a pair.
-   *
-   * @param <A> The type of the first element.
-   * @param <B> The type of the second element.
-   * @return A Getter that extracts the second element.
-   */
-  static <A, B> Getter<Map.Entry<A, B>, B> second() {
-    return Map.Entry::getValue;
-  }
+    /**
+     * Creates a Getter for the second element of a pair.
+     *
+     * @param <A> The type of the first element.
+     * @param <B> The type of the second element.
+     * @return A Getter that extracts the second element.
+     */
+    static <A, B> Getter<Map.Entry<A, B>, B> second() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

@@ -4,7 +4,6 @@ package org.higherkindedj.hkt.id;
 
 import static org.higherkindedj.hkt.id.IdKindHelper.ID;
 import static org.higherkindedj.hkt.util.validation.Operation.*;
-
 import java.util.function.Function;
 import org.higherkindedj.hkt.Choice;
 import org.higherkindedj.hkt.Kind;
@@ -39,193 +38,123 @@ import org.higherkindedj.hkt.util.validation.Validation;
  */
 public final class IdSelective extends IdMonad implements Selective<IdKind.Witness> {
 
-  private static final IdSelective INSTANCE = new IdSelective();
+    private static final IdSelective INSTANCE = new IdSelective();
 
-  /** Private constructor to enforce singleton pattern. */
-  private IdSelective() {
-    super();
-  }
-
-  /**
-   * Returns the singleton instance of {@link IdSelective}.
-   *
-   * @return The singleton {@code IdSelective} instance.
-   */
-  public static IdSelective instance() {
-    return INSTANCE;
-  }
-
-  /**
-   * The core selective operation for Id.
-   *
-   * <p>Since Id has no effects, this eagerly evaluates the choice. If the choice contains a Left
-   * value, the function is applied. If it contains a Right value, that value is returned directly.
-   *
-   * <p>Behavior:
-   *
-   * <ul>
-   *   <li>If choice is {@code Right(b)}: Returns {@code Id(b)}, function is not evaluated.
-   *   <li>If choice is {@code Left(a)}: Applies the function to {@code a} and returns {@code
-   *       Id(f(a))}.
-   * </ul>
-   *
-   * @param fab A non-null {@link Kind Kind&lt;IdKind.Witness, Choice&lt;A, B&gt;&gt;} containing
-   *     the choice
-   * @param ff A non-null {@link Kind Kind&lt;IdKind.Witness, Function&lt;A, B&gt;&gt;} containing
-   *     the function
-   * @param <A> The input type of the function (the type inside Left)
-   * @param <B> The output type and the type inside Right
-   * @return A non-null {@link Kind Kind&lt;IdKind.Witness, B&gt;} with the result
-   * @throws NullPointerException if {@code fab} or {@code ff} is null, or if the unwrapped values
-   *     are null.
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code fab} or {@code ff} cannot
-   *     be unwrapped.
-   */
-  @Override
-  public <A, B> Kind<IdKind.Witness, B> select(
-      Kind<IdKind.Witness, Choice<A, B>> fab, Kind<IdKind.Witness, Function<A, B>> ff) {
-
-    Validation.kind().requireNonNull(fab, SELECT, "choice");
-    Validation.kind().requireNonNull(ff, SELECT, "function");
-
-    Choice<A, B> choice = ID.narrow(fab).value();
-    Function<A, B> function = ID.narrow(ff).value();
-
-    Validation.function().require(choice, "choice", SELECT);
-    Validation.function().require(function, "function", SELECT);
-
-    // If choice is Right(b), we already have our value
-    if (choice.isRight()) {
-      return ID.widen(Id.of(choice.getRight()));
+    /**
+     * Private constructor to enforce singleton pattern.
+     */
+    private IdSelective() {
+        super();
     }
 
-    // Choice is Left(a), so apply the function
-    A value = choice.getLeft();
-    B result = function.apply(value);
-
-    return ID.widen(Id.of(result));
-  }
-
-  /**
-   * Selective branching for Id.
-   *
-   * <p>Eagerly evaluates the choice and applies the appropriate handler.
-   *
-   * @param fab A {@link Kind} representing {@code Id<Choice<A, B>>}. Must not be null.
-   * @param fl A {@link Kind} representing {@code Id<Function<A, C>>} for the Left case. Must not be
-   *     null.
-   * @param fr A {@link Kind} representing {@code Id<Function<B, C>>} for the Right case. Must not
-   *     be null.
-   * @param <A> The type inside {@code Left} of the Choice.
-   * @param <B> The type inside {@code Right} of the Choice.
-   * @param <C> The result type.
-   * @return A {@link Kind} representing {@code Id<C>}. Never null.
-   * @throws NullPointerException if any parameter is null, or if unwrapped values are null.
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if parameters cannot be unwrapped.
-   */
-  @Override
-  public <A, B, C> Kind<IdKind.Witness, C> branch(
-      Kind<IdKind.Witness, Choice<A, B>> fab,
-      Kind<IdKind.Witness, Function<A, C>> fl,
-      Kind<IdKind.Witness, Function<B, C>> fr) {
-
-    Validation.kind().requireNonNull(fab, BRANCH, "choice");
-    Validation.kind().requireNonNull(fl, BRANCH, "leftHandler");
-    Validation.kind().requireNonNull(fr, BRANCH, "rightHandler");
-
-    Choice<A, B> choice = ID.narrow(fab).value();
-    Validation.function().require(choice, "choice", BRANCH);
-
-    if (choice.isLeft()) {
-      // Use left handler
-      Function<A, C> leftFunction = ID.narrow(fl).value();
-      Validation.function().require(leftFunction, "leftHandler", BRANCH);
-      C result = leftFunction.apply(choice.getLeft());
-      return ID.widen(Id.of(result));
-    } else {
-      // Use right handler
-      Function<B, C> rightFunction = ID.narrow(fr).value();
-      Validation.function().require(rightFunction, "rightHandler", BRANCH);
-      C result = rightFunction.apply(choice.getRight());
-      return ID.widen(Id.of(result));
+    /**
+     * Returns the singleton instance of {@link IdSelective}.
+     *
+     * @return The singleton {@code IdSelective} instance.
+     */
+    public static IdSelective instance() {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-  }
 
-  /**
-   * Conditionally executes a Unit-returning effect based on a boolean condition.
-   *
-   * <p>Eagerly evaluates the condition. If true, validates and returns the effect's Unit result. If
-   * false, returns Unit.INSTANCE without evaluating the effect.
-   *
-   * <p>Key improvement: Returns {@code Id.of(Unit.INSTANCE)} instead of {@code Id.of(null)}, making
-   * the "no-op" case explicit and type-safe.
-   *
-   * <p><b>Validation:</b> When the condition is true, the Unit value inside the effect is validated
-   * to ensure it's not null. When the condition is false, the effect is not evaluated or validated.
-   *
-   * @param fcond A {@link Kind} representing {@code Id<Boolean>}. Must not be null.
-   * @param fa A {@link Kind} representing {@code Id<Unit>} the effect to execute if condition is
-   *     true. Must not be null, and the Unit value must not be null if the condition is true.
-   * @return A {@link Kind} representing {@code Id<Unit>}. Never null.
-   * @throws NullPointerException if any parameter is null, or if unwrapped values are null when
-   *     accessed.
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if parameters cannot be unwrapped.
-   */
-  @Override
-  public Kind<IdKind.Witness, Unit> whenS(
-      Kind<IdKind.Witness, Boolean> fcond, Kind<IdKind.Witness, Unit> fa) {
-
-    Validation.kind().requireNonNull(fcond, WHEN_S, "condition");
-    Validation.kind().requireNonNull(fa, WHEN_S, "effect");
-
-    Boolean condition = ID.narrow(fcond).value();
-    Validation.function().require(condition, "condition", WHEN_S);
-
-    if (condition) {
-      // Execute and return the effect - but validate its Unit value first
-      Unit unit = ID.narrow(fa).value();
-      Validation.function().require(unit, "effect", WHEN_S);
-      return fa;
-    } else {
-      // Condition is false, return Unit wrapped in Id (not null!)
-      return ID.widen(Id.of(Unit.INSTANCE));
+    /**
+     * The core selective operation for Id.
+     *
+     * <p>Since Id has no effects, this eagerly evaluates the choice. If the choice contains a Left
+     * value, the function is applied. If it contains a Right value, that value is returned directly.
+     *
+     * <p>Behavior:
+     *
+     * <ul>
+     *   <li>If choice is {@code Right(b)}: Returns {@code Id(b)}, function is not evaluated.
+     *   <li>If choice is {@code Left(a)}: Applies the function to {@code a} and returns {@code
+     *       Id(f(a))}.
+     * </ul>
+     *
+     * @param fab A non-null {@link Kind Kind&lt;IdKind.Witness, Choice&lt;A, B&gt;&gt;} containing
+     *     the choice
+     * @param ff A non-null {@link Kind Kind&lt;IdKind.Witness, Function&lt;A, B&gt;&gt;} containing
+     *     the function
+     * @param <A> The input type of the function (the type inside Left)
+     * @param <B> The output type and the type inside Right
+     * @return A non-null {@link Kind Kind&lt;IdKind.Witness, B&gt;} with the result
+     * @throws NullPointerException if {@code fab} or {@code ff} is null, or if the unwrapped values
+     *     are null.
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code fab} or {@code ff} cannot
+     *     be unwrapped.
+     */
+    @Override
+    public <A, B> Kind<IdKind.Witness, B> select(Kind<IdKind.Witness, Choice<A, B>> fab, Kind<IdKind.Witness, Function<A, B>> ff) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-  }
 
-  /**
-   * A ternary conditional operator for Id selective functors.
-   *
-   * <p>Eagerly evaluates the condition and returns the appropriate branch without evaluating the
-   * other.
-   *
-   * @param fcond A {@link Kind} representing {@code Id<Boolean>}. Must not be null.
-   * @param fthen A {@link Kind} representing {@code Id<A>} for the true branch. Must not be null.
-   * @param felse A {@link Kind} representing {@code Id<A>} for the false branch. Must not be null.
-   * @param <A> The type of the result.
-   * @return A {@link Kind} representing {@code Id<A>}. Never null.
-   * @throws NullPointerException if any parameter is null, or if the condition value is null.
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if parameters cannot be unwrapped.
-   */
-  @Override
-  public <A> Kind<IdKind.Witness, A> ifS(
-      Kind<IdKind.Witness, Boolean> fcond,
-      Kind<IdKind.Witness, A> fthen,
-      Kind<IdKind.Witness, A> felse) {
+    /**
+     * Selective branching for Id.
+     *
+     * <p>Eagerly evaluates the choice and applies the appropriate handler.
+     *
+     * @param fab A {@link Kind} representing {@code Id<Choice<A, B>>}. Must not be null.
+     * @param fl A {@link Kind} representing {@code Id<Function<A, C>>} for the Left case. Must not be
+     *     null.
+     * @param fr A {@link Kind} representing {@code Id<Function<B, C>>} for the Right case. Must not
+     *     be null.
+     * @param <A> The type inside {@code Left} of the Choice.
+     * @param <B> The type inside {@code Right} of the Choice.
+     * @param <C> The result type.
+     * @return A {@link Kind} representing {@code Id<C>}. Never null.
+     * @throws NullPointerException if any parameter is null, or if unwrapped values are null.
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if parameters cannot be unwrapped.
+     */
+    @Override
+    public <A, B, C> Kind<IdKind.Witness, C> branch(Kind<IdKind.Witness, Choice<A, B>> fab, Kind<IdKind.Witness, Function<A, C>> fl, Kind<IdKind.Witness, Function<B, C>> fr) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    Validation.kind().requireNonNull(fcond, IF_S, "condition");
-    Validation.kind().requireNonNull(fthen, IF_S, "thenBranch");
-    Validation.kind().requireNonNull(felse, IF_S, "elseBranch");
+    /**
+     * Conditionally executes a Unit-returning effect based on a boolean condition.
+     *
+     * <p>Eagerly evaluates the condition. If true, validates and returns the effect's Unit result. If
+     * false, returns Unit.INSTANCE without evaluating the effect.
+     *
+     * <p>Key improvement: Returns {@code Id.of(Unit.INSTANCE)} instead of {@code Id.of(null)}, making
+     * the "no-op" case explicit and type-safe.
+     *
+     * <p><b>Validation:</b> When the condition is true, the Unit value inside the effect is validated
+     * to ensure it's not null. When the condition is false, the effect is not evaluated or validated.
+     *
+     * @param fcond A {@link Kind} representing {@code Id<Boolean>}. Must not be null.
+     * @param fa A {@link Kind} representing {@code Id<Unit>} the effect to execute if condition is
+     *     true. Must not be null, and the Unit value must not be null if the condition is true.
+     * @return A {@link Kind} representing {@code Id<Unit>}. Never null.
+     * @throws NullPointerException if any parameter is null, or if unwrapped values are null when
+     *     accessed.
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if parameters cannot be unwrapped.
+     */
+    @Override
+    public Kind<IdKind.Witness, Unit> whenS(Kind<IdKind.Witness, Boolean> fcond, Kind<IdKind.Witness, Unit> fa) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    Boolean condition = ID.narrow(fcond).value();
-    Validation.function().require(condition, "condition", IF_S);
+    /**
+     * A ternary conditional operator for Id selective functors.
+     *
+     * <p>Eagerly evaluates the condition and returns the appropriate branch without evaluating the
+     * other.
+     *
+     * @param fcond A {@link Kind} representing {@code Id<Boolean>}. Must not be null.
+     * @param fthen A {@link Kind} representing {@code Id<A>} for the true branch. Must not be null.
+     * @param felse A {@link Kind} representing {@code Id<A>} for the false branch. Must not be null.
+     * @param <A> The type of the result.
+     * @return A {@link Kind} representing {@code Id<A>}. Never null.
+     * @throws NullPointerException if any parameter is null, or if the condition value is null.
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if parameters cannot be unwrapped.
+     */
+    @Override
+    public <A> Kind<IdKind.Witness, A> ifS(Kind<IdKind.Witness, Boolean> fcond, Kind<IdKind.Witness, A> fthen, Kind<IdKind.Witness, A> felse) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    // Return the appropriate branch
-    // Note: We don't evaluate both branches - this is key for selective functors
-    return condition ? fthen : felse;
-  }
-
-  @Override
-  public String toString() {
-    return "IdSelective";
-  }
+    @Override
+    public String toString() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

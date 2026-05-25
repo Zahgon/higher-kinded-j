@@ -4,7 +4,6 @@ package org.higherkindedj.hkt.error;
 
 import static org.higherkindedj.hkt.util.validation.Operation.CONSTRUCTION;
 import static org.higherkindedj.hkt.util.validation.Operation.LIFT_F;
-
 import org.higherkindedj.hkt.Functor;
 import org.higherkindedj.hkt.TypeArity;
 import org.higherkindedj.hkt.WitnessArity;
@@ -35,64 +34,63 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public final class ErrorOps {
 
-  private static final ErrorOpFunctor<?> FUNCTOR = ErrorOpFunctor.instance();
+    private static final ErrorOpFunctor<?> FUNCTOR = ErrorOpFunctor.instance();
 
-  private ErrorOps() {}
-
-  /**
-   * Raises an error, lifting it into a Free program that immediately short-circuits.
-   *
-   * @param error The error to raise. Must not be null.
-   * @param <E> The error type
-   * @param <A> The phantom result type
-   * @return A Free program that raises the error
-   */
-  @SuppressWarnings("unchecked")
-  public static <E, A> Free<ErrorOpKind.Witness<E>, A> raise(E error) {
-    Validation.function().require(error, "error", LIFT_F);
-    ErrorOp<E, A> op = new ErrorOp.Raise<>(error);
-    return Free.liftF(ErrorOpKindHelper.ERROR_OP.widen(op), (ErrorOpFunctor<E>) FUNCTOR);
-  }
-
-  /**
-   * Creates a Bound instance for combined-effect programs.
-   *
-   * @param inject The Inject instance for embedding ErrorOp into the combined effect type
-   * @param <E> The error type
-   * @param <G> The combined effect type
-   * @return A Bound instance
-   */
-  public static <E, G extends WitnessArity<TypeArity.Unary>> Bound<E, G> boundTo(
-      Inject<ErrorOpKind.Witness<E>, G> inject, Functor<G> functorG) {
-    return new Bound<>(inject, functorG);
-  }
-
-  /**
-   * Bound instance for using ErrorOp in combined-effect programs. Each method lifts an ErrorOp
-   * instruction into the combined effect type G via the provided Inject instance.
-   *
-   * @param <E> The error type
-   * @param <G> The combined effect type
-   */
-  public static final class Bound<E, G extends WitnessArity<TypeArity.Unary>> {
-    private final Inject<ErrorOpKind.Witness<E>, G> inject;
-    private final Functor<G> functorG;
-
-    Bound(Inject<ErrorOpKind.Witness<E>, G> inject, Functor<G> functorG) {
-      this.inject = Validation.function().require(inject, "inject", CONSTRUCTION);
-      this.functorG = Validation.function().require(functorG, "functorG", CONSTRUCTION);
+    private ErrorOps() {
     }
 
     /**
-     * Raises an error in the combined effect type.
+     * Raises an error, lifting it into a Free program that immediately short-circuits.
      *
      * @param error The error to raise. Must not be null.
+     * @param <E> The error type
      * @param <A> The phantom result type
-     * @return A Free program in the combined effect type that raises the error
+     * @return A Free program that raises the error
      */
-    public <A> Free<G, A> raise(E error) {
-      Free<ErrorOpKind.Witness<E>, A> standalone = ErrorOps.raise(error);
-      return Free.translate(standalone, inject::inject, functorG);
+    @SuppressWarnings("unchecked")
+    public static <E, A> Free<ErrorOpKind.Witness<E>, A> raise(E error) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-  }
+
+    /**
+     * Creates a Bound instance for combined-effect programs.
+     *
+     * @param inject The Inject instance for embedding ErrorOp into the combined effect type
+     * @param <E> The error type
+     * @param <G> The combined effect type
+     * @return A Bound instance
+     */
+    public static <E, G extends WitnessArity<TypeArity.Unary>> Bound<E, G> boundTo(Inject<ErrorOpKind.Witness<E>, G> inject, Functor<G> functorG) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Bound instance for using ErrorOp in combined-effect programs. Each method lifts an ErrorOp
+     * instruction into the combined effect type G via the provided Inject instance.
+     *
+     * @param <E> The error type
+     * @param <G> The combined effect type
+     */
+    public static final class Bound<E, G extends WitnessArity<TypeArity.Unary>> {
+
+        private final Inject<ErrorOpKind.Witness<E>, G> inject;
+
+        private final Functor<G> functorG;
+
+        Bound(Inject<ErrorOpKind.Witness<E>, G> inject, Functor<G> functorG) {
+            this.inject = Validation.function().require(inject, "inject", CONSTRUCTION);
+            this.functorG = Validation.function().require(functorG, "functorG", CONSTRUCTION);
+        }
+
+        /**
+         * Raises an error in the combined effect type.
+         *
+         * @param error The error to raise. Must not be null.
+         * @param <A> The phantom result type
+         * @return A Free program in the combined effect type that raises the error
+         */
+        public <A> Free<G, A> raise(E error) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
+    }
 }

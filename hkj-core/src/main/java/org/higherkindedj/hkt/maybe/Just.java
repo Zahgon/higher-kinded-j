@@ -4,7 +4,6 @@ package org.higherkindedj.hkt.maybe;
 
 import static org.higherkindedj.hkt.util.validation.Operation.FLAT_MAP;
 import static org.higherkindedj.hkt.util.validation.Operation.MAP;
-
 import java.util.function.Function;
 import java.util.function.Supplier;
 import org.higherkindedj.hkt.util.validation.Validation;
@@ -18,55 +17,46 @@ import org.jspecify.annotations.Nullable;
  */
 // Value must be NonNull because Maybe.just requires it
 record Just<T>(T value) implements Maybe<T>, MaybeKind<T> {
-  // Constructor implicitly checks value is non-null via Maybe.just factory
 
-  @Override
-  public boolean isJust() {
-    return true;
-  }
+    // Constructor implicitly checks value is non-null via Maybe.just factory
+    @Override
+    public boolean isJust() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public boolean isNothing() {
-    return false;
-  }
+    @Override
+    public boolean isNothing() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public T get() {
-    return value;
-  } // Value is guaranteed non-null
+    @Override
+    public T get() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public T orElse(T other) {
-    return value;
-  }
+    // Value is guaranteed non-null
+    @Override
+    public T orElse(T other) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public T orElseGet(Supplier<? extends T> other) {
-    return value;
-  }
+    @Override
+    public T orElseGet(Supplier<? extends T> other) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public <U> Maybe<U> map(Function<? super T, ? extends @Nullable U> mapper) {
-    Validation.function().require(mapper, "mapper", MAP);
-    // Use fromNullable to handle cases where the mapper might return null
-    return Maybe.fromNullable(mapper.apply(value)); // Result of apply is Nullable
-  }
+    @Override
+    public <U> Maybe<U> map(Function<? super T, ? extends @Nullable U> mapper) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public <U> Maybe<U> flatMap(Function<? super T, ? extends Maybe<? extends U>> mapper) {
-    Validation.function().require(mapper, "mapper", FLAT_MAP);
+    @Override
+    public <U> Maybe<U> flatMap(Function<? super T, ? extends Maybe<? extends U>> mapper) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    Maybe<? extends U> result = mapper.apply(value);
-    Validation.function().requireNonNullResult(result, "mapper", FLAT_MAP);
-
-    // Cast needed because of <? extends U> - unavoidable Java type system limitation
-    @SuppressWarnings("unchecked")
-    Maybe<U> typedResult = (Maybe<U>) result;
-    return typedResult;
-  }
-
-  @Override
-  public String toString() {
-    return "Just(" + value + ")";
-  }
+    @Override
+    public String toString() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

@@ -48,88 +48,82 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
  * </ul>
  */
 @AutoConfiguration(after = HkjAutoConfiguration.class)
-@ConditionalOnClass({HealthIndicator.class, MeterRegistry.class})
+@ConditionalOnClass({ HealthIndicator.class, MeterRegistry.class })
 @EnableConfigurationProperties(HkjProperties.class)
 public class HkjActuatorAutoConfiguration {
 
-  /** Creates a new HkjActuatorAutoConfiguration. */
-  public HkjActuatorAutoConfiguration() {}
+    /**
+     * Creates a new HkjActuatorAutoConfiguration.
+     */
+    public HkjActuatorAutoConfiguration() {
+    }
 
-  /**
-   * Creates the HKJ metrics service for tracking handler invocations.
-   *
-   * <p>Enabled by default. Disable with: {@code hkj.actuator.metrics-enabled=false}
-   *
-   * @param meterRegistry the Micrometer registry
-   * @return the metrics service
-   */
-  @Bean
-  @ConditionalOnClass(MeterRegistry.class)
-  @ConditionalOnProperty(name = "hkj.actuator.metrics-enabled", matchIfMissing = true)
-  public HkjMetricsService hkjMetricsService(MeterRegistry meterRegistry) {
-    return new HkjMetricsService(meterRegistry);
-  }
+    /**
+     * Creates the HKJ metrics service for tracking handler invocations.
+     *
+     * <p>Enabled by default. Disable with: {@code hkj.actuator.metrics-enabled=false}
+     *
+     * @param meterRegistry the Micrometer registry
+     * @return the metrics service
+     */
+    @Bean
+    @ConditionalOnClass(MeterRegistry.class)
+    @ConditionalOnProperty(name = "hkj.actuator.metrics-enabled", matchIfMissing = true)
+    public HkjMetricsService hkjMetricsService(MeterRegistry meterRegistry) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates the custom HKJ actuator endpoint.
-   *
-   * <p>Exposed at: {@code /actuator/hkj}
-   *
-   * <p>Enabled by default. Disable with: {@code management.endpoint.hkj.enabled=false}
-   *
-   * @param properties the HKJ configuration properties
-   * @param metricsService the metrics service (optional)
-   * @return the custom endpoint
-   */
-  @Bean
-  @ConditionalOnAvailableEndpoint
-  public HkjMetricsEndpoint hkjMetricsEndpoint(
-      HkjProperties properties, HkjMetricsService metricsService) {
-    return new HkjMetricsEndpoint(properties, metricsService);
-  }
+    /**
+     * Creates the custom HKJ actuator endpoint.
+     *
+     * <p>Exposed at: {@code /actuator/hkj}
+     *
+     * <p>Enabled by default. Disable with: {@code management.endpoint.hkj.enabled=false}
+     *
+     * @param properties the HKJ configuration properties
+     * @param metricsService the metrics service (optional)
+     * @return the custom endpoint
+     */
+    @Bean
+    @ConditionalOnAvailableEndpoint
+    public HkjMetricsEndpoint hkjMetricsEndpoint(HkjProperties properties, HkjMetricsService metricsService) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates the async executor health indicator.
-   *
-   * <p>Monitors the thread pool used by EitherT async operations.
-   *
-   * <p>Enabled by default when async executor is configured. Disable with: {@code
-   * management.health.hkj-async.enabled=false}
-   *
-   * @param executor the async executor bean (optional, may not be present)
-   * @return the health indicator
-   */
-  @Bean(name = "hkjAsyncHealthIndicator")
-  @ConditionalOnProperty(
-      name = "management.health.hkj-async.enabled",
-      havingValue = "true",
-      matchIfMissing = true)
-  @ConditionalOnBean(name = "hkjAsyncExecutor")
-  public HkjAsyncHealthIndicator hkjAsyncHealthIndicator(ThreadPoolTaskExecutor executor) {
-    return new HkjAsyncHealthIndicator(executor);
-  }
+    /**
+     * Creates the async executor health indicator.
+     *
+     * <p>Monitors the thread pool used by EitherT async operations.
+     *
+     * <p>Enabled by default when async executor is configured. Disable with: {@code
+     * management.health.hkj-async.enabled=false}
+     *
+     * @param executor the async executor bean (optional, may not be present)
+     * @return the health indicator
+     */
+    @Bean(name = "hkjAsyncHealthIndicator")
+    @ConditionalOnProperty(name = "management.health.hkj-async.enabled", havingValue = "true", matchIfMissing = true)
+    @ConditionalOnBean(name = "hkjAsyncExecutor")
+    public HkjAsyncHealthIndicator hkjAsyncHealthIndicator(ThreadPoolTaskExecutor executor) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates the Virtual Thread health indicator.
-   *
-   * <p>Monitors the success and error rates of Virtual Thread based operations.
-   *
-   * <p>Enabled by default. Disable with: {@code
-   * management.health.hkj-virtual-threads.enabled=false}
-   *
-   * @param metricsService the metrics service used to retrieve operation counts
-   * @param properties the HKJ configuration properties
-   * @return the virtual thread health indicator
-   */
-  @Bean(name = "hkjVirtualThreadHealthIndicator")
-  @ConditionalOnBean(HkjMetricsService.class)
-  @ConditionalOnProperty(
-      name = "management.health.hkj-virtual-threads.enabled",
-      havingValue = "true",
-      matchIfMissing = true)
-  public HkjVirtualThreadHealthIndicator hkjVirtualThreadHealthIndicator(
-      HkjMetricsService metricsService, HkjProperties properties) {
-    return new HkjVirtualThreadHealthIndicator(
-        metricsService, properties.getVirtualThreads().getHealthErrorThreshold());
-  }
+    /**
+     * Creates the Virtual Thread health indicator.
+     *
+     * <p>Monitors the success and error rates of Virtual Thread based operations.
+     *
+     * <p>Enabled by default. Disable with: {@code
+     * management.health.hkj-virtual-threads.enabled=false}
+     *
+     * @param metricsService the metrics service used to retrieve operation counts
+     * @param properties the HKJ configuration properties
+     * @return the virtual thread health indicator
+     */
+    @Bean(name = "hkjVirtualThreadHealthIndicator")
+    @ConditionalOnBean(HkjMetricsService.class)
+    @ConditionalOnProperty(name = "management.health.hkj-virtual-threads.enabled", havingValue = "true", matchIfMissing = true)
+    public HkjVirtualThreadHealthIndicator hkjVirtualThreadHealthIndicator(HkjMetricsService metricsService, HkjProperties properties) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

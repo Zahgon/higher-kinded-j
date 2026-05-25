@@ -33,39 +33,18 @@ import tools.jackson.databind.deser.std.StdDeserializer;
  */
 public class EitherDeserializer extends StdDeserializer<Either<?, ?>> {
 
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  /** Creates a new EitherDeserializer for {@link Either} types. */
-  @SuppressWarnings("unchecked")
-  public EitherDeserializer() {
-    super((Class<Either<?, ?>>) (Class<?>) Either.class);
-  }
-
-  @Override
-  public Either<?, ?> deserialize(JsonParser p, DeserializationContext ctxt)
-      throws JacksonException {
-    JsonNode node = p.readValueAsTree();
-
-    if (!node.has("isRight")) {
-      throw ctxt.weirdStringException("", Either.class, "Either JSON must have 'isRight' field");
+    /**
+     * Creates a new EitherDeserializer for {@link Either} types.
+     */
+    @SuppressWarnings("unchecked")
+    public EitherDeserializer() {
+        super((Class<Either<?, ?>>) (Class<?>) Either.class);
     }
 
-    boolean isRight = node.get("isRight").asBoolean();
-
-    if (isRight) {
-      if (!node.has("right")) {
-        throw ctxt.weirdStringException(
-            "", Either.class, "Either with isRight=true must have 'right' field");
-      }
-      Object value = ctxt.readTreeAsValue(node.get("right"), Object.class);
-      return Either.right(value);
-    } else {
-      if (!node.has("left")) {
-        throw ctxt.weirdStringException(
-            "", Either.class, "Either with isRight=false must have 'left' field");
-      }
-      Object error = ctxt.readTreeAsValue(node.get("left"), Object.class);
-      return Either.left(error);
+    @Override
+    public Either<?, ?> deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-  }
 }

@@ -44,40 +44,26 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public final class VStreamTraversals {
 
-  /** Private constructor to prevent instantiation. */
-  private VStreamTraversals() {}
+    /**
+     * Private constructor to prevent instantiation.
+     */
+    private VStreamTraversals() {
+    }
 
-  /**
-   * Creates a {@link Traversal} for {@link VStream} elements.
-   *
-   * <p>The traversal materialises the stream to a list (consuming it), applies the effectful
-   * function to each element and sequences the results using copy-safe accumulation via {@link
-   * IndexedTraversals#sequenceList}, then converts the result back to a VStream.
-   *
-   * <p><b>Warning:</b> The VStream is fully evaluated during traversal. Only use with finite
-   * streams. Infinite streams will cause non-termination.
-   *
-   * @param <A> the element type within the VStream
-   * @return a Traversal over VStream elements; never null
-   */
-  public static <A> Traversal<VStream<A>, A> forVStream() {
-    return new Traversal<>() {
-      @Override
-      public <G extends WitnessArity<TypeArity.Unary>> Kind<G, VStream<A>> modifyF(
-          Function<A, Kind<G, A>> f, VStream<A> source, Applicative<G> applicative) {
-        // Materialise the VStream to a list (consuming it)
-        List<A> elements = source.toList().run();
-
-        // Apply the effectful function to each element
-        List<Kind<G, A>> modifiedEffects = new ArrayList<>(elements.size());
-        for (A a : elements) {
-          modifiedEffects.add(f.apply(a));
-        }
-
-        // Sequence effects using copy-safe accumulation, then convert back to VStream
-        Kind<G, List<A>> result = IndexedTraversals.sequenceList(modifiedEffects, applicative);
-        return applicative.map(VStream::fromList, result);
-      }
-    };
-  }
+    /**
+     * Creates a {@link Traversal} for {@link VStream} elements.
+     *
+     * <p>The traversal materialises the stream to a list (consuming it), applies the effectful
+     * function to each element and sequences the results using copy-safe accumulation via {@link
+     * IndexedTraversals#sequenceList}, then converts the result back to a VStream.
+     *
+     * <p><b>Warning:</b> The VStream is fully evaluated during traversal. Only use with finite
+     * streams. Infinite streams will cause non-termination.
+     *
+     * @param <A> the element type within the VStream
+     * @return a Traversal over VStream elements; never null
+     */
+    public static <A> Traversal<VStream<A>, A> forVStream() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

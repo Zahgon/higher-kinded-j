@@ -30,61 +30,69 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/either-status")
 public class EitherDefaultErrorStatusController {
 
-  /** Creates an EitherDefaultErrorStatusController. */
-  public EitherDefaultErrorStatusController() {}
-
-  /** Sealed domain error hierarchy with variants that do and do not match heuristics. */
-  public sealed interface DomainError
-      permits DomainError.NotFoundErr, DomainError.Dup, DomainError.Pers {
     /**
-     * Error variant matching the {@code NotFound} heuristic (mapped to 404).
-     *
-     * @param id the missing resource identifier
+     * Creates an EitherDefaultErrorStatusController.
      */
-    record NotFoundErr(String id) implements DomainError {}
+    public EitherDefaultErrorStatusController() {
+    }
 
     /**
-     * Error variant matching no heuristic (falls back to the configured default status).
-     *
-     * @param id the conflicting resource identifier
+     * Sealed domain error hierarchy with variants that do and do not match heuristics.
      */
-    record Dup(String id) implements DomainError {}
+    public sealed interface DomainError permits DomainError.NotFoundErr, DomainError.Dup, DomainError.Pers {
+
+        /**
+         * Error variant matching the {@code NotFound} heuristic (mapped to 404).
+         *
+         * @param id the missing resource identifier
+         */
+        record NotFoundErr(String id) implements DomainError {
+        }
+
+        /**
+         * Error variant matching no heuristic (falls back to the configured default status).
+         *
+         * @param id the conflicting resource identifier
+         */
+        record Dup(String id) implements DomainError {
+        }
+
+        /**
+         * Error variant matching no heuristic (falls back to the configured default status).
+         *
+         * @param op the persistence operation that failed
+         */
+        record Pers(String op) implements DomainError {
+        }
+    }
 
     /**
-     * Error variant matching no heuristic (falls back to the configured default status).
+     * Returns a Left(NotFoundErr) — the heuristic should map this to 404.
      *
-     * @param op the persistence operation that failed
+     * @return Either with a NotFoundErr left value
      */
-    record Pers(String op) implements DomainError {}
-  }
+    @GetMapping("/not-found")
+    public Either<DomainError, String> notFound() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Returns a Left(NotFoundErr) — the heuristic should map this to 404.
-   *
-   * @return Either with a NotFoundErr left value
-   */
-  @GetMapping("/not-found")
-  public Either<DomainError, String> notFound() {
-    return Either.left(new DomainError.NotFoundErr("x"));
-  }
+    /**
+     * Returns a Left(Dup) — no heuristic match, should fall back to configured default.
+     *
+     * @return Either with a Dup left value
+     */
+    @GetMapping("/duplicate")
+    public Either<DomainError, String> duplicate() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Returns a Left(Dup) — no heuristic match, should fall back to configured default.
-   *
-   * @return Either with a Dup left value
-   */
-  @GetMapping("/duplicate")
-  public Either<DomainError, String> duplicate() {
-    return Either.left(new DomainError.Dup("x"));
-  }
-
-  /**
-   * Returns a Left(Pers) — no heuristic match, should fall back to configured default.
-   *
-   * @return Either with a Pers left value
-   */
-  @GetMapping("/persistence")
-  public Either<DomainError, String> persistence() {
-    return Either.left(new DomainError.Pers("save"));
-  }
+    /**
+     * Returns a Left(Pers) — no heuristic match, should fall back to configured default.
+     *
+     * @return Either with a Pers left value
+     */
+    @GetMapping("/persistence")
+    public Either<DomainError, String> persistence() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

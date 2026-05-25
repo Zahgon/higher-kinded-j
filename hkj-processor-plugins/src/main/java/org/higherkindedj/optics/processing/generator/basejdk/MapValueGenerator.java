@@ -28,101 +28,62 @@ import org.higherkindedj.optics.util.Traversals;
 @ServiceProvider(TraversableGenerator.class)
 public class MapValueGenerator extends BaseTraversableGenerator {
 
-  /** Creates a new generator for {@link java.util.Map} value traversal. */
-  public MapValueGenerator() {}
-
-  private static final String FQN_MAP = "java.util.Map";
-
-  @Override
-  public boolean supports(final TypeMirror type) {
-    if (!(type instanceof DeclaredType declaredType)) return false;
-    final Element element = declaredType.asElement();
-    return element.toString().equals(FQN_MAP);
-  }
-
-  @Override
-  public int getFocusTypeArgumentIndex() {
-    return 1; // Map<K, V> focuses on V (the second type argument)
-  }
-
-  @Override
-  public String generateOpticExpression() {
-    return "EachInstances.mapValuesEach()";
-  }
-
-  @Override
-  public Set<String> getRequiredImports() {
-    return Set.of("org.higherkindedj.optics.each.EachInstances");
-  }
-
-  @Override
-  public CodeBlock generateModifyF(
-      final RecordComponentElement component,
-      final ClassName recordClassName,
-      final List<? extends RecordComponentElement> allComponents) {
-
-    final String componentName = component.getSimpleName().toString();
-    final String constructorArgs = generateConstructorArgs(componentName, "newMap", allComponents);
-
-    return CodeBlock.builder()
-        // 1. Get the source Map's entry set as a List to traverse.
-        .addStatement(
-            "final var sourceEntries = new $T<>(source.$L().entrySet())",
-            ArrayList.class,
-            componentName)
-        // 2. Define a function that takes an entry, applies the user's function `f` to the value,
-        //    and then reconstructs the entry with the new value.
-        .addStatement(
-            "final $T<Map.Entry<$T, $T>, $T<F, Map.Entry<$T, $T>>> entryF = \n"
-                + "    entry -> applicative.map(newValue -> $T.entry(entry.getKey(), newValue),"
-                + " f.apply(entry.getValue()))",
-            Function.class,
-            getKeyTypeName(component),
-            getValueTypeName(component),
-            Kind.class,
-            getKeyTypeName(component),
-            getValueTypeName(component), // This assumes f: V -> F<V>, so new value is same type.
-            Map.class)
-        // 3. Call the static helper to traverse the list of entries using our new function.
-        .addStatement(
-            "final var effectOfEntries = $T.traverseList(sourceEntries, entryF, applicative)",
-            Traversals.class)
-        // 4. Map over the effect to convert the inner List of entries back to a Map.
-        .addStatement(
-            "final var effectOfMap = applicative.map(\n"
-                + "    newEntries -> newEntries.stream().collect($T.toMap($T.Entry::getKey,"
-                + " $T.Entry::getValue)),\n"
-                + "    effectOfEntries)",
-            Collectors.class,
-            Map.class,
-            Map.class)
-        // 5. Map over the final effect to reconstruct the record with the new Map.
-        .addStatement(
-            "return applicative.map(newMap -> new $T($L), effectOfMap)",
-            recordClassName,
-            constructorArgs)
-        .build();
-  }
-
-  /** Gets the 'Value' type from a {@code Map<K, V>} component. */
-  private TypeName getValueTypeName(final RecordComponentElement component) {
-    if (component.asType() instanceof DeclaredType containerType) {
-      if (containerType.getTypeArguments().size() < 2) {
-        return ClassName.get(Object.class);
-      }
-      return TypeName.get(containerType.getTypeArguments().get(1)).box();
+    /**
+     * Creates a new generator for {@link java.util.Map} value traversal.
+     */
+    public MapValueGenerator() {
     }
-    return ClassName.get(Object.class);
-  }
 
-  /** Gets the 'Key' type from a {@code Map<K, V>} component. */
-  private TypeName getKeyTypeName(final RecordComponentElement component) {
-    if (component.asType() instanceof DeclaredType containerType) {
-      if (containerType.getTypeArguments().isEmpty()) {
-        return ClassName.get(Object.class);
-      }
-      return TypeName.get(containerType.getTypeArguments().getFirst()).box();
+    private static final String FQN_MAP = "java.util.Map";
+
+    @Override
+    public boolean supports(final TypeMirror type) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-    return ClassName.get(Object.class);
-  }
+
+    @Override
+    public int getFocusTypeArgumentIndex() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public String generateOpticExpression() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public Set<String> getRequiredImports() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public CodeBlock generateModifyF(final RecordComponentElement component, final ClassName recordClassName, final List<? extends RecordComponentElement> allComponents) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Gets the 'Value' type from a {@code Map<K, V>} component.
+     */
+    private TypeName getValueTypeName(final RecordComponentElement component) {
+        if (component.asType() instanceof DeclaredType containerType) {
+            if (containerType.getTypeArguments().size() < 2) {
+                return ClassName.get(Object.class);
+            }
+            return TypeName.get(containerType.getTypeArguments().get(1)).box();
+        }
+        return ClassName.get(Object.class);
+    }
+
+    /**
+     * Gets the 'Key' type from a {@code Map<K, V>} component.
+     */
+    private TypeName getKeyTypeName(final RecordComponentElement component) {
+        if (component.asType() instanceof DeclaredType containerType) {
+            if (containerType.getTypeArguments().isEmpty()) {
+                return ClassName.get(Object.class);
+            }
+            return TypeName.get(containerType.getTypeArguments().getFirst()).box();
+        }
+        return ClassName.get(Object.class);
+    }
 }

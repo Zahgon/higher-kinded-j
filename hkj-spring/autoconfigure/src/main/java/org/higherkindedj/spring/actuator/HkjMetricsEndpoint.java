@@ -66,120 +66,91 @@ import org.springframework.boot.actuate.endpoint.annotation.ReadOperation;
 @Endpoint(id = "hkj")
 public class HkjMetricsEndpoint {
 
-  private final HkjProperties properties;
-  private final HkjMetricsService metricsService;
+    private final HkjProperties properties;
 
-  /**
-   * Creates a new HkjMetricsEndpoint.
-   *
-   * @param properties the HKJ configuration properties
-   * @param metricsService the metrics service (may be null if metrics disabled)
-   */
-  public HkjMetricsEndpoint(HkjProperties properties, HkjMetricsService metricsService) {
-    this.properties = properties;
-    this.metricsService = metricsService;
-  }
+    private final HkjMetricsService metricsService;
 
-  /**
-   * Reads the current HKJ metrics and configuration.
-   *
-   * @return map containing configuration and metrics data
-   */
-  @ReadOperation
-  public Map<String, Object> hkjMetrics() {
-    Map<String, Object> result = new LinkedHashMap<>();
-
-    // Configuration section
-    Map<String, Object> config = new LinkedHashMap<>();
-    config.put("web", getWebConfig());
-    config.put("jackson", getJacksonConfig());
-    result.put("configuration", config);
-
-    // Metrics section (if enabled)
-    if (metricsService != null) {
-      Map<String, Object> metrics = new LinkedHashMap<>();
-      metrics.put("either", getEitherMetrics());
-      metrics.put("validated", getValidatedMetrics());
-      metrics.put("eitherT", getEitherTMetrics());
-      metrics.put("vtask", getVTaskMetrics());
-      metrics.put("vstream", getVStreamMetrics());
-      result.put("metrics", metrics);
-    } else {
-      result.put("metrics", Map.of("enabled", false));
+    /**
+     * Creates a new HkjMetricsEndpoint.
+     *
+     * @param properties the HKJ configuration properties
+     * @param metricsService the metrics service (may be null if metrics disabled)
+     */
+    public HkjMetricsEndpoint(HkjProperties properties, HkjMetricsService metricsService) {
+        this.properties = properties;
+        this.metricsService = metricsService;
     }
 
-    return result;
-  }
+    /**
+     * Reads the current HKJ metrics and configuration.
+     *
+     * @return map containing configuration and metrics data
+     */
+    @ReadOperation
+    public Map<String, Object> hkjMetrics() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  private Map<String, Object> getWebConfig() {
-    Map<String, Object> web = new LinkedHashMap<>();
-    web.put("eitherPathEnabled", properties.getWeb().isEitherPathEnabled());
-    web.put("maybePathEnabled", properties.getWeb().isMaybePathEnabled());
-    web.put("tryPathEnabled", properties.getWeb().isTryPathEnabled());
-    web.put("validationPathEnabled", properties.getWeb().isValidationPathEnabled());
-    web.put("ioPathEnabled", properties.getWeb().isIoPathEnabled());
-    web.put("completableFuturePathEnabled", properties.getWeb().isCompletableFuturePathEnabled());
-    web.put("vtaskPathEnabled", properties.getWeb().isVtaskPathEnabled());
-    web.put("vstreamPathEnabled", properties.getWeb().isVstreamPathEnabled());
-    web.put("defaultErrorStatus", properties.getWeb().getDefaultErrorStatus());
-    return web;
-  }
+    private Map<String, Object> getWebConfig() {
+        Map<String, Object> web = new LinkedHashMap<>();
+        web.put("eitherPathEnabled", properties.getWeb().isEitherPathEnabled());
+        web.put("maybePathEnabled", properties.getWeb().isMaybePathEnabled());
+        web.put("tryPathEnabled", properties.getWeb().isTryPathEnabled());
+        web.put("validationPathEnabled", properties.getWeb().isValidationPathEnabled());
+        web.put("ioPathEnabled", properties.getWeb().isIoPathEnabled());
+        web.put("completableFuturePathEnabled", properties.getWeb().isCompletableFuturePathEnabled());
+        web.put("vtaskPathEnabled", properties.getWeb().isVtaskPathEnabled());
+        web.put("vstreamPathEnabled", properties.getWeb().isVstreamPathEnabled());
+        web.put("defaultErrorStatus", properties.getWeb().getDefaultErrorStatus());
+        return web;
+    }
 
-  private Map<String, Object> getJacksonConfig() {
-    Map<String, Object> jackson = new LinkedHashMap<>();
-    jackson.put("customSerializersEnabled", properties.getJson().isCustomSerializersEnabled());
-    jackson.put("eitherFormat", properties.getJson().getEitherFormat().name());
-    jackson.put("validatedFormat", properties.getJson().getValidatedFormat().name());
-    jackson.put("maybeFormat", properties.getJson().getMaybeFormat().name());
-    return jackson;
-  }
+    private Map<String, Object> getJacksonConfig() {
+        Map<String, Object> jackson = new LinkedHashMap<>();
+        jackson.put("customSerializersEnabled", properties.getJson().isCustomSerializersEnabled());
+        jackson.put("eitherFormat", properties.getJson().getEitherFormat().name());
+        jackson.put("validatedFormat", properties.getJson().getValidatedFormat().name());
+        jackson.put("maybeFormat", properties.getJson().getMaybeFormat().name());
+        return jackson;
+    }
 
-  private Map<String, Object> getSuccessErrorMetrics(
-      DoubleSupplier successSupplier, DoubleSupplier errorSupplier) {
-    Map<String, Object> metrics = new LinkedHashMap<>();
-    double successCount = successSupplier.getAsDouble();
-    double errorCount = errorSupplier.getAsDouble();
-    double totalCount = successCount + errorCount;
+    private Map<String, Object> getSuccessErrorMetrics(DoubleSupplier successSupplier, DoubleSupplier errorSupplier) {
+        Map<String, Object> metrics = new LinkedHashMap<>();
+        double successCount = successSupplier.getAsDouble();
+        double errorCount = errorSupplier.getAsDouble();
+        double totalCount = successCount + errorCount;
+        metrics.put("successCount", (long) successCount);
+        metrics.put("errorCount", (long) errorCount);
+        metrics.put("totalCount", (long) totalCount);
+        metrics.put("successRate", totalCount > 0 ? successCount / totalCount : 0.0);
+        return metrics;
+    }
 
-    metrics.put("successCount", (long) successCount);
-    metrics.put("errorCount", (long) errorCount);
-    metrics.put("totalCount", (long) totalCount);
-    metrics.put("successRate", totalCount > 0 ? successCount / totalCount : 0.0);
+    private Map<String, Object> getEitherMetrics() {
+        return getSuccessErrorMetrics(metricsService::getEitherSuccessCount, metricsService::getEitherErrorCount);
+    }
 
-    return metrics;
-  }
+    private Map<String, Object> getValidatedMetrics() {
+        Map<String, Object> validated = new LinkedHashMap<>();
+        double validCount = metricsService.getValidatedValidCount();
+        double invalidCount = metricsService.getValidatedInvalidCount();
+        double totalCount = validCount + invalidCount;
+        validated.put("validCount", (long) validCount);
+        validated.put("invalidCount", (long) invalidCount);
+        validated.put("totalCount", (long) totalCount);
+        validated.put("validRate", totalCount > 0 ? validCount / totalCount : 0.0);
+        return validated;
+    }
 
-  private Map<String, Object> getEitherMetrics() {
-    return getSuccessErrorMetrics(
-        metricsService::getEitherSuccessCount, metricsService::getEitherErrorCount);
-  }
+    private Map<String, Object> getEitherTMetrics() {
+        return getSuccessErrorMetrics(metricsService::getEitherTSuccessCount, metricsService::getEitherTErrorCount);
+    }
 
-  private Map<String, Object> getValidatedMetrics() {
-    Map<String, Object> validated = new LinkedHashMap<>();
-    double validCount = metricsService.getValidatedValidCount();
-    double invalidCount = metricsService.getValidatedInvalidCount();
-    double totalCount = validCount + invalidCount;
+    private Map<String, Object> getVTaskMetrics() {
+        return getSuccessErrorMetrics(metricsService::getVTaskSuccessCount, metricsService::getVTaskErrorCount);
+    }
 
-    validated.put("validCount", (long) validCount);
-    validated.put("invalidCount", (long) invalidCount);
-    validated.put("totalCount", (long) totalCount);
-    validated.put("validRate", totalCount > 0 ? validCount / totalCount : 0.0);
-
-    return validated;
-  }
-
-  private Map<String, Object> getEitherTMetrics() {
-    return getSuccessErrorMetrics(
-        metricsService::getEitherTSuccessCount, metricsService::getEitherTErrorCount);
-  }
-
-  private Map<String, Object> getVTaskMetrics() {
-    return getSuccessErrorMetrics(
-        metricsService::getVTaskSuccessCount, metricsService::getVTaskErrorCount);
-  }
-
-  private Map<String, Object> getVStreamMetrics() {
-    return getSuccessErrorMetrics(
-        metricsService::getVStreamSuccessCount, metricsService::getVStreamErrorCount);
-  }
+    private Map<String, Object> getVStreamMetrics() {
+        return getSuccessErrorMetrics(metricsService::getVStreamSuccessCount, metricsService::getVStreamErrorCount);
+    }
 }

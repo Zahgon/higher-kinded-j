@@ -3,7 +3,6 @@
 package org.higherkindedj.hkt.maybe;
 
 import static org.higherkindedj.hkt.util.validation.Operation.*;
-
 import java.util.NoSuchElementException;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -17,69 +16,70 @@ import org.jspecify.annotations.Nullable;
  * with typeclasses expecting {@code Kind<MaybeKind.Witness, T>}.
  */
 final class Nothing<T> implements Maybe<T>, MaybeKind<T> {
-  // Singleton instance
-  private static final Nothing<?> INSTANCE = new Nothing<>();
 
-  // Private constructor to enforce singleton pattern
-  private Nothing() {}
+    // Singleton instance
+    private static final Nothing<?> INSTANCE = new Nothing<>();
 
-  /** Factory method to get the singleton instance */
-  @SuppressWarnings("unchecked")
-  static <T> Nothing<T> instance() {
-    return (Nothing<T>) INSTANCE;
-  }
+    // Private constructor to enforce singleton pattern
+    private Nothing() {
+    }
 
-  @Override
-  public boolean isJust() {
-    return false;
-  }
+    /**
+     * Factory method to get the singleton instance
+     */
+    @SuppressWarnings("unchecked")
+    static <T> Nothing<T> instance() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public boolean isNothing() {
-    return true;
-  }
+    @Override
+    public boolean isJust() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  // get() throws, return type annotation isn't critical but technically should match Maybe<T>
-  @Override
-  public T get() {
-    throw new NoSuchElementException("Cannot call get() on Nothing");
-  }
+    @Override
+    public boolean isNothing() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public T orElse(T other) {
-    return other;
-  }
+    // get() throws, return type annotation isn't critical but technically should match Maybe<T>
+    @Override
+    public T get() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public T orElseGet(Supplier<? extends T> other) {
-    Validation.function().require(other, "otherSupplier", OR_ELSE_GET);
-    return other.get(); // Supplier must return NonNull T
-  }
+    @Override
+    public T orElse(T other) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public <U> Maybe<U> map(Function<? super T, ? extends @Nullable U> mapper) {
-    Validation.function().require(mapper, "mapper", MAP);
-    return instance(); // Mapping Nothing always results in Nothing
-  }
+    @Override
+    public T orElseGet(Supplier<? extends T> other) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public <U> Maybe<U> flatMap(Function<? super T, ? extends Maybe<? extends U>> mapper) {
-    Validation.function().require(mapper, "mapper", FLAT_MAP);
-    return instance(); // FlatMapping Nothing always results in Nothing
-  }
+    @Override
+    public <U> Maybe<U> map(Function<? super T, ? extends @Nullable U> mapper) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public boolean equals(Object obj) {
-    return obj instanceof Nothing<?>;
-  }
+    @Override
+    public <U> Maybe<U> flatMap(Function<? super T, ? extends Maybe<? extends U>> mapper) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public int hashCode() {
-    return 0;
-  }
+    @Override
+    public boolean equals(Object obj) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public String toString() {
-    return "Nothing";
-  }
+    @Override
+    public int hashCode() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    @Override
+    public String toString() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

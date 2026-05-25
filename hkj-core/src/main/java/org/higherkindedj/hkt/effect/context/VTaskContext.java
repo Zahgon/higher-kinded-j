@@ -69,371 +69,335 @@ import org.higherkindedj.hkt.vtask.VTask;
  */
 public final class VTaskContext<A> {
 
-  private final VTaskPath<A> path;
+    private final VTaskPath<A> path;
 
-  private VTaskContext(VTaskPath<A> path) {
-    this.path = Objects.requireNonNull(path, "path must not be null");
-  }
+    private VTaskContext(VTaskPath<A> path) {
+        this.path = Objects.requireNonNull(path, "path must not be null");
+    }
 
-  // ===== Factory Methods =====
+    // ===== Factory Methods =====
+    /**
+     * Creates a VTaskContext from a callable computation.
+     *
+     * <p>The computation is not executed until {@link #run()} or similar methods are called.
+     *
+     * @param callable the computation to execute; must not be null
+     * @param <A> the result type
+     * @return a new VTaskContext wrapping the computation
+     * @throws NullPointerException if callable is null
+     */
+    public static <A> VTaskContext<A> of(Callable<A> callable) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a VTaskContext from a callable computation.
-   *
-   * <p>The computation is not executed until {@link #run()} or similar methods are called.
-   *
-   * @param callable the computation to execute; must not be null
-   * @param <A> the result type
-   * @return a new VTaskContext wrapping the computation
-   * @throws NullPointerException if callable is null
-   */
-  public static <A> VTaskContext<A> of(Callable<A> callable) {
-    Objects.requireNonNull(callable, "callable must not be null");
-    return new VTaskContext<>(Path.vtask(callable));
-  }
+    /**
+     * Creates a VTaskContext from a side-effecting runnable.
+     *
+     * <p>The runnable is not executed until {@link #run()} or similar methods are called.
+     *
+     * @param runnable the side effect to execute; must not be null
+     * @return a new VTaskContext that produces Unit when run
+     * @throws NullPointerException if runnable is null
+     */
+    public static VTaskContext<Unit> exec(Runnable runnable) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a VTaskContext from a side-effecting runnable.
-   *
-   * <p>The runnable is not executed until {@link #run()} or similar methods are called.
-   *
-   * @param runnable the side effect to execute; must not be null
-   * @return a new VTaskContext that produces Unit when run
-   * @throws NullPointerException if runnable is null
-   */
-  public static VTaskContext<Unit> exec(Runnable runnable) {
-    Objects.requireNonNull(runnable, "runnable must not be null");
-    return new VTaskContext<>(Path.vtaskExec(runnable));
-  }
+    /**
+     * Creates a VTaskContext containing a pure value.
+     *
+     * <p>The value is already computed; no side effects occur when this context is run.
+     *
+     * @param value the value to wrap
+     * @param <A> the value type
+     * @return a new VTaskContext that immediately produces the value when run
+     */
+    public static <A> VTaskContext<A> pure(A value) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a VTaskContext containing a pure value.
-   *
-   * <p>The value is already computed; no side effects occur when this context is run.
-   *
-   * @param value the value to wrap
-   * @param <A> the value type
-   * @return a new VTaskContext that immediately produces the value when run
-   */
-  public static <A> VTaskContext<A> pure(A value) {
-    return new VTaskContext<>(Path.vtaskPure(value));
-  }
+    /**
+     * Creates a failed VTaskContext containing the given exception.
+     *
+     * @param error the exception; must not be null
+     * @param <A> the phantom type of the success value
+     * @return a failed VTaskContext
+     * @throws NullPointerException if error is null
+     */
+    public static <A> VTaskContext<A> fail(Throwable error) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a failed VTaskContext containing the given exception.
-   *
-   * @param error the exception; must not be null
-   * @param <A> the phantom type of the success value
-   * @return a failed VTaskContext
-   * @throws NullPointerException if error is null
-   */
-  public static <A> VTaskContext<A> fail(Throwable error) {
-    Objects.requireNonNull(error, "error must not be null");
-    return new VTaskContext<>(Path.vtaskFail(error));
-  }
+    /**
+     * Creates a VTaskContext from an existing VTaskPath.
+     *
+     * @param path the VTaskPath to wrap; must not be null
+     * @param <A> the value type
+     * @return a new VTaskContext wrapping the path
+     * @throws NullPointerException if path is null
+     */
+    public static <A> VTaskContext<A> fromPath(VTaskPath<A> path) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a VTaskContext from an existing VTaskPath.
-   *
-   * @param path the VTaskPath to wrap; must not be null
-   * @param <A> the value type
-   * @return a new VTaskContext wrapping the path
-   * @throws NullPointerException if path is null
-   */
-  public static <A> VTaskContext<A> fromPath(VTaskPath<A> path) {
-    Objects.requireNonNull(path, "path must not be null");
-    return new VTaskContext<>(path);
-  }
+    /**
+     * Creates a VTaskContext from an existing VTask.
+     *
+     * @param vtask the VTask to wrap; must not be null
+     * @param <A> the value type
+     * @return a new VTaskContext wrapping the VTask
+     * @throws NullPointerException if vtask is null
+     */
+    public static <A> VTaskContext<A> fromVTask(VTask<A> vtask) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a VTaskContext from an existing VTask.
-   *
-   * @param vtask the VTask to wrap; must not be null
-   * @param <A> the value type
-   * @return a new VTaskContext wrapping the VTask
-   * @throws NullPointerException if vtask is null
-   */
-  public static <A> VTaskContext<A> fromVTask(VTask<A> vtask) {
-    Objects.requireNonNull(vtask, "vtask must not be null");
-    return new VTaskContext<>(Path.vtaskPath(vtask));
-  }
+    // ===== Transformation Operations =====
+    /**
+     * Transforms the contained value using the provided function.
+     *
+     * <p>If this context fails, the function is not applied and the failure is preserved.
+     *
+     * @param mapper the function to apply to the value; must not be null
+     * @param <B> the type of the transformed value
+     * @return a new context with the transformed value
+     * @throws NullPointerException if mapper is null
+     */
+    public <B> VTaskContext<B> map(Function<? super A, ? extends B> mapper) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  // ===== Transformation Operations =====
+    /**
+     * Chains a dependent computation that returns a VTaskContext.
+     *
+     * <p>This is the monadic bind operation, named {@code via} to match the Effect Path API
+     * vocabulary. The function is applied to the contained value, and the resulting context becomes
+     * the new context.
+     *
+     * <p>If this context fails, the function is not applied and the failure is propagated.
+     *
+     * @param fn the function to apply, returning a new context; must not be null
+     * @param <B> the type of the value in the returned context
+     * @return the context returned by the function, or a failed context
+     * @throws NullPointerException if fn is null or returns null
+     */
+    public <B> VTaskContext<B> via(Function<? super A, ? extends VTaskContext<B>> fn) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Transforms the contained value using the provided function.
-   *
-   * <p>If this context fails, the function is not applied and the failure is preserved.
-   *
-   * @param mapper the function to apply to the value; must not be null
-   * @param <B> the type of the transformed value
-   * @return a new context with the transformed value
-   * @throws NullPointerException if mapper is null
-   */
-  public <B> VTaskContext<B> map(Function<? super A, ? extends B> mapper) {
-    Objects.requireNonNull(mapper, "mapper must not be null");
-    return new VTaskContext<>(path.map(mapper));
-  }
+    /**
+     * Chains a dependent computation using flatMap.
+     *
+     * <p>This is an alias for {@link #via(Function)} that matches traditional monad terminology.
+     *
+     * @param fn the function to apply, returning a new context; must not be null
+     * @param <B> the type of the value in the returned context
+     * @return the context returned by the function, or a failed context
+     * @throws NullPointerException if fn is null or returns null
+     */
+    public <B> VTaskContext<B> flatMap(Function<? super A, ? extends VTaskContext<B>> fn) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Chains a dependent computation that returns a VTaskContext.
-   *
-   * <p>This is the monadic bind operation, named {@code via} to match the Effect Path API
-   * vocabulary. The function is applied to the contained value, and the resulting context becomes
-   * the new context.
-   *
-   * <p>If this context fails, the function is not applied and the failure is propagated.
-   *
-   * @param fn the function to apply, returning a new context; must not be null
-   * @param <B> the type of the value in the returned context
-   * @return the context returned by the function, or a failed context
-   * @throws NullPointerException if fn is null or returns null
-   */
-  public <B> VTaskContext<B> via(Function<? super A, ? extends VTaskContext<B>> fn) {
-    Objects.requireNonNull(fn, "fn must not be null");
-    return new VTaskContext<>(
-        path.via(
-            a -> {
-              VTaskContext<B> next = fn.apply(a);
-              Objects.requireNonNull(next, "fn must not return null");
-              return next.path;
-            }));
-  }
+    /**
+     * Sequences an independent computation, discarding this context's value.
+     *
+     * <p>This is useful for sequencing effects where only the final result matters.
+     *
+     * @param supplier provides the next context; must not be null
+     * @param <B> the type of the value in the returned context
+     * @return the context from the supplier
+     * @throws NullPointerException if supplier is null or returns null
+     */
+    public <B> VTaskContext<B> then(Supplier<? extends VTaskContext<B>> supplier) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Chains a dependent computation using flatMap.
-   *
-   * <p>This is an alias for {@link #via(Function)} that matches traditional monad terminology.
-   *
-   * @param fn the function to apply, returning a new context; must not be null
-   * @param <B> the type of the value in the returned context
-   * @return the context returned by the function, or a failed context
-   * @throws NullPointerException if fn is null or returns null
-   */
-  public <B> VTaskContext<B> flatMap(Function<? super A, ? extends VTaskContext<B>> fn) {
-    return via(fn);
-  }
+    // ===== Error Recovery Operations =====
+    /**
+     * Recovers from an error by providing a fallback value.
+     *
+     * <p>If this context fails, the recovery function is applied to produce a success value. If this
+     * context succeeds, it is returned unchanged.
+     *
+     * @param recovery the function to apply to the error to produce a value; must not be null
+     * @return a context containing either the original value or the recovered value
+     * @throws NullPointerException if recovery is null
+     */
+    public VTaskContext<A> recover(Function<? super Throwable, ? extends A> recovery) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Sequences an independent computation, discarding this context's value.
-   *
-   * <p>This is useful for sequencing effects where only the final result matters.
-   *
-   * @param supplier provides the next context; must not be null
-   * @param <B> the type of the value in the returned context
-   * @return the context from the supplier
-   * @throws NullPointerException if supplier is null or returns null
-   */
-  public <B> VTaskContext<B> then(Supplier<? extends VTaskContext<B>> supplier) {
-    Objects.requireNonNull(supplier, "supplier must not be null");
-    return via(ignored -> supplier.get());
-  }
+    /**
+     * Recovers from an error by providing a fallback VTaskContext.
+     *
+     * <p>If this context fails, the recovery function is applied to produce an alternative context.
+     * If this context succeeds, it is returned unchanged.
+     *
+     * @param recovery the function to apply to the error to produce a fallback context; must not be
+     *     null
+     * @return either this context (if successful) or the fallback context
+     * @throws NullPointerException if recovery is null or returns null
+     */
+    public VTaskContext<A> recoverWith(Function<? super Throwable, ? extends VTaskContext<A>> recovery) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  // ===== Error Recovery Operations =====
+    /**
+     * Provides an alternative context if this one fails.
+     *
+     * <p>This is a convenience method that ignores the specific error and provides a fallback.
+     *
+     * @param alternative provides the fallback context; must not be null
+     * @return either this context (if successful) or the alternative
+     * @throws NullPointerException if alternative is null or returns null
+     */
+    public VTaskContext<A> orElse(Supplier<? extends VTaskContext<A>> alternative) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Recovers from an error by providing a fallback value.
-   *
-   * <p>If this context fails, the recovery function is applied to produce a success value. If this
-   * context succeeds, it is returned unchanged.
-   *
-   * @param recovery the function to apply to the error to produce a value; must not be null
-   * @return a context containing either the original value or the recovered value
-   * @throws NullPointerException if recovery is null
-   */
-  public VTaskContext<A> recover(Function<? super Throwable, ? extends A> recovery) {
-    Objects.requireNonNull(recovery, "recovery must not be null");
-    return new VTaskContext<>(path.handleError(recovery));
-  }
+    // ===== Timeout =====
+    /**
+     * Creates a new VTaskContext that fails if this computation does not complete within the
+     * specified duration.
+     *
+     * @param duration the maximum time to wait; must not be null
+     * @return a VTaskContext with timeout behaviour
+     * @throws NullPointerException if duration is null
+     */
+    public VTaskContext<A> timeout(Duration duration) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Recovers from an error by providing a fallback VTaskContext.
-   *
-   * <p>If this context fails, the recovery function is applied to produce an alternative context.
-   * If this context succeeds, it is returned unchanged.
-   *
-   * @param recovery the function to apply to the error to produce a fallback context; must not be
-   *     null
-   * @return either this context (if successful) or the fallback context
-   * @throws NullPointerException if recovery is null or returns null
-   */
-  public VTaskContext<A> recoverWith(
-      Function<? super Throwable, ? extends VTaskContext<A>> recovery) {
-    Objects.requireNonNull(recovery, "recovery must not be null");
-    return new VTaskContext<>(
-        path.handleErrorWith(
-            error -> {
-              VTaskContext<A> next = recovery.apply(error);
-              Objects.requireNonNull(next, "recovery must not return null");
-              return next.path;
-            }));
-  }
+    // ===== Resilience Methods =====
+    /**
+     * Returns a VTaskContext that retries this computation according to the given policy.
+     *
+     * @param policy the retry policy; must not be null
+     * @return a VTaskContext with retry behaviour
+     * @throws NullPointerException if policy is null
+     */
+    public VTaskContext<A> withRetry(RetryPolicy policy) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Provides an alternative context if this one fails.
-   *
-   * <p>This is a convenience method that ignores the specific error and provides a fallback.
-   *
-   * @param alternative provides the fallback context; must not be null
-   * @return either this context (if successful) or the alternative
-   * @throws NullPointerException if alternative is null or returns null
-   */
-  public VTaskContext<A> orElse(Supplier<? extends VTaskContext<A>> alternative) {
-    Objects.requireNonNull(alternative, "alternative must not be null");
-    return recoverWith(ignored -> alternative.get());
-  }
+    /**
+     * Returns a VTaskContext that retries with exponential backoff and jitter.
+     *
+     * @param maxAttempts the maximum number of attempts
+     * @param initialDelay the initial delay between retries
+     * @return a VTaskContext with retry behaviour
+     */
+    public VTaskContext<A> retry(int maxAttempts, Duration initialDelay) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  // ===== Timeout =====
+    /**
+     * Returns a VTaskContext protected by the given circuit breaker.
+     *
+     * @param circuitBreaker the circuit breaker; must not be null
+     * @return a VTaskContext with circuit breaker protection
+     * @throws NullPointerException if circuitBreaker is null
+     */
+    public VTaskContext<A> withCircuitBreaker(CircuitBreaker circuitBreaker) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a new VTaskContext that fails if this computation does not complete within the
-   * specified duration.
-   *
-   * @param duration the maximum time to wait; must not be null
-   * @return a VTaskContext with timeout behaviour
-   * @throws NullPointerException if duration is null
-   */
-  public VTaskContext<A> timeout(Duration duration) {
-    Objects.requireNonNull(duration, "duration must not be null");
-    return new VTaskContext<>(path.timeout(duration));
-  }
+    /**
+     * Returns a VTaskContext protected by the given bulkhead.
+     *
+     * @param bulkhead the bulkhead; must not be null
+     * @return a VTaskContext with bulkhead protection
+     * @throws NullPointerException if bulkhead is null
+     */
+    public VTaskContext<A> withBulkhead(Bulkhead bulkhead) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  // ===== Resilience Methods =====
+    // ===== Execution Methods =====
+    /**
+     * Executes the computation eagerly and returns the result wrapped in a Try.
+     *
+     * <p>This is the primary execution method. It runs the VTask immediately and captures the result
+     * or any exception in a Try.
+     *
+     * @return a Try containing the result or exception
+     */
+    public Try<A> run() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Returns a VTaskContext that retries this computation according to the given policy.
-   *
-   * @param policy the retry policy; must not be null
-   * @return a VTaskContext with retry behaviour
-   * @throws NullPointerException if policy is null
-   */
-  public VTaskContext<A> withRetry(RetryPolicy policy) {
-    Objects.requireNonNull(policy, "policy must not be null");
-    return new VTaskContext<>(path.withRetry(policy));
-  }
+    /**
+     * Executes the computation asynchronously on a virtual thread.
+     *
+     * <p>The computation starts immediately on a virtual thread. The returned future can be used to
+     * wait for the result or combine with other asynchronous operations.
+     *
+     * @return a CompletableFuture that will complete with the result
+     */
+    public CompletableFuture<A> runAsync() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Returns a VTaskContext that retries with exponential backoff and jitter.
-   *
-   * @param maxAttempts the maximum number of attempts
-   * @param initialDelay the initial delay between retries
-   * @return a VTaskContext with retry behaviour
-   */
-  public VTaskContext<A> retry(int maxAttempts, Duration initialDelay) {
-    return new VTaskContext<>(path.retry(maxAttempts, initialDelay));
-  }
+    /**
+     * Executes the computation and returns the result, throwing on failure.
+     *
+     * <p>If the computation fails, the exception is wrapped in a RuntimeException and thrown.
+     *
+     * @return the success value
+     * @throws RuntimeException if the computation fails
+     */
+    public A runOrThrow() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Returns a VTaskContext protected by the given circuit breaker.
-   *
-   * @param circuitBreaker the circuit breaker; must not be null
-   * @return a VTaskContext with circuit breaker protection
-   * @throws NullPointerException if circuitBreaker is null
-   */
-  public VTaskContext<A> withCircuitBreaker(CircuitBreaker circuitBreaker) {
-    Objects.requireNonNull(circuitBreaker, "circuitBreaker must not be null");
-    return new VTaskContext<>(path.withCircuitBreaker(circuitBreaker));
-  }
+    /**
+     * Executes the computation and returns the result, or a default on failure.
+     *
+     * @param defaultValue the value to return if the computation fails
+     * @return the success value or the default
+     */
+    public A runOrElse(A defaultValue) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Returns a VTaskContext protected by the given bulkhead.
-   *
-   * @param bulkhead the bulkhead; must not be null
-   * @return a VTaskContext with bulkhead protection
-   * @throws NullPointerException if bulkhead is null
-   */
-  public VTaskContext<A> withBulkhead(Bulkhead bulkhead) {
-    Objects.requireNonNull(bulkhead, "bulkhead must not be null");
-    return new VTaskContext<>(path.withBulkhead(bulkhead));
-  }
+    /**
+     * Executes the computation and returns the result, or applies a handler on failure.
+     *
+     * @param errorHandler the function to apply to the error to produce a value; must not be null
+     * @return the success value or the result of the error handler
+     * @throws NullPointerException if errorHandler is null
+     */
+    public A runOrElseGet(Function<? super Throwable, ? extends A> errorHandler) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  // ===== Execution Methods =====
+    // ===== Access to Underlying Path =====
+    /**
+     * Returns the underlying VTaskPath.
+     *
+     * <p>This is an escape hatch to Layer 1 for users who need full control over the VTaskPath
+     * operations.
+     *
+     * @return the underlying VTaskPath
+     */
+    public VTaskPath<A> toPath() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Executes the computation eagerly and returns the result wrapped in a Try.
-   *
-   * <p>This is the primary execution method. It runs the VTask immediately and captures the result
-   * or any exception in a Try.
-   *
-   * @return a Try containing the result or exception
-   */
-  public Try<A> run() {
-    return path.runSafe();
-  }
+    /**
+     * Returns the underlying VTask.
+     *
+     * <p>This is an escape hatch for users who need direct access to the VTask.
+     *
+     * @return the underlying VTask
+     */
+    public VTask<A> toVTask() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Executes the computation asynchronously on a virtual thread.
-   *
-   * <p>The computation starts immediately on a virtual thread. The returned future can be used to
-   * wait for the result or combine with other asynchronous operations.
-   *
-   * @return a CompletableFuture that will complete with the result
-   */
-  public CompletableFuture<A> runAsync() {
-    return path.runAsync();
-  }
-
-  /**
-   * Executes the computation and returns the result, throwing on failure.
-   *
-   * <p>If the computation fails, the exception is wrapped in a RuntimeException and thrown.
-   *
-   * @return the success value
-   * @throws RuntimeException if the computation fails
-   */
-  public A runOrThrow() {
-    return path.unsafeRun();
-  }
-
-  /**
-   * Executes the computation and returns the result, or a default on failure.
-   *
-   * @param defaultValue the value to return if the computation fails
-   * @return the success value or the default
-   */
-  public A runOrElse(A defaultValue) {
-    return run().orElse(defaultValue);
-  }
-
-  /**
-   * Executes the computation and returns the result, or applies a handler on failure.
-   *
-   * @param errorHandler the function to apply to the error to produce a value; must not be null
-   * @return the success value or the result of the error handler
-   * @throws NullPointerException if errorHandler is null
-   */
-  public A runOrElseGet(Function<? super Throwable, ? extends A> errorHandler) {
-    Objects.requireNonNull(errorHandler, "errorHandler must not be null");
-    return run().fold(a -> a, errorHandler);
-  }
-
-  // ===== Access to Underlying Path =====
-
-  /**
-   * Returns the underlying VTaskPath.
-   *
-   * <p>This is an escape hatch to Layer 1 for users who need full control over the VTaskPath
-   * operations.
-   *
-   * @return the underlying VTaskPath
-   */
-  public VTaskPath<A> toPath() {
-    return path;
-  }
-
-  /**
-   * Returns the underlying VTask.
-   *
-   * <p>This is an escape hatch for users who need direct access to the VTask.
-   *
-   * @return the underlying VTask
-   */
-  public VTask<A> toVTask() {
-    return path.run();
-  }
-
-  @Override
-  public String toString() {
-    return "VTaskContext(<deferred>)";
-  }
+    @Override
+    public String toString() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

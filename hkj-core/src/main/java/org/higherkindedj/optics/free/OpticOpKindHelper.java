@@ -13,36 +13,40 @@ import org.jspecify.annotations.NullMarked;
  */
 @NullMarked
 public enum OpticOpKindHelper {
-  /** Singleton instance. */
-  OP;
 
-  /**
-   * Holder record that implements OpticOpKind.
-   *
-   * @param <A> The result type
-   */
-  record OpticOpHolder<A>(OpticOp<?, A> op) implements OpticOpKind<A> {}
+    /**
+     * Singleton instance.
+     */
+    OP;
 
-  /**
-   * Widens a concrete OpticOp into its Kind representation.
-   *
-   * @param op The optic operation
-   * @param <A> The result type
-   * @return The widened Kind representation
-   */
-  public <A> Kind<OpticOpKind.Witness, A> widen(OpticOp<?, A> op) {
-    return new OpticOpHolder<>(op);
-  }
+    /**
+     * Holder record that implements OpticOpKind.
+     *
+     * @param <A> The result type
+     */
+    record OpticOpHolder<A>(OpticOp<?, A> op) implements OpticOpKind<A> {
+    }
 
-  /**
-   * Narrows a Kind representation back to concrete OpticOp.
-   *
-   * @param kind The Kind representation
-   * @param <A> The result type
-   * @return The concrete OpticOp
-   */
-  @SuppressWarnings("unchecked")
-  public <A> OpticOp<?, A> narrow(Kind<OpticOpKind.Witness, A> kind) {
-    return ((OpticOpHolder<A>) kind).op();
-  }
+    /**
+     * Widens a concrete OpticOp into its Kind representation.
+     *
+     * @param op The optic operation
+     * @param <A> The result type
+     * @return The widened Kind representation
+     */
+    public <A> Kind<OpticOpKind.Witness, A> widen(OpticOp<?, A> op) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Narrows a Kind representation back to concrete OpticOp.
+     *
+     * @param kind The Kind representation
+     * @param <A> The result type
+     * @return The concrete OpticOp
+     */
+    @SuppressWarnings("unchecked")
+    public <A> OpticOp<?, A> narrow(Kind<OpticOpKind.Witness, A> kind) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

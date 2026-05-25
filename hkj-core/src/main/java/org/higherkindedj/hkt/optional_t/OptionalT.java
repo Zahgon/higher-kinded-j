@@ -3,7 +3,6 @@
 package org.higherkindedj.hkt.optional_t;
 
 import static org.higherkindedj.hkt.util.validation.Operation.*;
-
 import java.util.Optional;
 import java.util.function.Function;
 import org.higherkindedj.hkt.Kind;
@@ -31,148 +30,129 @@ import org.higherkindedj.hkt.util.validation.Validation;
  * @see OptionalTKindHelper
  * @see OptionalTMonad
  */
-public record OptionalT<F extends WitnessArity<TypeArity.Unary>, A>(Kind<F, Optional<A>> value)
-    implements OptionalTKind<F, A> {
+public record OptionalT<F extends WitnessArity<TypeArity.Unary>, A>(Kind<F, Optional<A>> value) implements OptionalTKind<F, A> {
 
-  private static final Class<OptionalT> OPTIONAL_T_CLASS = OptionalT.class;
+    private static final Class<OptionalT> OPTIONAL_T_CLASS = OptionalT.class;
 
-  /**
-   * Canonical constructor for {@code OptionalT}.
-   *
-   * @param value The underlying monadic value {@code Kind<F, Optional<A>>}.
-   * @throws NullPointerException if {@code value} is null.
-   */
-  public OptionalT {
-    Validation.kind().requireNonNull(value, CONSTRUCTION);
-  }
+    /**
+     * Canonical constructor for {@code OptionalT}.
+     *
+     * @param value The underlying monadic value {@code Kind<F, Optional<A>>}.
+     * @throws NullPointerException if {@code value} is null.
+     */
+    public OptionalT {
+        Validation.kind().requireNonNull(value, CONSTRUCTION);
+    }
 
-  /**
-   * Creates an {@code OptionalT} from an existing {@code Kind<F, Optional<A>>}.
-   *
-   * @param value The monadic value to wrap. Must not be null.
-   * @param <F> The witness type of the outer monad.
-   * @param <A> The type of the value in the inner {@link Optional}.
-   * @return A new {@code OptionalT} instance.
-   * @throws NullPointerException if {@code value} is null.
-   */
-  public static <F extends WitnessArity<TypeArity.Unary>, A> OptionalT<F, A> fromKind(
-      Kind<F, Optional<A>> value) {
-    return new OptionalT<>(value);
-  }
+    /**
+     * Creates an {@code OptionalT} from an existing {@code Kind<F, Optional<A>>}.
+     *
+     * @param value The monadic value to wrap. Must not be null.
+     * @param <F> The witness type of the outer monad.
+     * @param <A> The type of the value in the inner {@link Optional}.
+     * @return A new {@code OptionalT} instance.
+     * @throws NullPointerException if {@code value} is null.
+     */
+    public static <F extends WitnessArity<TypeArity.Unary>, A> OptionalT<F, A> fromKind(Kind<F, Optional<A>> value) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Lifts a non-null value {@code a} into {@code OptionalT<F, A>}, resulting in {@code
-   * F<Optional.of(a)>}.
-   *
-   * @param outerMonad The {@link Monad} instance for the outer type {@code F}. Must not be null.
-   * @param a The value to wrap. Must not be null (enforced by {@link Optional#of(Object)}).
-   * @param <F> The witness type of the outer monad.
-   * @param <A> The type of the value to wrap.
-   * @return A new {@code OptionalT} instance representing {@code outerMonad.of(Optional.of(a))}.
-   * @throws NullPointerException if {@code outerMonad} or {@code a} is null.
-   */
-  public static <F extends WitnessArity<TypeArity.Unary>, A extends Object> OptionalT<F, A> some(
-      Monad<F> outerMonad, A a) {
-    Validation.transformer().requireOuterMonad(outerMonad, OPTIONAL_T_CLASS, SOME);
-    Kind<F, Optional<A>> lifted = outerMonad.of(Optional.of(a));
-    return new OptionalT<>(lifted);
-  }
+    /**
+     * Lifts a non-null value {@code a} into {@code OptionalT<F, A>}, resulting in {@code
+     * F<Optional.of(a)>}.
+     *
+     * @param outerMonad The {@link Monad} instance for the outer type {@code F}. Must not be null.
+     * @param a The value to wrap. Must not be null (enforced by {@link Optional#of(Object)}).
+     * @param <F> The witness type of the outer monad.
+     * @param <A> The type of the value to wrap.
+     * @return A new {@code OptionalT} instance representing {@code outerMonad.of(Optional.of(a))}.
+     * @throws NullPointerException if {@code outerMonad} or {@code a} is null.
+     */
+    public static <F extends WitnessArity<TypeArity.Unary>, A extends Object> OptionalT<F, A> some(Monad<F> outerMonad, A a) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates an {@code OptionalT<F, A>} representing the {@code Optional.empty()} state, resulting
-   * in {@code F<Optional.empty()>}.
-   *
-   * @param outerMonad The {@link Monad} instance for the outer type {@code F}. Must not be null.
-   * @param <F> The witness type of the outer monad.
-   * @param <A> The type of the value in the inner {@link Optional} (will be absent).
-   * @return A new {@code OptionalT} instance representing {@code outerMonad.of(Optional.empty())}.
-   * @throws NullPointerException if {@code outerMonad} is null.
-   */
-  public static <F extends WitnessArity<TypeArity.Unary>, A> OptionalT<F, A> none(
-      Monad<F> outerMonad) {
-    Validation.transformer().requireOuterMonad(outerMonad, OPTIONAL_T_CLASS, NONE);
-    Kind<F, Optional<A>> lifted = outerMonad.of(Optional.empty());
-    return new OptionalT<>(lifted);
-  }
+    /**
+     * Creates an {@code OptionalT<F, A>} representing the {@code Optional.empty()} state, resulting
+     * in {@code F<Optional.empty()>}.
+     *
+     * @param outerMonad The {@link Monad} instance for the outer type {@code F}. Must not be null.
+     * @param <F> The witness type of the outer monad.
+     * @param <A> The type of the value in the inner {@link Optional} (will be absent).
+     * @return A new {@code OptionalT} instance representing {@code outerMonad.of(Optional.empty())}.
+     * @throws NullPointerException if {@code outerMonad} is null.
+     */
+    public static <F extends WitnessArity<TypeArity.Unary>, A> OptionalT<F, A> none(Monad<F> outerMonad) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Lifts a plain {@link Optional<A>} into {@code OptionalT<F, A>}, resulting in {@code
-   * F<Optional<A>>}.
-   *
-   * @param outerMonad The {@link Monad} instance for the outer type {@code F}. Must not be null.
-   * @param optional The {@link Optional} instance to lift. Must not be null.
-   * @param <F> The witness type of the outer monad.
-   * @param <A> The type of the value in the {@link Optional}.
-   * @return A new {@code OptionalT} instance representing {@code outerMonad.of(optional)}.
-   * @throws NullPointerException if {@code outerMonad} or {@code optional} is null.
-   */
-  public static <F extends WitnessArity<TypeArity.Unary>, A> OptionalT<F, A> fromOptional(
-      Monad<F> outerMonad, Optional<A> optional) {
-    Validation.transformer().requireOuterMonad(outerMonad, OPTIONAL_T_CLASS, FROM_OPTIONAL);
-    Validation.transformer()
-        .requireTransformerComponent(optional, "inner Optional", OPTIONAL_T_CLASS, FROM_OPTIONAL);
-    Kind<F, Optional<A>> lifted = outerMonad.of(optional);
-    return new OptionalT<>(lifted);
-  }
+    /**
+     * Lifts a plain {@link Optional<A>} into {@code OptionalT<F, A>}, resulting in {@code
+     * F<Optional<A>>}.
+     *
+     * @param outerMonad The {@link Monad} instance for the outer type {@code F}. Must not be null.
+     * @param optional The {@link Optional} instance to lift. Must not be null.
+     * @param <F> The witness type of the outer monad.
+     * @param <A> The type of the value in the {@link Optional}.
+     * @return A new {@code OptionalT} instance representing {@code outerMonad.of(optional)}.
+     * @throws NullPointerException if {@code outerMonad} or {@code optional} is null.
+     */
+    public static <F extends WitnessArity<TypeArity.Unary>, A> OptionalT<F, A> fromOptional(Monad<F> outerMonad, Optional<A> optional) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Lifts a monadic value {@code Kind<F, A>} into {@code OptionalT<F, A>}, resulting in {@code
-   * F<Optional<A>>}. The value {@code A} inside {@code F} is mapped to {@code Optional<A>} using
-   * {@link Optional#ofNullable(Object)}.
-   *
-   * @param outerMonad The {@link Monad} instance for the outer type {@code F}. Must not be null.
-   * @param fa The monadic value {@code Kind<F, A>} to lift. Must not be null.
-   * @param <F> The witness type of the outer monad.
-   * @param <A> The type of the value in {@code fa}.
-   * @return A new {@code OptionalT} instance representing {@code
-   *     outerMonad.map(Optional::ofNullable, fa)}.
-   * @throws NullPointerException if {@code outerMonad} or {@code fa} is null.
-   */
-  public static <F extends WitnessArity<TypeArity.Unary>, A> OptionalT<F, A> liftF(
-      Monad<F> outerMonad, Kind<F, A> fa) {
-    Validation.transformer().requireOuterMonad(outerMonad, OPTIONAL_T_CLASS, LIFT_F);
-    Validation.kind().requireNonNull(fa, LIFT_F, "source Kind");
-    Kind<F, Optional<A>> mapped = outerMonad.map(Optional::ofNullable, fa);
-    return new OptionalT<>(mapped);
-  }
+    /**
+     * Lifts a monadic value {@code Kind<F, A>} into {@code OptionalT<F, A>}, resulting in {@code
+     * F<Optional<A>>}. The value {@code A} inside {@code F} is mapped to {@code Optional<A>} using
+     * {@link Optional#ofNullable(Object)}.
+     *
+     * @param outerMonad The {@link Monad} instance for the outer type {@code F}. Must not be null.
+     * @param fa The monadic value {@code Kind<F, A>} to lift. Must not be null.
+     * @param <F> The witness type of the outer monad.
+     * @param <A> The type of the value in {@code fa}.
+     * @return A new {@code OptionalT} instance representing {@code
+     *     outerMonad.map(Optional::ofNullable, fa)}.
+     * @throws NullPointerException if {@code outerMonad} or {@code fa} is null.
+     */
+    public static <F extends WitnessArity<TypeArity.Unary>, A> OptionalT<F, A> liftF(Monad<F> outerMonad, Kind<F, A> fa) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Transforms the outer monad layer of this {@code OptionalT} by applying the given function to
-   * the underlying {@code Kind<F, Optional<A>>}, producing a new {@code OptionalT<G, A>} wrapping
-   * the result. The inner {@link Optional} value is left untouched — only the surrounding monadic
-   * context changes.
-   *
-   * <p>This is useful for applying cross-cutting concerns (logging, retry, timeout) at the monad
-   * level, or for switching between monadic contexts via a natural transformation.
-   *
-   * <p><b>Example — switching from IO to Task via a natural transformation:</b>
-   *
-   * <pre>{@code
-   * OptionalT<IOKind.Witness, String> ioResult = ...;
-   * Natural<IOKind.Witness, TaskKind.Witness> ioToTask = ...;
-   *
-   * OptionalT<TaskKind.Witness, String> taskResult = ioResult.mapT(ioToTask::apply);
-   * }</pre>
-   *
-   * @param f The function to apply to the underlying {@code Kind<F, Optional<A>>}. Must not be
-   *     null.
-   * @param <G> The witness type of the target outer monad.
-   * @return A new {@code OptionalT<G, A>} wrapping the transformed monadic value.
-   * @throws NullPointerException if {@code f} is null.
-   */
-  public <G extends WitnessArity<TypeArity.Unary>> OptionalT<G, A> mapT(
-      Function<Kind<F, Optional<A>>, Kind<G, Optional<A>>> f) {
-    Validation.function().require(f, "f", MAP_T);
-    return OptionalT.fromKind(f.apply(this.value()));
-  }
+    /**
+     * Transforms the outer monad layer of this {@code OptionalT} by applying the given function to
+     * the underlying {@code Kind<F, Optional<A>>}, producing a new {@code OptionalT<G, A>} wrapping
+     * the result. The inner {@link Optional} value is left untouched — only the surrounding monadic
+     * context changes.
+     *
+     * <p>This is useful for applying cross-cutting concerns (logging, retry, timeout) at the monad
+     * level, or for switching between monadic contexts via a natural transformation.
+     *
+     * <p><b>Example — switching from IO to Task via a natural transformation:</b>
+     *
+     * <pre>{@code
+     * OptionalT<IOKind.Witness, String> ioResult = ...;
+     * Natural<IOKind.Witness, TaskKind.Witness> ioToTask = ...;
+     *
+     * OptionalT<TaskKind.Witness, String> taskResult = ioResult.mapT(ioToTask::apply);
+     * }</pre>
+     *
+     * @param f The function to apply to the underlying {@code Kind<F, Optional<A>>}. Must not be
+     *     null.
+     * @param <G> The witness type of the target outer monad.
+     * @return A new {@code OptionalT<G, A>} wrapping the transformed monadic value.
+     * @throws NullPointerException if {@code f} is null.
+     */
+    public <G extends WitnessArity<TypeArity.Unary>> OptionalT<G, A> mapT(Function<Kind<F, Optional<A>>, Kind<G, Optional<A>>> f) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Accessor for the underlying monadic value.
-   *
-   * @return The {@code Kind<F, Optional<A>>} wrapped by this {@code OptionalT}.
-   */
-  @Override
-  public Kind<F, Optional<A>> value() {
-    return value;
-  }
+    /**
+     * Accessor for the underlying monadic value.
+     *
+     * @return The {@code Kind<F, Optional<A>>} wrapped by this {@code OptionalT}.
+     */
+    @Override
+    public Kind<F, Optional<A>> value() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

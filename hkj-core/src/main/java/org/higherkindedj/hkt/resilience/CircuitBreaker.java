@@ -51,251 +51,184 @@ import org.higherkindedj.hkt.vtask.VTask;
  */
 public final class CircuitBreaker {
 
-  /** The possible states of the circuit breaker. */
-  public enum Status {
-    /** Normal operation: calls are allowed through. */
-    CLOSED,
-    /** Failing fast: all calls are rejected immediately. */
-    OPEN,
-    /** Probing: a limited number of calls are allowed to test recovery. */
-    HALF_OPEN
-  }
+    /**
+     * The possible states of the circuit breaker.
+     */
+    public enum Status {
 
-  private record InternalState(
-      Status status, int failureCount, int successCount, Instant lastStateChange) {}
-
-  private final CircuitBreakerConfig config;
-  private final AtomicReference<InternalState> stateRef;
-
-  // Metrics counters
-  private final AtomicLong totalCalls = new AtomicLong();
-  private final AtomicLong successfulCalls = new AtomicLong();
-  private final AtomicLong failedCalls = new AtomicLong();
-  private final AtomicLong rejectedCalls = new AtomicLong();
-  private final AtomicLong stateTransitions = new AtomicLong();
-
-  private CircuitBreaker(CircuitBreakerConfig config) {
-    this.config = config;
-    this.stateRef = new AtomicReference<>(new InternalState(Status.CLOSED, 0, 0, Instant.now()));
-  }
-
-  // ===== Factory Methods =====
-
-  /**
-   * Creates a circuit breaker with the given configuration.
-   *
-   * @param config the configuration; must not be null
-   * @return a new CircuitBreaker
-   * @throws NullPointerException if config is null
-   */
-  public static CircuitBreaker create(CircuitBreakerConfig config) {
-    Objects.requireNonNull(config, "config must not be null");
-    return new CircuitBreaker(config);
-  }
-
-  /**
-   * Creates a circuit breaker with default configuration.
-   *
-   * @return a new CircuitBreaker with default settings
-   */
-  public static CircuitBreaker withDefaults() {
-    return new CircuitBreaker(CircuitBreakerConfig.defaults());
-  }
-
-  // ===== Protection =====
-
-  /**
-   * Returns a new {@link VTask} that is protected by this circuit breaker.
-   *
-   * <p>If the circuit is closed or half-open, the task executes normally. If it succeeds, success
-   * is recorded. If it fails with an exception that matches the {@link
-   * CircuitBreakerConfig#recordFailure()} predicate, the failure is recorded. If the circuit is
-   * open, the task is immediately rejected with {@link CircuitOpenException}.
-   *
-   * <p>The call timeout from the configuration is applied using {@code VTask.timeout()}.
-   *
-   * @param task the task to protect; must not be null
-   * @param <A> the result type
-   * @return a new VTask protected by this circuit breaker
-   * @throws NullPointerException if task is null
-   */
-  public <A> VTask<A> protect(VTask<A> task) {
-    Objects.requireNonNull(task, "task must not be null");
-    return () -> {
-      totalCalls.incrementAndGet();
-
-      InternalState current = stateRef.get();
-
-      // Check for OPEN -> HALF_OPEN transition
-      if (current.status() == Status.OPEN) {
-        Duration elapsed = Duration.between(current.lastStateChange(), Instant.now());
-        if (elapsed.compareTo(config.openDuration()) >= 0) {
-          // Attempt transition to HALF_OPEN
-          InternalState halfOpen = new InternalState(Status.HALF_OPEN, 0, 0, Instant.now());
-          if (stateRef.compareAndSet(current, halfOpen)) {
-            stateTransitions.incrementAndGet();
-            current = halfOpen;
-          } else {
-            current = stateRef.get();
-          }
-        }
-      }
-
-      // Reject if still OPEN
-      if (current.status() == Status.OPEN) {
-        rejectedCalls.incrementAndGet();
-        long remainingNanos =
-            Math.max(
-                0,
-                config
-                    .openDuration()
-                    .minus(Duration.between(current.lastStateChange(), Instant.now()))
-                    .toNanos());
-        throw new CircuitOpenException(Status.OPEN, Duration.ofNanos(remainingNanos));
-      }
-
-      // Execute the task with timeout (using execute() to preserve original exception types)
-      try {
-        A result = task.timeout(config.callTimeout()).execute();
-        onSuccess();
-        return result;
-      } catch (Throwable t) {
-        if (config.recordFailure().test(t)) {
-          onFailure();
-        } else {
-          // Exception not counted as failure (e.g., business exception)
-          onSuccess();
-        }
-        throw t;
-      }
-    };
-  }
-
-  /**
-   * Returns a new {@link VTask} protected by this circuit breaker, with a fallback value when the
-   * circuit is open.
-   *
-   * @param task the task to protect; must not be null
-   * @param fallback function to produce a fallback value when the circuit is open; must not be null
-   * @param <A> the result type
-   * @return a new VTask with circuit breaker protection and fallback
-   * @throws NullPointerException if task or fallback is null
-   */
-  public <A> VTask<A> protectWithFallback(VTask<A> task, Function<Throwable, A> fallback) {
-    Objects.requireNonNull(task, "task must not be null");
-    Objects.requireNonNull(fallback, "fallback must not be null");
-    return protect(task)
-        .recover(
-            ex -> {
-              if (ex instanceof CircuitOpenException) {
-                return fallback.apply(ex);
-              }
-              throw (ex instanceof RuntimeException re) ? re : new RuntimeException(ex);
-            });
-  }
-
-  // ===== State Inspection =====
-
-  /**
-   * Returns the current state of the circuit breaker.
-   *
-   * @return the current state
-   */
-  public Status currentStatus() {
-    InternalState current = stateRef.get();
-    // Check for pending OPEN -> HALF_OPEN transition
-    if (current.status() == Status.OPEN) {
-      Duration elapsed = Duration.between(current.lastStateChange(), Instant.now());
-      if (elapsed.compareTo(config.openDuration()) >= 0) {
-        return Status.HALF_OPEN;
-      }
+        /**
+         * Normal operation: calls are allowed through.
+         */
+        CLOSED,
+        /**
+         * Failing fast: all calls are rejected immediately.
+         */
+        OPEN,
+        /**
+         * Probing: a limited number of calls are allowed to test recovery.
+         */
+        HALF_OPEN
     }
-    return current.status();
-  }
 
-  /**
-   * Returns a snapshot of the circuit breaker's metrics.
-   *
-   * @return the current metrics
-   */
-  public CircuitBreakerMetrics metrics() {
-    InternalState current = stateRef.get();
-    return new CircuitBreakerMetrics(
-        totalCalls.get(),
-        successfulCalls.get(),
-        failedCalls.get(),
-        rejectedCalls.get(),
-        stateTransitions.get(),
-        current.lastStateChange());
-  }
+    private record InternalState(Status status, int failureCount, int successCount, Instant lastStateChange) {
+    }
 
-  // ===== Manual Control =====
+    private final CircuitBreakerConfig config;
 
-  /** Resets the circuit breaker to the closed state with zeroed counters. */
-  public void reset() {
-    stateRef.set(new InternalState(Status.CLOSED, 0, 0, Instant.now()));
-    stateTransitions.incrementAndGet();
-  }
+    private final AtomicReference<InternalState> stateRef;
 
-  /** Manually trips the circuit breaker to the open state. */
-  public void tripOpen() {
-    stateRef.set(new InternalState(Status.OPEN, 0, 0, Instant.now()));
-    stateTransitions.incrementAndGet();
-  }
+    // Metrics counters
+    private final AtomicLong totalCalls = new AtomicLong();
 
-  // ===== Internal State Management =====
+    private final AtomicLong successfulCalls = new AtomicLong();
 
-  private void onSuccess() {
-    successfulCalls.incrementAndGet();
-    InternalState prev =
-        stateRef.getAndUpdate(
-            current ->
-                switch (current.status()) {
-                  case CLOSED ->
-                      current.failureCount() > 0
-                          ? new InternalState(Status.CLOSED, 0, 0, current.lastStateChange())
-                          : current;
-                  case OPEN -> current; // OPEN state: must NOT transition to CLOSED
-                  case HALF_OPEN -> {
+    private final AtomicLong failedCalls = new AtomicLong();
+
+    private final AtomicLong rejectedCalls = new AtomicLong();
+
+    private final AtomicLong stateTransitions = new AtomicLong();
+
+    private CircuitBreaker(CircuitBreakerConfig config) {
+        this.config = config;
+        this.stateRef = new AtomicReference<>(new InternalState(Status.CLOSED, 0, 0, Instant.now()));
+    }
+
+    // ===== Factory Methods =====
+    /**
+     * Creates a circuit breaker with the given configuration.
+     *
+     * @param config the configuration; must not be null
+     * @return a new CircuitBreaker
+     * @throws NullPointerException if config is null
+     */
+    public static CircuitBreaker create(CircuitBreakerConfig config) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Creates a circuit breaker with default configuration.
+     *
+     * @return a new CircuitBreaker with default settings
+     */
+    public static CircuitBreaker withDefaults() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== Protection =====
+    /**
+     * Returns a new {@link VTask} that is protected by this circuit breaker.
+     *
+     * <p>If the circuit is closed or half-open, the task executes normally. If it succeeds, success
+     * is recorded. If it fails with an exception that matches the {@link
+     * CircuitBreakerConfig#recordFailure()} predicate, the failure is recorded. If the circuit is
+     * open, the task is immediately rejected with {@link CircuitOpenException}.
+     *
+     * <p>The call timeout from the configuration is applied using {@code VTask.timeout()}.
+     *
+     * @param task the task to protect; must not be null
+     * @param <A> the result type
+     * @return a new VTask protected by this circuit breaker
+     * @throws NullPointerException if task is null
+     */
+    public <A> VTask<A> protect(VTask<A> task) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Returns a new {@link VTask} protected by this circuit breaker, with a fallback value when the
+     * circuit is open.
+     *
+     * @param task the task to protect; must not be null
+     * @param fallback function to produce a fallback value when the circuit is open; must not be null
+     * @param <A> the result type
+     * @return a new VTask with circuit breaker protection and fallback
+     * @throws NullPointerException if task or fallback is null
+     */
+    public <A> VTask<A> protectWithFallback(VTask<A> task, Function<Throwable, A> fallback) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== State Inspection =====
+    /**
+     * Returns the current state of the circuit breaker.
+     *
+     * @return the current state
+     */
+    public Status currentStatus() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Returns a snapshot of the circuit breaker's metrics.
+     *
+     * @return the current metrics
+     */
+    public CircuitBreakerMetrics metrics() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== Manual Control =====
+    /**
+     * Resets the circuit breaker to the closed state with zeroed counters.
+     */
+    public void reset() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Manually trips the circuit breaker to the open state.
+     */
+    public void tripOpen() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    // ===== Internal State Management =====
+    private void onSuccess() {
+        successfulCalls.incrementAndGet();
+        InternalState prev = stateRef.getAndUpdate(current -> switch(current.status()) {
+            case CLOSED ->
+                current.failureCount() > 0 ? new InternalState(Status.CLOSED, 0, 0, current.lastStateChange()) : current;
+            // OPEN state: must NOT transition to CLOSED
+            case OPEN ->
+                current;
+            case HALF_OPEN ->
+                {
                     int newSuccesses = current.successCount() + 1;
                     if (newSuccesses >= config.successThreshold()) {
-                      yield new InternalState(Status.CLOSED, 0, 0, Instant.now());
+                        yield new InternalState(Status.CLOSED, 0, 0, Instant.now());
                     }
-                    yield new InternalState(
-                        Status.HALF_OPEN, 0, newSuccesses, current.lastStateChange());
-                  }
-                });
-    // Determine if this call caused a state transition based on the previous state.
-    // This is done outside the CAS lambda to avoid double-counting on retries.
-    if (prev.status() == Status.HALF_OPEN && prev.successCount() + 1 >= config.successThreshold()) {
-      stateTransitions.incrementAndGet();
+                    yield new InternalState(Status.HALF_OPEN, 0, newSuccesses, current.lastStateChange());
+                }
+        });
+        // Determine if this call caused a state transition based on the previous state.
+        // This is done outside the CAS lambda to avoid double-counting on retries.
+        if (prev.status() == Status.HALF_OPEN && prev.successCount() + 1 >= config.successThreshold()) {
+            stateTransitions.incrementAndGet();
+        }
     }
-  }
 
-  private void onFailure() {
-    failedCalls.incrementAndGet();
-    InternalState prev =
-        stateRef.getAndUpdate(
-            current ->
-                switch (current.status()) {
-                  case CLOSED -> {
+    private void onFailure() {
+        failedCalls.incrementAndGet();
+        InternalState prev = stateRef.getAndUpdate(current -> switch(current.status()) {
+            case CLOSED ->
+                {
                     int newFailures = current.failureCount() + 1;
                     if (newFailures >= config.failureThreshold()) {
-                      yield new InternalState(Status.OPEN, 0, 0, Instant.now());
+                        yield new InternalState(Status.OPEN, 0, 0, Instant.now());
                     }
-                    yield new InternalState(
-                        Status.CLOSED, newFailures, 0, current.lastStateChange());
-                  }
-                  case HALF_OPEN -> new InternalState(Status.OPEN, 0, 0, Instant.now());
-                  case OPEN -> current; // Should not happen during execution
-                });
-    // Determine if this call caused a state transition based on the previous state.
-    // This is done outside the CAS lambda to avoid double-counting on retries.
-    boolean transitioned =
-        (prev.status() == Status.CLOSED && prev.failureCount() + 1 >= config.failureThreshold())
-            || prev.status() == Status.HALF_OPEN;
-    if (transitioned) {
-      stateTransitions.incrementAndGet();
+                    yield new InternalState(Status.CLOSED, newFailures, 0, current.lastStateChange());
+                }
+            case HALF_OPEN ->
+                new InternalState(Status.OPEN, 0, 0, Instant.now());
+            // Should not happen during execution
+            case OPEN ->
+                current;
+        });
+        // Determine if this call caused a state transition based on the previous state.
+        // This is done outside the CAS lambda to avoid double-counting on retries.
+        boolean transitioned = (prev.status() == Status.CLOSED && prev.failureCount() + 1 >= config.failureThreshold()) || prev.status() == Status.HALF_OPEN;
+        if (transitioned) {
+            stateTransitions.incrementAndGet();
+        }
     }
-  }
 }

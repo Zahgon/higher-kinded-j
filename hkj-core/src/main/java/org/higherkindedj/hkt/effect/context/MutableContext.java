@@ -3,7 +3,6 @@
 package org.higherkindedj.hkt.effect.context;
 
 import static org.higherkindedj.hkt.io.IOKindHelper.IO_OP;
-
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -61,240 +60,181 @@ import org.higherkindedj.hkt.state_t.StateTMonad;
  * @param <S> the state type
  * @param <A> the value type
  */
-public final class MutableContext<F extends WitnessArity<TypeArity.Unary>, S, A>
-    implements EffectContext<F, A> {
+public final class MutableContext<F extends WitnessArity<TypeArity.Unary>, S, A> implements EffectContext<F, A> {
 
-  private final StateT<S, F, A> transformer;
-  private final Monad<F> outerMonad;
-  private final StateTMonad<S, F> stateTMonad;
+    private final StateT<S, F, A> transformer;
 
-  private MutableContext(StateT<S, F, A> transformer, Monad<F> outerMonad) {
-    this.transformer = Objects.requireNonNull(transformer, "transformer must not be null");
-    this.outerMonad = Objects.requireNonNull(outerMonad, "outerMonad must not be null");
-    this.stateTMonad = StateTMonad.instance(outerMonad);
-  }
+    private final Monad<F> outerMonad;
 
-  // --- Factory Methods for IO-based contexts ---
+    private final StateTMonad<S, F> stateTMonad;
 
-  /**
-   * Creates a MutableContext from a state transformation function.
-   *
-   * <p>The function takes the current state and returns a tuple of (new state, value).
-   *
-   * @param computation the state transformation function; must not be null
-   * @param <S> the state type
-   * @param <A> the value type
-   * @return a new MutableContext wrapping the computation
-   * @throws NullPointerException if computation is null
-   */
-  public static <S, A> MutableContext<IOKind.Witness, S, A> io(
-      Function<S, StateTuple<S, A>> computation) {
-    Objects.requireNonNull(computation, "computation must not be null");
+    private MutableContext(StateT<S, F, A> transformer, Monad<F> outerMonad) {
+        this.transformer = Objects.requireNonNull(transformer, "transformer must not be null");
+        this.outerMonad = Objects.requireNonNull(outerMonad, "outerMonad must not be null");
+        this.stateTMonad = StateTMonad.instance(outerMonad);
+    }
 
-    StateT<S, IOKind.Witness, A> transformer =
-        StateT.create(s -> IO_OP.widen(IO.delay(() -> computation.apply(s))), IOMonad.INSTANCE);
-    return new MutableContext<>(transformer, IOMonad.INSTANCE);
-  }
+    // --- Factory Methods for IO-based contexts ---
+    /**
+     * Creates a MutableContext from a state transformation function.
+     *
+     * <p>The function takes the current state and returns a tuple of (new state, value).
+     *
+     * @param computation the state transformation function; must not be null
+     * @param <S> the state type
+     * @param <A> the value type
+     * @return a new MutableContext wrapping the computation
+     * @throws NullPointerException if computation is null
+     */
+    public static <S, A> MutableContext<IOKind.Witness, S, A> io(Function<S, StateTuple<S, A>> computation) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a MutableContext containing the given value without changing state.
-   *
-   * @param value the value to contain
-   * @param <S> the state type
-   * @param <A> the value type
-   * @return a new MutableContext containing the value
-   */
-  public static <S, A> MutableContext<IOKind.Witness, S, A> pure(A value) {
-    StateT<S, IOKind.Witness, A> transformer =
-        StateT.create(s -> IO_OP.widen(IO.delay(() -> StateTuple.of(s, value))), IOMonad.INSTANCE);
-    return new MutableContext<>(transformer, IOMonad.INSTANCE);
-  }
+    /**
+     * Creates a MutableContext containing the given value without changing state.
+     *
+     * @param value the value to contain
+     * @param <S> the state type
+     * @param <A> the value type
+     * @return a new MutableContext containing the value
+     */
+    public static <S, A> MutableContext<IOKind.Witness, S, A> pure(A value) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a MutableContext that returns the current state as the value.
-   *
-   * @param <S> the state type
-   * @return a new MutableContext that yields the current state
-   */
-  public static <S> MutableContext<IOKind.Witness, S, S> get() {
-    StateT<S, IOKind.Witness, S> transformer =
-        StateT.create(s -> IO_OP.widen(IO.delay(() -> StateTuple.of(s, s))), IOMonad.INSTANCE);
-    return new MutableContext<>(transformer, IOMonad.INSTANCE);
-  }
+    /**
+     * Creates a MutableContext that returns the current state as the value.
+     *
+     * @param <S> the state type
+     * @return a new MutableContext that yields the current state
+     */
+    public static <S> MutableContext<IOKind.Witness, S, S> get() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a MutableContext that sets a new state.
-   *
-   * @param state the new state to set
-   * @param <S> the state type
-   * @return a new MutableContext that sets the state and returns Unit
-   */
-  public static <S> MutableContext<IOKind.Witness, S, Unit> put(S state) {
-    StateT<S, IOKind.Witness, Unit> transformer =
-        StateT.create(
-            ignored -> IO_OP.widen(IO.delay(() -> StateTuple.of(state, Unit.INSTANCE))),
-            IOMonad.INSTANCE);
-    return new MutableContext<>(transformer, IOMonad.INSTANCE);
-  }
+    /**
+     * Creates a MutableContext that sets a new state.
+     *
+     * @param state the new state to set
+     * @param <S> the state type
+     * @return a new MutableContext that sets the state and returns Unit
+     */
+    public static <S> MutableContext<IOKind.Witness, S, Unit> put(S state) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a MutableContext that modifies the current state.
-   *
-   * @param modifier the function to modify the state; must not be null
-   * @param <S> the state type
-   * @return a new MutableContext that modifies the state and returns Unit
-   * @throws NullPointerException if modifier is null
-   */
-  public static <S> MutableContext<IOKind.Witness, S, Unit> modify(UnaryOperator<S> modifier) {
-    Objects.requireNonNull(modifier, "modifier must not be null");
-    StateT<S, IOKind.Witness, Unit> transformer =
-        StateT.create(
-            s -> IO_OP.widen(IO.delay(() -> StateTuple.of(modifier.apply(s), Unit.INSTANCE))),
-            IOMonad.INSTANCE);
-    return new MutableContext<>(transformer, IOMonad.INSTANCE);
-  }
+    /**
+     * Creates a MutableContext that modifies the current state.
+     *
+     * @param modifier the function to modify the state; must not be null
+     * @param <S> the state type
+     * @return a new MutableContext that modifies the state and returns Unit
+     * @throws NullPointerException if modifier is null
+     */
+    public static <S> MutableContext<IOKind.Witness, S, Unit> modify(UnaryOperator<S> modifier) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  // --- Chainable Operations ---
+    // --- Chainable Operations ---
+    @Override
+    @SuppressWarnings("unchecked")
+    public <B> MutableContext<F, S, B> map(Function<? super A, ? extends B> mapper) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  @SuppressWarnings("unchecked")
-  public <B> MutableContext<F, S, B> map(Function<? super A, ? extends B> mapper) {
-    Objects.requireNonNull(mapper, "mapper must not be null");
-    Kind<StateTKind.Witness<S, F>, B> result = stateTMonad.map(mapper, transformer);
-    return new MutableContext<>(StateTKind.narrow(result), outerMonad);
-  }
+    @Override
+    @SuppressWarnings("unchecked")
+    public <B> MutableContext<F, S, B> via(Function<? super A, ? extends EffectContext<F, B>> fn) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  @SuppressWarnings("unchecked")
-  public <B> MutableContext<F, S, B> via(Function<? super A, ? extends EffectContext<F, B>> fn) {
-    Objects.requireNonNull(fn, "fn must not be null");
+    /**
+     * Chains a dependent computation using MutableContext-specific typing.
+     *
+     * <p>This is a convenience method that preserves the state type in the signature.
+     *
+     * @param fn the function to apply, returning a new MutableContext; must not be null
+     * @param <B> the type of the value in the returned context
+     * @return the context returned by the function
+     * @throws NullPointerException if fn is null or returns null
+     */
+    public <B> MutableContext<F, S, B> flatMap(Function<? super A, ? extends MutableContext<F, S, B>> fn) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    Kind<StateTKind.Witness<S, F>, B> result =
-        stateTMonad.flatMap(
-            a -> {
-              EffectContext<F, B> next = fn.apply(a);
-              Objects.requireNonNull(next, "fn must not return null");
-              if (!(next instanceof MutableContext<?, ?, ?> nextCtx)) {
-                throw new IllegalArgumentException(
-                    "via function must return a MutableContext, got: " + next.getClass().getName());
-              }
-              @SuppressWarnings("unchecked")
-              MutableContext<F, S, B> typedNext = (MutableContext<F, S, B>) nextCtx;
-              return typedNext.transformer;
-            },
-            transformer);
+    /**
+     * Sequences an independent computation, discarding this context's value.
+     *
+     * <p>This is useful for sequencing effects where only the final result matters.
+     *
+     * @param supplier provides the next context; must not be null
+     * @param <B> the type of the value in the returned context
+     * @return the context from the supplier
+     * @throws NullPointerException if supplier is null or returns null
+     */
+    public <B> MutableContext<F, S, B> then(Supplier<? extends MutableContext<F, S, B>> supplier) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    return new MutableContext<>(StateTKind.narrow(result), outerMonad);
-  }
+    // --- Execution Methods (IO-specific) ---
+    /**
+     * Runs the stateful computation with the given initial state.
+     *
+     * <p>Returns both the final value and final state.
+     *
+     * @param initialState the initial state
+     * @return an IOPath that will produce the state tuple when run
+     * @throws ClassCastException if F is not IOKind.Witness
+     */
+    @SuppressWarnings("unchecked")
+    public IOPath<StateTuple<S, A>> runWith(S initialState) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Chains a dependent computation using MutableContext-specific typing.
-   *
-   * <p>This is a convenience method that preserves the state type in the signature.
-   *
-   * @param fn the function to apply, returning a new MutableContext; must not be null
-   * @param <B> the type of the value in the returned context
-   * @return the context returned by the function
-   * @throws NullPointerException if fn is null or returns null
-   */
-  public <B> MutableContext<F, S, B> flatMap(
-      Function<? super A, ? extends MutableContext<F, S, B>> fn) {
-    Objects.requireNonNull(fn, "fn must not be null");
+    /**
+     * Runs the stateful computation and returns only the final value.
+     *
+     * @param initialState the initial state
+     * @return an IOPath that will produce the value when run
+     * @throws ClassCastException if F is not IOKind.Witness
+     */
+    @SuppressWarnings("unchecked")
+    public IOPath<A> evalWith(S initialState) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    Kind<StateTKind.Witness<S, F>, B> result =
-        stateTMonad.flatMap(
-            a -> {
-              MutableContext<F, S, B> next = fn.apply(a);
-              Objects.requireNonNull(next, "fn must not return null");
-              return next.transformer;
-            },
-            transformer);
+    /**
+     * Runs the stateful computation and returns only the final state.
+     *
+     * @param initialState the initial state
+     * @return an IOPath that will produce the final state when run
+     * @throws ClassCastException if F is not IOKind.Witness
+     */
+    @SuppressWarnings("unchecked")
+    public IOPath<S> execWith(S initialState) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    return new MutableContext<>(StateTKind.narrow(result), outerMonad);
-  }
+    // --- Escape Hatch ---
+    /**
+     * Returns the underlying StateT transformer.
+     *
+     * <p>This is an escape hatch to Layer 3 (raw transformers) for users who need full control over
+     * the transformer operations.
+     *
+     * @return the underlying StateT transformer
+     */
+    public StateT<S, F, A> toStateT() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Sequences an independent computation, discarding this context's value.
-   *
-   * <p>This is useful for sequencing effects where only the final result matters.
-   *
-   * @param supplier provides the next context; must not be null
-   * @param <B> the type of the value in the returned context
-   * @return the context from the supplier
-   * @throws NullPointerException if supplier is null or returns null
-   */
-  public <B> MutableContext<F, S, B> then(Supplier<? extends MutableContext<F, S, B>> supplier) {
-    Objects.requireNonNull(supplier, "supplier must not be null");
-    return flatMap(ignored -> supplier.get());
-  }
+    @Override
+    public Kind<?, A> underlying() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  // --- Execution Methods (IO-specific) ---
-
-  /**
-   * Runs the stateful computation with the given initial state.
-   *
-   * <p>Returns both the final value and final state.
-   *
-   * @param initialState the initial state
-   * @return an IOPath that will produce the state tuple when run
-   * @throws ClassCastException if F is not IOKind.Witness
-   */
-  @SuppressWarnings("unchecked")
-  public IOPath<StateTuple<S, A>> runWith(S initialState) {
-    Kind<F, StateTuple<S, A>> result = transformer.runStateT(initialState);
-    IO<StateTuple<S, A>> io = IO_OP.narrow((Kind<IOKind.Witness, StateTuple<S, A>>) result);
-    return Path.ioPath(io);
-  }
-
-  /**
-   * Runs the stateful computation and returns only the final value.
-   *
-   * @param initialState the initial state
-   * @return an IOPath that will produce the value when run
-   * @throws ClassCastException if F is not IOKind.Witness
-   */
-  @SuppressWarnings("unchecked")
-  public IOPath<A> evalWith(S initialState) {
-    Kind<F, A> result = transformer.evalStateT(initialState);
-    IO<A> io = IO_OP.narrow((Kind<IOKind.Witness, A>) result);
-    return Path.ioPath(io);
-  }
-
-  /**
-   * Runs the stateful computation and returns only the final state.
-   *
-   * @param initialState the initial state
-   * @return an IOPath that will produce the final state when run
-   * @throws ClassCastException if F is not IOKind.Witness
-   */
-  @SuppressWarnings("unchecked")
-  public IOPath<S> execWith(S initialState) {
-    Kind<F, S> result = transformer.execStateT(initialState);
-    IO<S> io = IO_OP.narrow((Kind<IOKind.Witness, S>) result);
-    return Path.ioPath(io);
-  }
-
-  // --- Escape Hatch ---
-
-  /**
-   * Returns the underlying StateT transformer.
-   *
-   * <p>This is an escape hatch to Layer 3 (raw transformers) for users who need full control over
-   * the transformer operations.
-   *
-   * @return the underlying StateT transformer
-   */
-  public StateT<S, F, A> toStateT() {
-    return transformer;
-  }
-
-  @Override
-  public Kind<?, A> underlying() {
-    return transformer;
-  }
-
-  @Override
-  public String toString() {
-    return "MutableContext(" + transformer + ")";
-  }
+    @Override
+    public String toString() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

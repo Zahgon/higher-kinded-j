@@ -4,7 +4,6 @@ package org.higherkindedj.hkt.writer;
 
 import static org.higherkindedj.hkt.util.validation.Operation.*;
 import static org.higherkindedj.hkt.writer.WriterKindHelper.WRITER;
-
 import java.util.Objects;
 import java.util.function.Function;
 import org.higherkindedj.hkt.Bifunctor;
@@ -33,47 +32,26 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public class WriterBifunctor implements Bifunctor<WriterKind2.Witness> {
 
-  /** Singleton instance of the WriterBifunctor. */
-  public static final WriterBifunctor INSTANCE = new WriterBifunctor();
+    /**
+     * Singleton instance of the WriterBifunctor.
+     */
+    public static final WriterBifunctor INSTANCE = new WriterBifunctor();
 
-  private WriterBifunctor() {}
+    private WriterBifunctor() {
+    }
 
-  @Override
-  public <A, B, C, D> Kind2<WriterKind2.Witness, C, D> bimap(
-      Function<? super A, ? extends C> f,
-      Function<? super B, ? extends D> g,
-      Kind2<WriterKind2.Witness, A, B> fab) {
+    @Override
+    public <A, B, C, D> Kind2<WriterKind2.Witness, C, D> bimap(Function<? super A, ? extends C> f, Function<? super B, ? extends D> g, Kind2<WriterKind2.Witness, A, B> fab) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    Validation.function().require(f, "f", BIMAP);
-    Validation.function().require(g, "g", BIMAP);
-    Objects.requireNonNull(fab, "Kind for bimap cannot be null");
+    @Override
+    public <A, B, C> Kind2<WriterKind2.Witness, C, B> first(Function<? super A, ? extends C> f, Kind2<WriterKind2.Witness, A, B> fab) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    Writer<A, B> writer = WRITER.narrow2(fab);
-    Writer<C, D> result = writer.bimap(f, g);
-    return WRITER.widen2(result);
-  }
-
-  @Override
-  public <A, B, C> Kind2<WriterKind2.Witness, C, B> first(
-      Function<? super A, ? extends C> f, Kind2<WriterKind2.Witness, A, B> fab) {
-
-    Validation.function().require(f, "f", FIRST);
-    Objects.requireNonNull(fab, "Kind for first cannot be null");
-
-    Writer<A, B> writer = WRITER.narrow2(fab);
-    Writer<C, B> result = writer.mapWritten(f);
-    return WRITER.widen2(result);
-  }
-
-  @Override
-  public <A, B, D> Kind2<WriterKind2.Witness, A, D> second(
-      Function<? super B, ? extends D> g, Kind2<WriterKind2.Witness, A, B> fab) {
-
-    Validation.function().require(g, "g", SECOND);
-    Objects.requireNonNull(fab, "Kind for second cannot be null");
-
-    Writer<A, B> writer = WRITER.narrow2(fab);
-    Writer<A, D> result = writer.map(g);
-    return WRITER.widen2(result);
-  }
+    @Override
+    public <A, B, D> Kind2<WriterKind2.Witness, A, D> second(Function<? super B, ? extends D> g, Kind2<WriterKind2.Witness, A, B> fab) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

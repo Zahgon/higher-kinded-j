@@ -18,85 +18,56 @@ import org.higherkindedj.optics.util.Traversals;
 ///  * A collection of 0...n, not 1
 ///  * Of a single type/column
 public abstract class VavrBaseSingleIterableTraversableGenerator extends BaseTraversableGenerator {
-  private static final String COLLECTION_PACKAGE = "io.vavr.collection";
 
-  /** Class name for Vavr's {@code Set} interface. */
-  public static final ClassName SET = ClassName.get(COLLECTION_PACKAGE, "Set");
+    private static final String COLLECTION_PACKAGE = "io.vavr.collection";
 
-  /** Class name for Vavr's {@code HashSet} implementation. */
-  public static final ClassName HASH_SET = ClassName.get(COLLECTION_PACKAGE, "HashSet");
+    /**
+     * Class name for Vavr's {@code Set} interface.
+     */
+    public static final ClassName SET = ClassName.get(COLLECTION_PACKAGE, "Set");
 
-  /** Class name for Vavr's {@code List}. */
-  public static final ClassName LIST = ClassName.get(COLLECTION_PACKAGE, "List");
+    /**
+     * Class name for Vavr's {@code HashSet} implementation.
+     */
+    public static final ClassName HASH_SET = ClassName.get(COLLECTION_PACKAGE, "HashSet");
 
-  /** The Vavr collection type this generator matches against. */
-  protected final ClassName supportedType;
+    /**
+     * Class name for Vavr's {@code List}.
+     */
+    public static final ClassName LIST = ClassName.get(COLLECTION_PACKAGE, "List");
 
-  /** The concrete Vavr type used to construct new collection instances. */
-  protected final ClassName constructedType;
+    /**
+     * The Vavr collection type this generator matches against.
+     */
+    protected final ClassName supportedType;
 
-  VavrBaseSingleIterableTraversableGenerator(
-      final ClassName supportedType, final ClassName constructedType) {
-    this.supportedType = supportedType;
-    this.constructedType = constructedType;
-  }
+    /**
+     * The concrete Vavr type used to construct new collection instances.
+     */
+    protected final ClassName constructedType;
 
-  @Override
-  public String generateOpticExpression() {
-    return "EachInstances.fromIterableCollecting(list -> "
-        + constructedType.simpleName()
-        + ".ofAll(list))";
-  }
-
-  @Override
-  public Set<String> getRequiredImports() {
-    return Set.of(
-        "org.higherkindedj.optics.each.EachInstances",
-        constructedType.packageName() + "." + constructedType.simpleName());
-  }
-
-  @Override
-  public boolean supports(final TypeMirror type) {
-    if (!(type instanceof DeclaredType declaredType)) {
-      return false;
+    VavrBaseSingleIterableTraversableGenerator(final ClassName supportedType, final ClassName constructedType) {
+        this.supportedType = supportedType;
+        this.constructedType = constructedType;
     }
-    final Element element = declaredType.asElement();
-    return element.toString().equals(supportedType.canonicalName());
-  }
 
-  @Override
-  public CodeBlock generateModifyF(
-      final RecordComponentElement component,
-      final ClassName recordClassName,
-      final List<? extends RecordComponentElement> allComponents) {
+    @Override
+    public String generateOpticExpression() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    final String componentName = component.getSimpleName().toString();
-    final String constructorArgs =
-        generateConstructorArgs(componentName, "converted", allComponents);
+    @Override
+    public Set<String> getRequiredImports() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-    return CodeBlock.builder()
-        // 1. Convert to Java ArrayList (like the `basejdk/SetGenerator.java` does)
-        .addStatement(
-            "final var sourceList = source.$L().toJavaCollection($T::new)",
-            componentName,
-            ArrayList.class)
+    @Override
+    public boolean supports(final TypeMirror type) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-        // 2. Call the static helper to traverse the list, yielding Kind<F, List<B>>.
-        .addStatement(
-            "final var effectOfList = $T.traverseList(sourceList, f, applicative)",
-            Traversals.class)
-
-        // 3. Map over the effect to convert the inner List back to our type.
-        .addStatement(
-            "final var effectOfConvertBack = applicative.map("
-                + "newList -> $T.ofAll(newList), effectOfList)",
-            constructedType)
-
-        // 4. Map over the final effect to reconstruct the record with the original type.
-        .addStatement(
-            "return applicative.map(converted -> new $T($L), effectOfConvertBack)",
-            recordClassName,
-            constructorArgs)
-        .build();
-  }
+    @Override
+    public CodeBlock generateModifyF(final RecordComponentElement component, final ClassName recordClassName, final List<? extends RecordComponentElement> allComponents) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

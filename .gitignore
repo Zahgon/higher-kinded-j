@@ -51,3 +51,8 @@ bin/
 /hkj-book/src/CONTRIBUTING.md
 /hkj-book/src/LICENSE.md
 /CLAUDE.md
+
+.aider*
+logs/
+.commit0_scripts/
+.github/workflows/

@@ -3,7 +3,6 @@
 package org.higherkindedj.hkt.state;
 
 import static org.higherkindedj.hkt.state.StateKindHelper.STATE;
-
 import java.util.function.Function;
 import org.higherkindedj.hkt.Functor;
 import org.higherkindedj.hkt.Kind;
@@ -28,42 +27,36 @@ import org.higherkindedj.hkt.util.validation.Validation;
  */
 public class StateFunctor<S> implements Functor<StateKind.Witness<S>> {
 
-  /**
-   * Applies a function {@code f} to the computed value of a {@link State}{@code <S, A>}
-   * computation, transforming it into a {@link State}{@code <S, B>} computation.
-   *
-   * <p>The {@code map} operation for {@code State} works by running the original state computation,
-   * applying the function {@code f} to its resulting value, and then pairing this new value with
-   * the final state from the original computation. The state transformation itself is preserved.
-   *
-   * <p>This method uses {@link StateKindHelper#narrow(org.higherkindedj.hkt.Kind)
-   * StateKindHelper.STATE.narrow(Kind)} to retrieve the underlying {@link State}{@code <S, A>} and
-   * {@link State#map(Function)} to perform the transformation, finally re-wrapping the result using
-   * {@link StateKindHelper#widen(org.higherkindedj.hkt.state.State)
-   * StateKindHelper.STATE.widen(State)}.
-   *
-   * @param <A> The type of the value in the input {@code State} computation (and its {@link Kind}
-   *     representation).
-   * @param <B> The type of the value in the resulting {@code State} computation (and its {@link
-   *     Kind} representation) after applying the function {@code f}.
-   * @param f The non-null function to apply to the computed value of the {@code State} computation.
-   *     It transforms a value of type {@code A} to a value of type {@code B}.
-   * @param fa The {@code Kind<StateKind.Witness<S>, A>} which represents the input {@link
-   *     State}{@code <S, A>} computation. Must not be {@code null}.
-   * @return A new non-null {@code Kind<StateKind.Witness<S>, B>} representing the transformed
-   *     {@link State}{@code <S, B>} computation.
-   * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code fa} cannot be unwrapped
-   *     to a valid {@code State} representation.
-   * @throws NullPointerException if {@code f} or {@code fa} is {@code null}.
-   */
-  @Override
-  public <A, B> Kind<StateKind.Witness<S>, B> map(
-      Function<? super A, ? extends B> f, Kind<StateKind.Witness<S>, A> fa) {
-
-    Validation.function().validateMap(f, fa);
-
-    State<S, A> stateA = STATE.narrow(fa);
-    State<S, B> stateB = stateA.map(f);
-    return STATE.widen(stateB);
-  }
+    /**
+     * Applies a function {@code f} to the computed value of a {@link State}{@code <S, A>}
+     * computation, transforming it into a {@link State}{@code <S, B>} computation.
+     *
+     * <p>The {@code map} operation for {@code State} works by running the original state computation,
+     * applying the function {@code f} to its resulting value, and then pairing this new value with
+     * the final state from the original computation. The state transformation itself is preserved.
+     *
+     * <p>This method uses {@link StateKindHelper#narrow(org.higherkindedj.hkt.Kind)
+     * StateKindHelper.STATE.narrow(Kind)} to retrieve the underlying {@link State}{@code <S, A>} and
+     * {@link State#map(Function)} to perform the transformation, finally re-wrapping the result using
+     * {@link StateKindHelper#widen(org.higherkindedj.hkt.state.State)
+     * StateKindHelper.STATE.widen(State)}.
+     *
+     * @param <A> The type of the value in the input {@code State} computation (and its {@link Kind}
+     *     representation).
+     * @param <B> The type of the value in the resulting {@code State} computation (and its {@link
+     *     Kind} representation) after applying the function {@code f}.
+     * @param f The non-null function to apply to the computed value of the {@code State} computation.
+     *     It transforms a value of type {@code A} to a value of type {@code B}.
+     * @param fa The {@code Kind<StateKind.Witness<S>, A>} which represents the input {@link
+     *     State}{@code <S, A>} computation. Must not be {@code null}.
+     * @return A new non-null {@code Kind<StateKind.Witness<S>, B>} representing the transformed
+     *     {@link State}{@code <S, B>} computation.
+     * @throws org.higherkindedj.hkt.exception.KindUnwrapException if {@code fa} cannot be unwrapped
+     *     to a valid {@code State} representation.
+     * @throws NullPointerException if {@code f} or {@code fa} is {@code null}.
+     */
+    @Override
+    public <A, B> Kind<StateKind.Witness<S>, B> map(Function<? super A, ? extends B> f, Kind<StateKind.Witness<S>, A> fa) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

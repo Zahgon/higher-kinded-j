@@ -21,22 +21,24 @@ import org.jspecify.annotations.NullMarked;
 @EffectAlgebra
 public sealed interface FraudCheckOp<A> permits FraudCheckOp.CheckTransaction {
 
-  /** Maps a function over the result type. */
-  <B> FraudCheckOp<B> mapK(Function<? super A, ? extends B> f);
+    /**
+     * Maps a function over the result type.
+     */
+    <B> FraudCheckOp<B> mapK(Function<? super A, ? extends B> f);
 
-  /**
-   * Assess the fraud risk of a transaction.
-   *
-   * @param amount the transaction amount
-   * @param customer the customer initiating the transaction
-   * @param k continuation from {@link RiskScore} to {@code A}
-   * @param <A> the result type
-   */
-  record CheckTransaction<A>(Money amount, Customer customer, Function<RiskScore, A> k)
-      implements FraudCheckOp<A> {
-    @Override
-    public <B> FraudCheckOp<B> mapK(Function<? super A, ? extends B> f) {
-      return new CheckTransaction<>(amount, customer, k.andThen(f));
+    /**
+     * Assess the fraud risk of a transaction.
+     *
+     * @param amount the transaction amount
+     * @param customer the customer initiating the transaction
+     * @param k continuation from {@link RiskScore} to {@code A}
+     * @param <A> the result type
+     */
+    record CheckTransaction<A>(Money amount, Customer customer, Function<RiskScore, A> k) implements FraudCheckOp<A> {
+
+        @Override
+        public <B> FraudCheckOp<B> mapK(Function<? super A, ? extends B> f) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
     }
-  }
 }

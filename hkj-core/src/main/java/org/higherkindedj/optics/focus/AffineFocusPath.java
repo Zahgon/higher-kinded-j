@@ -22,51 +22,49 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 record AffineFocusPath<S, A>(Affine<S, A> affine) implements AffinePath<S, A> {
 
-  AffineFocusPath {
-    Objects.requireNonNull(affine, "affine must not be null");
-  }
+    AffineFocusPath {
+        Objects.requireNonNull(affine, "affine must not be null");
+    }
 
-  @Override
-  public Optional<A> getOptional(S source) {
-    return affine.getOptional(source);
-  }
+    @Override
+    public Optional<A> getOptional(S source) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public S set(A value, S source) {
-    return affine.set(value, source);
-  }
+    @Override
+    public S set(A value, S source) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  // ===== Composition Methods =====
+    // ===== Composition Methods =====
+    @Override
+    public <B> AffinePath<S, B> via(Lens<A, B> lens) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public <B> AffinePath<S, B> via(Lens<A, B> lens) {
-    return new AffineFocusPath<>(affine.andThen(lens));
-  }
+    @Override
+    public <B> AffinePath<S, B> via(Prism<A, B> prism) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public <B> AffinePath<S, B> via(Prism<A, B> prism) {
-    return new AffineFocusPath<>(affine.andThen(prism));
-  }
+    @Override
+    public <B> AffinePath<S, B> via(Affine<A, B> other) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public <B> AffinePath<S, B> via(Affine<A, B> other) {
-    return new AffineFocusPath<>(affine.andThen(other));
-  }
+    @Override
+    public <B> AffinePath<S, B> via(Iso<A, B> iso) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public <B> AffinePath<S, B> via(Iso<A, B> iso) {
-    return new AffineFocusPath<>(affine.andThen(iso));
-  }
+    @Override
+    public <B> TraversalPath<S, B> via(Traversal<A, B> traversal) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public <B> TraversalPath<S, B> via(Traversal<A, B> traversal) {
-    return new TraversalFocusPath<>(affine.andThen(traversal));
-  }
-
-  // ===== Conversion =====
-
-  @Override
-  public Affine<S, A> toAffine() {
-    return affine;
-  }
+    // ===== Conversion =====
+    @Override
+    public Affine<S, A> toAffine() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

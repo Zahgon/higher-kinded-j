@@ -21,115 +21,54 @@ import org.higherkindedj.hkt.either.Either;
  */
 public class InMemoryNotificationService implements NotificationService {
 
-  private final List<NotificationRecord> sentNotifications = new ArrayList<>();
-  private boolean emailEnabled = true;
-  private boolean smsEnabled = true;
+    private final List<NotificationRecord> sentNotifications = new ArrayList<>();
 
-  public void setEmailEnabled(boolean enabled) {
-    this.emailEnabled = enabled;
-  }
+    private boolean emailEnabled = true;
 
-  public void setSmsEnabled(boolean enabled) {
-    this.smsEnabled = enabled;
-  }
+    private boolean smsEnabled = true;
 
-  public List<NotificationRecord> getSentNotifications() {
-    return List.copyOf(sentNotifications);
-  }
-
-  public void clearNotifications() {
-    sentNotifications.clear();
-  }
-
-  @Override
-  public Either<OrderError, NotificationResult> sendOrderConfirmation(
-      OrderId orderId, Customer customer, Money total) {
-    var messageId = "MSG-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-
-    if (emailEnabled) {
-      sentNotifications.add(
-          new NotificationRecord(
-              NotificationType.ORDER_CONFIRMATION,
-              customer.email(),
-              "Order " + orderId + " confirmed. Total: " + total));
+    public void setEmailEnabled(boolean enabled) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    if (smsEnabled) {
-      sentNotifications.add(
-          new NotificationRecord(
-              NotificationType.ORDER_CONFIRMATION_SMS,
-              customer.phone(),
-              "Order " + orderId + " confirmed."));
+    public void setSmsEnabled(boolean enabled) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    if (emailEnabled && smsEnabled) {
-      return Either.right(NotificationResult.allSent(messageId));
-    } else if (emailEnabled) {
-      return Either.right(NotificationResult.emailOnly(messageId));
-    } else {
-      return Either.right(NotificationResult.none());
-    }
-  }
-
-  @Override
-  public Either<OrderError, NotificationResult> sendShipmentNotification(
-      OrderId orderId, Customer customer, ShipmentInfo shipmentInfo) {
-    var messageId = "MSG-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-
-    if (emailEnabled) {
-      sentNotifications.add(
-          new NotificationRecord(
-              NotificationType.SHIPMENT_NOTIFICATION,
-              customer.email(),
-              "Order " + orderId + " shipped. Tracking: " + shipmentInfo.trackingNumber()));
+    public List<NotificationRecord> getSentNotifications() {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    if (smsEnabled) {
-      sentNotifications.add(
-          new NotificationRecord(
-              NotificationType.SHIPMENT_NOTIFICATION_SMS,
-              customer.phone(),
-              "Order shipped. Track: " + shipmentInfo.trackingNumber()));
+    public void clearNotifications() {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    if (emailEnabled && smsEnabled) {
-      return Either.right(NotificationResult.allSent(messageId));
-    } else if (emailEnabled) {
-      return Either.right(NotificationResult.emailOnly(messageId));
-    } else {
-      return Either.right(NotificationResult.none());
-    }
-  }
-
-  @Override
-  public Either<OrderError, NotificationResult> sendCancellationNotification(
-      OrderId orderId, Customer customer, String reason) {
-    var messageId = "MSG-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-
-    if (emailEnabled) {
-      sentNotifications.add(
-          new NotificationRecord(
-              NotificationType.CANCELLATION,
-              customer.email(),
-              "Order " + orderId + " cancelled. Reason: " + reason));
+    @Override
+    public Either<OrderError, NotificationResult> sendOrderConfirmation(OrderId orderId, Customer customer, Money total) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    if (emailEnabled) {
-      return Either.right(NotificationResult.emailOnly(messageId));
-    } else {
-      return Either.right(NotificationResult.none());
+    @Override
+    public Either<OrderError, NotificationResult> sendShipmentNotification(OrderId orderId, Customer customer, ShipmentInfo shipmentInfo) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
-  }
 
-  /** Record of a sent notification for testing verification. */
-  public record NotificationRecord(NotificationType type, String recipient, String message) {}
+    @Override
+    public Either<OrderError, NotificationResult> sendCancellationNotification(OrderId orderId, Customer customer, String reason) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /** Types of notifications sent. */
-  public enum NotificationType {
-    ORDER_CONFIRMATION,
-    ORDER_CONFIRMATION_SMS,
-    SHIPMENT_NOTIFICATION,
-    SHIPMENT_NOTIFICATION_SMS,
-    CANCELLATION
-  }
+    /**
+     * Record of a sent notification for testing verification.
+     */
+    public record NotificationRecord(NotificationType type, String recipient, String message) {
+    }
+
+    /**
+     * Types of notifications sent.
+     */
+    public enum NotificationType {
+
+        ORDER_CONFIRMATION, ORDER_CONFIRMATION_SMS, SHIPMENT_NOTIFICATION, SHIPMENT_NOTIFICATION_SMS, CANCELLATION
+    }
 }

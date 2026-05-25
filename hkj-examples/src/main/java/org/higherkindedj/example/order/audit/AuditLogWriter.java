@@ -3,7 +3,6 @@
 package org.higherkindedj.example.order.audit;
 
 import static java.util.stream.Collectors.joining;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
@@ -31,142 +30,135 @@ import org.higherkindedj.hkt.effect.WriterPath;
  */
 public final class AuditLogWriter {
 
-  private final String workflowName;
-  private String currentStep = "unknown";
+    private final String workflowName;
 
-  /**
-   * Creates an audit log writer for a workflow.
-   *
-   * @param workflowName the name of the workflow for log context
-   */
-  public AuditLogWriter(String workflowName) {
-    this.workflowName = workflowName;
-  }
+    private String currentStep = "unknown";
 
-  /** Creates a default audit log writer. */
-  public AuditLogWriter() {
-    this("OrderWorkflow");
-  }
+    /**
+     * Creates an audit log writer for a workflow.
+     *
+     * @param workflowName the name of the workflow for log context
+     */
+    public AuditLogWriter(String workflowName) {
+        this.workflowName = workflowName;
+    }
 
-  /**
-   * Sets the current step for subsequent log entries.
-   *
-   * @param step the step name
-   * @return this writer for chaining
-   */
-  public AuditLogWriter step(String step) {
-    this.currentStep = step;
-    return this;
-  }
+    /**
+     * Creates a default audit log writer.
+     */
+    public AuditLogWriter() {
+        this("OrderWorkflow");
+    }
 
-  /**
-   * Logs an info message and returns a value.
-   *
-   * @param action the action being logged
-   * @param details additional details
-   * @param value the value to return
-   * @param <A> the value type
-   * @return a WriterPath with the log entry and value
-   */
-  public <A> WriterPath<AuditLog, A> info(String action, String details, A value) {
-    var entry = new AuditEntry(formatAction(action), details, Instant.now());
-    return WriterPath.writer(value, AuditLog.of(entry), AuditLog.monoid());
-  }
+    /**
+     * Sets the current step for subsequent log entries.
+     *
+     * @param step the step name
+     * @return this writer for chaining
+     */
+    public AuditLogWriter step(String step) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Logs an info message without a return value.
-   *
-   * @param action the action being logged
-   * @param details additional details
-   * @return a WriterPath with the log entry
-   */
-  public WriterPath<AuditLog, Unit> info(String action, String details) {
-    return info(action, details, Unit.INSTANCE);
-  }
+    /**
+     * Logs an info message and returns a value.
+     *
+     * @param action the action being logged
+     * @param details additional details
+     * @param value the value to return
+     * @param <A> the value type
+     * @return a WriterPath with the log entry and value
+     */
+    public <A> WriterPath<AuditLog, A> info(String action, String details, A value) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Logs an info message with Map context and returns a value.
-   *
-   * @param action the action being logged
-   * @param context context map for structured logging
-   * @param value the value to return
-   * @param <A> the value type
-   * @return a WriterPath with the log entry and value
-   */
-  public <A> WriterPath<AuditLog, A> infoWithContext(
-      String action, Map<String, Object> context, A value) {
-    var details =
-        context.entrySet().stream()
-            .map(e -> e.getKey() + "=" + e.getValue())
-            .collect(joining(", "));
-    return info(action, details, value);
-  }
+    /**
+     * Logs an info message without a return value.
+     *
+     * @param action the action being logged
+     * @param details additional details
+     * @return a WriterPath with the log entry
+     */
+    public WriterPath<AuditLog, Unit> info(String action, String details) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Logs a warning message and returns a value.
-   *
-   * @param action the action being logged
-   * @param details additional details
-   * @param value the value to return
-   * @param <A> the value type
-   * @return a WriterPath with the log entry and value
-   */
-  public <A> WriterPath<AuditLog, A> warn(String action, String details, A value) {
-    var entry = new AuditEntry("[WARN] " + formatAction(action), details, Instant.now());
-    return WriterPath.writer(value, AuditLog.of(entry), AuditLog.monoid());
-  }
+    /**
+     * Logs an info message with Map context and returns a value.
+     *
+     * @param action the action being logged
+     * @param context context map for structured logging
+     * @param value the value to return
+     * @param <A> the value type
+     * @return a WriterPath with the log entry and value
+     */
+    public <A> WriterPath<AuditLog, A> infoWithContext(String action, Map<String, Object> context, A value) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Logs an error message and returns a value.
-   *
-   * @param action the action being logged
-   * @param details additional details
-   * @param value the value to return
-   * @param <A> the value type
-   * @return a WriterPath with the log entry and value
-   */
-  public <A> WriterPath<AuditLog, A> error(String action, String details, A value) {
-    var entry = new AuditEntry("[ERROR] " + formatAction(action), details, Instant.now());
-    return WriterPath.writer(value, AuditLog.of(entry), AuditLog.monoid());
-  }
+    /**
+     * Logs a warning message and returns a value.
+     *
+     * @param action the action being logged
+     * @param details additional details
+     * @param value the value to return
+     * @param <A> the value type
+     * @return a WriterPath with the log entry and value
+     */
+    public <A> WriterPath<AuditLog, A> warn(String action, String details, A value) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Logs a timed operation.
-   *
-   * @param action the action being logged
-   * @param duration the duration of the operation
-   * @param value the value to return
-   * @param <A> the value type
-   * @return a WriterPath with the log entry and value
-   */
-  public <A> WriterPath<AuditLog, A> timed(String action, Duration duration, A value) {
-    var details = "completed in " + duration.toMillis() + "ms";
-    return info(action, details, value);
-  }
+    /**
+     * Logs an error message and returns a value.
+     *
+     * @param action the action being logged
+     * @param details additional details
+     * @param value the value to return
+     * @param <A> the value type
+     * @return a WriterPath with the log entry and value
+     */
+    public <A> WriterPath<AuditLog, A> error(String action, String details, A value) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a WriterPath that just returns a value without logging.
-   *
-   * @param value the value to wrap
-   * @param <A> the value type
-   * @return a WriterPath with empty log
-   */
-  public <A> WriterPath<AuditLog, A> pure(A value) {
-    return WriterPath.pure(value, AuditLog.monoid());
-  }
+    /**
+     * Logs a timed operation.
+     *
+     * @param action the action being logged
+     * @param duration the duration of the operation
+     * @param value the value to return
+     * @param <A> the value type
+     * @return a WriterPath with the log entry and value
+     */
+    public <A> WriterPath<AuditLog, A> timed(String action, Duration duration, A value) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Creates a WriterPath that only logs without a meaningful value.
-   *
-   * @param action the action being logged
-   * @param details additional details
-   * @return a WriterPath that logs only
-   */
-  public WriterPath<AuditLog, Unit> log(String action, String details) {
-    return info(action, details, Unit.INSTANCE);
-  }
+    /**
+     * Creates a WriterPath that just returns a value without logging.
+     *
+     * @param value the value to wrap
+     * @param <A> the value type
+     * @return a WriterPath with empty log
+     */
+    public <A> WriterPath<AuditLog, A> pure(A value) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  private String formatAction(String action) {
-    return "[" + workflowName + ":" + currentStep + "] " + action;
-  }
+    /**
+     * Creates a WriterPath that only logs without a meaningful value.
+     *
+     * @param action the action being logged
+     * @param details additional details
+     * @return a WriterPath that logs only
+     */
+    public WriterPath<AuditLog, Unit> log(String action, String details) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    private String formatAction(String action) {
+        return "[" + workflowName + ":" + currentStep + "] " + action;
+    }
 }

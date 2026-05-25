@@ -26,56 +26,53 @@ import org.higherkindedj.hkt.vtask.VTask;
  */
 public class FeedResilience {
 
-  private final CircuitBreaker circuitBreaker;
-  private final RetryPolicy retryPolicy;
+    private final CircuitBreaker circuitBreaker;
 
-  /**
-   * Creates a resilience wrapper with custom configuration.
-   *
-   * @param circuitBreaker the circuit breaker to use
-   * @param retryPolicy the retry policy to use
-   */
-  public FeedResilience(CircuitBreaker circuitBreaker, RetryPolicy retryPolicy) {
-    this.circuitBreaker = Objects.requireNonNull(circuitBreaker);
-    this.retryPolicy = Objects.requireNonNull(retryPolicy);
-  }
+    private final RetryPolicy retryPolicy;
 
-  /** Creates a resilience wrapper with sensible defaults. */
-  public static FeedResilience withDefaults() {
-    CircuitBreakerConfig cbConfig =
-        CircuitBreakerConfig.builder()
-            .failureThreshold(3)
-            .openDuration(Duration.ofSeconds(5))
-            .callTimeout(Duration.ofSeconds(2))
-            .build();
+    /**
+     * Creates a resilience wrapper with custom configuration.
+     *
+     * @param circuitBreaker the circuit breaker to use
+     * @param retryPolicy the retry policy to use
+     */
+    public FeedResilience(CircuitBreaker circuitBreaker, RetryPolicy retryPolicy) {
+        this.circuitBreaker = Objects.requireNonNull(circuitBreaker);
+        this.retryPolicy = Objects.requireNonNull(retryPolicy);
+    }
 
-    return new FeedResilience(
-        CircuitBreaker.create(cbConfig), RetryPolicy.exponentialBackoff(3, Duration.ofMillis(100)));
-  }
+    /**
+     * Creates a resilience wrapper with sensible defaults.
+     */
+    public static FeedResilience withDefaults() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Protects a single tick-producing VTask with circuit breaker and retry.
-   *
-   * @param task the task to protect
-   * @return a protected task
-   */
-  public VTask<PriceTick> protect(VTask<PriceTick> task) {
-    return circuitBreaker.protect(Retry.retryTask(task, retryPolicy));
-  }
+    /**
+     * Protects a single tick-producing VTask with circuit breaker and retry.
+     *
+     * @param task the task to protect
+     * @return a protected task
+     */
+    public VTask<PriceTick> protect(VTask<PriceTick> task) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Wraps a tick stream so that individual pull failures are recovered with a fallback.
-   *
-   * @param stream the source stream
-   * @param fallback the stream to use if the source fails
-   * @return a resilient stream
-   */
-  public VStream<PriceTick> withFallback(VStream<PriceTick> stream, VStream<PriceTick> fallback) {
-    return stream.recoverWith(error -> fallback);
-  }
+    /**
+     * Wraps a tick stream so that individual pull failures are recovered with a fallback.
+     *
+     * @param stream the source stream
+     * @param fallback the stream to use if the source fails
+     * @return a resilient stream
+     */
+    public VStream<PriceTick> withFallback(VStream<PriceTick> stream, VStream<PriceTick> fallback) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /** Returns the underlying circuit breaker for status inspection. */
-  public CircuitBreaker circuitBreaker() {
-    return circuitBreaker;
-  }
+    /**
+     * Returns the underlying circuit breaker for status inspection.
+     */
+    public CircuitBreaker circuitBreaker() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

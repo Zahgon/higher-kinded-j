@@ -4,7 +4,6 @@ package org.higherkindedj.example.basic;
 
 import static org.higherkindedj.hkt.instances.Witnesses.*;
 import static org.higherkindedj.hkt.maybe.MaybeKindHelper.MAYBE;
-
 import org.higherkindedj.hkt.Applicative;
 import org.higherkindedj.hkt.Functor;
 import org.higherkindedj.hkt.Kind;
@@ -32,57 +31,43 @@ import org.higherkindedj.hkt.writer.WriterKind;
  */
 public final class InstancesFacadeExample {
 
-  public static void main(String[] args) {
-    new InstancesFacadeExample().run();
-  }
+    public static void main(String[] args) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  public void run() {
-    zeroArgumentLookups();
-    phantomTypedInference();
-    argumentCarryingInstances();
-  }
+    public void run() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  private void zeroArgumentLookups() {
-    System.out.println("--- Zero-argument lookups (one token, three levels) ---");
+    private void zeroArgumentLookups() {
+        System.out.println("--- Zero-argument lookups (one token, three levels) ---");
+        // One canonical object, viewed at Functor / Applicative / Monad level.
+        Functor<MaybeKind.Witness> functor = Instances.functor(maybe());
+        Applicative<MaybeKind.Witness> applicative = Instances.applicative(maybe());
+        Monad<MaybeKind.Witness> monad = Instances.monad(maybe());
+        Kind<MaybeKind.Witness, Integer> value = MAYBE.widen(Maybe.just(21));
+        Kind<MaybeKind.Witness, Integer> doubled = functor.map(n -> n * 2, value);
+        System.out.println("functor.map  : " + MAYBE.narrow(doubled));
+        System.out.println("applicative.of: " + MAYBE.narrow(applicative.of(99)));
+        System.out.println("monad.flatMap: " + MAYBE.narrow(monad.flatMap(n -> MAYBE.widen(Maybe.just(n + 1)), value)));
+    }
 
-    // One canonical object, viewed at Functor / Applicative / Monad level.
-    Functor<MaybeKind.Witness> functor = Instances.functor(maybe());
-    Applicative<MaybeKind.Witness> applicative = Instances.applicative(maybe());
-    Monad<MaybeKind.Witness> monad = Instances.monad(maybe());
+    private void phantomTypedInference() {
+        System.out.println("\n--- Phantom-typed inference ---");
+        // <String> is inferred from the assignment target, exactly as
+        // EitherMonad.<String>instance() would behave.
+        Monad<EitherKind.Witness<String>> eitherMonad = Instances.monad(either());
+        System.out.println("either() resolved to: " + eitherMonad.getClass().getSimpleName());
+    }
 
-    Kind<MaybeKind.Witness, Integer> value = MAYBE.widen(Maybe.just(21));
-    Kind<MaybeKind.Witness, Integer> doubled = functor.map(n -> n * 2, value);
-
-    System.out.println("functor.map  : " + MAYBE.narrow(doubled));
-    System.out.println("applicative.of: " + MAYBE.narrow(applicative.of(99)));
-    System.out.println(
-        "monad.flatMap: "
-            + MAYBE.narrow(monad.flatMap(n -> MAYBE.widen(Maybe.just(n + 1)), value)));
-  }
-
-  private void phantomTypedInference() {
-    System.out.println("\n--- Phantom-typed inference ---");
-
-    // <String> is inferred from the assignment target, exactly as
-    // EitherMonad.<String>instance() would behave.
-    Monad<EitherKind.Witness<String>> eitherMonad = Instances.monad(either());
-    System.out.println("either() resolved to: " + eitherMonad.getClass().getSimpleName());
-  }
-
-  private void argumentCarryingInstances() {
-    System.out.println("\n--- Argument-carrying instances (dependency in the signature) ---");
-
-    // The compiler forces us to supply the Semigroup / Monoid / outer Monad.
-    MonadError<ValidatedKind.Witness<String>, String> validated =
-        Instances.validated(Semigroups.string());
-    Monad<WriterKind.Witness<String>> writer = Instances.writer(Monoids.string());
-    MonadError<
-            EitherTKind.Witness<org.higherkindedj.hkt.optional.OptionalKind.Witness, String>,
-            String>
-        eitherT = Instances.eitherT(Instances.monad(optional()));
-
-    System.out.println("validated: " + validated.getClass().getSimpleName());
-    System.out.println("writer   : " + writer.getClass().getSimpleName());
-    System.out.println("eitherT  : " + eitherT.getClass().getSimpleName());
-  }
+    private void argumentCarryingInstances() {
+        System.out.println("\n--- Argument-carrying instances (dependency in the signature) ---");
+        // The compiler forces us to supply the Semigroup / Monoid / outer Monad.
+        MonadError<ValidatedKind.Witness<String>, String> validated = Instances.validated(Semigroups.string());
+        Monad<WriterKind.Witness<String>> writer = Instances.writer(Monoids.string());
+        MonadError<EitherTKind.Witness<org.higherkindedj.hkt.optional.OptionalKind.Witness, String>, String> eitherT = Instances.eitherT(Instances.monad(optional()));
+        System.out.println("validated: " + validated.getClass().getSimpleName());
+        System.out.println("writer   : " + writer.getClass().getSimpleName());
+        System.out.println("eitherT  : " + eitherT.getClass().getSimpleName());
+    }
 }

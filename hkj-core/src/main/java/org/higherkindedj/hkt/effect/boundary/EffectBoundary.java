@@ -3,7 +3,6 @@
 package org.higherkindedj.hkt.effect.boundary;
 
 import static org.higherkindedj.hkt.io.IOKindHelper.IO_OP;
-
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -62,168 +61,156 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public final class EffectBoundary<F extends WitnessArity<TypeArity.Unary>> {
 
-  private static final ExecutorService VIRTUAL_EXECUTOR =
-      Executors.newVirtualThreadPerTaskExecutor();
+    private static final ExecutorService VIRTUAL_EXECUTOR = Executors.newVirtualThreadPerTaskExecutor();
 
-  private final Natural<F, IOKind.Witness> interpreter;
-  private final Monad<IOKind.Witness> monad;
+    private final Natural<F, IOKind.Witness> interpreter;
 
-  private EffectBoundary(Natural<F, IOKind.Witness> interpreter) {
-    this.interpreter = Objects.requireNonNull(interpreter, "interpreter must not be null");
-    this.monad = IOMonad.INSTANCE;
-  }
+    private final Monad<IOKind.Witness> monad;
 
-  /**
-   * Creates a new EffectBoundary with the given interpreter.
-   *
-   * @param interpreter the natural transformation from effect algebra F to IO
-   * @param <F> the effect witness type
-   * @return a new EffectBoundary instance
-   * @throws NullPointerException if interpreter is null
-   */
-  public static <F extends WitnessArity<TypeArity.Unary>> EffectBoundary<F> of(
-      Natural<F, IOKind.Witness> interpreter) {
-    return new EffectBoundary<>(interpreter);
-  }
+    private EffectBoundary(Natural<F, IOKind.Witness> interpreter) {
+        this.interpreter = Objects.requireNonNull(interpreter, "interpreter must not be null");
+        this.monad = IOMonad.INSTANCE;
+    }
 
-  /**
-   * Interprets and executes a Free program synchronously.
-   *
-   * <p>Calls {@code foldMap(interpreter, monad)} on the program, narrows the result to {@code IO},
-   * and calls {@code unsafeRunSync()}. Blocks the calling thread until execution completes.
-   * Propagates interpreter exceptions directly.
-   *
-   * @param program the Free monad program to interpret and execute
-   * @param <A> the result type
-   * @return the result of executing the program
-   * @throws NullPointerException if program is null
-   * @throws RuntimeException if the interpreter throws during execution
-   */
-  public <A> A run(Free<F, A> program) {
-    Objects.requireNonNull(program, "program must not be null");
-    Kind<IOKind.Witness, A> result = program.foldMap(interpreter, monad);
-    IO<A> io = IO_OP.narrow(result);
-    return io.unsafeRunSync();
-  }
+    /**
+     * Creates a new EffectBoundary with the given interpreter.
+     *
+     * @param interpreter the natural transformation from effect algebra F to IO
+     * @param <F> the effect witness type
+     * @return a new EffectBoundary instance
+     * @throws NullPointerException if interpreter is null
+     */
+    public static <F extends WitnessArity<TypeArity.Unary>> EffectBoundary<F> of(Natural<F, IOKind.Witness> interpreter) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Interprets and executes a FreePath program synchronously.
-   *
-   * <p>Extracts the underlying {@code Free} via {@code toFree()} and delegates to {@link
-   * #run(Free)}.
-   *
-   * @param program the FreePath program to interpret and execute
-   * @param <A> the result type
-   * @return the result of executing the program
-   * @throws NullPointerException if program is null
-   */
-  public <A> A run(FreePath<F, A> program) {
-    Objects.requireNonNull(program, "program must not be null");
-    return run(program.toFree());
-  }
+    /**
+     * Interprets and executes a Free program synchronously.
+     *
+     * <p>Calls {@code foldMap(interpreter, monad)} on the program, narrows the result to {@code IO},
+     * and calls {@code unsafeRunSync()}. Blocks the calling thread until execution completes.
+     * Propagates interpreter exceptions directly.
+     *
+     * @param program the Free monad program to interpret and execute
+     * @param <A> the result type
+     * @return the result of executing the program
+     * @throws NullPointerException if program is null
+     * @throws RuntimeException if the interpreter throws during execution
+     */
+    public <A> A run(Free<F, A> program) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Interprets and executes a Free program, capturing any exception as a {@code Try.Failure}.
-   *
-   * <p>Never throws. Returns {@code Try.success(result)} on success or {@code
-   * Try.failure(exception)} if the interpreter throws.
-   *
-   * @param program the Free monad program to interpret and execute
-   * @param <A> the result type
-   * @return a Try containing either the result or the exception
-   * @throws NullPointerException if program is null
-   */
-  public <A> Try<A> runSafe(Free<F, A> program) {
-    Objects.requireNonNull(program, "program must not be null");
-    return Try.of(() -> run(program));
-  }
+    /**
+     * Interprets and executes a FreePath program synchronously.
+     *
+     * <p>Extracts the underlying {@code Free} via {@code toFree()} and delegates to {@link
+     * #run(Free)}.
+     *
+     * @param program the FreePath program to interpret and execute
+     * @param <A> the result type
+     * @return the result of executing the program
+     * @throws NullPointerException if program is null
+     */
+    public <A> A run(FreePath<F, A> program) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Interprets and executes a Free program asynchronously on a virtual thread.
-   *
-   * <p>Returns a {@code CompletableFuture} that completes on a virtual thread. Uses {@code
-   * Thread.ofVirtual()} for execution, consistent with {@code VTaskPathReturnValueHandler}.
-   *
-   * @param program the Free monad program to interpret and execute
-   * @param <A> the result type
-   * @return a CompletableFuture that will contain the result
-   * @throws NullPointerException if program is null
-   */
-  public <A> CompletableFuture<A> runAsync(Free<F, A> program) {
-    Objects.requireNonNull(program, "program must not be null");
-    return CompletableFuture.supplyAsync(() -> run(program), VIRTUAL_EXECUTOR);
-  }
+    /**
+     * Interprets and executes a Free program, capturing any exception as a {@code Try.Failure}.
+     *
+     * <p>Never throws. Returns {@code Try.success(result)} on success or {@code
+     * Try.failure(exception)} if the interpreter throws.
+     *
+     * @param program the Free monad program to interpret and execute
+     * @param <A> the result type
+     * @return a Try containing either the result or the exception
+     * @throws NullPointerException if program is null
+     */
+    public <A> Try<A> runSafe(Free<F, A> program) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Interprets a Free program into a deferred {@code IOPath}.
-   *
-   * <p>The program is <b>not</b> executed until {@code IOPath.unsafeRun()} is called or the IOPath
-   * is consumed by a return value handler. This is the recommended method for Spring controllers
-   * because {@code IOPathReturnValueHandler} manages execution and error mapping.
-   *
-   * @param program the Free monad program to wrap
-   * @param <A> the result type
-   * @return an IOPath that will interpret and execute the program when consumed
-   * @throws NullPointerException if program is null
-   */
-  public <A> IOPath<A> runIO(Free<F, A> program) {
-    Objects.requireNonNull(program, "program must not be null");
-    return Path.io(() -> run(program));
-  }
+    /**
+     * Interprets and executes a Free program asynchronously on a virtual thread.
+     *
+     * <p>Returns a {@code CompletableFuture} that completes on a virtual thread. Uses {@code
+     * Thread.ofVirtual()} for execution, consistent with {@code VTaskPathReturnValueHandler}.
+     *
+     * @param program the Free monad program to interpret and execute
+     * @param <A> the result type
+     * @return a CompletableFuture that will contain the result
+     * @throws NullPointerException if program is null
+     */
+    public <A> CompletableFuture<A> runAsync(Free<F, A> program) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Interprets a FreePath program into a deferred {@code IOPath}.
-   *
-   * @param program the FreePath program to wrap
-   * @param <A> the result type
-   * @return an IOPath that will interpret and execute the program when consumed
-   * @throws NullPointerException if program is null
-   */
-  public <A> IOPath<A> runIO(FreePath<F, A> program) {
-    Objects.requireNonNull(program, "program must not be null");
-    return runIO(program.toFree());
-  }
+    /**
+     * Interprets a Free program into a deferred {@code IOPath}.
+     *
+     * <p>The program is <b>not</b> executed until {@code IOPath.unsafeRun()} is called or the IOPath
+     * is consumed by a return value handler. This is the recommended method for Spring controllers
+     * because {@code IOPathReturnValueHandler} manages execution and error mapping.
+     *
+     * @param program the Free monad program to wrap
+     * @param <A> the result type
+     * @return an IOPath that will interpret and execute the program when consumed
+     * @throws NullPointerException if program is null
+     */
+    public <A> IOPath<A> runIO(Free<F, A> program) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Lifts an IO action into the Free monad as a pure value.
-   *
-   * <p>Executes the IO action immediately and wraps the result in {@code Free.pure()}. This is
-   * useful for interleaving raw IO effects within a Free program built using {@code flatMap}.
-   *
-   * @param io the IO action to execute and embed
-   * @param <A> the result type
-   * @return a Free program containing the IO action's result
-   * @throws NullPointerException if io is null
-   */
-  public <A> Free<F, A> embed(IO<A> io) {
-    Objects.requireNonNull(io, "io must not be null");
-    return Free.pure(io.unsafeRunSync());
-  }
+    /**
+     * Interprets a FreePath program into a deferred {@code IOPath}.
+     *
+     * @param program the FreePath program to wrap
+     * @param <A> the result type
+     * @return an IOPath that will interpret and execute the program when consumed
+     * @throws NullPointerException if program is null
+     */
+    public <A> IOPath<A> runIO(FreePath<F, A> program) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Lifts an IO action into a FreePath as a pure value.
-   *
-   * <p>Executes the IO action immediately and wraps the result in {@code FreePath.pure()}. Requires
-   * a Functor instance for the effect algebra.
-   *
-   * @param io the IO action to execute and embed
-   * @param functor the Functor instance for the effect algebra F
-   * @param <A> the result type
-   * @return a FreePath containing the IO action's result
-   * @throws NullPointerException if io or functor is null
-   */
-  public <A> FreePath<F, A> embedPath(IO<A> io, Functor<F> functor) {
-    Objects.requireNonNull(io, "io must not be null");
-    Objects.requireNonNull(functor, "functor must not be null");
-    return FreePath.pure(io.unsafeRunSync(), functor);
-  }
+    /**
+     * Lifts an IO action into the Free monad as a pure value.
+     *
+     * <p>Executes the IO action immediately and wraps the result in {@code Free.pure()}. This is
+     * useful for interleaving raw IO effects within a Free program built using {@code flatMap}.
+     *
+     * @param io the IO action to execute and embed
+     * @param <A> the result type
+     * @return a Free program containing the IO action's result
+     * @throws NullPointerException if io is null
+     */
+    public <A> Free<F, A> embed(IO<A> io) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Returns the natural transformation used by this boundary.
-   *
-   * @return the interpreter
-   */
-  public Natural<F, IOKind.Witness> interpreter() {
-    return interpreter;
-  }
+    /**
+     * Lifts an IO action into a FreePath as a pure value.
+     *
+     * <p>Executes the IO action immediately and wraps the result in {@code FreePath.pure()}. Requires
+     * a Functor instance for the effect algebra.
+     *
+     * @param io the IO action to execute and embed
+     * @param functor the Functor instance for the effect algebra F
+     * @param <A> the result type
+     * @return a FreePath containing the IO action's result
+     * @throws NullPointerException if io or functor is null
+     */
+    public <A> FreePath<F, A> embedPath(IO<A> io, Functor<F> functor) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Returns the natural transformation used by this boundary.
+     *
+     * @return the interpreter
+     */
+    public Natural<F, IOKind.Witness> interpreter() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

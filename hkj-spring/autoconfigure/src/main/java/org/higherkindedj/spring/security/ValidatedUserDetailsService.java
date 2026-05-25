@@ -54,156 +54,116 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
  */
 public class ValidatedUserDetailsService implements UserDetailsService {
 
-  private final Map<String, UserDetails> users = new ConcurrentHashMap<>();
+    private final Map<String, UserDetails> users = new ConcurrentHashMap<>();
 
-  // Semigroup for combining error lists
-  private static final Semigroup<List<UserValidationError>> ERROR_SEMIGROUP =
-      (a, b) -> {
+    // Semigroup for combining error lists
+    private static final Semigroup<List<UserValidationError>> ERROR_SEMIGROUP = (a, b) -> {
         List<UserValidationError> combined = new ArrayList<>(a);
         combined.addAll(b);
         return combined;
-      };
+    };
 
-  /** Creates a new ValidatedUserDetailsService with sample users. */
-  public ValidatedUserDetailsService() {
-    // Add sample users for testing
-    users.put(
-        "admin",
-        User.builder().username("admin").password("{noop}admin123").roles("ADMIN", "USER").build());
-
-    users.put(
-        "user", User.builder().username("user").password("{noop}user123").roles("USER").build());
-
-    // Disabled user for testing
-    users.put(
-        "disabled",
-        User.builder()
-            .username("disabled")
-            .password("{noop}disabled123")
-            .roles("USER")
-            .disabled(true)
-            .build());
-  }
-
-  @Override
-  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    // Validate username and load user
-    Validated<List<UserValidationError>, UserDetails> validated = validateAndLoadUser(username);
-
-    // Fold Validated to UserDetails or throw exception
-    return validated.fold(
-        errors -> {
-          // Collect all error messages
-          String errorMessages =
-              errors.stream()
-                  .map(UserValidationError::message)
-                  .reduce((a, b) -> a + "; " + b)
-                  .orElse("Unknown error");
-
-          throw new UsernameNotFoundException(errorMessages);
-        },
-        userDetails -> userDetails);
-  }
-
-  /**
-   * Validates username and loads user details.
-   *
-   * @param username the username to validate and load
-   * @return Validated containing user details or validation errors
-   */
-  private Validated<List<UserValidationError>, UserDetails> validateAndLoadUser(String username) {
-    // Start with username validation
-    return validateUsername(username).flatMap(this::loadUser).flatMap(this::validateUserAccount);
-  }
-
-  /**
-   * Validates username format.
-   *
-   * @param username the username
-   * @return Validated containing username or errors
-   */
-  private Validated<List<UserValidationError>, String> validateUsername(String username) {
-    List<UserValidationError> errors = new ArrayList<>();
-
-    if (username == null || username.isBlank()) {
-      errors.add(new UserValidationError("Username cannot be empty"));
+    /**
+     * Creates a new ValidatedUserDetailsService with sample users.
+     */
+    public ValidatedUserDetailsService() {
+        // Add sample users for testing
+        users.put("admin", User.builder().username("admin").password("{noop}admin123").roles("ADMIN", "USER").build());
+        users.put("user", User.builder().username("user").password("{noop}user123").roles("USER").build());
+        // Disabled user for testing
+        users.put("disabled", User.builder().username("disabled").password("{noop}disabled123").roles("USER").disabled(true).build());
     }
 
-    if (username != null && username.length() < 3) {
-      errors.add(new UserValidationError("Username must be at least 3 characters"));
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    if (username != null && username.length() > 50) {
-      errors.add(new UserValidationError("Username must be at most 50 characters"));
+    /**
+     * Validates username and loads user details.
+     *
+     * @param username the username to validate and load
+     * @return Validated containing user details or validation errors
+     */
+    private Validated<List<UserValidationError>, UserDetails> validateAndLoadUser(String username) {
+        // Start with username validation
+        return validateUsername(username).flatMap(this::loadUser).flatMap(this::validateUserAccount);
     }
 
-    if (username != null && !username.matches("^[a-zA-Z0-9_-]+$")) {
-      errors.add(
-          new UserValidationError(
-              "Username can only contain letters, numbers, underscores, and hyphens"));
+    /**
+     * Validates username format.
+     *
+     * @param username the username
+     * @return Validated containing username or errors
+     */
+    private Validated<List<UserValidationError>, String> validateUsername(String username) {
+        List<UserValidationError> errors = new ArrayList<>();
+        if (username == null || username.isBlank()) {
+            errors.add(new UserValidationError("Username cannot be empty"));
+        }
+        if (username != null && username.length() < 3) {
+            errors.add(new UserValidationError("Username must be at least 3 characters"));
+        }
+        if (username != null && username.length() > 50) {
+            errors.add(new UserValidationError("Username must be at most 50 characters"));
+        }
+        if (username != null && !username.matches("^[a-zA-Z0-9_-]+$")) {
+            errors.add(new UserValidationError("Username can only contain letters, numbers, underscores, and hyphens"));
+        }
+        return errors.isEmpty() ? Validated.valid(username) : Validated.invalid(errors);
     }
 
-    return errors.isEmpty() ? Validated.valid(username) : Validated.invalid(errors);
-  }
-
-  /**
-   * Loads user from repository.
-   *
-   * @param username the username
-   * @return Validated containing user details or error
-   */
-  private Validated<List<UserValidationError>, UserDetails> loadUser(String username) {
-    UserDetails user = users.get(username);
-
-    if (user == null) {
-      return Validated.invalid(List.of(new UserValidationError("User not found: " + username)));
+    /**
+     * Loads user from repository.
+     *
+     * @param username the username
+     * @return Validated containing user details or error
+     */
+    private Validated<List<UserValidationError>, UserDetails> loadUser(String username) {
+        UserDetails user = users.get(username);
+        if (user == null) {
+            return Validated.invalid(List.of(new UserValidationError("User not found: " + username)));
+        }
+        return Validated.valid(user);
     }
 
-    return Validated.valid(user);
-  }
-
-  /**
-   * Validates user account status.
-   *
-   * @param userDetails the user details
-   * @return Validated containing user details or errors
-   */
-  private Validated<List<UserValidationError>, UserDetails> validateUserAccount(
-      UserDetails userDetails) {
-    List<UserValidationError> errors = new ArrayList<>();
-
-    if (!userDetails.isEnabled()) {
-      errors.add(new UserValidationError("Account is disabled"));
+    /**
+     * Validates user account status.
+     *
+     * @param userDetails the user details
+     * @return Validated containing user details or errors
+     */
+    private Validated<List<UserValidationError>, UserDetails> validateUserAccount(UserDetails userDetails) {
+        List<UserValidationError> errors = new ArrayList<>();
+        if (!userDetails.isEnabled()) {
+            errors.add(new UserValidationError("Account is disabled"));
+        }
+        if (!userDetails.isAccountNonLocked()) {
+            errors.add(new UserValidationError("Account is locked"));
+        }
+        if (!userDetails.isAccountNonExpired()) {
+            errors.add(new UserValidationError("Account has expired"));
+        }
+        if (!userDetails.isCredentialsNonExpired()) {
+            errors.add(new UserValidationError("Credentials have expired"));
+        }
+        return errors.isEmpty() ? Validated.valid(userDetails) : Validated.invalid(errors);
     }
 
-    if (!userDetails.isAccountNonLocked()) {
-      errors.add(new UserValidationError("Account is locked"));
+    /**
+     * Adds a user to the service.
+     *
+     * @param userDetails the user details to add
+     */
+    public void addUser(UserDetails userDetails) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    if (!userDetails.isAccountNonExpired()) {
-      errors.add(new UserValidationError("Account has expired"));
+    /**
+     * Validation error for user details.
+     *
+     * @param message the validation error message
+     */
+    public record UserValidationError(String message) {
     }
-
-    if (!userDetails.isCredentialsNonExpired()) {
-      errors.add(new UserValidationError("Credentials have expired"));
-    }
-
-    return errors.isEmpty() ? Validated.valid(userDetails) : Validated.invalid(errors);
-  }
-
-  /**
-   * Adds a user to the service.
-   *
-   * @param userDetails the user details to add
-   */
-  public void addUser(UserDetails userDetails) {
-    users.put(userDetails.getUsername(), userDetails);
-  }
-
-  /**
-   * Validation error for user details.
-   *
-   * @param message the validation error message
-   */
-  public record UserValidationError(String message) {}
 }

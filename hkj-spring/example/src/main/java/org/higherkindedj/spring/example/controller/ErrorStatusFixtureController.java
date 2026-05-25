@@ -35,119 +35,121 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/error-status-fixture")
 public class ErrorStatusFixtureController {
 
-  /** Creates an ErrorStatusFixtureController. */
-  public ErrorStatusFixtureController() {}
-
-  /**
-   * Returns one error variant per {@code kind} so a single slice test can assert every
-   * status-mapping rule the project depends on.
-   *
-   * @param kind the variant to emit (see class Javadoc)
-   * @return an {@code Either} whose {@code Left} encodes the requested error variant
-   */
-  @GetMapping("/{kind}")
-  public Either<DomainError, String> raise(@PathVariable String kind) {
-    return Either.left(
-        switch (kind) {
-          case "not-found" -> new DomainError.UserNotFoundError("123");
-          case "validation" -> new DomainError.ValidationError("missing field");
-          case "invalid" -> new DomainError.MfaCodeInvalidError("E_BAD_CODE");
-          case "forbidden" -> new DomainError.ForbiddenAction("delete");
-          case "authorization" -> new DomainError.AuthorizationError("scope");
-          case "authentication" -> new DomainError.AuthenticationError("missing token");
-          case "unauthorized" -> new DomainError.UnauthorizedAccess("expired");
-          case "conflict" -> new DomainError.MfaAlreadyEnrolledError("user-1");
-          case "unprocessable" -> new DomainError.PaymentDeclinedError("insufficient funds");
-          case "throttled" -> new DomainError.MfaThrottledError(30);
-          case "unmapped" -> new DomainError.UnmappedError("opaque");
-          default -> throw new IllegalArgumentException("Unknown kind: " + kind);
-        });
-  }
-
-  /** Sealed domain-error hierarchy that exercises every supported mapping rule. */
-  public sealed interface DomainError {
-
     /**
-     * Heuristic match → 404.
-     *
-     * @param userId the missing user identifier
+     * Creates an ErrorStatusFixtureController.
      */
-    record UserNotFoundError(String userId) implements DomainError {}
-
-    /**
-     * Heuristic match → 400.
-     *
-     * @param field the invalid field name
-     */
-    record ValidationError(String field) implements DomainError {}
-
-    /**
-     * Heuristic match (token "Invalid") → 400.
-     *
-     * @param code the invalid MFA code
-     */
-    record MfaCodeInvalidError(String code) implements DomainError {}
-
-    /**
-     * Heuristic match → 403.
-     *
-     * @param action the forbidden action
-     */
-    record ForbiddenAction(String action) implements DomainError {}
-
-    /**
-     * Heuristic match → 403.
-     *
-     * @param reason the authorization failure reason
-     */
-    record AuthorizationError(String reason) implements DomainError {}
-
-    /**
-     * Heuristic match → 401.
-     *
-     * @param reason the authentication failure reason
-     */
-    record AuthenticationError(String reason) implements DomainError {}
-
-    /**
-     * Heuristic match → 401.
-     *
-     * @param reason the unauthorized access reason
-     */
-    record UnauthorizedAccess(String reason) implements DomainError {}
-
-    /**
-     * Requires explicit mapping → 409.
-     *
-     * @param userId the already-enrolled user identifier
-     */
-    record MfaAlreadyEnrolledError(String userId) implements DomainError {}
-
-    /**
-     * Requires explicit mapping → 422.
-     *
-     * @param reason the payment decline reason
-     */
-    record PaymentDeclinedError(String reason) implements DomainError {}
-
-    /**
-     * Requires explicit mapping → 429 and surfaces a {@code Retry-After} header by implementing
-     * {@link HttpHeaderCarrier}.
-     *
-     * @param retryAfterSeconds the number of seconds to wait before retrying
-     */
-    record MfaThrottledError(int retryAfterSeconds) implements DomainError, HttpHeaderCarrier {
-      @Override
-      public Map<String, String> headers() {
-        return Map.of("Retry-After", Integer.toString(retryAfterSeconds));
-      }
+    public ErrorStatusFixtureController() {
     }
 
     /**
-     * No heuristic, no mapping → falls back to the configured default.
+     * Returns one error variant per {@code kind} so a single slice test can assert every
+     * status-mapping rule the project depends on.
      *
-     * @param detail the opaque error detail
+     * @param kind the variant to emit (see class Javadoc)
+     * @return an {@code Either} whose {@code Left} encodes the requested error variant
      */
-    record UnmappedError(String detail) implements DomainError {}
-  }
+    @GetMapping("/{kind}")
+    public Either<DomainError, String> raise(@PathVariable String kind) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    /**
+     * Sealed domain-error hierarchy that exercises every supported mapping rule.
+     */
+    public sealed interface DomainError {
+
+        /**
+         * Heuristic match → 404.
+         *
+         * @param userId the missing user identifier
+         */
+        record UserNotFoundError(String userId) implements DomainError {
+        }
+
+        /**
+         * Heuristic match → 400.
+         *
+         * @param field the invalid field name
+         */
+        record ValidationError(String field) implements DomainError {
+        }
+
+        /**
+         * Heuristic match (token "Invalid") → 400.
+         *
+         * @param code the invalid MFA code
+         */
+        record MfaCodeInvalidError(String code) implements DomainError {
+        }
+
+        /**
+         * Heuristic match → 403.
+         *
+         * @param action the forbidden action
+         */
+        record ForbiddenAction(String action) implements DomainError {
+        }
+
+        /**
+         * Heuristic match → 403.
+         *
+         * @param reason the authorization failure reason
+         */
+        record AuthorizationError(String reason) implements DomainError {
+        }
+
+        /**
+         * Heuristic match → 401.
+         *
+         * @param reason the authentication failure reason
+         */
+        record AuthenticationError(String reason) implements DomainError {
+        }
+
+        /**
+         * Heuristic match → 401.
+         *
+         * @param reason the unauthorized access reason
+         */
+        record UnauthorizedAccess(String reason) implements DomainError {
+        }
+
+        /**
+         * Requires explicit mapping → 409.
+         *
+         * @param userId the already-enrolled user identifier
+         */
+        record MfaAlreadyEnrolledError(String userId) implements DomainError {
+        }
+
+        /**
+         * Requires explicit mapping → 422.
+         *
+         * @param reason the payment decline reason
+         */
+        record PaymentDeclinedError(String reason) implements DomainError {
+        }
+
+        /**
+         * Requires explicit mapping → 429 and surfaces a {@code Retry-After} header by implementing
+         * {@link HttpHeaderCarrier}.
+         *
+         * @param retryAfterSeconds the number of seconds to wait before retrying
+         */
+        record MfaThrottledError(int retryAfterSeconds) implements DomainError, HttpHeaderCarrier {
+
+            @Override
+            public Map<String, String> headers() {
+                throw new UnsupportedOperationException("STUB: not implemented");
+            }
+        }
+
+        /**
+         * No heuristic, no mapping → falls back to the configured default.
+         *
+         * @param detail the opaque error detail
+         */
+        record UnmappedError(String detail) implements DomainError {
+        }
+    }
 }

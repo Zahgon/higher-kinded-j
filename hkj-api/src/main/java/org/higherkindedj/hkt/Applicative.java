@@ -3,7 +3,6 @@
 package org.higherkindedj.hkt;
 
 import static java.util.Objects.requireNonNull;
-
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import org.higherkindedj.hkt.function.Function3;
@@ -59,210 +58,167 @@ import org.jspecify.annotations.Nullable;
 @NullMarked
 public interface Applicative<F extends WitnessArity<TypeArity.Unary>> extends Functor<F> {
 
-  /**
-   * Lifts a pure value {@code value} into the applicative context {@code F}. This is also known in
-   * other contexts as {@code pure}, {@code return} (in Haskell for Monads, which are Applicatives),
-   * or {@code unit}.
-   *
-   * <p>For example:
-   *
-   * <ul>
-   *   <li>For {@code Optional}, {@code of(x)} would be {@code Optional.ofNullable(x)}.
-   *   <li>For {@code List}, {@code of(x)} would be {@code List.of(x)}.
-   * </ul>
-   *
-   * @param value The value to lift into the context. The nullability of this value depends on the
-   *     specific applicative context {@code F} (e.g., {@code Optional} can handle a {@code null}
-   *     input to become {@code Optional.empty()} or {@code Optional.ofNullable()}, while a custom
-   *     list might not allow null elements).
-   * @param <A> The type of the value being lifted.
-   * @return A non-null {@link Kind Kind&lt;F, A&gt;} representing the value {@code A} wrapped in
-   *     the applicative context {@code F}.
-   */
-  <A> Kind<F, A> of(@Nullable A value);
+    /**
+     * Lifts a pure value {@code value} into the applicative context {@code F}. This is also known in
+     * other contexts as {@code pure}, {@code return} (in Haskell for Monads, which are Applicatives),
+     * or {@code unit}.
+     *
+     * <p>For example:
+     *
+     * <ul>
+     *   <li>For {@code Optional}, {@code of(x)} would be {@code Optional.ofNullable(x)}.
+     *   <li>For {@code List}, {@code of(x)} would be {@code List.of(x)}.
+     * </ul>
+     *
+     * @param value The value to lift into the context. The nullability of this value depends on the
+     *     specific applicative context {@code F} (e.g., {@code Optional} can handle a {@code null}
+     *     input to become {@code Optional.empty()} or {@code Optional.ofNullable()}, while a custom
+     *     list might not allow null elements).
+     * @param <A> The type of the value being lifted.
+     * @return A non-null {@link Kind Kind&lt;F, A&gt;} representing the value {@code A} wrapped in
+     *     the applicative context {@code F}.
+     */
+    <A> Kind<F, A> of(@Nullable A value);
 
-  /**
-   * Applies a function wrapped in an applicative context {@code ff} to a value wrapped in the same
-   * applicative context {@code fa}.
-   *
-   * <p>This is the core operation distinguishing Applicatives from Functors. It allows function
-   * application where both the function and its arguments are "effectful" or "contextual".
-   *
-   * <p>Example:
-   *
-   * <pre>{@code
-   * // Assume OptionalApplicative implements Applicative<OptionalKind.Witness>
-   * Kind<OptionalKind.Witness, Function<Integer, String>> fOpt = OptionalApplicative.of(x -> "Value: " + x);
-   * Kind<OptionalKind.Witness, Integer> valOpt = OptionalApplicative.of(10);
-   * Kind<OptionalKind.Witness, String> resultOpt = OptionalApplicative.ap(fOpt, valOpt);
-   * // resultOpt would be OptionalKind containing "Value: 10"
-   *
-   * Kind<OptionalKind.Witness, Integer> emptyOpt = OptionalApplicative.of(null); // or Optional.empty()
-   * Kind<OptionalKind.Witness, String> resultEmpty = OptionalApplicative.ap(fOpt, emptyOpt);
-   * // resultEmpty would be an empty OptionalKind
-   * }</pre>
-   *
-   * @param ff A non-null {@link Kind Kind&lt;F, Function&lt;A, B&gt;&gt;} representing the function
-   *     wrapped in the applicative context {@code F}.
-   * @param fa A non-null {@link Kind Kind&lt;F, A&gt;} representing the argument value wrapped in
-   *     the applicative context {@code F}.
-   * @param <A> The input type of the function and the type of the value in {@code fa}.
-   * @param <B> The output type of the function and the type of the value in the resulting context.
-   * @return A non-null {@link Kind Kind&lt;F, B&gt;} representing the result of applying the
-   *     function within the context {@code F}. If either {@code ff} or {@code fa} represents an
-   *     "empty" or "failed" context (e.g., {@code Optional.empty()}), the result is typically also
-   *     such a context.
-   */
-  <A, B> Kind<F, B> ap(Kind<F, ? extends Function<A, B>> ff, Kind<F, A> fa);
+    /**
+     * Applies a function wrapped in an applicative context {@code ff} to a value wrapped in the same
+     * applicative context {@code fa}.
+     *
+     * <p>This is the core operation distinguishing Applicatives from Functors. It allows function
+     * application where both the function and its arguments are "effectful" or "contextual".
+     *
+     * <p>Example:
+     *
+     * <pre>{@code
+     * // Assume OptionalApplicative implements Applicative<OptionalKind.Witness>
+     * Kind<OptionalKind.Witness, Function<Integer, String>> fOpt = OptionalApplicative.of(x -> "Value: " + x);
+     * Kind<OptionalKind.Witness, Integer> valOpt = OptionalApplicative.of(10);
+     * Kind<OptionalKind.Witness, String> resultOpt = OptionalApplicative.ap(fOpt, valOpt);
+     * // resultOpt would be OptionalKind containing "Value: 10"
+     *
+     * Kind<OptionalKind.Witness, Integer> emptyOpt = OptionalApplicative.of(null); // or Optional.empty()
+     * Kind<OptionalKind.Witness, String> resultEmpty = OptionalApplicative.ap(fOpt, emptyOpt);
+     * // resultEmpty would be an empty OptionalKind
+     * }</pre>
+     *
+     * @param ff A non-null {@link Kind Kind&lt;F, Function&lt;A, B&gt;&gt;} representing the function
+     *     wrapped in the applicative context {@code F}.
+     * @param fa A non-null {@link Kind Kind&lt;F, A&gt;} representing the argument value wrapped in
+     *     the applicative context {@code F}.
+     * @param <A> The input type of the function and the type of the value in {@code fa}.
+     * @param <B> The output type of the function and the type of the value in the resulting context.
+     * @return A non-null {@link Kind Kind&lt;F, B&gt;} representing the result of applying the
+     *     function within the context {@code F}. If either {@code ff} or {@code fa} represents an
+     *     "empty" or "failed" context (e.g., {@code Optional.empty()}), the result is typically also
+     *     such a context.
+     */
+    <A, B> Kind<F, B> ap(Kind<F, ? extends Function<A, B>> ff, Kind<F, A> fa);
 
-  // --- mapN implementations ---
+    // --- mapN implementations ---
+    /**
+     * Combines two values {@code fa} and {@code fb}, both in the applicative context {@code F}, using
+     * a curried pure function {@code f: A -> (B -> C)}.
+     *
+     * <p>This version is implemented using the more common BiFunction-based map2.
+     *
+     * @param fa The first non-null applicative value {@code Kind<F, A>}.
+     * @param fb The second non-null applicative value {@code Kind<F, B>}.
+     * @param f A non-null pure function that takes a value of type {@code A} and returns a function
+     *     from {@code B} to {@code C}.
+     * @param <A> The type of the value in {@code fa}.
+     * @param <B> The type of the value in {@code fb}.
+     * @param <C> The type of the result of the combined computation.
+     * @return A non-null {@code Kind<F, C>} containing the result.
+     * @throws NullPointerException if {@code f} is null.
+     */
+    default <A, B, C> Kind<F, C> map2(final Kind<F, A> fa, final Kind<F, B> fb, final Function<A, Function<B, C>> f) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Combines two values {@code fa} and {@code fb}, both in the applicative context {@code F}, using
-   * a curried pure function {@code f: A -> (B -> C)}.
-   *
-   * <p>This version is implemented using the more common BiFunction-based map2.
-   *
-   * @param fa The first non-null applicative value {@code Kind<F, A>}.
-   * @param fb The second non-null applicative value {@code Kind<F, B>}.
-   * @param f A non-null pure function that takes a value of type {@code A} and returns a function
-   *     from {@code B} to {@code C}.
-   * @param <A> The type of the value in {@code fa}.
-   * @param <B> The type of the value in {@code fb}.
-   * @param <C> The type of the result of the combined computation.
-   * @return A non-null {@code Kind<F, C>} containing the result.
-   * @throws NullPointerException if {@code f} is null.
-   */
-  default <A, B, C> Kind<F, C> map2(
-      final Kind<F, A> fa, final Kind<F, B> fb, final Function<A, Function<B, C>> f) {
-    // Delegate to the BiFunction version, which is now the base implementation
-    return map2(fa, fb, (a, b) -> f.apply(a).apply(b));
-  }
+    /**
+     * Combines two values {@code fa} and {@code fb}, both in the applicative context {@code F}, using
+     * a pure {@link BiFunction BiFunction&lt;A, B, C&gt;}.
+     *
+     * <p>This is the primary, most flexible version of map2.
+     *
+     * @param fa The first non-null applicative value {@code Kind<F, A>}.
+     * @param fb The second non-null applicative value {@code Kind<F, B>}.
+     * @param f A non-null pure {@link BiFunction} to combine the values.
+     * @param <A> The type of the value in {@code fa}.
+     * @param <B> The type of the value in {@code fb}.
+     * @param <C> The type of the result of applying {@code f}.
+     * @return A non-null {@code Kind<F, C>} containing the result.
+     * @throws NullPointerException if {@code f} is null.
+     */
+    default <A, B, C> Kind<F, C> map2(final Kind<F, A> fa, final Kind<F, B> fb, final BiFunction<? super A, ? super B, ? extends C> f) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Combines two values {@code fa} and {@code fb}, both in the applicative context {@code F}, using
-   * a pure {@link BiFunction BiFunction&lt;A, B, C&gt;}.
-   *
-   * <p>This is the primary, most flexible version of map2.
-   *
-   * @param fa The first non-null applicative value {@code Kind<F, A>}.
-   * @param fb The second non-null applicative value {@code Kind<F, B>}.
-   * @param f A non-null pure {@link BiFunction} to combine the values.
-   * @param <A> The type of the value in {@code fa}.
-   * @param <B> The type of the value in {@code fb}.
-   * @param <C> The type of the result of applying {@code f}.
-   * @return A non-null {@code Kind<F, C>} containing the result.
-   * @throws NullPointerException if {@code f} is null.
-   */
-  default <A, B, C> Kind<F, C> map2(
-      final Kind<F, A> fa,
-      final Kind<F, B> fb,
-      final BiFunction<? super A, ? super B, ? extends C> f) {
-    requireNonNull(fa, "Kind<F, A> fa for map2 cannot be null");
-    requireNonNull(fb, "Kind<F, B> fb for map2 cannot be null");
-    requireNonNull(f, "combining function for map2 cannot be null");
-    // The implementation is now based on map and ap, with a curried function.
-    // The key is that the lambda `a -> b -> f.apply(a, b)` helps the compiler
-    // resolve the wildcard types correctly before they are passed to map.
-    return ap(map(a -> b -> f.apply(a, b), fa), fb);
-  }
+    /**
+     * Combines three values {@code fa}, {@code fb}, and {@code fc}, all in the applicative context
+     * {@code F}, using a pure {@link Function3 Function3&lt;A, B, C, R&gt;}.
+     *
+     * @param fa The first non-null applicative value {@code Kind<F, A>}.
+     * @param fb The second non-null applicative value {@code Kind<F, B>}.
+     * @param fc The third non-null applicative value {@code Kind<F, C>}.
+     * @param f A non-null pure {@link Function3} to combine the values from {@code fa}, {@code fb},
+     *     and {@code fc}.
+     * @param <A> The type of the value in {@code fa}.
+     * @param <B> The type of the value in {@code fb}.
+     * @param <C> The type of the value in {@code fc}.
+     * @param <R> The type of the result of applying {@code f}.
+     * @return A non-null {@code Kind<F, R>} containing the result of applying {@code f} to the values
+     *     from {@code fa}, {@code fb}, and {@code fc} within the context {@code F}.
+     * @throws NullPointerException if {@code f} is null.
+     */
+    default <A, B, C, R> Kind<F, R> map3(final Kind<F, A> fa, final Kind<F, B> fb, final Kind<F, C> fc, final Function3<? super A, ? super B, ? super C, ? extends R> f) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Combines three values {@code fa}, {@code fb}, and {@code fc}, all in the applicative context
-   * {@code F}, using a pure {@link Function3 Function3&lt;A, B, C, R&gt;}.
-   *
-   * @param fa The first non-null applicative value {@code Kind<F, A>}.
-   * @param fb The second non-null applicative value {@code Kind<F, B>}.
-   * @param fc The third non-null applicative value {@code Kind<F, C>}.
-   * @param f A non-null pure {@link Function3} to combine the values from {@code fa}, {@code fb},
-   *     and {@code fc}.
-   * @param <A> The type of the value in {@code fa}.
-   * @param <B> The type of the value in {@code fb}.
-   * @param <C> The type of the value in {@code fc}.
-   * @param <R> The type of the result of applying {@code f}.
-   * @return A non-null {@code Kind<F, R>} containing the result of applying {@code f} to the values
-   *     from {@code fa}, {@code fb}, and {@code fc} within the context {@code F}.
-   * @throws NullPointerException if {@code f} is null.
-   */
-  default <A, B, C, R> Kind<F, R> map3(
-      final Kind<F, A> fa,
-      final Kind<F, B> fb,
-      final Kind<F, C> fc,
-      final Function3<? super A, ? super B, ? super C, ? extends R> f) {
-    requireNonNull(fa, "Kind<F, A> fa for map3 cannot be null");
-    requireNonNull(fb, "Kind<F, B> fb for map3 cannot be null");
-    requireNonNull(fc, "Kind<F, C> fc for map3 cannot be null");
-    requireNonNull(f, "combining function for map3 cannot be null");
-    return ap(map2(fa, fb, (a, b) -> c -> requireNonNull(f.apply(a, b, c))), fc);
-  }
+    /**
+     * Combines four values {@code fa}, {@code fb}, {@code fc}, and {@code fd}, all in the applicative
+     * context {@code F}, using a pure {@link Function4 Function4&lt;A, B, C, D, R&gt;}.
+     *
+     * @param fa The first non-null applicative value {@code Kind<F, A>}.
+     * @param fb The second non-null applicative value {@code Kind<F, B>}.
+     * @param fc The third non-null applicative value {@code Kind<F, C>}.
+     * @param fd The fourth non-null applicative value {@code Kind<F, D>}.
+     * @param f A non-null pure {@link Function4} to combine the values.
+     * @param <A> The type of the value in {@code fa}.
+     * @param <B> The type of the value in {@code fb}.
+     * @param <C> The type of the value in {@code fc}.
+     * @param <D> The type of the value in {@code fd}.
+     * @param <R> The type of the result of applying {@code f}.
+     * @return A non-null {@code Kind<F, R>} containing the result of applying {@code f} to the values
+     *     from the four applicative arguments within the context {@code F}.
+     * @throws NullPointerException if {@code f} is null.
+     */
+    default <A, B, C, D, R> Kind<F, R> map4(final Kind<F, A> fa, final Kind<F, B> fb, final Kind<F, C> fc, final Kind<F, D> fd, final Function4<? super A, ? super B, ? super C, ? super D, ? extends R> f) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Combines four values {@code fa}, {@code fb}, {@code fc}, and {@code fd}, all in the applicative
-   * context {@code F}, using a pure {@link Function4 Function4&lt;A, B, C, D, R&gt;}.
-   *
-   * @param fa The first non-null applicative value {@code Kind<F, A>}.
-   * @param fb The second non-null applicative value {@code Kind<F, B>}.
-   * @param fc The third non-null applicative value {@code Kind<F, C>}.
-   * @param fd The fourth non-null applicative value {@code Kind<F, D>}.
-   * @param f A non-null pure {@link Function4} to combine the values.
-   * @param <A> The type of the value in {@code fa}.
-   * @param <B> The type of the value in {@code fb}.
-   * @param <C> The type of the value in {@code fc}.
-   * @param <D> The type of the value in {@code fd}.
-   * @param <R> The type of the result of applying {@code f}.
-   * @return A non-null {@code Kind<F, R>} containing the result of applying {@code f} to the values
-   *     from the four applicative arguments within the context {@code F}.
-   * @throws NullPointerException if {@code f} is null.
-   */
-  default <A, B, C, D, R> Kind<F, R> map4(
-      final Kind<F, A> fa,
-      final Kind<F, B> fb,
-      final Kind<F, C> fc,
-      final Kind<F, D> fd,
-      final Function4<? super A, ? super B, ? super C, ? super D, ? extends R> f) {
-    requireNonNull(fa, "Kind<F, A> fa for map4 cannot be null");
-    requireNonNull(fb, "Kind<F, B> fb for map4 cannot be null");
-    requireNonNull(fc, "Kind<F, C> fc for map4 cannot be null");
-    requireNonNull(fd, "Kind<F, D> fd for map4 cannot be null");
-    requireNonNull(f, "combining function for map4 cannot be null");
-    return ap(map3(fa, fb, fc, (a, b, c) -> d -> requireNonNull(f.apply(a, b, c, d))), fd);
-  }
-
-  /**
-   * Combines five values {@code fa}, {@code fb}, {@code fc}, {@code fd}, and {@code fe}, all in the
-   * applicative context {@code F}, using a pure {@link Function5 Function5&lt;A, B, C, D, E,
-   * R&gt;}.
-   *
-   * @param fa The first non-null applicative value {@code Kind<F, A>}.
-   * @param fb The second non-null applicative value {@code Kind<F, B>}.
-   * @param fc The third non-null applicative value {@code Kind<F, C>}.
-   * @param fd The fourth non-null applicative value {@code Kind<F, D>}.
-   * @param fe The fifth non-null applicative value {@code Kind<F, E>}.
-   * @param f A non-null pure {@link Function5} to combine the values.
-   * @param <A> The type of the value in {@code fa}.
-   * @param <B> The type of the value in {@code fb}.
-   * @param <C> The type of the value in {@code fc}.
-   * @param <D> The type of the value in {@code fd}.
-   * @param <E> The type of the value in {@code fe}.
-   * @param <R> The type of the result of applying {@code f}.
-   * @return A non-null {@code Kind<F, R>} containing the result of applying {@code f} to the values
-   *     from the five applicative arguments within the context {@code F}.
-   * @throws NullPointerException if {@code f} is null.
-   */
-  default <A, B, C, D, E, R> Kind<F, R> map5(
-      final Kind<F, A> fa,
-      final Kind<F, B> fb,
-      final Kind<F, C> fc,
-      final Kind<F, D> fd,
-      final Kind<F, E> fe,
-      final Function5<? super A, ? super B, ? super C, ? super D, ? super E, ? extends R> f) {
-    requireNonNull(fa, "Kind<F, A> fa for map5 cannot be null");
-    requireNonNull(fb, "Kind<F, B> fb for map5 cannot be null");
-    requireNonNull(fc, "Kind<F, C> fc for map5 cannot be null");
-    requireNonNull(fd, "Kind<F, D> fd for map5 cannot be null");
-    requireNonNull(fe, "Kind<F, E> fe for map5 cannot be null");
-    requireNonNull(f, "combining function for map5 cannot be null");
-    return ap(
-        map4(fa, fb, fc, fd, (a, b, c, d) -> e -> requireNonNull(f.apply(a, b, c, d, e))), fe);
-  }
+    /**
+     * Combines five values {@code fa}, {@code fb}, {@code fc}, {@code fd}, and {@code fe}, all in the
+     * applicative context {@code F}, using a pure {@link Function5 Function5&lt;A, B, C, D, E,
+     * R&gt;}.
+     *
+     * @param fa The first non-null applicative value {@code Kind<F, A>}.
+     * @param fb The second non-null applicative value {@code Kind<F, B>}.
+     * @param fc The third non-null applicative value {@code Kind<F, C>}.
+     * @param fd The fourth non-null applicative value {@code Kind<F, D>}.
+     * @param fe The fifth non-null applicative value {@code Kind<F, E>}.
+     * @param f A non-null pure {@link Function5} to combine the values.
+     * @param <A> The type of the value in {@code fa}.
+     * @param <B> The type of the value in {@code fb}.
+     * @param <C> The type of the value in {@code fc}.
+     * @param <D> The type of the value in {@code fd}.
+     * @param <E> The type of the value in {@code fe}.
+     * @param <R> The type of the result of applying {@code f}.
+     * @return A non-null {@code Kind<F, R>} containing the result of applying {@code f} to the values
+     *     from the five applicative arguments within the context {@code F}.
+     * @throws NullPointerException if {@code f} is null.
+     */
+    default <A, B, C, D, E, R> Kind<F, R> map5(final Kind<F, A> fa, final Kind<F, B> fb, final Kind<F, C> fc, final Kind<F, D> fd, final Kind<F, E> fe, final Function5<? super A, ? super B, ? super C, ? super D, ? super E, ? extends R> f) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

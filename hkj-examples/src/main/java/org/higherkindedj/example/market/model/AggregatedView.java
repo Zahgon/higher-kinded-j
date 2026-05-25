@@ -18,24 +18,20 @@ import org.higherkindedj.example.market.model.value.Volume;
  * @param tickCount the number of ticks in the window
  * @param maxRiskScore the highest risk score in the window
  */
-public record AggregatedView(
-    Symbol symbol,
-    Price vwap,
-    Price bestBid,
-    Price bestAsk,
-    Volume totalVolume,
-    int tickCount,
-    double maxRiskScore) {
-  public AggregatedView {
-    Objects.requireNonNull(symbol, "symbol must not be null");
-    Objects.requireNonNull(vwap, "vwap must not be null");
-    Objects.requireNonNull(bestBid, "bestBid must not be null");
-    Objects.requireNonNull(bestAsk, "bestAsk must not be null");
-    Objects.requireNonNull(totalVolume, "totalVolume must not be null");
-  }
+public record AggregatedView(Symbol symbol, Price vwap, Price bestBid, Price bestAsk, Volume totalVolume, int tickCount, double maxRiskScore) {
 
-  /** The effective spread between best ask and best bid. */
-  public Price spread() {
-    return bestAsk.subtract(bestBid);
-  }
+    public AggregatedView {
+        Objects.requireNonNull(symbol, "symbol must not be null");
+        Objects.requireNonNull(vwap, "vwap must not be null");
+        Objects.requireNonNull(bestBid, "bestBid must not be null");
+        Objects.requireNonNull(bestAsk, "bestAsk must not be null");
+        Objects.requireNonNull(totalVolume, "totalVolume must not be null");
+    }
+
+    /**
+     * The effective spread between best ask and best bid.
+     */
+    public Price spread() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

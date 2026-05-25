@@ -19,21 +19,19 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public final class StateOpFunctor<S> implements Functor<StateOpKind.Witness<S>> {
 
-  @SuppressWarnings("rawtypes")
-  private static final StateOpFunctor INSTANCE = new StateOpFunctor<>();
+    @SuppressWarnings("rawtypes")
+    private static final StateOpFunctor INSTANCE = new StateOpFunctor<>();
 
-  private StateOpFunctor() {}
+    private StateOpFunctor() {
+    }
 
-  @SuppressWarnings("unchecked")
-  public static <S> StateOpFunctor<S> instance() {
-    return (StateOpFunctor<S>) INSTANCE;
-  }
+    @SuppressWarnings("unchecked")
+    public static <S> StateOpFunctor<S> instance() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  @Override
-  public <A, B> Kind<StateOpKind.Witness<S>, B> map(
-      Function<? super A, ? extends B> f, Kind<StateOpKind.Witness<S>, A> fa) {
-    Validation.function().validateMap(f, fa);
-    StateOp<S, A> op = StateOpKindHelper.STATE_OP.narrow(fa);
-    return StateOpKindHelper.STATE_OP.widen(op.mapK(f));
-  }
+    @Override
+    public <A, B> Kind<StateOpKind.Witness<S>, B> map(Function<? super A, ? extends B> f, Kind<StateOpKind.Witness<S>, A> fa) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

@@ -18,43 +18,43 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public record AuditLog(List<String> entries) {
 
-  public AuditLog {
-    Objects.requireNonNull(entries, "entries cannot be null");
-    entries = List.copyOf(entries);
-  }
+    public AuditLog {
+        Objects.requireNonNull(entries, "entries cannot be null");
+        entries = List.copyOf(entries);
+    }
 
-  /** An empty audit log (monoid identity). */
-  public static final AuditLog EMPTY = new AuditLog(List.of());
+    /**
+     * An empty audit log (monoid identity).
+     */
+    public static final AuditLog EMPTY = new AuditLog(List.of());
 
-  /**
-   * Creates a single-entry audit log.
-   *
-   * @param operation the operation name
-   * @param details operation details
-   * @return a new AuditLog with one entry
-   */
-  public static AuditLog of(String operation, String details) {
-    return new AuditLog(List.of("[" + operation + "] " + details));
-  }
+    /**
+     * Creates a single-entry audit log.
+     *
+     * @param operation the operation name
+     * @param details operation details
+     * @return a new AuditLog with one entry
+     */
+    public static AuditLog of(String operation, String details) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * Appends another audit log to this one (monoid combine).
-   *
-   * @param other the log to append
-   * @return a new AuditLog with entries from both
-   */
-  public AuditLog append(AuditLog other) {
-    var combined = new ArrayList<>(entries);
-    combined.addAll(other.entries);
-    return new AuditLog(combined);
-  }
+    /**
+     * Appends another audit log to this one (monoid combine).
+     *
+     * @param other the log to append
+     * @return a new AuditLog with entries from both
+     */
+    public AuditLog append(AuditLog other) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-  /**
-   * The number of entries in this log.
-   *
-   * @return the entry count
-   */
-  public int size() {
-    return entries.size();
-  }
+    /**
+     * The number of entries in this log.
+     *
+     * @return the entry count
+     */
+    public int size() {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }
